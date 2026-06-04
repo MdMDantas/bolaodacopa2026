@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bolão do Teteu — Fase de Grupos</title>
+<title>Bolão da Copa 2026 — Fase de Grupos</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -144,7 +144,7 @@
       <rect x="150" y="92" width="380" height="116" rx="12" fill="#003087" opacity="0.9"/>
       <rect x="150" y="92" width="380" height="116" rx="12" fill="none" stroke="#ffdf00" stroke-width="2"/>
       <text x="340" y="116" text-anchor="middle" font-size="8" fill="#ffdf00">* * * * *</text>
-      <text x="340" y="148" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">BOLÃO DO TETEU</text>
+      <text x="340" y="148" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">BOLÃO DA COPA 2026</text>
       <text x="340" y="174" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="16" font-weight="700" fill="#ffdf00" letter-spacing="5">COPA 2026</text>
 
       <text x="340" y="194" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#7a9fd4" letter-spacing="3">FASE DE GRUPOS</text>
@@ -510,7 +510,7 @@ function getNome(){return document.getElementById('nome').value.trim()||'Partici
 
 function exportarTab1() {
   var v = function(id){var el=document.getElementById(id);return el&&el.value?el.value:'-';};
-  var txt = 'BOLÃO DO TETEU - COPA 2026\nPARTE 1 - PALPITES\nParticipante: '+getNome()+'\n';
+  var txt = 'BOLÃO DA COPA 2026 - COPA 2026\nPARTE 1 - PALPITES\nParticipante: '+getNome()+'\n';
   txt += '————————————————————\n\nCLASSIFICAÇÃO DOS GRUPOS:\n';
   Object.keys(GRUPOS_DISPLAY).forEach(function(g){
     txt += '  Grupo '+g+': 1º '+v('g'+g+'_1')+'  2º '+v('g'+g+'_2')+'  3º '+v('g'+g+'_3')+'  4º '+v('g'+g+'_4')+'\n';
@@ -528,7 +528,7 @@ function exportarTab1() {
 
 function exportarTab(rodada, label) {
   var jogos = rodada==='R1'?JOGOS_R1:rodada==='R2'?JOGOS_R2:JOGOS_R3;
-  var txt = 'BOLÃO DO TETEU - COPA 2026\n'+label.toUpperCase()+'\nParticipante: '+getNome()+'\n';
+  var txt = 'BOLÃO DA COPA 2026 - COPA 2026\n'+label.toUpperCase()+'\nParticipante: '+getNome()+'\n';
   txt += '------------------------------------\n';
   Object.keys(jogos).forEach(function(g){
     txt += '\nGrupo '+g+':\n';
@@ -662,36 +662,40 @@ document.addEventListener('change',function(){markFilled();updateProgress();});
 </html>
 
 <div id="bolaoModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:#002266;border:1px solid #1a3d7a;border-radius:18px;padding:32px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;">
-    <div id="bolaoStep1">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:#ffdf00;margin-bottom:6px;">SEUS DADOS</div>
-      <div style="font-size:13px;color:#7a9fd4;margin-bottom:24px;">Preencha seus dados e selecione seu bolão.</div>
+  <div style="background:#002266;border:1px solid #1a3d7a;border-radius:18px;padding:32px;width:100%;max-width:440px;">
+
+    <!-- STEP LOGIN: não está logado -->
+    <div id="bolaoStepLogin" style="display:none;text-align:center;">
+      <div style="font-size:40px;margin-bottom:12px;">🔐</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#ffdf00;margin-bottom:8px;">FAÇA LOGIN PRIMEIRO</div>
+      <div style="font-size:13px;color:#7a9fd4;margin-bottom:24px;">Você precisa estar logado para enviar palpites.</div>
+      <a href="login.html" style="display:block;width:100%;background:#ffdf00;color:#003087;border:none;border-radius:12px;padding:15px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;font-weight:900;text-decoration:none;text-align:center;margin-bottom:10px;">ENTRAR / CADASTRAR</a>
+      <button onclick="fecharBolaoModal()" style="width:100%;background:transparent;color:#7a9fd4;border:none;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Cancelar</button>
+    </div>
+
+    <!-- STEP 1: logado, só código do bolão -->
+    <div id="bolaoStep1" style="display:none;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:#ffdf00;margin-bottom:4px;">ENVIAR PALPITES</div>
+      <div id="m_usuario_label" style="font-size:13px;color:#00c44f;margin-bottom:20px;"></div>
       <div style="margin-bottom:14px;">
-        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ffdf00;margin-bottom:8px;">Apelido *</label>
-        <input id="m_apelido" type="text" placeholder="Como você quer aparecer no ranking" style="width:100%;background:#001a4a;border:1px solid #1a3d7a;border-radius:10px;padding:12px 16px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;">
-      </div>
-      <div style="margin-bottom:24px;">
-        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ffdf00;margin-bottom:8px;">WhatsApp</label>
-        <input id="m_telefone" type="tel" placeholder="Ex: 61912345678" oninput="this.value=this.value.replace(/[^0-9]/g,'')" maxlength="11" style="width:100%;background:#001a4a;border:1px solid #1a3d7a;border-radius:10px;padding:12px 16px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;">
-      </div>
-      <div style="height:1px;background:#1a3d7a;margin-bottom:24px;"></div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#ffdf00;margin-bottom:16px;">QUAL É O SEU BOLÃO?</div>
-      <div style="margin-bottom:14px;">
-        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#7a9fd4;margin-bottom:8px;">Código do bolão</label>
-        <input id="m_codigo" type="text" placeholder="Digite o código do bolão" style="width:100%;background:#001a4a;border:1px solid #1a3d7a;border-radius:10px;padding:12px 16px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;text-transform:uppercase;">
+        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#7a9fd4;margin-bottom:8px;">Código do Bolão</label>
+        <input id="m_codigo" type="text" placeholder="Digite o código do bolão" style="width:100%;background:#001a4a;border:1px solid #1a3d7a;border-radius:10px;padding:13px 16px;color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;outline:none;text-transform:uppercase;">
         <div style="font-size:12px;color:#7a9fd4;margin-top:8px;">Não tem um bolão? <a href="criar-bolao.html" style="color:#ffdf00;text-decoration:none;font-weight:700;">Crie um aqui →</a></div>
       </div>
       <div id="m_erro" style="display:none;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);border-radius:8px;padding:10px 14px;font-size:13px;color:#e74c3c;margin-top:14px;"></div>
-      <button onclick="confirmarBolao()" style="width:100%;background:#ffdf00;color:#003087;border:none;border-radius:12px;padding:15px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;margin-top:20px;font-weight:900;">CONFIRMAR E ENVIAR</button>
-      <button onclick="fecharBolaoModal()" style="width:100%;background:transparent;color:#7a9fd4;border:none;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:8px;">Cancelar</button>
+      <button id="m_btn_confirmar" onclick="confirmarBolao()" style="width:100%;background:#ffdf00;color:#003087;border:none;border-radius:12px;padding:15px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;margin-top:20px;font-weight:900;">CONFIRMAR E ENVIAR</button>
+      <button onclick="fecharBolaoModal()" style="width:100%;background:transparent;color:#7a9fd4;border:none;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:4px;">Cancelar</button>
     </div>
+
+    <!-- STEP 2: sucesso -->
     <div id="bolaoStep2" style="display:none;text-align:center;">
-      <div style="font-size:48px;margin-bottom:16px;">&#10003;</div>
+      <div style="font-size:48px;margin-bottom:16px;">✅</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:#ffdf00;margin-bottom:10px;">PALPITES ENVIADOS!</div>
       <div style="font-size:14px;color:#e8f0ff;line-height:1.7;margin-bottom:20px;" id="bolaoStep2msg"></div>
       <button onclick="verRanking()" style="width:100%;background:#ffdf00;color:#003087;border:none;border-radius:12px;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;margin-bottom:10px;font-weight:900;">VER RANKING</button>
       <button onclick="fecharBolaoModal()" style="width:100%;background:transparent;color:#7a9fd4;border:none;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Fechar</button>
     </div>
+
   </div>
 </div>
 <script src="db.js"></script>

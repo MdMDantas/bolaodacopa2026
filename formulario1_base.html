@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bolão do Teteu — Fase de Grupos</title>
+<title>Bolão da Copa 2026 — Fase de Grupos</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -142,7 +142,7 @@
       <rect x="150" y="92" width="380" height="116" rx="12" fill="#003087" opacity="0.9"/>
       <rect x="150" y="92" width="380" height="116" rx="12" fill="none" stroke="#ffdf00" stroke-width="2"/>
       <text x="340" y="116" text-anchor="middle" font-size="8" fill="#ffdf00">* * * * *</text>
-      <text x="340" y="148" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">BOLÃO DO TETEU</text>
+      <text x="340" y="148" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">BOLÃO DA COPA 2026</text>
       <text x="340" y="174" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="16" font-weight="700" fill="#ffdf00" letter-spacing="5">COPA 2026</text>
 
       <text x="340" y="194" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#7a9fd4" letter-spacing="3">FASE DE GRUPOS</text>
@@ -499,7 +499,7 @@ function getNome(){return document.getElementById('nome').value.trim()||'Partici
 
 function exportarTab1() {
   var v = function(id){var el=document.getElementById(id);return el&&el.value?el.value:'-';};
-  var txt = 'BOLÃO DO TETEU - COPA 2026\nPARTE 1 - PALPITES\nParticipante: '+getNome()+'\n';
+  var txt = 'BOLÃO DA COPA 2026 - COPA 2026\nPARTE 1 - PALPITES\nParticipante: '+getNome()+'\n';
   txt += '————————————————————\n\nCLASSIFICAÇÃO DOS GRUPOS:\n';
   Object.keys(GRUPOS_DISPLAY).forEach(function(g){
     txt += '  Grupo '+g+': 1º '+v('g'+g+'_1')+'  2º '+v('g'+g+'_2')+'  3º '+v('g'+g+'_3')+'  4º '+v('g'+g+'_4')+'\n';
@@ -517,7 +517,7 @@ function exportarTab1() {
 
 function exportarTab(rodada, label) {
   var jogos = rodada==='R1'?JOGOS_R1:rodada==='R2'?JOGOS_R2:JOGOS_R3;
-  var txt = 'BOLÃO DO TETEU - COPA 2026\n'+label.toUpperCase()+'\nParticipante: '+getNome()+'\n';
+  var txt = 'BOLÃO DA COPA 2026 - COPA 2026\n'+label.toUpperCase()+'\nParticipante: '+getNome()+'\n';
   txt += '------------------------------------\n';
   Object.keys(jogos).forEach(function(g){
     txt += '\nGrupo '+g+':\n';
