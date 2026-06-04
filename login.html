@@ -55,7 +55,7 @@
     </svg>
   </div>
 
-  <a href="index.html" class="back">&#8592; Voltar</a>
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin-bottom:16px;padding:8px 14px;background:#00194a;border:1px solid rgba(255,223,0,0.3);border-radius:8px;" onmouseover="this.style.borderColor='#ffdf00'" onmouseout="this.style.borderColor='rgba(255,223,0,0.3)'">&#8592; Voltar ao Início</a>
 
   <!-- Se já logado -->
   <div id="logadoBox" style="display:none;">
@@ -88,7 +88,7 @@
       <div id="abaEntrar">
         <div class="field">
           <label>Apelido</label>
-          <input type="text" id="entrarApelido" placeholder="Seu apelido no bolão" autocomplete="username">
+          <input type="text" id="entrarApelido" placeholder="Seu apelido no bolão" style="text-transform:uppercase;" autocomplete="username">
         </div>
         <div class="field">
           <label>Telefone (DDD + número)</label>
@@ -102,7 +102,7 @@
       <div id="abaCadastrar" style="display:none;">
         <div class="field">
           <label>Escolha um apelido</label>
-          <input type="text" id="cadApelido" placeholder="Como quer ser chamado?" maxlength="20" autocomplete="username">
+          <input type="text" id="cadApelido" placeholder="Como quer ser chamado?" maxlength="20" style="text-transform:uppercase;" autocomplete="username">
           <div class="hint">Máximo 20 caracteres, sem símbolos especiais.</div>
         </div>
         <div class="field">
@@ -161,12 +161,12 @@ function mostrarLogado(usuario) {
 
 async function entrar() {
   limparMensagens();
-  var apelido = document.getElementById('entrarApelido').value.trim();
+  var apelido = document.getElementById('entrarApelido').value.trim().toUpperCase();
   var telefone = document.getElementById('entrarTelefone').value.trim();
   var btn = document.getElementById('btnEntrar');
   btn.disabled = true;
   btn.textContent = 'Verificando...';
-  var res = await AUTH.entrar(apelido, telefone);
+  var res = await AUTH.entrar(apelido.toUpperCase(), telefone);
   btn.disabled = false;
   btn.textContent = 'ENTRAR ⚽';
   if (!res.ok) { mostrarErro(res.erro); return; }
@@ -179,12 +179,12 @@ async function entrar() {
 
 async function cadastrar() {
   limparMensagens();
-  var apelido = document.getElementById('cadApelido').value.trim();
+  var apelido = document.getElementById('cadApelido').value.trim().toUpperCase();
   var telefone = document.getElementById('cadTelefone').value.trim();
   var btn = document.getElementById('btnCadastrar');
   btn.disabled = true;
   btn.textContent = 'Cadastrando...';
-  var res = await AUTH.cadastrar(apelido, telefone);
+  var res = await AUTH.cadastrar(apelido.toUpperCase(), telefone);
   btn.disabled = false;
   btn.textContent = 'CRIAR CONTA 🚀';
   if (!res.ok) { mostrarErro(res.erro); return; }

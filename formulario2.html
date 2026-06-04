@@ -162,35 +162,23 @@
 
 <div class="wrapper">
   <header>
-    <svg width="100%" viewBox="0 0 680 340" role="img" style="display:block;border-radius:16px;overflow:hidden;">
-      <title>Header Bolão do Teteu Mata-Mata</title>
-      <desc>Cabeçalho geométrico estilo CBF para o Mata-Mata</desc>
-      <rect x="0" y="0" width="340" height="170" fill="#ffdf00"/>
-      <rect x="340" y="0" width="340" height="170" fill="#003087"/>
-      <rect x="0" y="170" width="340" height="170" fill="#ffffff"/>
-      <rect x="340" y="170" width="340" height="170" fill="#009c3b"/>
-      <path d="M-10 170 Q80 170 80 80 Q80 -10 170 -10 L-10 -10 Z" fill="#003087"/>
-      <path d="M340 170 Q340 60 200 0 L340 0 Z" fill="#ffdf00"/>
-      <path d="M690 170 Q600 170 600 80 Q600 -10 510 -10 L690 -10 Z" fill="#ffdf00"/>
-      <path d="M-10 170 Q80 170 80 260 Q80 350 170 350 L-10 350 Z" fill="#009c3b"/>
-      <path d="M690 170 Q600 170 600 260 Q600 350 510 350 L690 350 Z" fill="#003087"/>
-      <rect x="337" y="0" width="6" height="340" fill="#fff" opacity="0.15"/>
-      <rect x="0" y="167" width="680" height="6" fill="#fff" opacity="0.15"/>
-      <rect x="160" y="110" width="360" height="120" rx="12" fill="#003087" opacity="0.92"/>
-      <rect x="160" y="110" width="360" height="120" rx="12" fill="none" stroke="#ffdf00" stroke-width="2.5"/>
-      <text x="240" y="133" text-anchor="middle" font-size="8" fill="#ffdf00">★ ★ ★ ★ ★</text>
-      <text x="340" y="163" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="28" font-weight="900" fill="#ffffff" letter-spacing="2">BOLÃO DA COPA 2026</text>
-      <text x="340" y="190" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="17" font-weight="700" fill="#ffdf00" letter-spacing="5">COPA 2026</text>
-      <line x1="195" y1="200" x2="280" y2="200" stroke="#ffdf00" stroke-width="1.5" opacity="0.6"/>
-      <circle cx="340" cy="200" r="3" fill="#ffdf00"/>
-      <line x1="400" y1="200" x2="485" y2="200" stroke="#ffdf00" stroke-width="1.5" opacity="0.6"/>
-      <text x="340" y="218" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#a8c8f0" letter-spacing="3">MATA-MATA-MATA</text>
-      <circle cx="55" cy="295" r="38" fill="#fff" opacity="0.12"/>
-      <circle cx="55" cy="295" r="8" fill="#003087" opacity="0.5"/>
-      <circle cx="630" cy="48" r="32" fill="#fff" opacity="0.1"/>
-      <circle cx="630" cy="48" r="7" fill="#ffdf00" opacity="0.5"/>
-      
+    <svg width="100%" viewBox="0 0 680 160" style="display:block;border-radius:16px;overflow:hidden;margin-bottom:20px;">
+      <rect x="0" y="0" width="340" height="80" fill="#003087"/>
+      <rect x="340" y="0" width="340" height="80" fill="#009c3b"/>
+      <rect x="0" y="80" width="340" height="80" fill="#ffdf00"/>
+      <rect x="340" y="80" width="340" height="80" fill="#ffffff"/>
+      <path d="M-10 80 Q60 80 60 30 Q60 -10 110 -10 L-10 -10 Z" fill="#ffdf00"/>
+      <path d="M690 80 Q620 80 620 30 Q620 -10 570 -10 L690 -10 Z" fill="#003087"/>
+      <path d="M-10 80 Q60 80 60 130 Q60 170 110 170 L-10 170 Z" fill="#003087"/>
+      <path d="M690 80 Q620 80 620 130 Q620 170 570 170 L690 170 Z" fill="#009c3b"/>
+      <rect x="100" y="28" width="480" height="104" rx="10" fill="#003087" opacity="0.93"/>
+      <rect x="100" y="28" width="480" height="104" rx="10" fill="none" stroke="#ffdf00" stroke-width="1.5"/>
+      <text x="340" y="52" text-anchor="middle" font-size="8" fill="#ffdf00">* * * * *</text>
+      <text x="340" y="88" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">MATA-MATA</text>
+      <text x="340" y="108" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="700" fill="#ffdf00" letter-spacing="4">COPA 2026</text>
+      <text x="340" y="124" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#7a9fd4" letter-spacing="3">COPA DO MUNDO 2026</text>
     </svg>
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin-bottom:16px;padding:8px 14px;background:#00194a;border:1px solid rgba(255,223,0,0.3);border-radius:8px;" onmouseover="this.style.borderColor='#ffdf00'" onmouseout="this.style.borderColor='rgba(255,223,0,0.3)'">&#8592; Voltar ao Início</a>
   </header>
 
 
@@ -241,9 +229,7 @@
 
 
 
-  <div class="save-section">
-    <button class="btn-export" onclick="exportarComModal()">Enviar Palpites!</button>
-  </div>
+  <div class="save-section" id="btnMataMata"></div>
 </div>
 
 <!-- MODAL -->
@@ -529,6 +515,32 @@ function preencherAleatorioF2() {
   if(dec){dec.value=['Argentina','França','Espanha','Inglaterra','Brasil','Portugal','Alemanha','Holanda'][Math.floor(Math.random()*8)];dec.classList.add('filled');}
   updateProgress();
 }
+
+// ── PRAZO MATA-MATA ────────────────────────────────────────
+var PRAZO_MATAMATA = new Date('2026-06-11T19:00:00Z'); // 11/06 16h Brasília
+
+function renderBtnMataMata() {
+  var el = document.getElementById('btnMataMata');
+  if (!el) return;
+  if (new Date() > PRAZO_MATAMATA) {
+    el.innerHTML = '<div style="background:rgba(255,80,80,0.08);border:1px solid rgba(255,80,80,0.25);border-radius:12px;padding:16px;text-align:center;">'
+      + '<div style="font-size:20px;margin-bottom:6px;">🔒</div>'
+      + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;color:#ff8080;letter-spacing:1px;">PRAZO ENCERRADO</div>'
+      + '<div style="font-size:12px;color:#7a9fd4;margin-top:4px;">O envio encerrou em 11/06 às 16h</div>'
+      + '</div>';
+  } else {
+    var diff = PRAZO_MATAMATA - new Date();
+    var dias = Math.floor(diff / 86400000);
+    var horas = Math.floor((diff % 86400000) / 3600000);
+    var mins = Math.floor((diff % 3600000) / 60000);
+    var countdown = dias > 0 ? 'Faltam '+dias+'d '+horas+'h '+mins+'min' : 'Faltam '+horas+'h '+mins+'min';
+    el.innerHTML = '<div style="font-size:11px;color:#7a9fd4;text-align:center;margin-bottom:8px;">⏱️ '+countdown+'</div>'
+      + '<button class="btn-export" onclick="exportarComModal()">Enviar Palpites!</button>';
+  }
+}
+
+renderBtnMataMata();
+setInterval(renderBtnMataMata, 60000);
 
 </script>
 

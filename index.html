@@ -11,18 +11,14 @@
   body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;
     background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(0,48,135,0.5) 0%,transparent 60%);}
   .wrapper{max-width:700px;margin:0 auto;padding:0 20px 80px;}
-  header{padding:0 0 32px;}
-  .intro{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px;text-align:center;}
+  .intro{background:var(--card);border:1px solid rgba(255,223,0,0.3);border-radius:16px;padding:28px;margin-bottom:24px;text-align:center;}
   .intro p{font-size:15px;line-height:1.8;color:var(--text);}
   .intro p+p{margin-top:10px;}
   .intro strong{color:var(--gold);}
-  
   .nav-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--muted);margin-bottom:14px;text-align:center;}
   .nav-grid{display:flex;flex-direction:column;gap:10px;}
-  .nav-card{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;text-decoration:none;color:var(--text);transition:all 0.2s;}
+  .nav-card{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid rgba(255,223,0,0.3);border-radius:14px;padding:18px 20px;text-decoration:none;color:var(--text);transition:all 0.2s;}
   .nav-card:hover{border-color:var(--gold);transform:translateX(4px);}
-  .nav-card.primary{background:linear-gradient(135deg,rgba(255,223,0,0.1),rgba(0,26,74,0.9));border-color:rgba(255,223,0,0.35);}
-  .nav-card.verde{background:linear-gradient(135deg,rgba(0,156,59,0.12),rgba(0,26,74,0.9));border-color:rgba(0,196,79,0.3);}
   .nav-icon{font-size:34px;flex-shrink:0;}
   .nav-info{flex:1;}
   .nav-card-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:var(--gold);margin-bottom:3px;}
@@ -35,49 +31,27 @@
 </head>
 <body>
 <div class="wrapper">
-  <header>
-    <svg width="100%" viewBox="0 0 680 300" style="display:block;border-radius:0 0 16px 16px;overflow:hidden;">
-      <rect x="0" y="0" width="340" height="150" fill="#003087"/>
-      <rect x="340" y="0" width="340" height="150" fill="#009c3b"/>
-      <rect x="0" y="150" width="340" height="150" fill="#ffdf00"/>
-      <rect x="340" y="150" width="340" height="150" fill="#ffffff"/>
-      <path d="M-10 150 Q80 150 80 70 Q80 -10 160 -10 L-10 -10 Z" fill="#ffdf00"/>
-      <path d="M340 150 Q340 50 190 0 L340 0 Z" fill="#009c3b"/>
-      <path d="M690 150 Q600 150 600 70 Q600 -10 510 -10 L690 -10 Z" fill="#003087"/>
-      <path d="M-10 150 Q80 150 80 230 Q80 310 160 310 L-10 310 Z" fill="#003087"/>
-      <path d="M690 150 Q600 150 600 230 Q600 310 510 310 L690 310 Z" fill="#009c3b"/>
-      <rect x="337" y="0" width="6" height="300" fill="#fff" opacity="0.1"/>
-      <rect x="0" y="147" width="680" height="6" fill="#fff" opacity="0.1"/>
-      <rect x="120" y="85" width="440" height="130" rx="12" fill="#003087" opacity="0.92"/>
-      <rect x="120" y="85" width="440" height="130" rx="12" fill="none" stroke="#ffdf00" stroke-width="2"/>
-      <text x="340" y="108" text-anchor="middle" font-size="9" fill="#ffdf00">* * * * *</text>
-      <text x="340" y="148" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="30" font-weight="900" fill="#fff" letter-spacing="2">BOLÃO DA COPA 2026</text>
-      <text x="340" y="174" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="17" font-weight="700" fill="#ffdf00" letter-spacing="5">COPA 2026</text>
-      <text x="340" y="196" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#7a9fd4" letter-spacing="3">BEM-VINDO!</text>
-    </svg>
-  </header>
+  <!-- HEADER COM ARTE DA BANDEIRA -->
+  <div id="pageHeader"></div>
 
   <div class="intro">
     <p>A Copa do Mundo 2026 tá chegando e o <strong>Bolão da Copa 2026</strong> tá aberto! 🎉</p>
     <p>Palpite na classificação dos grupos, nos placares dos jogos e aposte nas suas zebras. Quanto mais você acertar, mais pontos — e o bolão fica disputado até o último jogo!</p>
   </div>
 
-
-
   <!-- BARRA DE LOGIN -->
   <div id="loginBar" style="margin-bottom:16px;"></div>
 
   <div class="nav-title">ACESSE AS PÁGINAS</div>
   <div class="nav-grid">
-    <a href="criar-bolao.html" class="nav-card" style="background:linear-gradient(135deg,rgba(255,223,0,0.12),rgba(0,26,74,0.9));border-color:rgba(255,223,0,0.4);">
+    <a href="criar-bolao.html" class="nav-card">
       <span class="nav-icon">🏆</span>
-      <div class="nav-info"><div class="nav-card-title">Criar Bolão</div><div class="nav-card-desc">Crie seu bolão, defina uma senha e compartilhe o código com seus amigos.</div></div>
+      <div class="nav-info"><div class="nav-card-title">Criar Bolão</div><div class="nav-card-desc">Crie seu bolão, defina um código e compartilhe com seus amigos.</div></div>
       <span class="nav-arrow">→</span>
     </a>
-
-    <a href="formulario1.html" class="nav-card primary">
+    <a href="formulario1.html" class="nav-card">
       <span class="nav-icon">📋</span>
-      <div class="nav-info"><div class="nav-card-title">Fase de Grupos</div><div class="nav-card-desc">Classifique os grupos, escolha seus terceiros, zebras e placares das rodadas.</div></div>
+      <div class="nav-info"><div class="nav-card-title">Fase de Grupos</div><div class="nav-card-desc">Monte a classificação dos grupos, escolha os classificados, os melhores terceiros, suas zebras e aposte nos placares.</div></div>
       <span class="nav-arrow">→</span>
     </a>
     <a href="formulario2.html" class="nav-card">
@@ -85,14 +59,14 @@
       <div class="nav-info"><div class="nav-card-title">Mata-Mata</div><div class="nav-card-desc">Preencha o chaveamento completo e escolha a decepção. Disponível após a fase de grupos.</div></div>
       <span class="nav-arrow">→</span>
     </a>
-    <a href="ranking.html" class="nav-card verde">
-      <span class="nav-icon">🏆</span>
-      <div class="nav-info"><div class="nav-card-title">Ranking ao Vivo</div><div class="nav-card-desc">Acompanhe a classificação do seu bolão em tempo real. Selecione o bolão para ver os pontos.</div></div>
+    <a href="ranking.html" class="nav-card">
+      <span class="nav-icon">🥇</span>
+      <div class="nav-info"><div class="nav-card-title">Ranking ao Vivo</div><div class="nav-card-desc">Acompanhe a classificação do seu bolão em tempo real.</div></div>
       <span class="nav-arrow">→</span>
     </a>
-    <a href="meus-palpites.html" class="nav-card" style="background:linear-gradient(135deg,rgba(0,48,135,0.2),rgba(0,26,74,0.9));border-color:rgba(122,159,212,0.3);">
-      <span class="nav-icon">📋</span>
-      <div class="nav-info"><div class="nav-card-title">Meus Palpites</div><div class="nav-card-desc">Veja todos os seus palpites enviados, placares, mata-mata e sua pontuação no bolão.</div></div>
+    <a href="meus-palpites.html" class="nav-card">
+      <span class="nav-icon">📝</span>
+      <div class="nav-info"><div class="nav-card-title">Meus Palpites</div><div class="nav-card-desc">Veja todos os seus palpites enviados.</div></div>
       <span class="nav-arrow">→</span>
     </a>
     <a href="regras.html" class="nav-card">
@@ -112,10 +86,34 @@
     <p style="margin-top:8px;"><strong>Bolão da Copa 2026</strong></p>
   </div>
 </div>
+
 <script src="db.js"></script>
 <script src="auth.js"></script>
 <script>
+// Header reutilizável com arte da bandeira
+function renderHeader(titulo, subtitulo) {
+  return '<svg width="100%" viewBox="0 0 680 160" style="display:block;border-radius:16px;overflow:hidden;margin-bottom:20px;">'
+    + '<rect x="0" y="0" width="340" height="80" fill="#003087"/>'
+    + '<rect x="340" y="0" width="340" height="80" fill="#009c3b"/>'
+    + '<rect x="0" y="80" width="340" height="80" fill="#ffdf00"/>'
+    + '<rect x="340" y="80" width="340" height="80" fill="#ffffff"/>'
+    + '<path d="M-10 80 Q60 80 60 30 Q60 -10 110 -10 L-10 -10 Z" fill="#ffdf00"/>'
+    + '<path d="M690 80 Q620 80 620 30 Q620 -10 570 -10 L690 -10 Z" fill="#003087"/>'
+    + '<path d="M-10 80 Q60 80 60 130 Q60 170 110 170 L-10 170 Z" fill="#003087"/>'
+    + '<path d="M690 80 Q620 80 620 130 Q620 170 570 170 L690 170 Z" fill="#009c3b"/>'
+    + '<rect x="100" y="28" width="480" height="104" rx="10" fill="#003087" opacity="0.93"/>'
+    + '<rect x="100" y="28" width="480" height="104" rx="10" fill="none" stroke="#ffdf00" stroke-width="1.5"/>'
+    + '<text x="340" y="52" text-anchor="middle" font-size="8" fill="#ffdf00">* * * * *</text>'
+    + '<text x="340" y="88" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">'+titulo+'</text>'
+    + '<text x="340" y="108" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="700" fill="#ffdf00" letter-spacing="4">'+subtitulo+'</text>'
+    + '<text x="340" y="124" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#7a9fd4" letter-spacing="3">BEM-VINDO!</text>'
+    + '</svg>';
+}
+
 window.onload = function() {
+  // Renderizar header
+  document.getElementById('pageHeader').innerHTML = renderHeader('BOLÃO DA COPA 2026', 'COPA 2026');
+
   var u = AUTH.get();
   var bar = document.getElementById('loginBar');
   if (u) {
@@ -127,10 +125,10 @@ window.onload = function() {
       + '<button onclick="sair()" style="background:transparent;border:1px solid #1a3d7a;color:#7a9fd4;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:\'DM Sans\',sans-serif;">Sair</button>'
       + '</div></div>';
   } else {
-    bar.innerHTML = '<a href="login.html" style="display:flex;align-items:center;justify-content:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;text-decoration:none;color:var(--text);transition:all .2s;" onmouseover="this.style.borderColor=\'#ffdf00\'" onmouseout="this.style.borderColor=\'#1a3d7a\'">'
+    bar.innerHTML = '<a href="login.html" style="display:flex;align-items:center;justify-content:center;gap:10px;background:var(--card);border:1px solid rgba(255,223,0,0.3);border-radius:12px;padding:14px 18px;text-decoration:none;color:var(--text);transition:all .2s;" onmouseover="this.style.borderColor=\'#ffdf00\'" onmouseout="this.style.borderColor=\'rgba(255,223,0,0.3)\'">'
       + '<span style="font-size:20px;">🔐</span>'
       + '<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;letter-spacing:2px;color:#ffdf00;">ENTRAR / CADASTRAR</div>'
-      + '<div style="font-size:12px;color:#7a9fd4;">Faça login para salvar seus palpites com facilidade</div></div>'
+      + '<div style="font-size:12px;color:#7a9fd4;">Envie seus palpites com facilidade</div></div>'
       + '<span style="color:#7a9fd4;font-size:18px;margin-left:auto;">→</span></a>';
   }
 };

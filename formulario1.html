@@ -129,26 +129,23 @@
   <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin:20px 0 0;padding:8px 14px;background:#00194a;border:1px solid #1a3d7a;border-radius:8px;">&#8592; Voltar ao início</a>
   <!-- HEADER SVG -->
   <header>
-    <svg width="100%" viewBox="0 0 680 300" style="display:block;border-radius:0 0 16px 16px;overflow:hidden;">
-      <rect x="0" y="0" width="340" height="150" fill="#003087"/>
-      <rect x="340" y="0" width="340" height="150" fill="#009c3b"/>
-      <rect x="0" y="150" width="340" height="150" fill="#ffdf00"/>
-      <rect x="340" y="150" width="340" height="150" fill="#ffffff"/>
-      <path d="M-10 150 Q80 150 80 70 Q80 -10 160 -10 L-10 -10 Z" fill="#ffdf00"/>
-      <path d="M340 150 Q340 50 190 0 L340 0 Z" fill="#009c3b"/>
-      <path d="M690 150 Q600 150 600 70 Q600 -10 510 -10 L690 -10 Z" fill="#003087"/>
-      <path d="M-10 150 Q80 150 80 230 Q80 310 160 310 L-10 310 Z" fill="#003087"/>
-      <path d="M690 150 Q600 150 600 230 Q600 310 510 310 L690 310 Z" fill="#009c3b"/>
-      <rect x="337" y="0" width="6" height="300" fill="#fff" opacity="0.1"/>
-      <rect x="0" y="147" width="680" height="6" fill="#fff" opacity="0.1"/>
-      <rect x="150" y="92" width="380" height="116" rx="12" fill="#003087" opacity="0.9"/>
-      <rect x="150" y="92" width="380" height="116" rx="12" fill="none" stroke="#ffdf00" stroke-width="2"/>
-      <text x="340" y="116" text-anchor="middle" font-size="8" fill="#ffdf00">* * * * *</text>
-      <text x="340" y="148" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">BOLÃO DA COPA 2026</text>
-      <text x="340" y="174" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="16" font-weight="700" fill="#ffdf00" letter-spacing="5">COPA 2026</text>
-
-      <text x="340" y="194" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#7a9fd4" letter-spacing="3">FASE DE GRUPOS</text>
+    <svg width="100%" viewBox="0 0 680 160" style="display:block;border-radius:16px;overflow:hidden;margin-bottom:20px;">
+      <rect x="0" y="0" width="340" height="80" fill="#003087"/>
+      <rect x="340" y="0" width="340" height="80" fill="#009c3b"/>
+      <rect x="0" y="80" width="340" height="80" fill="#ffdf00"/>
+      <rect x="340" y="80" width="340" height="80" fill="#ffffff"/>
+      <path d="M-10 80 Q60 80 60 30 Q60 -10 110 -10 L-10 -10 Z" fill="#ffdf00"/>
+      <path d="M690 80 Q620 80 620 30 Q620 -10 570 -10 L690 -10 Z" fill="#003087"/>
+      <path d="M-10 80 Q60 80 60 130 Q60 170 110 170 L-10 170 Z" fill="#003087"/>
+      <path d="M690 80 Q620 80 620 130 Q620 170 570 170 L690 170 Z" fill="#009c3b"/>
+      <rect x="100" y="28" width="480" height="104" rx="10" fill="#003087" opacity="0.93"/>
+      <rect x="100" y="28" width="480" height="104" rx="10" fill="none" stroke="#ffdf00" stroke-width="1.5"/>
+      <text x="340" y="52" text-anchor="middle" font-size="8" fill="#ffdf00">* * * * *</text>
+      <text x="340" y="88" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">FASE DE GRUPOS</text>
+      <text x="340" y="108" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="700" fill="#ffdf00" letter-spacing="4">COPA 2026</text>
+      <text x="340" y="124" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#7a9fd4" letter-spacing="3">COPA DO MUNDO 2026</text>
     </svg>
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin-bottom:16px;padding:8px 14px;background:#00194a;border:1px solid rgba(255,223,0,0.3);border-radius:8px;" onmouseover="this.style.borderColor='#ffdf00'" onmouseout="this.style.borderColor='rgba(255,223,0,0.3)'">&#8592; Voltar ao Início</a>
   </header>
 
   <!-- NOME -->
@@ -199,14 +196,12 @@
       <div class="zebra-card"><div class="z-num">ZEBRA 4</div><div class="sel-wrap"><select id="zebra4"><option value="">Selecione...</option></select></div></div>
     </div>
 
-    <div class="export-section">
-      <button class="btn-export" onclick="exportarTab1ComModal()">Enviar Palpites!</button>
-    </div>
+    <div class="export-section" id="btnTab1"></div>
   </div>
 
   <!-- TAB 2: RODADA 1 -->
   <div class="tab-panel" id="tab2">
-    <div class="prazo-badge">Prazo: até 11/06 antes do primeiro jogo</div>
+    <div class="prazo-badge">Prazo: até 11/06 às 16h (horário de Brasília)</div>
     <div class="regras-box">
       <div class="regra-item"><strong>Placar exato</strong> (inclusive empate certo, ex: disse 1×1, foi 1×1): <span class="pts">+3 pts</span></div>
       <div class="regra-item"><strong>Vencedor + diferença de gols</strong> (ex: disse 3×1, foi 2×0) <strong>OU acertou o empate mas errou o placar</strong> (ex: disse 2×2, foi 1×1): <span class="pts">+2 pts</span></div>
@@ -216,14 +211,12 @@
     </div>
     <div style="text-align:right;margin-bottom:16px;"><button onclick="preencherAleatorioRodada('R1')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div id="placaresR1"></div>
-    <div class="export-section">
-      <button class="btn-export" onclick="exportarTabComModal('R1','Rodada 1')">Enviar Palpites Rodada 1</button>
-    </div>
+    <div class="export-section" id="btnTab2"></div>
   </div>
 
   <!-- TAB 3: RODADA 2 -->
   <div class="tab-panel" id="tab3">
-    <div class="prazo-badge">Prazo: até 18/06 antes do primeiro jogo</div>
+    <div class="prazo-badge">Prazo: até 18/06 às 13h (horário de Brasília)</div>
     <div class="regras-box">
       <div class="regra-item"><strong>Placar exato</strong> (inclusive empate certo): <span class="pts">+3 pts</span> &nbsp; <strong>Vencedor + diferença ou empate errado:</strong> <span class="pts">+2 pts</span> &nbsp; <strong>Só vencedor:</strong> <span class="pts">+1 pt</span></div>
       <div class="regra-item"><strong>Apostou em vencedor mas empatou:</strong> <span class="pts">0 pts</span></div>
@@ -231,14 +224,12 @@
     </div>
     <div style="text-align:right;margin-bottom:16px;"><button onclick="preencherAleatorioRodada('R2')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div id="placaresR2"></div>
-    <div class="export-section">
-      <button class="btn-export" onclick="exportarTabComModal('R2','Rodada 2')">Enviar Palpites Rodada 2</button>
-    </div>
+    <div class="export-section" id="btnTab3"></div>
   </div>
 
   <!-- TAB 4: RODADA 3 -->
   <div class="tab-panel" id="tab4">
-    <div class="prazo-badge">Prazo: até 24/06 antes do primeiro jogo</div>
+    <div class="prazo-badge">Prazo: até 24/06 às 16h (horário de Brasília)</div>
     <div class="regras-box">
       <div class="regra-item"><strong>Placar exato</strong> (inclusive empate certo): <span class="pts">+3 pts</span> &nbsp; <strong>Vencedor + diferença ou empate errado:</strong> <span class="pts">+2 pts</span> &nbsp; <strong>Só vencedor:</strong> <span class="pts">+1 pt</span></div>
       <div class="regra-item"><strong>Apostou em vencedor mas empatou:</strong> <span class="pts">0 pts</span></div>
@@ -246,9 +237,7 @@
     </div>
     <div style="text-align:right;margin-bottom:16px;"><button onclick="preencherAleatorioRodada('R3')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div id="placaresR3"></div>
-    <div class="export-section">
-      <button class="btn-export" onclick="exportarTabComModal('R3','Rodada 3')">Enviar Palpites Rodada 3</button>
-    </div>
+    <div class="export-section" id="btnTab4"></div>
   </div>
 
 </div><!-- end wrapper -->
@@ -661,12 +650,58 @@ function preencherAleatorioRodada(rodada) {
   updateProgress(); markFilled();
 }
 
+// ── PRAZOS ────────────────────────────────────────────────
+// Horários em UTC-3 (Brasília). Date usa UTC internamente, então somamos 3h.
+var PRAZOS = {
+  tab1: new Date('2026-06-11T19:00:00Z'), // 11/06 16h Brasília = 19h UTC
+  R1:   new Date('2026-06-11T19:00:00Z'), // 11/06 16h Brasília
+  R2:   new Date('2026-06-18T16:00:00Z'), // 18/06 13h Brasília = 16h UTC
+  R3:   new Date('2026-06-24T19:00:00Z')  // 24/06 16h Brasília = 19h UTC
+};
+
+function prazoEncerrado(chave) {
+  return new Date() > PRAZOS[chave];
+}
+
+function renderBtnPrazo(elId, chave, label, acao) {
+  var el = document.getElementById(elId);
+  if (!el) return;
+  if (prazoEncerrado(chave)) {
+    var prazo = PRAZOS[chave];
+    var dia = prazo.toLocaleDateString('pt-BR', {timeZone:'America/Sao_Paulo', day:'2-digit', month:'2-digit'});
+    var hora = prazo.toLocaleTimeString('pt-BR', {timeZone:'America/Sao_Paulo', hour:'2-digit', minute:'2-digit'});
+    el.innerHTML = '<div style="background:rgba(255,80,80,0.08);border:1px solid rgba(255,80,80,0.25);border-radius:12px;padding:16px;text-align:center;">'
+      + '<div style="font-size:20px;margin-bottom:6px;">🔒</div>'
+      + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;color:#ff8080;letter-spacing:1px;">PRAZO ENCERRADO</div>'
+      + '<div style="font-size:12px;color:#7a9fd4;margin-top:4px;">O envio encerrou em '+dia+' às '+hora+'h</div>'
+      + '</div>';
+  } else {
+    var prazo = PRAZOS[chave];
+    var diff = prazo - new Date();
+    var dias = Math.floor(diff / 86400000);
+    var horas = Math.floor((diff % 86400000) / 3600000);
+    var mins = Math.floor((diff % 3600000) / 60000);
+    var countdown = dias > 0 ? 'Faltam '+dias+'d '+horas+'h '+mins+'min' : 'Faltam '+horas+'h '+mins+'min';
+    el.innerHTML = '<div style="font-size:11px;color:#7a9fd4;text-align:center;margin-bottom:8px;">⏱️ '+countdown+'</div>'
+      + '<button class="btn-export" onclick="'+acao+'">'+label+'</button>';
+  }
+}
+
+function renderTodosBotoes() {
+  renderBtnPrazo('btnTab1', 'tab1', 'Enviar Palpites!', 'exportarTab1ComModal()');
+  renderBtnPrazo('btnTab2', 'R1',   'Enviar Palpites Rodada 1', "exportarTabComModal('R1','Rodada 1')");
+  renderBtnPrazo('btnTab3', 'R2',   'Enviar Palpites Rodada 2', "exportarTabComModal('R2','Rodada 2')");
+  renderBtnPrazo('btnTab4', 'R3',   'Enviar Palpites Rodada 3', "exportarTabComModal('R3','Rodada 3')");
+}
+
 buildGroups(null);
 buildTerceiros(null);
 buildZebras(null);
 buildPlacares('R1','placaresR1',null);
 buildPlacares('R2','placaresR2',null);
 buildPlacares('R3','placaresR3',null);
+renderTodosBotoes();
+setInterval(renderTodosBotoes, 60000); // atualiza countdown a cada minuto
 document.addEventListener('change',function(){markFilled();updateProgress();});
 </script>
 </html>
