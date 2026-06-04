@@ -64,6 +64,9 @@
 
 
 
+  <!-- BARRA DE LOGIN -->
+  <div id="loginBar" style="margin-bottom:16px;"></div>
+
   <div class="nav-title">ACESSE AS PÁGINAS</div>
   <div class="nav-grid">
     <a href="criar-bolao.html" class="nav-card" style="background:linear-gradient(135deg,rgba(255,223,0,0.12),rgba(0,26,74,0.9));border-color:rgba(255,223,0,0.4);">
@@ -87,6 +90,11 @@
       <div class="nav-info"><div class="nav-card-title">Ranking ao Vivo</div><div class="nav-card-desc">Acompanhe a classificação do seu bolão em tempo real. Selecione o bolão para ver os pontos.</div></div>
       <span class="nav-arrow">→</span>
     </a>
+    <a href="meus-palpites.html" class="nav-card" style="background:linear-gradient(135deg,rgba(0,48,135,0.2),rgba(0,26,74,0.9));border-color:rgba(122,159,212,0.3);">
+      <span class="nav-icon">📋</span>
+      <div class="nav-info"><div class="nav-card-title">Meus Palpites</div><div class="nav-card-desc">Veja todos os seus palpites enviados, placares, mata-mata e sua pontuação no bolão.</div></div>
+      <span class="nav-arrow">→</span>
+    </a>
     <a href="regras.html" class="nav-card">
       <span class="nav-icon">📖</span>
       <div class="nav-info"><div class="nav-card-title">Regras do Bolão</div><div class="nav-card-desc">Entenda como funciona cada etapa, como os pontos são calculados e os critérios de desempate.</div></div>
@@ -104,5 +112,33 @@
     <p style="margin-top:8px;"><strong>Bolão do Teteu — Copa do Mundo 2026</strong></p>
   </div>
 </div>
+<script src="db.js"></script>
+<script src="auth.js"></script>
+<script>
+window.onload = function() {
+  var u = AUTH.get();
+  var bar = document.getElementById('loginBar');
+  if (u) {
+    bar.innerHTML = '<div style="background:rgba(0,196,79,0.08);border:1px solid rgba(0,196,79,0.2);border-radius:12px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">'
+      + '<div><span style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#7a9fd4;">Olá,</span>'
+      + '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;color:#ffdf00;letter-spacing:2px;margin-left:8px;">'+u.apelido+'</span></div>'
+      + '<div style="display:flex;gap:8px;">'
+      + '<a href="meus-palpites.html" style="background:#ffdf00;color:#003087;border:none;border-radius:8px;padding:8px 14px;font-family:\'Bebas Neue\',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;font-weight:900;text-decoration:none;">MEUS PALPITES</a>'
+      + '<button onclick="sair()" style="background:transparent;border:1px solid #1a3d7a;color:#7a9fd4;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:\'DM Sans\',sans-serif;">Sair</button>'
+      + '</div></div>';
+  } else {
+    bar.innerHTML = '<a href="login.html" style="display:flex;align-items:center;justify-content:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;text-decoration:none;color:var(--text);transition:all .2s;" onmouseover="this.style.borderColor=\'#ffdf00\'" onmouseout="this.style.borderColor=\'#1a3d7a\'">'
+      + '<span style="font-size:20px;">🔐</span>'
+      + '<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;letter-spacing:2px;color:#ffdf00;">ENTRAR / CADASTRAR</div>'
+      + '<div style="font-size:12px;color:#7a9fd4;">Faça login para salvar seus palpites com facilidade</div></div>'
+      + '<span style="color:#7a9fd4;font-size:18px;margin-left:auto;">→</span></a>';
+  }
+};
+
+function sair() {
+  AUTH.sair();
+  window.location.reload();
+}
+</script>
 </body>
 </html>
