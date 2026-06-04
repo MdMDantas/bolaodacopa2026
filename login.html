@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrar — Bolão do Teteu 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#ffdf00;--green:#009c3b;--green-light:#00c44f;--blue:#003087;--bg:#001a4a;--bg2:#002266;--bg3:#002d80;--card:#00194a;--border:#1a3d7a;--text:#e8f0ff;--muted:#7a9fd4;--white:#fff;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+    background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(0,48,135,0.5) 0%,transparent 60%);}
+  .container{width:100%;max-width:420px;}
+  .logo{text-align:center;margin-bottom:32px;}
+  .logo svg{width:100%;max-width:340px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:32px;margin-bottom:16px;}
+  .tabs{display:flex;gap:0;margin-bottom:28px;background:var(--bg2);border-radius:10px;padding:4px;}
+  .tab{flex:1;padding:10px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1.5px;cursor:pointer;border-radius:8px;color:var(--muted);border:none;background:transparent;transition:all .2s;}
+  .tab.active{background:var(--gold);color:var(--blue);font-weight:900;}
+  .field{margin-bottom:18px;}
+  .field label{display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+  .field input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px 16px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color .2s;}
+  .field input:focus{border-color:var(--gold);}
+  .field .hint{font-size:11px;color:var(--muted);margin-top:6px;}
+  .btn{width:100%;background:var(--gold);color:var(--blue);border:none;border-radius:12px;padding:16px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;font-weight:900;margin-top:8px;transition:opacity .2s;}
+  .btn:hover{opacity:0.9;}
+  .btn:disabled{opacity:0.5;cursor:not-allowed;}
+  .erro{background:rgba(255,80,80,0.1);border:1px solid rgba(255,80,80,0.3);border-radius:10px;padding:12px 16px;font-size:13px;color:#ff8080;margin-bottom:16px;display:none;}
+  .sucesso{background:rgba(0,196,79,0.1);border:1px solid rgba(0,196,79,0.3);border-radius:10px;padding:12px 16px;font-size:13px;color:#00c44f;margin-bottom:16px;display:none;}
+  .back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;text-decoration:none;padding:8px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:20px;}
+  .back:hover{color:var(--gold);border-color:var(--gold);}
+  .logado-box{background:rgba(0,196,79,0.08);border:1px solid rgba(0,196,79,0.25);border-radius:14px;padding:20px;text-align:center;}
+  .logado-box .nome{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--gold);letter-spacing:2px;margin:8px 0;}
+  .logado-box .info{font-size:13px;color:var(--muted);margin-bottom:16px;}
+  .btn-outline{width:100%;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-top:8px;transition:all .2s;}
+  .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+  .atalhos{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+  .atalho{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;text-decoration:none;color:var(--text);font-size:13px;font-weight:600;transition:all .2s;}
+  .atalho:hover{border-color:var(--gold);color:var(--gold);}
+  .atalho .icone{font-size:22px;display:block;margin-bottom:6px;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logo">
+    <svg viewBox="0 0 340 120">
+      <rect x="0" y="0" width="170" height="60" fill="#003087"/>
+      <rect x="170" y="0" width="170" height="60" fill="#009c3b"/>
+      <rect x="0" y="60" width="170" height="60" fill="#ffdf00"/>
+      <rect x="170" y="60" width="170" height="60" fill="#ffffff"/>
+      <rect x="60" y="20" width="220" height="80" rx="10" fill="#003087" opacity="0.93"/>
+      <rect x="60" y="20" width="220" height="80" rx="10" fill="none" stroke="#ffdf00" stroke-width="1.5"/>
+      <text x="170" y="56" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="14" font-weight="900" fill="#fff" letter-spacing="1">BOLÃO DO TETEU</text>
+      <text x="170" y="74" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="9" font-weight="700" fill="#ffdf00" letter-spacing="3">COPA 2026</text>
+    </svg>
+  </div>
+
+  <a href="index.html" class="back">&#8592; Voltar</a>
+
+  <!-- Se já logado -->
+  <div id="logadoBox" style="display:none;">
+    <div class="logado-box">
+      <div style="font-size:32px;">👋</div>
+      <div class="nome" id="logadoNome"></div>
+      <div class="info" id="logadoInfo"></div>
+      <div class="atalhos">
+        <a href="formulario1.html" class="atalho"><span class="icone">🏟️</span>Grupos</a>
+        <a href="formulario2.html" class="atalho"><span class="icone">⚔️</span>Mata-mata</a>
+        <a href="ranking.html" class="atalho"><span class="icone">🏆</span>Ranking</a>
+        <a href="meus-palpites.html" class="atalho"><span class="icone">📋</span>Meus palpites</a>
+      </div>
+      <button class="btn-outline" onclick="sair()">Sair da conta</button>
+    </div>
+  </div>
+
+  <!-- Formulário de login/cadastro -->
+  <div id="formBox">
+    <div class="card">
+      <div class="tabs">
+        <button class="tab active" id="tabEntrar" onclick="mostrarAba('entrar')">ENTRAR</button>
+        <button class="tab" id="tabCadastrar" onclick="mostrarAba('cadastrar')">CADASTRAR</button>
+      </div>
+
+      <div id="erroMsg" class="erro"></div>
+      <div id="sucessoMsg" class="sucesso"></div>
+
+      <!-- ABA ENTRAR -->
+      <div id="abaEntrar">
+        <div class="field">
+          <label>Apelido</label>
+          <input type="text" id="entrarApelido" placeholder="Seu apelido no bolão" autocomplete="username">
+        </div>
+        <div class="field">
+          <label>Telefone (DDD + número)</label>
+          <input type="tel" id="entrarTelefone" placeholder="11999999999" maxlength="15" autocomplete="tel">
+          <div class="hint">Somente números. Ex: 11999887766</div>
+        </div>
+        <button class="btn" id="btnEntrar" onclick="entrar()">ENTRAR ⚽</button>
+      </div>
+
+      <!-- ABA CADASTRAR -->
+      <div id="abaCadastrar" style="display:none;">
+        <div class="field">
+          <label>Escolha um apelido</label>
+          <input type="text" id="cadApelido" placeholder="Como quer ser chamado?" maxlength="20" autocomplete="username">
+          <div class="hint">Máximo 20 caracteres, sem símbolos especiais.</div>
+        </div>
+        <div class="field">
+          <label>Telefone (DDD + número)</label>
+          <input type="tel" id="cadTelefone" placeholder="11999999999" maxlength="15" autocomplete="tel">
+          <div class="hint">Este número é sua senha. Somente números.</div>
+        </div>
+        <button class="btn" id="btnCadastrar" onclick="cadastrar()">CRIAR CONTA 🚀</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="db.js"></script>
+<script src="auth.js"></script>
+<script>
+// Redirecionar se já logado ao carregar
+window.onload = function() {
+  var u = AUTH.get();
+  if (u) mostrarLogado(u);
+};
+
+function mostrarAba(aba) {
+  document.getElementById('abaEntrar').style.display = aba==='entrar' ? 'block' : 'none';
+  document.getElementById('abaCadastrar').style.display = aba==='cadastrar' ? 'block' : 'none';
+  document.getElementById('tabEntrar').classList.toggle('active', aba==='entrar');
+  document.getElementById('tabCadastrar').classList.toggle('active', aba==='cadastrar');
+  limparMensagens();
+}
+
+function limparMensagens() {
+  document.getElementById('erroMsg').style.display = 'none';
+  document.getElementById('sucessoMsg').style.display = 'none';
+}
+
+function mostrarErro(msg) {
+  var el = document.getElementById('erroMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('sucessoMsg').style.display = 'none';
+}
+
+function mostrarSucesso(msg) {
+  var el = document.getElementById('sucessoMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('erroMsg').style.display = 'none';
+}
+
+function mostrarLogado(usuario) {
+  document.getElementById('formBox').style.display = 'none';
+  document.getElementById('logadoBox').style.display = 'block';
+  document.getElementById('logadoNome').textContent = usuario.apelido;
+  document.getElementById('logadoInfo').textContent = 'Bem-vindo de volta! O que vai fazer hoje?';
+}
+
+async function entrar() {
+  limparMensagens();
+  var apelido = document.getElementById('entrarApelido').value.trim();
+  var telefone = document.getElementById('entrarTelefone').value.trim();
+  var btn = document.getElementById('btnEntrar');
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
+  var res = await AUTH.entrar(apelido, telefone);
+  btn.disabled = false;
+  btn.textContent = 'ENTRAR ⚽';
+  if (!res.ok) { mostrarErro(res.erro); return; }
+  mostrarSucesso('Bem-vindo, ' + res.usuario.apelido + '! Redirecionando...');
+  setTimeout(function(){
+    var volta = new URLSearchParams(window.location.search).get('volta');
+    window.location.href = volta || 'index.html';
+  }, 1200);
+}
+
+async function cadastrar() {
+  limparMensagens();
+  var apelido = document.getElementById('cadApelido').value.trim();
+  var telefone = document.getElementById('cadTelefone').value.trim();
+  var btn = document.getElementById('btnCadastrar');
+  btn.disabled = true;
+  btn.textContent = 'Cadastrando...';
+  var res = await AUTH.cadastrar(apelido, telefone);
+  btn.disabled = false;
+  btn.textContent = 'CRIAR CONTA 🚀';
+  if (!res.ok) { mostrarErro(res.erro); return; }
+  mostrarSucesso('Conta criada! Bem-vindo, ' + res.usuario.apelido + '! Redirecionando...');
+  setTimeout(function(){
+    var volta = new URLSearchParams(window.location.search).get('volta');
+    window.location.href = volta || 'index.html';
+  }, 1200);
+}
+
+function sair() {
+  AUTH.sair();
+  document.getElementById('logadoBox').style.display = 'none';
+  document.getElementById('formBox').style.display = 'block';
+  limparMensagens();
+}
+
+// Formatar telefone: só números
+['entrarTelefone','cadTelefone'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', function(){
+    this.value = this.value.replace(/\D/g,'');
+  });
+});
+</script>
+</body>
+</html>

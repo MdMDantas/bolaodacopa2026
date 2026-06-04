@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfis de Jogador — Bolão do Teteu 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold:#ffdf00;--green:#009c3b;--green-light:#00c44f;
+    --blue:#003087;--blue-light:#1a52c7;
+    --bg:#001a4a;--bg2:#002266;--bg3:#002d80;--card:#00194a;--border:#1a3d7a;
+    --text:#e8f0ff;--muted:#7a9fd4;--white:#fff;
+    --red:#e74c3c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;
+    background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(0,48,135,0.5) 0%,transparent 60%);}
+  .wrapper{max-width:740px;margin:0 auto;padding:0 20px 80px;}
+
+  header{padding:0 0 36px;}
+
+  /* INTRO */
+  .intro{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:28px;}
+  .intro p{font-size:15px;line-height:1.9;color:var(--text);}
+  .intro p+p{margin-top:10px;}
+  .intro strong{color:var(--gold);}
+
+  /* ANSWER BOX */
+  .answer-box{background:linear-gradient(135deg,rgba(0,156,59,0.15),rgba(0,26,74,0.9));border:2px solid var(--green-light);border-radius:16px;padding:28px;margin-bottom:28px;text-align:center;}
+  .answer-box .big{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,6vw,52px);letter-spacing:3px;color:var(--gold);line-height:1.1;}
+  .answer-box p{font-size:15px;color:var(--text);margin-top:12px;line-height:1.7;}
+
+  /* PROFILE CARDS */
+  .profiles{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;}
+  @media(max-width:520px){.profiles{grid-template-columns:1fr;}}
+  .profile-card{border-radius:16px;padding:24px;border:1px solid;}
+  .profile-card.especialista{background:linear-gradient(135deg,rgba(0,48,135,0.3),rgba(0,26,74,0.9));border-color:rgba(100,149,237,0.4);}
+  .profile-card.apostador{background:linear-gradient(135deg,rgba(231,76,60,0.2),rgba(0,26,74,0.9));border-color:rgba(231,76,60,0.4);}
+  .profile-icon{font-size:40px;margin-bottom:10px;}
+  .profile-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:6px;}
+  .profile-card.especialista .profile-name{color:#6495ed;}
+  .profile-card.apostador .profile-name{color:var(--red);}
+  .profile-quote{font-size:13px;font-style:italic;color:var(--muted);margin-bottom:14px;line-height:1.5;border-left:3px solid;padding-left:10px;}
+  .profile-card.especialista .profile-quote{border-color:#6495ed;}
+  .profile-card.apostador .profile-quote{border-color:var(--red);}
+  .profile-desc{font-size:13px;color:var(--text);line-height:1.7;}
+
+  /* SECTION */
+  .section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px;}
+  .section-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--gold);margin-bottom:6px;}
+  .section-sub{font-size:13px;color:var(--muted);margin-bottom:18px;}
+  .section p{font-size:14px;line-height:1.8;color:var(--text);margin-bottom:12px;}
+  .section p:last-child{margin-bottom:0;}
+  .section strong{color:var(--gold);}
+  .section em{color:var(--white);font-style:normal;font-weight:600;}
+
+  /* TABLE */
+  .table-wrap{overflow-x:auto;margin:16px 0;}
+  table{width:100%;border-collapse:collapse;min-width:420px;}
+  th{background:var(--bg3);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);}
+  td{padding:11px 12px;font-size:13px;border-bottom:1px solid rgba(26,61,122,0.5);color:var(--text);}
+  tr:last-child td{border-bottom:none;}
+  .td-total{color:var(--gold);font-weight:700;font-size:14px;}
+  .td-name{font-weight:700;}
+  .td-esp{color:#6495ed;}
+  .td-apo{color:var(--red);}
+
+  /* ARROW BOX */
+  .arrow-box{background:rgba(255,223,0,0.07);border:1px solid rgba(255,223,0,0.2);border-radius:10px;padding:14px 16px;margin:14px 0;font-size:13px;color:var(--text);line-height:1.6;}
+  .arrow-box strong{color:var(--gold);}
+
+  /* HIGHLIGHT */
+  .highlight{background:linear-gradient(135deg,rgba(255,223,0,0.1),rgba(0,26,74,0.9));border:2px solid rgba(255,223,0,0.4);border-radius:14px;padding:22px;margin:20px 0;text-align:center;}
+  .highlight .num{font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--gold);line-height:1;}
+  .highlight p{font-size:14px;color:var(--muted);margin-top:6px;}
+  .highlight strong{color:var(--white);}
+
+  /* PLACAR EXAMPLES */
+  .placares-ex{display:flex;flex-direction:column;gap:8px;margin:16px 0;}
+  .placar-row{display:flex;align-items:center;gap:12px;background:var(--bg3);border-radius:10px;padding:10px 16px;}
+  .placar-flag{font-size:20px;}
+  .placar-score{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);letter-spacing:2px;}
+  .placar-pts{margin-left:auto;font-size:12px;font-weight:700;color:var(--green-light);background:rgba(0,156,59,0.15);border:1px solid rgba(0,196,79,0.3);padding:2px 10px;border-radius:99px;}
+
+  /* CAMINHOS */
+  .caminhos{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+  .caminho{display:flex;align-items:center;gap:14px;background:var(--bg3);border-radius:12px;padding:14px 18px;border:1px solid var(--border);}
+  .caminho-icon{font-size:28px;flex-shrink:0;}
+  .caminho-text{font-size:14px;color:var(--text);line-height:1.5;}
+  .caminho-text strong{color:var(--gold);}
+
+  /* DIVIDER */
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:28px 0;}
+
+  /* FOOTER */
+  .footer{text-align:center;margin-top:40px;color:var(--muted);font-size:13px;}
+  .footer strong{color:var(--gold);}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <header>
+    <svg width="100%" viewBox="0 0 680 260" style="display:block;border-radius:0 0 16px 16px;overflow:hidden;">
+      <rect x="0" y="0" width="340" height="130" fill="#003087"/>
+      <rect x="340" y="0" width="340" height="130" fill="#009c3b"/>
+      <rect x="0" y="130" width="340" height="130" fill="#ffdf00"/>
+      <rect x="340" y="130" width="340" height="130" fill="#ffffff"/>
+      <path d="M-10 130 Q80 130 80 60 Q80 -10 160 -10 L-10 -10 Z" fill="#ffdf00"/>
+      <path d="M340 130 Q340 40 190 0 L340 0 Z" fill="#009c3b"/>
+      <path d="M690 130 Q600 130 600 60 Q600 -10 510 -10 L690 -10 Z" fill="#003087"/>
+      <path d="M-10 130 Q80 130 80 200 Q80 270 160 270 L-10 270 Z" fill="#003087"/>
+      <path d="M690 130 Q600 130 600 200 Q600 270 510 270 L690 270 Z" fill="#009c3b"/>
+      <rect x="337" y="0" width="6" height="260" fill="#fff" opacity="0.1"/>
+      <rect x="0" y="127" width="680" height="6" fill="#fff" opacity="0.1"/>
+      <rect x="130" y="72" width="420" height="116" rx="12" fill="#003087" opacity="0.92"/>
+      <rect x="130" y="72" width="420" height="116" rx="12" fill="none" stroke="#ffdf00" stroke-width="2"/>
+      <text x="340" y="96" text-anchor="middle" font-size="8" fill="#ffdf00">* * * * *</text>
+      <text x="340" y="128" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="24" font-weight="900" fill="#fff" letter-spacing="2">BOLÃO DO TETEU</text>
+      <text x="340" y="154" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="15" font-weight="700" fill="#ffdf00" letter-spacing="4">COPA 2026</text>
+      <text x="340" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#7a9fd4" letter-spacing="3">PERFIS DE JOGADOR</text>
+    </svg>
+  </header>
+
+  <!-- PERGUNTA -->
+  <div class="answer-box">
+    <div class="big">🏆 Será que dá para<br>recuperar no Bolão?</div>
+    <p>A resposta é: <strong>sim.</strong><br>Existem vários caminhos para chegar ao topo.</p>
+  </div>
+
+  <!-- OS DOIS PERFIS -->
+  <div class="profiles">
+    <div class="profile-card especialista">
+      <div class="profile-icon">🧠</div>
+      <div class="profile-name">O Especialista</div>
+      <div class="profile-quote">"Eu sei quem são as melhores seleções."</div>
+      <div class="profile-desc">Costuma acertar quem passa de fase e a ordem dos grupos. Mas nem sempre consegue cravar placares.</div>
+    </div>
+    <div class="profile-card apostador">
+      <div class="profile-icon">🎯</div>
+      <div class="profile-name">O Apostador</div>
+      <div class="profile-quote">"Eu tenho feeling dos jogos."</div>
+      <div class="profile-desc">Pode errar algumas classificações, mas tem o dom de acertar resultados importantes.</div>
+    </div>
+  </div>
+
+  <!-- TABELA 1: EMPATE -->
+  <div class="section">
+    <div class="section-title">Os dois estilos disputam até o final</div>
+    <div class="section-sub">Veja como perfis diferentes chegam ao mesmo lugar</div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Participante</th><th>Perfil</th><th>Grupos</th><th>3ºs</th><th>Placares</th><th>Total</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="td-name">João 🧠</td>
+            <td class="td-esp">Especialista médio</td>
+            <td>55</td><td>9</td><td>35</td>
+            <td class="td-total">99</td>
+          </tr>
+          <tr>
+            <td class="td-name">Pedro 🎯</td>
+            <td class="td-apo">Apostador médio</td>
+            <td>40</td><td>7</td><td>50</td>
+            <td class="td-total">97</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="arrow-box">
+      ➡️ Mesmo jogando de formas <strong>completamente diferentes</strong>, chegam praticamente empatados.
+    </div>
+  </div>
+
+  <!-- TABELA 2: MELHORAR PONTO FRACO -->
+  <div class="section">
+    <div class="section-title">E se cada um melhorar seu ponto fraco?</div>
+    <div class="section-sub">A diferença continua pequena — e o equilíbrio aumenta</div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Participante</th><th>Perfil</th><th>Grupos</th><th>3ºs</th><th>Placares</th><th>Total</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="td-name">João 🧠</td>
+            <td class="td-esp">Especialista que acertou alguns placares</td>
+            <td>55</td><td>9</td><td>55</td>
+            <td class="td-total">119</td>
+          </tr>
+          <tr>
+            <td class="td-name">Pedro 🎯</td>
+            <td class="td-apo">Apostador que estudou os grupos</td>
+            <td>55</td><td>9</td><td>50</td>
+            <td class="td-total">114</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="arrow-box">
+      ➡️ O especialista <strong>não ganha sozinho</strong> só por conhecer futebol.<br>
+      ➡️ O apostador <strong>não ganha sozinho</strong> só acertando placar.<br>
+      <strong>Quem equilibra os dois entra forte na disputa.</strong>
+    </div>
+  </div>
+
+  <!-- TABELA 3: COMPLETOS -->
+  <div class="section">
+    <div class="section-title">E se alguém for muito bem nos dois?</div>
+    <div class="section-sub">Aí a disputa fica acirrada até o último jogo</div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Participante</th><th>Perfil</th><th>Grupos</th><th>3ºs</th><th>Placares</th><th>Total</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="td-name">João 🧠</td>
+            <td class="td-esp">Especialista completo</td>
+            <td>65</td><td>12</td><td>55</td>
+            <td class="td-total">132</td>
+          </tr>
+          <tr>
+            <td class="td-name">Pedro 🎯</td>
+            <td class="td-apo">Apostador completo</td>
+            <td>55</td><td>9</td><td>65</td>
+            <td class="td-total">129</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="highlight">
+      <div class="num">3</div>
+      <p>pontos de diferença</p>
+      <p style="margin-top:8px"><strong>Um único placar perfeito pode mudar o campeão.</strong></p>
+    </div>
+  </div>
+
+  <!-- ZEBRA -->
+  <div class="section">
+    <div class="section-title">🐎 E ainda tem a Zebra...</div>
+    <p>Antes da Copa começar, cada participante escolhe suas apostas improváveis. E <strong>Copa do Mundo sempre tem surpresa</strong>.</p>
+    <p>Uma seleção que ninguém acreditava pode passar de fase e mudar completamente a disputa. Então aquele participante que ficou alguns pontos atrás... <strong>ainda pode voltar</strong> se apostou no azarão certo.</p>
+  </div>
+
+  <!-- DIVISOR -->
+  <div class="divider"></div>
+
+  <!-- CAMINHOS -->
+  <div class="section">
+    <div class="section-title">No Bolão do Teteu existem vários caminhos</div>
+    <div class="caminhos">
+      <div class="caminho">
+        <span class="caminho-icon">🧠</span>
+        <div class="caminho-text"><strong>Dá para ganhar entendendo as seleções.</strong><br>Estudou os grupos, sabe quem é forte, acerta a ordem — os pontos aparecem.</div>
+      </div>
+      <div class="caminho">
+        <span class="caminho-icon">🎯</span>
+        <div class="caminho-text"><strong>Dá para ganhar acertando os placares.</strong><br>Tem feeling? Cada placar exato vale 3 pontos — e 24 acertos fazem uma diferença enorme.</div>
+      </div>
+      <div class="caminho">
+        <span class="caminho-icon">🐎</span>
+        <div class="caminho-text"><strong>Dá para buscar uma virada apostando no azarão certo.</strong><br>Acreditou em quem ninguém acreditava? A Copa vai te recompensar.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIMAX -->
+  <div class="section" style="border-color:rgba(255,223,0,0.3);background:linear-gradient(135deg,rgba(255,223,0,0.05),rgba(0,26,74,0.9));">
+    <div class="section-title">Ninguém está fora até o último jogo</div>
+    <p>Depois da primeira semana, alguém pode estar liderando porque acertou os grupos. Mas <strong>ainda faltam os placares</strong>.</p>
+    <p>Alguém pode estar atrás <em>15 ou 20 pontos</em>... e buscar acertando:</p>
+
+    <div class="placares-ex">
+      <div class="placar-row">
+        <span class="placar-flag">🇧🇷</span>
+        <span class="placar-score">Brasil 2 × 0</span>
+        <span class="placar-flag">🇲🇦</span>
+        <span class="placar-pts">+3 pts</span>
+      </div>
+      <div class="placar-row">
+        <span class="placar-flag">🇫🇷</span>
+        <span class="placar-score">França 3 × 1</span>
+        <span class="placar-flag">🇸🇳</span>
+        <span class="placar-pts">+3 pts</span>
+      </div>
+      <div class="placar-row">
+        <span class="placar-flag">🇦🇷</span>
+        <span class="placar-score">Argentina 1 × 0</span>
+        <span class="placar-flag">🇩🇿</span>
+        <span class="placar-pts">+3 pts</span>
+      </div>
+    </div>
+
+    <p style="margin-top:6px;">A Copa muda. O ranking muda.<br><strong>E ninguém está morto até o último jogo da fase de grupos. 🏆</strong></p>
+  </div>
+
+  <div class="footer">
+    <p>Boa sorte a todos! ⚽🎉</p>
+    <p style="margin-top:8px;"><strong>Bolão do Teteu — Copa do Mundo 2026</strong></p>
+  </div>
+
+</div>
+</body>
+</html>

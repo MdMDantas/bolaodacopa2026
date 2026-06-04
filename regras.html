@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regras — Bolão do Teteu 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold:#ffdf00;--green:#009c3b;--blue:#003087;--blue-light:#1a52c7;
+    --bg:#001a4a;--bg2:#002266;--bg3:#002d80;--card:#00194a;--border:#1a3d7a;
+    --text:#e8f0ff;--muted:#7a9fd4;--white:#fff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;
+    background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(0,48,135,0.5) 0%,transparent 60%);}
+  .wrapper{max-width:720px;margin:0 auto;padding:0 20px 80px;}
+
+  /* HEADER */
+  header{padding:0 0 36px;}
+
+  /* INTRO */
+  .intro{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:32px;}
+  .intro p{font-size:15px;line-height:1.9;color:var(--text);}
+  .intro p+p{margin-top:12px;}
+  .intro strong{color:var(--gold);}
+
+  /* SECTION */
+  .section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px;}
+  .section-header{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(255,223,0,0.2);}
+  .section-icon{font-size:36px;flex-shrink:0;}
+  .section-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--gold);}
+  .section-subtitle{font-size:13px;color:var(--muted);margin-top:2px;}
+  .section p{font-size:14px;line-height:1.9;color:var(--text);margin-bottom:10px;}
+  .section p:last-child{margin-bottom:0;}
+  .section strong{color:var(--gold);}
+  .section em{color:var(--white);font-style:normal;font-weight:600;}
+
+  /* EXAMPLE BOX */
+  .example{background:var(--bg3);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:14px 16px;margin:14px 0;}
+  .example-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+  .example p{font-size:13px;line-height:1.8;color:var(--text);margin-bottom:0;}
+
+  /* SCORE PILLS */
+  .score-row{display:flex;flex-direction:column;gap:8px;margin:14px 0;}
+  .score-item{display:flex;align-items:center;gap:12px;background:var(--bg2);border-radius:10px;padding:10px 14px;}
+  .score-pts{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);min-width:50px;text-align:center;flex-shrink:0;}
+  .score-desc{font-size:13px;color:var(--text);line-height:1.4;}
+
+  /* MAX BOX */
+  .max-box{display:flex;align-items:center;gap:12px;background:rgba(255,223,0,0.07);border:1px solid rgba(255,223,0,0.25);border-radius:10px;padding:14px 16px;margin-top:16px;}
+  .max-box .icon{font-size:22px;flex-shrink:0;}
+  .max-box p{font-size:13px;color:var(--muted);}
+  .max-box strong{color:var(--gold);font-size:15px;}
+
+  /* ZEBRAS */
+  .zebra-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0;}
+  .zebra-chip{background:rgba(0,156,59,0.15);border:1px solid rgba(0,196,79,0.25);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);}
+  @media(max-width:480px){.zebra-list{grid-template-columns:1fr;}}
+
+  /* TOTAL TABLE */
+  .total-card{background:linear-gradient(135deg,rgba(255,223,0,0.08),rgba(0,26,74,0.9));border:1px solid rgba(255,223,0,0.3);border-radius:16px;padding:28px;margin-top:32px;}
+  .total-card h3{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--gold);margin-bottom:20px;}
+  .total-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;}
+  .total-row:last-child{border-bottom:none;font-size:16px;font-weight:700;padding-top:16px;}
+  .total-row .label{color:var(--muted);}
+  .total-row .val{color:var(--gold);font-weight:700;}
+  .total-row:last-child .label,.total-row:last-child .val{color:var(--gold);}
+
+  /* DIVIDER */
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:28px 0;}
+
+  /* FOOTER */
+  .footer{text-align:center;margin-top:40px;color:var(--muted);font-size:13px;}
+  .footer strong{color:var(--gold);}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <header>
+    <svg width="100%" viewBox="0 0 680 260" style="display:block;border-radius:0 0 16px 16px;overflow:hidden;">
+      <rect x="0" y="0" width="340" height="130" fill="#003087"/>
+      <rect x="340" y="0" width="340" height="130" fill="#009c3b"/>
+      <rect x="0" y="130" width="340" height="130" fill="#ffdf00"/>
+      <rect x="340" y="130" width="340" height="130" fill="#ffffff"/>
+      <path d="M-10 130 Q80 130 80 60 Q80 -10 160 -10 L-10 -10 Z" fill="#ffdf00"/>
+      <path d="M340 130 Q340 40 190 0 L340 0 Z" fill="#009c3b"/>
+      <path d="M690 130 Q600 130 600 60 Q600 -10 510 -10 L690 -10 Z" fill="#003087"/>
+      <path d="M-10 130 Q80 130 80 200 Q80 270 160 270 L-10 270 Z" fill="#003087"/>
+      <path d="M690 130 Q600 130 600 200 Q600 270 510 270 L690 270 Z" fill="#009c3b"/>
+      <rect x="337" y="0" width="6" height="260" fill="#fff" opacity="0.1"/>
+      <rect x="0" y="127" width="680" height="6" fill="#fff" opacity="0.1"/>
+      <rect x="130" y="72" width="420" height="116" rx="12" fill="#003087" opacity="0.92"/>
+      <rect x="130" y="72" width="420" height="116" rx="12" fill="none" stroke="#ffdf00" stroke-width="2"/>
+      <text x="340" y="96" text-anchor="middle" font-size="8" fill="#ffdf00">* * * * *</text>
+      <text x="340" y="128" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">BOLÃO DO TETEU</text>
+      <text x="340" y="154" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="16" font-weight="700" fill="#ffdf00" letter-spacing="5">COPA 2026</text>
+      <text x="340" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#7a9fd4" letter-spacing="3">GUIA DE REGRAS</text>
+    </svg>
+  </header>
+
+  <!-- INTRO -->
+  <div class="intro">
+    <p>Olá! 👋 Bem-vindo ao <strong>Bolão do Teteu</strong>!</p>
+    <p>A ideia é simples: você vai tentar <strong>adivinhar o que vai acontecer na Copa do Mundo</strong>. Quanto mais você acertar, mais pontos ganha. No final, quem tiver mais pontos leva o título de campeão do bolão! 🏆</p>
+    <p>Existem <strong>3 jeitos de ganhar pontos</strong>. Vamos explicar cada um com calma:</p>
+  </div>
+
+  <!-- PARTE 1: GRUPOS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-icon">🏟️</span>
+      <div>
+        <div class="section-title">Parte 1 — Quem passa de fase?</div>
+        <div class="section-subtitle">Preencher antes da Copa começar</div>
+      </div>
+    </div>
+
+    <p>A Copa tem <strong>12 grupos</strong>, cada um com 4 seleções. Você precisa colocar as seleções <strong>em ordem</strong> — quem vai ficar em 1º, 2º, 3º e 4º lugar em cada grupo.</p>
+
+    <p>Pensa assim: é como organizar os alunos da turma do melhor pro pior em futebol. Você escolhe a ordem!</p>
+
+    <div class="example">
+      <div class="example-label">Exemplo — Grupo C</div>
+      <p>Você disse: 1º Brasil, 2º Marrocos, 3º Haiti, 4º Escócia<br>
+      Resultado real: 1º Brasil ✅, 2º Marrocos ✅, 3º Escócia ❌, 4º Haiti ❌<br>
+      <strong>Você acertou 2 posições exatas e os 2 classificados diretos — ótimo!</strong></p>
+    </div>
+
+    <div class="score-row">
+      <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Posição exata:</em> você disse que um time ficaria em 3º e ele ficou mesmo em 3º</span></div>
+      <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Classificado direto:</em> você acertou que um time passou entre os 2 primeiros — mesmo que tenha invertido a ordem</span></div>
+    </div>
+
+    <div class="max-box">
+      <span class="icon">🏆</span>
+      <p>Máximo nessa parte (só grupos): <strong>72 pontos</strong><br><span style="font-size:12px">(48 pts de posições + 24 pts de classificados diretos)</span></p>
+    </div>
+  </div>
+
+  <!-- MELHORES TERCEIROS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-icon">🥉</span>
+      <div>
+        <div class="section-title">Bônus — Os Melhores Terceiros</div>
+        <div class="section-subtitle">Preencher antes da Copa começar</div>
+      </div>
+    </div>
+
+    <p>Na Copa de 2026, <strong>12 seleções ficam em 3º lugar</strong> — uma por grupo. Mas nem todas passam de fase! Só as <strong>8 melhores</strong> avançam para o mata-mata.</p>
+
+    <p>Você precisa adivinhar <strong>quais 8 terceiros vão avançar</strong> e ainda <strong>colocá-los em ordem</strong> do melhor ao pior entre eles.</p>
+
+    <div class="example">
+      <div class="example-label">Como a FIFA decide quais 8 avançam?</div>
+      <p>A FIFA pega todos os 12 terceiros colocados e os compara entre si usando os seguintes critérios, <strong>nessa ordem</strong>:</p>
+    </div>
+
+    <div class="score-row">
+      <div class="score-item"><span class="score-pts" style="font-size:14px;min-width:34px">1º</span><span class="score-desc"><em>Pontos:</em> vitória = 3 pts, empate = 1 pt, derrota = 0 pt. Quem tem mais pontos fica na frente</span></div>
+      <div class="score-item"><span class="score-pts" style="font-size:14px;min-width:34px">2º</span><span class="score-desc"><em>Saldo de gols:</em> gols marcados menos gols sofridos. Ex: ganhou 2×0 e perdeu 0×1 → saldo +1</span></div>
+      <div class="score-item"><span class="score-pts" style="font-size:14px;min-width:34px">3º</span><span class="score-desc"><em>Gols marcados:</em> quem fez mais gols no total dos 3 jogos</span></div>
+      <div class="score-item"><span class="score-pts" style="font-size:14px;min-width:34px">4º</span><span class="score-desc"><em>Disciplina:</em> menos cartões amarelos e vermelhos (vermelho direto = 3 pts, amarelo + vermelho = 3 pts, só amarelo = 1 pt)</span></div>
+      <div class="score-item"><span class="score-pts" style="font-size:14px;min-width:34px">5º</span><span class="score-desc"><em>Ranking FIFA:</em> se ainda empatados, a seleção com melhor posição no ranking FIFA passa na frente</span></div>
+    </div>
+
+    <div class="example">
+      <div class="example-label">Exemplo simples</div>
+      <p>Imagine que Haiti e Panamá são dois dos 12 terceiros. Ambos fizeram <strong>4 pontos</strong>. Aí vai para o saldo de gols: Haiti tem +2, Panamá tem +1. <strong>Haiti passa!</strong> Se o saldo também fosse igual, aí veriam quem fez mais gols, e assim por diante.</p>
+    </div>
+
+    <p>No bolão, você ordena os 8 terceiros que escolheu da mesma forma — do que você acha que vai ter <strong>melhor desempenho ao pior</strong> entre eles.</p>
+
+    <div class="score-row">
+      <div class="score-item"><span class="score-pts">+2 pts</span><span class="score-desc"><em>Acertou qual terceiro avançou E sua posição no ranking dos 8</em></span></div>
+      <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Acertou que o terceiro avançou, mas errou a posição no ranking</em></span></div>
+      <div class="score-item"><span class="score-pts">0 pts</span><span class="score-desc"><em>A seleção não avançou como terceiro</em></span></div>
+    </div>
+
+    <div class="max-box">
+      <span class="icon">🏆</span>
+      <p>Máximo nessa parte: <strong>16 pontos</strong><br><span style="font-size:12px">(8 terceiros × 2 pontos cada)</span></p>
+    </div>
+  </div>
+
+  <!-- PARTE 2: PLACARES -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-icon">⚽</span>
+      <div>
+        <div class="section-title">Parte 2 — Qual vai ser o placar?</div>
+        <div class="section-subtitle">Preencher antes de cada rodada</div>
+      </div>
+    </div>
+
+    <p>Antes de cada rodada de jogos, você tenta adivinhar o <strong>placar de cada partida</strong>. São 72 jogos no total — mas não se preocupe, <strong>só os seus 24 melhores palpites contam no final</strong>. Os ruins vão pro lixo! 🗑️😂</p>
+
+    <p>Existem 3 rodadas com prazos diferentes:</p>
+    <div class="example">
+      <div class="example-label">Prazos</div>
+      <p>📅 <strong>Rodada 1:</strong> enviar até 11/06 antes do primeiro jogo<br>
+      📅 <strong>Rodada 2:</strong> enviar até 18/06 antes do primeiro jogo<br>
+      📅 <strong>Rodada 3:</strong> enviar até 24/06 antes do primeiro jogo</p>
+    </div>
+
+    <p><strong>Como funciona a pontuação:</strong></p>
+
+    <div class="score-row">
+      <div class="score-item"><span class="score-pts">+3 pts</span><span class="score-desc"><em>Placar exato!</em> Você disse 2×1, foi 2×1. Ou disse 1×1, foi 1×1 (empate certo também vale 3!)</span></div>
+      <div class="score-item"><span class="score-pts">+2 pts</span><span class="score-desc"><em>Vencedor certo + diferença de gols certa.</em> Ex: disse 3×1, foi 2×0 (mesmo time ganhou por 2 de diferença). Ou acertou que era empate mas errou o placar (disse 2×2, foi 1×1)</span></div>
+      <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Só o vencedor.</em> Ex: disse 3×0, foi 1×0. Vale apenas quando há um vencedor — não existe "+1 no empate"</span></div>
+      <div class="score-item"><span class="score-pts">0 pts</span><span class="score-desc"><em>Apostou em um vencedor mas o jogo empatou</em>, ou errou completamente</span></div>
+    </div>
+
+    <div class="example">
+      <div class="example-label">Atenção — regra do empate</div>
+      <p>Se o jogo terminou <strong>0×0</strong> e você disse <strong>0×0</strong> → <strong>+3 pontos</strong> (placar exato!)<br>
+      Se terminou <strong>1×1</strong> e você disse <strong>2×2</strong> → <strong>+2 pontos</strong> (acertou o empate, errou o placar)<br>
+      Se terminou <strong>1×1</strong> e você disse <strong>2×0</strong> → <strong>0 pontos</strong> (apostou em vencedor, deu empate)</p>
+    </div>
+
+    <div class="max-box">
+      <span class="icon">🏆</span>
+      <p>Máximo nessa parte: <strong>72 pontos</strong><br><span style="font-size:12px">(24 melhores palpites × 3 pontos cada)</span></p>
+    </div>
+  </div>
+
+  <!-- PARTE 3: ZEBRAS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-icon">🐎</span>
+      <div>
+        <div class="section-title">Parte 3 — Escolha suas zebras!</div>
+        <div class="section-subtitle">Preencher antes da Copa começar</div>
+      </div>
+    </div>
+
+    <p>Sabe aquele time que <strong>quase ninguém acredita</strong>? Você escolhe <strong>4 seleções azarão</strong> que você acha que vão surpreender todo mundo na fase de grupos!</p>
+
+    <p>Só pode escolher entre essas 8 seleções:</p>
+
+    <div class="zebra-list">
+      <div class="zebra-chip">🇨🇼 Curaçao</div>
+      <div class="zebra-chip">🇭🇹 Haiti</div>
+      <div class="zebra-chip">🇳🇿 Nova Zelândia</div>
+      <div class="zebra-chip">🇯🇴 Jordânia</div>
+      <div class="zebra-chip">🇮🇶 Iraque</div>
+      <div class="zebra-chip">🇵🇦 Panamá</div>
+      <div class="zebra-chip">🇶🇦 Catar</div>
+      <div class="zebra-chip">🇸🇦 Arábia Saudita</div>
+    </div>
+
+    <p>Quanto melhor sua zebra se sair, mais pontos você ganha:</p>
+
+    <div class="score-row">
+      <div class="score-item"><span class="score-pts">+6 pts</span><span class="score-desc"><em>Sua zebra ficou em 1º lugar do grupo!</em> Uau! 🥇</span></div>
+      <div class="score-item"><span class="score-pts">+4 pts</span><span class="score-desc"><em>Sua zebra ficou em 2º lugar do grupo</em> 🥈</span></div>
+      <div class="score-item"><span class="score-pts">+2 pts</span><span class="score-desc"><em>Sua zebra passou como um dos melhores terceiros</em> 🥉</span></div>
+      <div class="score-item"><span class="score-pts">0 pts</span><span class="score-desc"><em>Sua zebra foi eliminada</em> 😢</span></div>
+    </div>
+
+    <div class="max-box">
+      <span class="icon">🏆</span>
+      <p>Máximo nessa parte: <strong>24 pontos</strong><br><span style="font-size:12px">(4 zebras × 6 pontos cada)</span></p>
+    </div>
+  </div>
+
+  <!-- TOTAL -->
+  <div class="total-card">
+    <h3>📊 Total do Bolão</h3>
+    <div class="total-row"><span class="label">🏟️ Grupos</span><span class="val">72 pts</span></div>
+    <div class="total-row"><span class="label">🥉 Melhores Terceiros</span><span class="val">16 pts</span></div>
+    <div class="total-row"><span class="label">⚽ Placares (24 melhores)</span><span class="val">72 pts</span></div>
+    <div class="total-row"><span class="label">🐎 Zebras</span><span class="val">24 pts</span></div>
+    <div class="total-row"><span class="label">🏆 TOTAL MÁXIMO</span><span class="val">184 pontos</span></div>
+  </div>
+
+  <div class="footer" style="margin-top:40px;">
+    <p>Boa sorte a todos! ⚽🎉</p>
+    <p style="margin-top:8px;"><strong>Bolão do Teteu — Copa do Mundo 2026</strong></p>
+  </div>
+
+</div>
+</body>
+</html>

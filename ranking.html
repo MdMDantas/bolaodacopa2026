@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ranking — Bolão Copa 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#ffdf00;--green:#009c3b;--green-light:#00c44f;--blue:#003087;--bg:#001a4a;--bg2:#002266;--bg3:#002d80;--card:#00194a;--border:#1a3d7a;--text:#e8f0ff;--muted:#7a9fd4;--white:#fff;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(0,48,135,0.5) 0%,transparent 60%);}
+  .wrapper{max-width:700px;margin:0 auto;padding:0 20px 80px;}
+  .back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;text-decoration:none;margin:20px 0 0;padding:8px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;}
+  .back:hover{color:var(--gold);border-color:var(--gold);}
+  header{padding:0 0 32px;}
+  .bolao-select-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:28px;}
+  .bolao-select-wrap label{display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+  .sel-wrap{position:relative;}
+  .sel-wrap select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:13px 36px 13px 16px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;appearance:none;cursor:pointer;}
+  .sel-wrap select:focus{border-color:var(--gold);}
+  .sel-wrap select option{background:#002266;}
+  .sel-wrap::after{content:'▾';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+  .ranking-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+  .ranking-header{background:var(--bg3);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;}
+  .ranking-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--gold);}
+  .ranking-update{font-size:11px;color:var(--muted);}
+  .ranking-row{display:grid;grid-template-columns:80px 1fr repeat(4,60px);align-items:center;padding:12px 20px;border-bottom:1px solid rgba(26,61,122,0.4);gap:8px;}
+  .ranking-row:last-child{border-bottom:none;}
+  .ranking-row.header{background:var(--bg3);padding:8px 20px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+  .ranking-pos{font-family:'Bebas Neue',sans-serif;font-size:14px;text-align:center;line-height:1.2;}
+  .ranking-pos sup{font-size:10px;vertical-align:super;}
+  .ranking-pos.gold{color:var(--gold);}
+  .ranking-pos.silver{color:#aaa;}
+  .ranking-pos.bronze{color:#cd7f32;}
+  .ranking-pos.other{color:var(--muted);}
+  .ranking-apelido{font-weight:600;font-size:14px;}
+  .ranking-pts{text-align:center;font-size:13px;color:var(--muted);}
+  .ranking-pts.total{color:var(--gold);font-weight:700;font-size:15px;}
+  .status-icon{text-align:center;font-size:16px;line-height:1;}
+  .empty{text-align:center;padding:48px 20px;color:var(--muted);font-size:14px;}
+  .empty strong{color:var(--gold);display:block;font-size:18px;margin-bottom:8px;}
+  .loading{text-align:center;padding:48px;color:var(--muted);}
+  .status-box{background:rgba(255,223,0,0.07);border:1px solid rgba(255,223,0,0.2);border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:10px;}
+  .status-dot{width:8px;height:8px;border-radius:50%;background:var(--green-light);flex-shrink:0;box-shadow:0 0 8px var(--green-light);}
+  .legend{display:flex;gap:16px;font-size:11px;color:var(--muted);margin-top:12px;padding:10px 20px;background:rgba(0,0,0,0.2);}
+  .legend span{display:flex;align-items:center;gap:4px;}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <a href="index.html" class="back">&#8592; Voltar ao início</a>
+  <header style="padding-top:0">
+    <svg width="100%" viewBox="0 0 680 160" style="display:block;border-radius:0 0 16px 16px;overflow:hidden;margin-top:16px;">
+      <rect x="0" y="0" width="340" height="80" fill="#003087"/>
+      <rect x="340" y="0" width="340" height="80" fill="#009c3b"/>
+      <rect x="0" y="80" width="340" height="80" fill="#ffdf00"/>
+      <rect x="340" y="80" width="340" height="80" fill="#ffffff"/>
+      <path d="M-10 80 Q60 80 60 30 Q60 -10 110 -10 L-10 -10 Z" fill="#ffdf00"/>
+      <path d="M690 80 Q620 80 620 30 Q620 -10 570 -10 L690 -10 Z" fill="#003087"/>
+      <path d="M-10 80 Q60 80 60 130 Q60 170 110 170 L-10 170 Z" fill="#003087"/>
+      <path d="M690 80 Q620 80 620 130 Q620 170 570 170 L690 170 Z" fill="#009c3b"/>
+      <text x="340" y="68" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="22" font-weight="900" fill="#fff" letter-spacing="2">RANKING</text>
+      <text x="340" y="92" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="13" font-weight="700" fill="#ffdf00" letter-spacing="4">COPA 2026</text>
+    </svg>
+  </header>
+
+  <div class="status-box">
+    <div class="status-dot"></div>
+    <span>Copa do Mundo 2026 começa em 11/06/2026</span>
+  </div>
+
+  <div class="bolao-select-wrap">
+    <label>Código do Bolão</label>
+    <div style="display:flex;gap:10px;">
+      <input type="text" id="codigoRanking" placeholder="Digite o código do seu bolão" style="flex:1;background:#001a4a;border:1px solid #1a3d7a;border-radius:10px;padding:13px 16px;color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;outline:none;text-transform:uppercase;" onkeydown="if(event.key==='Enter')buscarBolaoRanking()">
+      <button onclick="buscarBolaoRanking()" style="background:#ffdf00;color:#003087;border:none;border-radius:10px;padding:13px 20px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;font-weight:900;white-space:nowrap;">BUSCAR</button>
+    </div>
+  </div>
+
+  <div id="rankingArea"><div class="loading">Selecione um bolão para ver o ranking</div></div>
+</div>
+
+<script>
+var SU = 'https://myytheficqokbjbkmeiv.supabase.co';
+var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15eXRoZWZpY3Fva2JqYmttZWl2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDM1NTMwNCwiZXhwIjoyMDk1OTMxMzA0fQ.-KV4Iaz-hSxdXyhJGYBXo0W9VTmwZctk0kWvZWqIDaE';
+var H = {'apikey':SK,'Authorization':'Bearer '+SK};
+
+async function init() {
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('bolao')) {
+    document.getElementById('codigoRanking').value = params.get('bolao');
+    buscarBolaoRanking();
+  }
+}
+
+async function buscarBolaoRanking() {
+  var codigo = document.getElementById('codigoRanking').value.trim().toUpperCase();
+  if (!codigo) return;
+  var resp = await fetch(SU+'/rest/v1/boloes?codigo=eq.'+encodeURIComponent(codigo)+'&select=id,nome',{headers:H});
+  if (!resp.ok) { document.getElementById('rankingArea').innerHTML='<div class="ranking-card"><div class="empty"><strong>Bolão não encontrado</strong>Verifique o código e tente novamente.</div></div>'; return; }
+  var boloes = await resp.json();
+  if (!boloes.length) { document.getElementById('rankingArea').innerHTML='<div class="ranking-card"><div class="empty"><strong>Bolão não encontrado</strong>Verifique o código e tente novamente.</div></div>'; return; }
+  carregarRanking(boloes[0].id, boloes[0].nome);
+}
+
+async function carregarRanking(bolaoId, bolaoNome) {
+  if (!bolaoId) return;
+  var area = document.getElementById('rankingArea');
+  area.innerHTML = '<div class="loading">Carregando...</div>';
+  try {
+    // Buscar palpites fase 1 (grupos) — um por apelido
+    var r2 = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&select=apelido,criado_em&order=criado_em.asc',{headers:H});
+    var fase1Apelidos = {};
+    if (r2.ok) {
+      var p1 = await r2.json();
+      p1.forEach(function(x){ fase1Apelidos[x.apelido] = true; });
+    }
+
+    // Buscar palpites fase 2 (mata-mata) — um por apelido
+    var r3 = await fetch(SU+'/rest/v1/palpites_fase2?bolao_id=eq.'+bolaoId+'&select=apelido,criado_em&order=criado_em.asc',{headers:H});
+    var fase2Apelidos = {};
+    if (r3.ok) {
+      var p2 = await r3.json();
+      p2.forEach(function(x){ fase2Apelidos[x.apelido] = true; });
+    }
+
+    // Buscar pontuações ou montar lista a partir dos palpites
+    var ranking = [];
+    var r1 = await fetch(SU+'/rest/v1/pontuacoes?bolao_id=eq.'+bolaoId+'&select=*&order=total.desc',{headers:H});
+    if (r1.ok) ranking = await r1.json();
+
+    // Se não tem pontuações ainda, monta lista de quem enviou palpites
+    if (!ranking.length) {
+      var todosApelidos = {};
+      Object.keys(fase1Apelidos).forEach(function(a){ todosApelidos[a]=true; });
+      Object.keys(fase2Apelidos).forEach(function(a){ todosApelidos[a]=true; });
+      ranking = Object.keys(todosApelidos).map(function(a){
+        return {apelido:a, pts_grupos:'-', pts_placares:'-', pts_zebras:'-', total:'-'};
+      });
+    }
+
+    if (!ranking.length) {
+      area.innerHTML = '<div class="ranking-card"><div class="empty"><strong>Nenhum palpite ainda</strong>Seja o primeiro!</div></div>';
+      return;
+    }
+
+    var posClasses = ['gold','silver','bronze'];
+    var html = '<div class="ranking-card">';
+    html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO — ' + (bolaoNome||'') + '</span><span class="ranking-update">Ao vivo</span></div>';
+    // Header com colunas — "Posição" por extenso, ícones de status de envio
+    html += '<div class="ranking-row header">';
+    html += '<div>Posição</div>';
+    html += '<div>Apelido</div>';
+    html += '<div style="text-align:center">Grupos</div>';
+    html += '<div style="text-align:center">Placares</div>';
+    html += '<div style="text-align:center">Zebras</div>';
+    html += '<div style="text-align:center">Total</div>';
+    html += '</div>';
+
+    ranking.forEach(function(r,i){
+      var num = i+1;
+      var cls = i<3 ? posClasses[i] : 'other';
+      var posLabel = num + 'º lugar';
+      var temFase1 = fase1Apelidos[r.apelido] ? '✅' : '❌';
+      var temFase2 = fase2Apelidos[r.apelido] ? '✅' : '❌';
+
+      html += '<div class="ranking-row">';
+      html += '<div class="ranking-pos '+cls+'" title="'+posLabel+'">'+num+'<sup>º</sup></div>';
+      html += '<div class="ranking-apelido">'+r.apelido+'</div>';
+      // Grupos: mostra pts + ✅/❌ de envio fase1
+      html += '<div class="ranking-pts" style="display:flex;flex-direction:column;align-items:center;gap:2px;">';
+      html += '<span>'+(r.pts_grupos||'-')+'</span>';
+      html += '<span class="status-icon" title="Palpite de grupos '+(fase1Apelidos[r.apelido]?'enviado':'não enviado')+'">'+temFase1+'</span>';
+      html += '</div>';
+      // Placares: usa mesmo envio fase1
+      html += '<div class="ranking-pts" style="display:flex;flex-direction:column;align-items:center;gap:2px;">';
+      html += '<span>'+(r.pts_placares||'-')+'</span>';
+      html += '<span class="status-icon" title="Palpite de placares '+(fase1Apelidos[r.apelido]?'enviado':'não enviado')+'">'+temFase1+'</span>';
+      html += '</div>';
+      // Zebras: usa envio fase2
+      html += '<div class="ranking-pts" style="display:flex;flex-direction:column;align-items:center;gap:2px;">';
+      html += '<span>'+(r.pts_zebras||'-')+'</span>';
+      html += '<span class="status-icon" title="Palpite de zebras/mata-mata '+(fase2Apelidos[r.apelido]?'enviado':'não enviado')+'">'+temFase2+'</span>';
+      html += '</div>';
+      html += '<div class="ranking-pts total">'+(r.total||'-')+'</div>';
+      html += '</div>';
+    });
+
+    html += '<div class="legend"><span>✅ Palpite enviado</span><span>❌ Palpite não enviado</span></div>';
+    html += '</div>';
+    area.innerHTML = html;
+  } catch(e) {
+    console.error(e);
+    area.innerHTML = '<div class="ranking-card"><div class="empty"><strong>Erro ao carregar</strong></div></div>';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

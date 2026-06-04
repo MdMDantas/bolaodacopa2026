@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bolão do Teteu — Mata-Mata</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold:#ffdf00;
+    --green:#009c3b;--green-dark:#006825;--green-light:#00c44f;
+    --blue:#003087;--blue-dark:#001f5c;--blue-light:#1a52c7;
+    --bg:#001a4a;--bg2:#002266;--bg3:#002d80;--card:#00194a;--border:#1a3d7a;
+    --text:#e8f0ff;--muted:#7a9fd4;--white:#FFFFFF;
+    --red:#C0392B;--red-dark:#7D1E1E;--red-light:#E74C3C;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 80% 40% at 50% -10%, rgba(122,13,13,0.2) 0%, transparent 60%),
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(61,30,30,0.15) 40px, rgba(61,30,30,0.15) 41px),
+      repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(61,30,30,0.15) 40px, rgba(61,30,30,0.15) 41px);
+  }
+  .wrapper { max-width: 1100px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  /* PROGRESS */
+  .progress-bar-wrap { position: sticky; top: 0; z-index: 100; background: rgba(21,7,8,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; align-items: center; gap: 14px; }
+  .progress-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .progress-track { flex: 1; height: 6px; background: var(--bg3); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--gold), var(--blue-light)); border-radius: 99px; transition: width 0.4s ease; width: 0%; }
+  .progress-pct { font-size: 12px; color: var(--gold); font-weight: 700; min-width: 32px; text-align: right; }
+
+  /* HEADER */
+  header { text-align: center; padding: 60px 20px 50px; position: relative; }
+  header::before { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 200px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+  .trophy { font-size: 52px; display: block; margin-bottom: 12px; }
+  header h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(28px, 7vw, 62px); letter-spacing: 4px; color: var(--white); line-height: 1; text-shadow: 0 0 40px rgba(192,57,43,0.5); }
+  header h1 span { color: var(--gold); }
+  .phase-pill { display: inline-block; margin-top: 16px; background: rgba(192,57,43,0.2); border: 1px solid rgba(231,76,60,0.5); color: #E74C3C; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 6px 16px; border-radius: 99px; }
+
+  /* PLAYER */
+  .player-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin: 40px 0 32px; }
+  .player-card label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+  .player-card input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 500; outline: none; transition: border-color 0.2s; }
+  .player-card input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,197,24,0.12); }
+
+  /* PHASE HEADER */
+  .phase-header { display: flex; align-items: center; gap: 14px; margin: 44px 0 24px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+  .phase-badge { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; background: var(--gold); }
+  .phase-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 3px; color: var(--gold); }
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 36px 0; }
+
+  /* REGRAS */
+  .regras-box { background: rgba(0,48,135,0.4); border: 1px solid rgba(255,223,0,0.25); border-radius: 12px; padding: 16px 18px; margin-bottom: 24px; display: flex; flex-direction: column; gap: 8px; }
+  .regra-item { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .regra-item strong { color: var(--text); font-weight: 600; }
+  .regra-item .pts { color: var(--gold); font-weight: 700; }
+  .regra-item.pontos-max { margin-top: 4px; padding-top: 10px; border-top: 1px solid rgba(255,223,0,0.25); color: var(--text); font-size: 13px; }
+  .regra-item.pontos-max strong { color: var(--gold); }
+
+  /* SELECT */
+  .sel-wrap { position: relative; width: 100%; }
+  .sel-wrap select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 26px 6px 8px; color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 11px; outline: none; appearance: none; cursor: pointer; transition: border-color 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sel-wrap select:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(255,223,0,0.15); }
+  .sel-wrap select option { background: #211010; color: var(--white); }
+  .sel-wrap::after { content: '▾'; position: absolute; right: 7px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; font-size: 10px; }
+  .sel-wrap select.filled { border-color: rgba(0,156,59,0.7); }
+
+  /* ── BRACKET ── */
+  .bracket-wrapper { overflow-x: auto; padding-bottom: 20px; }
+  .bracket {
+    display: grid;
+    grid-template-columns: 130px 100px 80px 70px 80px 80px 70px 80px 100px 130px;
+    grid-template-rows: repeat(32, 28px);
+    gap: 0;
+    min-width: 860px;
+    align-items: center;
+  }
+
+  /* Slot de seleção */
+  .slot {
+    display: flex; align-items: center;
+    padding: 0 4px;
+  }
+  .slot .sel-wrap select { font-size: 10px; padding: 4px 20px 4px 6px; height: 22px; border-radius: 4px; }
+
+  /* Label do seed (1ºE, 3ºs etc) */
+  .seed-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+    color: var(--muted); text-align: center; padding: 0 2px;
+    line-height: 1;
+  }
+
+  /* Conectores visuais */
+  .conn-right { border-right: 1px solid var(--border); border-radius: 0 4px 4px 0; }
+  .conn-left  { border-left:  1px solid var(--border); border-radius: 4px 0 0 4px; }
+  .conn-top   { border-top: 1px solid var(--border); }
+  .conn-bot   { border-bottom: 1px solid var(--border); }
+
+  /* Célula vazia só para espaçamento */
+  .spacer { display: block; }
+
+  /* CAMPEÃO central */
+  .champion-area { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+  .champion-area .trophy-icon { font-size: 28px; }
+  .champion-area .champ-label { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 2px; color: var(--gold); }
+  .champion-area .sel-wrap select { font-size: 11px; text-align: center; border-color: rgba(245,197,24,0.4); border-width: 2px; }
+  .champion-area .sel-wrap select:focus { border-color: var(--gold); }
+
+  /* Coluna de rounds — títulos */
+  .round-labels { display: grid; grid-template-columns: 130px 100px 80px 70px 80px 80px 70px 80px 100px 130px; min-width: 860px; margin-bottom: 8px; }
+  .round-label { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 1.5px; color: var(--gold); text-align: center; padding: 4px 2px; }
+
+  /* ESPECIAL CARDS */
+  .especial-grid { display: grid; grid-template-columns: 1fr; gap: 14px; max-width: 420px; }
+  .especial-card { border-radius: 12px; padding: 20px; border: 1px solid; }
+  .especial-card.decep { background: linear-gradient(135deg, rgba(192,57,43,0.2), rgba(0,26,74,0.9)); border-color: rgba(231,76,60,0.4); }
+  .especial-card .card-icon { font-size: 26px; margin-bottom: 10px; }
+  .especial-card .card-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; margin-bottom: 4px; color: #E74C3C; }
+  .especial-card .card-desc { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+  .especial-card .sel-wrap select { font-size: 14px; padding: 10px 32px 10px 14px; height: auto; border-radius: 8px; }
+  .especial-card .sel-wrap::after { font-size: 11px; right: 10px; }
+
+  /* SUMMARY TABLE */
+  .summary-table { width: 100%; max-width: 420px; border-collapse: collapse; margin-top: 8px; }
+  .summary-table td { padding: 8px 12px; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .summary-table tr:last-child td { border-bottom: none; font-weight: 700; color: var(--gold); background: rgba(255,223,0,0.05); }
+  .summary-table td:last-child { text-align: right; color: var(--gold); font-weight: 600; }
+  .summary-table tr:last-child td:last-child { color: var(--gold); }
+
+  /* BUTTONS */
+  .save-section { text-align: center; margin-top: 50px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .btn-save { background: var(--gold); color: var(--bg); border: none; border-radius: 12px; padding: 16px 48px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; cursor: pointer; transition: background 0.2s, transform 0.15s; box-shadow: 0 4px 20px rgba(245,197,24,0.35); }
+  .btn-save:hover { background: #FFD428; transform: translateY(-2px); }
+  .btn-export { background: var(--gold); color: var(--blue); border: none; border-radius: 12px; padding: 14px 32px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 20px rgba(255,223,0,0.4); }
+  .btn-export:hover { background: #ffe933; transform: translateY(-2px); }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+  .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 18px; padding: 28px; width: 100%; max-width: 560px; max-height: 80vh; display: flex; flex-direction: column; gap: 14px; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--gold); }
+  .modal-close { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 4px 8px; }
+  .modal-close:hover { color: var(--white); }
+  .modal-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .modal textarea { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; line-height: 1.7; resize: none; outline: none; min-height: 260px; max-height: 38vh; overflow-y: auto; }
+  .btn-copy { background: var(--gold); color: var(--bg); border: none; border-radius: 10px; padding: 13px; font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 2px; cursor: pointer; width: 100%; }
+  .btn-copy:hover { background: #FFD428; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--blue); border: 1px solid var(--gold); color: var(--white); padding: 14px 28px; border-radius: 12px; font-size: 14px; font-weight: 500; opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s; z-index: 999; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="progress-bar-wrap">
+  <span class="progress-label">⚽ Progresso</span>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <span class="progress-pct" id="progressPct">0%</span>
+</div>
+
+<div class="wrapper">
+  <header>
+    <svg width="100%" viewBox="0 0 680 340" role="img" style="display:block;border-radius:16px;overflow:hidden;">
+      <title>Header Bolão do Teteu Mata-Mata</title>
+      <desc>Cabeçalho geométrico estilo CBF para o Mata-Mata</desc>
+      <rect x="0" y="0" width="340" height="170" fill="#ffdf00"/>
+      <rect x="340" y="0" width="340" height="170" fill="#003087"/>
+      <rect x="0" y="170" width="340" height="170" fill="#ffffff"/>
+      <rect x="340" y="170" width="340" height="170" fill="#009c3b"/>
+      <path d="M-10 170 Q80 170 80 80 Q80 -10 170 -10 L-10 -10 Z" fill="#003087"/>
+      <path d="M340 170 Q340 60 200 0 L340 0 Z" fill="#ffdf00"/>
+      <path d="M690 170 Q600 170 600 80 Q600 -10 510 -10 L690 -10 Z" fill="#ffdf00"/>
+      <path d="M-10 170 Q80 170 80 260 Q80 350 170 350 L-10 350 Z" fill="#009c3b"/>
+      <path d="M690 170 Q600 170 600 260 Q600 350 510 350 L690 350 Z" fill="#003087"/>
+      <rect x="337" y="0" width="6" height="340" fill="#fff" opacity="0.15"/>
+      <rect x="0" y="167" width="680" height="6" fill="#fff" opacity="0.15"/>
+      <rect x="160" y="110" width="360" height="120" rx="12" fill="#003087" opacity="0.92"/>
+      <rect x="160" y="110" width="360" height="120" rx="12" fill="none" stroke="#ffdf00" stroke-width="2.5"/>
+      <text x="240" y="133" text-anchor="middle" font-size="8" fill="#ffdf00">★ ★ ★ ★ ★</text>
+      <text x="340" y="163" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="28" font-weight="900" fill="#ffffff" letter-spacing="2">BOLÃO DO TETEU</text>
+      <text x="340" y="190" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="17" font-weight="700" fill="#ffdf00" letter-spacing="5">COPA 2026</text>
+      <line x1="195" y1="200" x2="280" y2="200" stroke="#ffdf00" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="340" cy="200" r="3" fill="#ffdf00"/>
+      <line x1="400" y1="200" x2="485" y2="200" stroke="#ffdf00" stroke-width="1.5" opacity="0.6"/>
+      <text x="340" y="218" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#a8c8f0" letter-spacing="3">MATA-MATA-MATA</text>
+      <circle cx="55" cy="295" r="38" fill="#fff" opacity="0.12"/>
+      <circle cx="55" cy="295" r="8" fill="#003087" opacity="0.5"/>
+      <circle cx="630" cy="48" r="32" fill="#fff" opacity="0.1"/>
+      <circle cx="630" cy="48" r="7" fill="#ffdf00" opacity="0.5"/>
+      
+    </svg>
+  </header>
+
+
+
+  <div style="text-align:right;margin-bottom:16px;">
+    <button onclick="preencherAleatorioF2()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
+  </div>
+
+  <!-- CHAVEAMENTO -->
+
+
+  <div class="phase-header"><div class="phase-badge"></div><h2>CHAVEAMENTO COMPLETO</h2></div>
+  <div class="regras-box">
+    <div class="regra-item">📌 Preencha toda a chave antes do 1º jogo eliminatório. <strong>Não será possível alterar depois.</strong></div>
+    <div class="regra-item">🎯 <strong>Fase de 32 → 16:</strong> cada classificado correto = <span class="pts">+2 pontos</span> · Máx. <span class="pts">32 pts</span></div>
+    <div class="regra-item">🎯 <strong>Oitavas → Quartas:</strong> cada classificado correto = <span class="pts">+4 pontos</span> · Máx. <span class="pts">32 pts</span></div>
+    <div class="regra-item">🎯 <strong>Quartas → Semis:</strong> cada semifinalista correto = <span class="pts">+6 pontos</span> · Máx. <span class="pts">24 pts</span></div>
+    <div class="regra-item">🎯 <strong>Semis → Final:</strong> cada finalista correto = <span class="pts">+8 pontos</span> · Máx. <span class="pts">16 pts</span></div>
+    <div class="regra-item">🏅 <strong>Campeão:</strong> acertou = <span class="pts">+15 pontos</span></div>
+    <div class="regra-item pontos-max">🏆 Máximo do bloco: 32 + 32 + 24 + 16 + 15 = <strong>119 pontos</strong></div>
+  </div>
+
+  <div class="bracket-wrapper">
+    <div class="round-labels" id="roundLabels"></div>
+    <div class="bracket" id="bracket"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- DECEPÇÃO -->
+  <div class="phase-header"><div class="phase-badge"></div><h2>💣 DECEPÇÃO DO MATA-MATA</h2></div>
+  <div class="regras-box">
+    <div class="regra-item">📌 Escolha uma seleção favorita que vai <strong>cair antes do esperado</strong> no mata-mata.</div>
+    <div class="regra-item">💣 <strong>Caiu na fase de 32:</strong> <span class="pts">+15 pontos</span></div>
+    <div class="regra-item">💣 <strong>Caiu nas oitavas:</strong> <span class="pts">+10 pontos</span></div>
+    <div class="regra-item">💣 <strong>Caiu nas quartas:</strong> <span class="pts">+5 pontos</span></div>
+    <div class="regra-item">❌ <strong>Chegou na semifinal ou além:</strong> <span class="pts">0 pontos</span></div>
+    <div class="regra-item pontos-max">🏆 Máximo do bloco: <strong>15 pontos</strong></div>
+  </div>
+  <div class="especial-grid">
+    <div class="especial-card decep">
+      <div class="card-icon">💣</div>
+      <div class="card-title">Decepção do Mata-mata</div>
+      <div class="card-desc">Favorito que cairá antes do esperado na fase eliminatória.</div>
+      <div class="sel-wrap"><select id="decepcaoMata"><option value="">Selecione...</option></select></div>
+    </div>
+  </div>
+
+
+
+  <div class="save-section">
+    <button class="btn-export" onclick="exportarComModal()">Enviar Palpites!</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="fecharModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span>📤 Bolão do Teteu — Mata-mata</span>
+      <button class="modal-close" onclick="document.getElementById('modalOverlay').style.display='none'">✕</button>
+    </div>
+    <p class="modal-desc">Copie o texto abaixo e envie por WhatsApp ou e-mail para o organizador.</p>
+    <textarea id="exportText" readonly></textarea>
+    <button class="btn-copy" id="btnCopy" onclick="copiar()">📋 Copiar tudo</button>
+  </div>
+</div>
+<div class="toast" id="toast">✅ Palpites salvos!</div>
+
+
+
+<div id="bolaoModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#002266;border:1px solid #1a3d7a;border-radius:18px;padding:32px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;">
+    <div id="bolaoStep1">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:#ffdf00;margin-bottom:6px;">SEUS DADOS</div>
+      <div style="font-size:13px;color:#7a9fd4;margin-bottom:24px;">Preencha seus dados e selecione seu bolão.</div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ffdf00;margin-bottom:8px;">Apelido *</label>
+        <input id="m_apelido" type="text" placeholder="Como você quer aparecer no ranking" style="width:100%;background:#001a4a;border:1px solid #1a3d7a;border-radius:10px;padding:12px 16px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;">
+      </div>
+      <div style="margin-bottom:24px;">
+        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ffdf00;margin-bottom:8px;">WhatsApp</label>
+        <input id="m_telefone" type="tel" placeholder="Ex: 61912345678" oninput="this.value=this.value.replace(/[^0-9]/g,'')" maxlength="11" style="width:100%;background:#001a4a;border:1px solid #1a3d7a;border-radius:10px;padding:12px 16px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;">
+      </div>
+      <div style="height:1px;background:#1a3d7a;margin-bottom:24px;"></div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#ffdf00;margin-bottom:16px;">QUAL É O SEU BOLÃO?</div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#7a9fd4;margin-bottom:8px;">Selecione o bolão</label>
+        <div style="position:relative;margin-bottom:16px;">
+          <select id="m_bolao_select" style="width:100%;background:#001a4a;border:1px solid #1a3d7a;border-radius:10px;padding:12px 36px 12px 16px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;appearance:none;cursor:pointer;"></select>
+          <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#7a9fd4;pointer-events:none;">&#9660;</span>
+        </div>
+        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#7a9fd4;margin-bottom:8px;">Código do bolão</label>
+        <input id="m_codigo" type="text" placeholder="Digite o código do bolão" style="width:100%;background:#001a4a;border:1px solid #1a3d7a;border-radius:10px;padding:12px 16px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;text-transform:uppercase;">
+      </div>
+      <div id="m_erro" style="display:none;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);border-radius:8px;padding:10px 14px;font-size:13px;color:#e74c3c;margin-top:14px;"></div>
+      <button onclick="confirmarBolao()" style="width:100%;background:#ffdf00;color:#003087;border:none;border-radius:12px;padding:15px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;margin-top:20px;font-weight:900;">CONFIRMAR E ENVIAR</button>
+      <button onclick="fecharBolaoModal()" style="width:100%;background:transparent;color:#7a9fd4;border:none;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:8px;">Cancelar</button>
+    </div>
+    <div id="bolaoStep2" style="display:none;text-align:center;">
+      <div style="font-size:56px;margin-bottom:16px;">&#x2705;</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:#ffdf00;margin-bottom:10px;">PALPITES ENVIADOS!</div>
+      <div style="font-size:14px;color:#e8f0ff;line-height:1.7;margin-bottom:20px;" id="bolaoStep2msg"></div>
+      <button onclick="verRanking()" style="width:100%;background:#ffdf00;color:#003087;border:none;border-radius:12px;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;margin-bottom:10px;font-weight:900;">VER RANKING</button>
+      <button onclick="fecharBolaoModal()" style="width:100%;background:transparent;color:#7a9fd4;border:none;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Fechar</button>
+    </div>
+  </div>
+</div>
+<script>
+var SUPABASE_URL="https://myytheficqokbjbkmeiv.supabase.co";
+var SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15eXRoZWZpY3Fva2JqYmttZWl2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDM1NTMwNCwiZXhwIjoyMDk1OTMxMzA0fQ.-KV4Iaz-hSxdXyhJGYBXo0W9VTmwZctk0kWvZWqIDaE";
+
+<script>
+const ALL_TEAMS = ['África do Sul','Alemanha','Arábia Saudita','Argentina','Argélia','Austrália','Áustria','Bélgica','Bósnia e Herzegovina','Brasil','Cabo Verde','Canadá','Catar','Colômbia','Coreia do Sul','Costa do Marfim','Croácia','Curaçao','Egito','Equador','Escócia','Espanha','Estados Unidos','França','Gana','Haiti','Holanda','Inglaterra','Iraque','Irã','Japão','Jordânia','México','Marrocos','Nova Zelândia','Noruega','Panamá','Paraguai','Portugal','RD Congo','República Tcheca','Senegal','Suécia','Suíça','Tunísia','Turquia','Uruguai','Uzbequistão'];
+
+const DECEPCAO_TEAMS = ['Argentina','França','Espanha','Inglaterra','Brasil','Portugal','Alemanha','Holanda'];
+
+// Chaveamento: 16 confrontos da fase de 32
+// Lado esquerdo: confrontos 1-8 (de cima pra baixo)
+// Lado direito: confrontos 9-16 (de cima pra baixo)
+// Seeds conforme imagem
+const SEEDS_LEFT = [
+  ['1ºE','3ºs'], ['1ºI','3ºs'],
+  ['2ºA','2ºB'], ['1ºF','2ºC'],
+  ['2ºK','2ºL'], ['1ºH','2ºJ'],
+  ['1ºD','3ºs'], ['1ºG','3ºs'],
+];
+const SEEDS_RIGHT = [
+  ['1ºC','2ºF'], ['2ºE','2ºI'],
+  ['1ºA','3ºs'], ['1ºL','3ºs'],
+  ['1ºJ','2ºH'], ['2ºD','2ºG'],
+  ['1ºB','3ºs'], ['1ºK','3ºs'],
+];
+
+function makeOpt(saved) {
+  return `<option value="">—</option>` +
+    ALL_TEAMS.map(t => `<option value="${t}"${saved===t?' selected':''}>${t}</option>`).join('');
+}
+
+function sel(id, saved) {
+  return `<div class="sel-wrap"><select id="${id}" onchange="updateProgress();markFilled(this)">${makeOpt(saved||'')}</select></div>`;
+}
+
+function buildBracket(saved) {
+  saved = saved || {};
+
+  // Grid 32 linhas × 10 colunas
+  // cols: 1=seedL, 2=r32L, 3=r16L, 4=qfL, 5=sfL, 6=sfR, 7=qfR, 8=r16R, 9=r32R, 10=seedR
+  // Cada confronto ocupa 4 linhas, 8 confrontos por lado = 32 linhas
+
+  // Labels das colunas
+  const labelEl = document.getElementById('roundLabels');
+  labelEl.innerHTML = `
+    <div class="round-label">Fase de 32</div>
+    <div class="round-label">Oitavas</div>
+    <div class="round-label">Quartas</div>
+    <div class="round-label">Semis</div>
+    <div class="round-label" style="grid-column:span 2">🏆 Final</div>
+    <div class="round-label">Semis</div>
+    <div class="round-label">Quartas</div>
+    <div class="round-label">Oitavas</div>
+    <div class="round-label">Fase de 32</div>
+  `;
+
+  const br = document.getElementById('bracket');
+  br.innerHTML = '';
+
+  // Monta células numa matriz 32×10
+  // Usaremos posicionamento por grid-row/grid-column
+  const cells = [];
+
+  function cell(col, row, colspan, rowspan, content, extra='') {
+    const div = document.createElement('div');
+    div.style.gridColumn = colspan > 1 ? `${col} / span ${colspan}` : `${col}`;
+    div.style.gridRow = rowspan > 1 ? `${row} / span ${rowspan}` : `${row}`;
+    div.className = extra;
+    div.innerHTML = content;
+    br.appendChild(div);
+  }
+
+  // ── LADO ESQUERDO ─────────────────────────────────────────
+  // 8 confrontos, cada um em 4 linhas
+  // Linhas: confronto i → linhas (i*4+1) a (i*4+4)
+  SEEDS_LEFT.forEach((seeds, i) => {
+    const baseRow = i * 4 + 1;
+    const idA = `r32L_${i}_A`;
+    const idB = `r32L_${i}_B`;
+    const idW = `r16L_${i}`;
+
+    // Seed labels col 1
+    cell(1, baseRow,   1, 1, `<div class="seed-label">${seeds[0]}</div>`);
+    cell(1, baseRow+2, 1, 1, `<div class="seed-label">${seeds[1]}</div>`);
+
+    // Selects fase 32 col 2
+    cell(2, baseRow,   1, 1, sel(idA, saved[idA]), 'slot');
+    cell(2, baseRow+2, 1, 1, sel(idB, saved[idB]), 'slot');
+
+    // Conector vertical col 2 entre os dois slots
+    cell(2, baseRow+1, 1, 1, '', 'conn-right');
+    cell(2, baseRow+3, 1, 1, '', 'conn-right');
+
+    // Vencedor oitavas col 3 — centralizado entre as 4 linhas
+    cell(3, baseRow+1, 1, 2, sel(idW, saved[idW]), 'slot');
+  });
+
+  // Quartas (col 4): pares de oitavas: 0+1, 2+3, 4+5, 6+7
+  [0,2,4,6].forEach((i, qi) => {
+    const baseRow = i * 4 + 3; // linha central do par
+    const idW = `qfL_${qi}`;
+    cell(3, baseRow,   1, 1, '', 'conn-right');
+    cell(3, baseRow+4, 1, 1, '', 'conn-right');
+    cell(4, baseRow+1, 1, 2, sel(idW, saved[idW]), 'slot');
+  });
+
+  // Semis (col 5): pares 0+1 e 2+3 de quartas
+  [0,2].forEach((qi, si) => {
+    const baseRow = qi * 8 + 5;
+    const idW = `sfL_${si}`;
+    cell(4, baseRow,   1, 1, '', 'conn-right');
+    cell(4, baseRow+8, 1, 1, '', 'conn-right');
+    cell(5, baseRow+3, 1, 2, sel(idW, saved[idW]), 'slot');
+  });
+
+  // Final esquerdo col 5 → conector
+  cell(5, 9,  1, 1, '', 'conn-right');
+  cell(5, 22, 1, 1, '', 'conn-right');
+
+  // ── CAMPEÃO CENTRAL (cols 5-6, linhas 14-18) ──────────────
+  const champDiv = document.createElement('div');
+  champDiv.style.gridColumn = '5 / span 2';
+  champDiv.style.gridRow = '14 / span 5';
+  champDiv.className = 'champion-area';
+  champDiv.innerHTML = `
+    <div class="trophy-icon">🏆</div>
+    <div class="champ-label">Campeão</div>
+    <div class="sel-wrap" style="max-width:140px">
+      <select id="champion" onchange="updateProgress();markFilled(this)" style="text-align:center;border-color:rgba(245,197,24,0.4);border-width:2px">
+        ${makeOpt(saved['champion']||'')}
+      </select>
+    </div>`;
+  br.appendChild(champDiv);
+
+  // ── LADO DIREITO ──────────────────────────────────────────
+  SEEDS_RIGHT.forEach((seeds, i) => {
+    const baseRow = i * 4 + 1;
+    const idA = `r32R_${i}_A`;
+    const idB = `r32R_${i}_B`;
+    const idW = `r16R_${i}`;
+
+    cell(9, baseRow,   1, 1, `<div class="seed-label" style="text-align:left">${seeds[0]}</div>`);
+    cell(9, baseRow+2, 1, 1, `<div class="seed-label" style="text-align:left">${seeds[1]}</div>`);
+
+    cell(9, baseRow,   1, 1, sel(idA, saved[idA]), 'slot');
+    cell(9, baseRow+2, 1, 1, sel(idB, saved[idB]), 'slot');
+    cell(9, baseRow+1, 1, 1, '', 'conn-left');
+    cell(9, baseRow+3, 1, 1, '', 'conn-left');
+
+    cell(8, baseRow+1, 1, 2, sel(idW, saved[idW]), 'slot');
+  });
+
+  // Quartas direito col 7
+  [0,2,4,6].forEach((i, qi) => {
+    const baseRow = i * 4 + 3;
+    const idW = `qfR_${qi}`;
+    cell(8, baseRow,   1, 1, '', 'conn-left');
+    cell(8, baseRow+4, 1, 1, '', 'conn-left');
+    cell(7, baseRow+1, 1, 2, sel(idW, saved[idW]), 'slot');
+  });
+
+  // Semis direito col 6
+  [0,2].forEach((qi, si) => {
+    const baseRow = qi * 8 + 5;
+    const idW = `sfR_${si}`;
+    cell(7, baseRow,   1, 1, '', 'conn-left');
+    cell(7, baseRow+8, 1, 1, '', 'conn-left');
+    cell(6, baseRow+3, 1, 2, sel(idW, saved[idW]), 'slot');
+  });
+
+  cell(6, 9,  1, 1, '', 'conn-left');
+  cell(6, 22, 1, 1, '', 'conn-left');
+
+  // Seed labels direito col 10
+  SEEDS_RIGHT.forEach((seeds, i) => {
+    const baseRow = i * 4 + 1;
+    cell(10, baseRow,   1, 1, `<div class="seed-label">${seeds[0]}</div>`);
+    cell(10, baseRow+2, 1, 1, `<div class="seed-label">${seeds[1]}</div>`);
+  });
+
+  // Decepção select
+  const decSel = document.getElementById('decepcaoMata');
+  if (decSel) {
+    const cur = saved['decepcaoMata'] || '';
+    decSel.innerHTML = `<option value="">Selecione...</option>` +
+      DECEPCAO_TEAMS.map(t => `<option value="${t}"${cur===t?' selected':''}>${t}</option>`).join('');
+  }
+}
+
+function markFilled(sel) { sel.classList.toggle('filled', !!sel.value); }
+
+function updateProgress() {
+  const sels = document.querySelectorAll('select');
+  const filled = [...sels].filter(s => s.value).length;
+  const pct = Math.round((filled / sels.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+function salvar() {
+    var sels = document.querySelectorAll('select');
+    var data = {};
+    sels.forEach(function(s) { data[s.id] = s.value; });
+    data.nome = document.getElementById('nome').value.trim();
+    localStorage.setItem('bolaodoteteu_fase2_' + (data.nome||'participante'), JSON.stringify(data));
+}
+
+function fecharModal(e) { if (e.target.id === 'modalOverlay') e.target.style.display = 'none'; }
+
+// INIT
+buildBracket(null);
+updateProgress();
+
+document.getElementById('nome').addEventListener('blur', function () {
+  if (this.value.trim()) tryLoad(this.value.trim());
+});
+document.addEventListener('change', updateProgress);
+
+function preencherAleatorioF2() {
+  var teams = ALL_TEAMS.slice();
+  function rnd() { return teams[Math.floor(Math.random()*teams.length)]; }
+  document.querySelectorAll('.bracket-slot select, .slot-select').forEach(function(s){
+    s.value = rnd(); s.classList.add('filled');
+  });
+  var champ = document.getElementById('champion');
+  if(champ){champ.value=rnd();champ.classList.add('filled');}
+  var dec = document.getElementById('decepcaoMata');
+  if(dec){dec.value=['Argentina','França','Espanha','Inglaterra','Brasil','Portugal','Alemanha','Holanda'][Math.floor(Math.random()*8)];dec.classList.add('filled');}
+  updateProgress();
+}
+
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
