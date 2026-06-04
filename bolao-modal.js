@@ -96,3 +96,7 @@ function verRanking() {
     window.location.href = 'ranking.html?bolao=' + PARTICIPANTE.bolao.codigo;
   }
 }
+
+function verMeusPalpites() {
+  window.location.href = 'meus-palpites.html';
+}

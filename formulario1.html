@@ -126,26 +126,7 @@
 </div>
 
 <div class="wrapper">
-  <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin:20px 0 0;padding:8px 14px;background:#00194a;border:1px solid #1a3d7a;border-radius:8px;">&#8592; Voltar ao início</a>
-  <!-- HEADER SVG -->
-  <header>
-    <svg width="100%" viewBox="0 0 680 160" style="display:block;border-radius:16px;overflow:hidden;margin-bottom:20px;">
-      <rect x="0" y="0" width="340" height="80" fill="#003087"/>
-      <rect x="340" y="0" width="340" height="80" fill="#009c3b"/>
-      <rect x="0" y="80" width="340" height="80" fill="#ffdf00"/>
-      <rect x="340" y="80" width="340" height="80" fill="#ffffff"/>
-      <path d="M-10 80 Q60 80 60 30 Q60 -10 110 -10 L-10 -10 Z" fill="#ffdf00"/>
-      <path d="M690 80 Q620 80 620 30 Q620 -10 570 -10 L690 -10 Z" fill="#003087"/>
-      <path d="M-10 80 Q60 80 60 130 Q60 170 110 170 L-10 170 Z" fill="#003087"/>
-      <path d="M690 80 Q620 80 620 130 Q620 170 570 170 L690 170 Z" fill="#009c3b"/>
-      <rect x="100" y="28" width="480" height="104" rx="10" fill="#003087" opacity="0.93"/>
-      <rect x="100" y="28" width="480" height="104" rx="10" fill="none" stroke="#ffdf00" stroke-width="1.5"/>
-      <text x="340" y="52" text-anchor="middle" font-size="8" fill="#ffdf00">* * * * *</text>
-      <text x="340" y="88" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">FASE DE GRUPOS</text>
-      <text x="340" y="108" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="700" fill="#ffdf00" letter-spacing="4">COPA 2026</text>
-      <text x="340" y="124" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#7a9fd4" letter-spacing="3">COPA DO MUNDO 2026</text>
-    </svg>
-  <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin-bottom:16px;padding:8px 14px;background:#00194a;border:1px solid rgba(255,223,0,0.3);border-radius:8px;" onmouseover="this.style.borderColor='#ffdf00'" onmouseout="this.style.borderColor='rgba(255,223,0,0.3)'">&#8592; Voltar ao Início</a>
+  
   </header>
 
   <!-- NOME -->
@@ -166,7 +147,7 @@
     <div class="regras-box">
       <div class="regra-item">Ordene as 4 seleções de cada grupo do 1º ao 4º lugar.</div>
       <div class="regra-item"><strong>Acerto de posição exata:</strong> <span class="pts">+1 ponto</span></div>
-      <div class="regra-item"><strong>Classificados diretos (1º e 2º, mesmo invertidos):</strong> <span class="pts">+1 ponto por selecao</span></div>
+      <div class="regra-item"><strong>Classificados diretos (1º e 2º, mesmo invertidos):</strong> <span class="pts">+1 ponto por seleção</span></div>
       <div class="regra-item pontos-max"><strong>Máximo: 72 pontos</strong></div>
     </div>
     <div class="groups-grid" id="groupsGrid"></div>
@@ -737,7 +718,7 @@ document.addEventListener('change',function(){markFilled();updateProgress();});
       <div style="font-size:48px;margin-bottom:16px;">✅</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:#ffdf00;margin-bottom:10px;">PALPITES ENVIADOS!</div>
       <div style="font-size:14px;color:#e8f0ff;line-height:1.7;margin-bottom:20px;" id="bolaoStep2msg"></div>
-      <button onclick="verRanking()" style="width:100%;background:#ffdf00;color:#003087;border:none;border-radius:12px;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;margin-bottom:10px;font-weight:900;">VER RANKING</button>
+      <button onclick="verMeusPalpites()" style="width:100%;background:#ffdf00;color:#003087;border:none;border-radius:12px;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;margin-bottom:10px;font-weight:900;">VER MEUS PALPITES</button>
       <button onclick="fecharBolaoModal()" style="width:100%;background:transparent;color:#7a9fd4;border:none;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Fechar</button>
     </div>
 
