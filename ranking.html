@@ -113,34 +113,46 @@ async function carregarRanking(bolaoId, bolaoNome) {
   var area = document.getElementById('rankingArea');
   area.innerHTML = '<div class="loading">Carregando...</div>';
   try {
-    // Buscar palpites fase 1 (grupos) — um por apelido
-    var r2 = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&select=apelido,criado_em&order=criado_em.asc',{headers:H});
-    var fase1Apelidos = {};
+    // Buscar palpites fase 1 — verificar grupos E placares separadamente
+    var r2 = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&select=apelido,gA_1,placares&order=criado_em.asc',{headers:H});
+    var fase1Grupos = {};   // enviou grupos
+    var fase1Placares = {}; // enviou placares (tem pelo menos um placar preenchido)
     if (r2.ok) {
       var p1 = await r2.json();
-      p1.forEach(function(x){ fase1Apelidos[x.apelido] = true; });
+      p1.forEach(function(x){
+        if (x.apelido) {
+          fase1Grupos[x.apelido] = true;
+          // Verificar se tem placares preenchidos
+          var pl = x.placares;
+          if (pl && typeof pl === 'object' && Object.keys(pl).length > 0) {
+            fase1Placares[x.apelido] = true;
+          } else if (pl && typeof pl === 'string') {
+            try { var parsed = JSON.parse(pl); if (Object.keys(parsed).length > 0) fase1Placares[x.apelido] = true; } catch(e){}
+          }
+        }
+      });
     }
 
-    // Buscar palpites fase 2 (mata-mata) — um por apelido
-    var r3 = await fetch(SU+'/rest/v1/palpites_fase2?bolao_id=eq.'+bolaoId+'&select=apelido,criado_em&order=criado_em.asc',{headers:H});
-    var fase2Apelidos = {};
+    // Buscar palpites fase 2 (chaveamento mata-mata)
+    var r3 = await fetch(SU+'/rest/v1/palpites_fase2?bolao_id=eq.'+bolaoId+'&select=apelido&order=criado_em.asc',{headers:H});
+    var fase2Chaveamento = {};
     if (r3.ok) {
       var p2 = await r3.json();
-      p2.forEach(function(x){ fase2Apelidos[x.apelido] = true; });
+      p2.forEach(function(x){ if(x.apelido) fase2Chaveamento[x.apelido] = true; });
     }
 
-    // Buscar pontuações ou montar lista a partir dos palpites
+    // Buscar pontuações
     var ranking = [];
     var r1 = await fetch(SU+'/rest/v1/pontuacoes?bolao_id=eq.'+bolaoId+'&select=*&order=total.desc',{headers:H});
     if (r1.ok) ranking = await r1.json();
 
-    // Se não tem pontuações ainda, monta lista de quem enviou palpites
+    // Se não tem pontuações, monta lista de quem enviou palpites
     if (!ranking.length) {
       var todosApelidos = {};
-      Object.keys(fase1Apelidos).forEach(function(a){ todosApelidos[a]=true; });
-      Object.keys(fase2Apelidos).forEach(function(a){ todosApelidos[a]=true; });
+      Object.keys(fase1Grupos).forEach(function(a){ todosApelidos[a]=true; });
+      Object.keys(fase2Chaveamento).forEach(function(a){ todosApelidos[a]=true; });
       ranking = Object.keys(todosApelidos).map(function(a){
-        return {apelido:a, pts_grupos:'-', pts_placares:'-', pts_zebras:'-', total:'-'};
+        return {apelido:a, pts_grupos:0, pts_placares:0, pts_zebras:0, pts_chaveamento:0, pts_placares_mata:0, total:0};
       });
     }
 
@@ -151,43 +163,55 @@ async function carregarRanking(bolaoId, bolaoNome) {
 
     var posClasses = ['gold','silver','bronze'];
     var html = '<div class="ranking-card">';
-    html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO — ' + (bolaoNome||'') + '</span><span class="ranking-update">Ao vivo</span></div>';
-    // Header com colunas — "Posição" por extenso, ícones de status de envio
-    html += '<div class="ranking-row header">';
-    html += '<div>Posição</div>';
-    html += '<div>Apelido</div>';
+    html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO — '+(bolaoNome||'')+'</span><span class="ranking-update">Ao vivo</span></div>';
+
+    // HEADER — duas seções de colunas
+    html += '<div style="background:var(--bg3);padding:6px 20px;">';
+    // Linha 1: labels de seção
+    html += '<div style="display:grid;grid-template-columns:80px 1fr 1fr 1fr 60px;gap:8px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);padding:4px 0;">';
+    html += '<div></div><div></div>';
+    html += '<div style="text-align:center;border-bottom:1px solid rgba(255,223,0,0.3);padding-bottom:2px;">FASE DE GRUPOS</div>';
+    html += '<div style="text-align:center;border-bottom:1px solid rgba(122,159,212,0.3);padding-bottom:2px;color:var(--muted);">FASE MATA-MATA</div>';
+    html += '<div></div>';
+    html += '</div>';
+    // Linha 2: nomes das colunas
+    html += '<div style="display:grid;grid-template-columns:80px 1fr repeat(2,1fr) repeat(2,1fr) 60px;gap:8px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:4px 0 6px;">';
+    html += '<div>Posição</div><div>Apelido</div>';
     html += '<div style="text-align:center">Grupos</div>';
     html += '<div style="text-align:center">Placares</div>';
-    html += '<div style="text-align:center">Zebras</div>';
+    html += '<div style="text-align:center">Chaveamento</div>';
+    html += '<div style="text-align:center">Placares MM</div>';
     html += '<div style="text-align:center">Total</div>';
-    html += '</div>';
+    html += '</div></div>';
 
     ranking.forEach(function(r,i){
       var num = i+1;
       var cls = i<3 ? posClasses[i] : 'other';
-      var posLabel = num + 'º lugar';
-      var temFase1 = fase1Apelidos[r.apelido] ? '✅' : '❌';
-      var temFase2 = fase2Apelidos[r.apelido] ? '✅' : '❌';
 
-      html += '<div class="ranking-row">';
-      html += '<div class="ranking-pos '+cls+'" title="'+posLabel+'">'+num+'<sup>º</sup></div>';
+      var temGrupos     = fase1Grupos[r.apelido]      ? '✅' : '❌';
+      var temPlacares   = fase1Placares[r.apelido]    ? '✅' : '❌';
+      var temChaveamento= fase2Chaveamento[r.apelido] ? '✅' : '❌';
+      var temPlacaresMM = fase2Chaveamento[r.apelido] ? '✅' : '❌'; // placar MM junto do chaveamento
+
+      var pGrupos     = r.pts_grupos      !== undefined ? r.pts_grupos      : 0;
+      var pPlacares   = r.pts_placares    !== undefined ? r.pts_placares    : 0;
+      var pChaveamento= r.pts_chaveamento !== undefined ? r.pts_chaveamento : 0;
+      var pPlacaresMM = r.pts_placares_mata!== undefined? r.pts_placares_mata: 0;
+
+      html += '<div style="display:grid;grid-template-columns:80px 1fr repeat(2,1fr) repeat(2,1fr) 60px;align-items:center;padding:10px 20px;border-bottom:1px solid rgba(26,61,122,0.4);gap:8px;">';
+      html += '<div class="ranking-pos '+cls+'">'+num+'<sup>º</sup></div>';
       html += '<div class="ranking-apelido">'+r.apelido+'</div>';
-      // Grupos: mostra pts + ✅/❌ de envio fase1
-      html += '<div class="ranking-pts" style="display:flex;flex-direction:column;align-items:center;gap:2px;">';
-      html += '<span>'+(r.pts_grupos||'-')+'</span>';
-      html += '<span class="status-icon" title="Palpite de grupos '+(fase1Apelidos[r.apelido]?'enviado':'não enviado')+'">'+temFase1+'</span>';
-      html += '</div>';
-      // Placares: usa mesmo envio fase1
-      html += '<div class="ranking-pts" style="display:flex;flex-direction:column;align-items:center;gap:2px;">';
-      html += '<span>'+(r.pts_placares||'-')+'</span>';
-      html += '<span class="status-icon" title="Palpite de placares '+(fase1Apelidos[r.apelido]?'enviado':'não enviado')+'">'+temFase1+'</span>';
-      html += '</div>';
-      // Zebras: também vêm do fase1
-      html += '<div class="ranking-pts" style="display:flex;flex-direction:column;align-items:center;gap:2px;">';
-      html += '<span>'+(r.pts_zebras||'-')+'</span>';
-      html += '<span class="status-icon" title="Zebras '+(fase1Apelidos[r.apelido]?'enviadas':'não enviadas')+'">'+temFase1+'</span>';
-      html += '</div>';
-      html += '<div class="ranking-pts total">'+(r.total||'-')+'</div>';
+
+      // Grupos
+      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--gold);font-weight:700;">'+pGrupos+' pts</div><div style="font-size:15px;">'+temGrupos+'</div></div>';
+      // Placares fase grupos
+      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--gold);font-weight:700;">'+pPlacares+' pts</div><div style="font-size:15px;">'+temPlacares+'</div></div>';
+      // Chaveamento
+      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--muted);font-weight:700;">'+pChaveamento+' pts</div><div style="font-size:15px;">'+temChaveamento+'</div></div>';
+      // Placares mata-mata
+      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--muted);font-weight:700;">'+pPlacaresMM+' pts</div><div style="font-size:15px;">'+temPlacaresMM+'</div></div>';
+      // Total
+      html += '<div class="ranking-pts total">'+(r.total||0)+'</div>';
       html += '</div>';
     });
 
