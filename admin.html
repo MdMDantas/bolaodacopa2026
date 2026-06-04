@@ -129,18 +129,20 @@ async function carregarAdmin() {
   var content = document.getElementById('adminContent');
   content.innerHTML = '<div class="loading">Carregando dados...</div>';
 
-  // Buscar palpites fase 1
-  var r1 = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+_bolaoAtual.id+'&select=apelido,placares,criado_em&order=criado_em.asc', {headers:H});
+  // Buscar palpites fase 1 completos
+  var r1 = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+_bolaoAtual.id+'&select=*&order=criado_em.asc', {headers:H});
   var palpites1 = r1.ok ? await r1.json() : [];
 
-  // Buscar palpites fase 2
-  var r2 = await fetch(SU+'/rest/v1/palpites_fase2?bolao_id=eq.'+_bolaoAtual.id+'&select=apelido,criado_em&order=criado_em.asc', {headers:H});
+  // Buscar palpites fase 2 completos
+  var r2 = await fetch(SU+'/rest/v1/palpites_fase2?bolao_id=eq.'+_bolaoAtual.id+'&select=*&order=criado_em.asc', {headers:H});
   var palpites2 = r2.ok ? await r2.json() : [];
 
-  // Montar mapa
-  var p1Map = {}, p2Map = {}, placMap = {};
+  // Montar mapas
+  var p1Map = {}, p2Map = {}, placMap = {}, p1Data = {}, p2Data = {};
   palpites1.forEach(function(x){
+    if (!x.apelido) return;
     p1Map[x.apelido] = true;
+    p1Data[x.apelido] = x;
     var pl = x.placares;
     if (pl) {
       if (typeof pl === 'string') { try { pl = JSON.parse(pl); } catch(e){ pl={}; } }
@@ -149,7 +151,7 @@ async function carregarAdmin() {
       }
     }
   });
-  palpites2.forEach(function(x){ p2Map[x.apelido] = true; });
+  palpites2.forEach(function(x){ if(x.apelido){ p2Map[x.apelido]=true; p2Data[x.apelido]=x; } });
 
   var todos = {};
   Object.keys(p1Map).forEach(function(a){ todos[a]=true; });
@@ -171,7 +173,7 @@ async function carregarAdmin() {
 
   // Tabela de participantes
   html += '<div class="card"><div class="card-header"><span class="card-title">👥 PARTICIPANTES — '+_bolaoAtual.nome+'</span>';
-  html += '<button class="btn btn-verde" onclick="exportarCSV()">⬇️ EXPORTAR CSV</button>';
+  html += '<button class="btn btn-verde" onclick="exportarCSV()">⬇️ EXPORTAR CSV COMPLETO</button>';
   html += '</div>';
   html += '<div class="participante-row header"><div>Apelido</div><div style="text-align:center">Grupos</div><div style="text-align:center">Placares</div><div style="text-align:center">Mata-Mata</div><div style="text-align:center">Total</div></div>';
 
@@ -209,32 +211,101 @@ async function carregarAdmin() {
   }
 
   content.innerHTML = html;
-
-  // Guardar dados para exportação
-  window._dadosExport = { participantes: participantes, p1Map: p1Map, placMap: placMap, p2Map: p2Map, bolao: _bolaoAtual };
+  window._dadosExport = { participantes:participantes, p1Map:p1Map, placMap:placMap, p2Map:p2Map, p1Data:p1Data, p2Data:p2Data, bolao:_bolaoAtual };
 }
+
+// Grupos de A a L
+var GRUPOS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+var JOGOS_R1_KEYS = {A:['México x África do Sul','Coreia do Sul x Rep. Tcheca'],B:['Canadá x Bósnia','Catar x Suíça'],C:['Brasil x Marrocos','Haiti x Escócia'],D:['EUA x Paraguai','Austrália x Turquia'],E:['Alemanha x Curaçao','Costa do Marfim x Equador'],F:['Holanda x Japão','Suécia x Tunísia'],G:['Bélgica x Egito','Irã x Nova Zelândia'],H:['Espanha x Cabo Verde','Arábia Saudita x Uruguai'],I:['França x Senegal','Noruega x Iraque'],J:['Argentina x Argélia','Áustria x Jordânia'],K:['Portugal x RD Congo','Uzbequistão x Colômbia'],L:['Inglaterra x Croácia','Gana x Panamá']};
+var JOGOS_R2_KEYS = {A:['México x Coreia do Sul','África do Sul x Rep. Tcheca'],B:['Canadá x Catar','Bósnia x Suíça'],C:['Brasil x Haiti','Marrocos x Escócia'],D:['EUA x Austrália','Turquia x Paraguai'],E:['Alemanha x Costa do Marfim','Curaçao x Equador'],F:['Holanda x Suécia','Japão x Tunísia'],G:['Bélgica x Irã','Egito x Nova Zelândia'],H:['Espanha x Arábia Saudita','Cabo Verde x Uruguai'],I:['França x Iraque','Noruega x Senegal'],J:['Argentina x Áustria','Argélia x Jordânia'],K:['Portugal x Uzbequistão','Colômbia x RD Congo'],L:['Inglaterra x Gana','Croácia x Panamá']};
+var JOGOS_R3_KEYS = {A:['México x Rep. Tcheca','África do Sul x Coreia do Sul'],B:['Canadá x Suíça','Bósnia x Catar'],C:['Brasil x Escócia','Marrocos x Haiti'],D:['EUA x Turquia','Paraguai x Austrália'],E:['Alemanha x Equador','Curaçao x Costa do Marfim'],F:['Holanda x Tunísia','Japão x Suécia'],G:['Bélgica x Nova Zelândia','Egito x Irã'],H:['Espanha x Uruguai','Cabo Verde x Arábia Saudita'],I:['França x Noruega','Senegal x Iraque'],J:['Argentina x Jordânia','Argélia x Áustria'],K:['Portugal x Colômbia','RD Congo x Uzbequistão'],L:['Inglaterra x Panamá','Croácia x Gana']};
 
 function exportarCSV() {
   var d = window._dadosExport;
   if (!d) return;
 
-  var linhas = [['Apelido','Grupos','Placares','Mata-Mata','Palpites Completos']];
-  d.participantes.forEach(function(ap) {
-    linhas.push([
-      ap,
-      d.p1Map[ap] ? 'Sim' : 'Não',
-      d.placMap[ap] ? 'Sim' : 'Não',
-      d.p2Map[ap] ? 'Sim' : 'Não',
-      ((d.p1Map[ap]?1:0)+(d.placMap[ap]?1:0)+(d.p2Map[ap]?1:0))+'/3'
-    ]);
+  // Montar cabeçalho
+  var cabecalho = ['Apelido'];
+
+  // Grupos: posições 1-4 de cada grupo
+  GRUPOS.forEach(function(g){
+    for(var p=1;p<=4;p++) cabecalho.push('Grupo '+g+' '+p+'º');
   });
 
-  var csv = linhas.map(function(r){ return r.join(','); }).join('\n');
+  // Zebras
+  for(var z=1;z<=4;z++) cabecalho.push('Zebra '+z);
+
+  // Melhores terceiros
+  for(var t=1;t<=8;t++) cabecalho.push('Melhor 3º #'+t);
+
+  // Placares R1
+  var RODADAS = [['R1',JOGOS_R1_KEYS],['R2',JOGOS_R2_KEYS],['R3',JOGOS_R3_KEYS]];
+  RODADAS.forEach(function(rod){
+    var rKey=rod[0], jogos=rod[1];
+    GRUPOS.forEach(function(g){
+      if(!jogos[g]) return;
+      jogos[g].forEach(function(nome, ji){
+        cabecalho.push(rKey+' - '+nome);
+      });
+    });
+  });
+
+  // Mata-mata
+  cabecalho.push('Campeão');
+  cabecalho.push('Decepção Mata-Mata');
+
+  // Montar linhas
+  var linhas = [cabecalho];
+
+  d.participantes.forEach(function(ap){
+    var linha = [ap];
+    var p1 = d.p1Data[ap] || {};
+    var p2 = d.p2Data[ap] || {};
+
+    // Grupos
+    GRUPOS.forEach(function(g){
+      for(var pos=1;pos<=4;pos++) linha.push(p1['g'+g+'_'+pos]||'');
+    });
+
+    // Zebras
+    for(var z=1;z<=4;z++) linha.push(p1['zebra'+z]||'');
+
+    // Terceiros
+    for(var t=1;t<=8;t++) linha.push(p1['t'+t]||'');
+
+    // Placares
+    var placares = p1.placares || {};
+    if (typeof placares === 'string') { try { placares = JSON.parse(placares); } catch(e){ placares={}; } }
+    RODADAS.forEach(function(rod){
+      var rKey=rod[0], jogos=rod[1];
+      GRUPOS.forEach(function(g){
+        if(!jogos[g]) return;
+        jogos[g].forEach(function(nome, ji){
+          var id = 'placar_'+rKey+'_'+g+'_'+ji;
+          var va = placares[id+'_a'] !== undefined ? placares[id+'_a'] : '';
+          var vb = placares[id+'_b'] !== undefined ? placares[id+'_b'] : '';
+          linha.push(va !== '' && vb !== '' ? va+'x'+vb : '');
+        });
+      });
+    });
+
+    // Mata-mata
+    linha.push(p2['champion']||'');
+    linha.push(p2['decepcaoMata']||'');
+
+    linhas.push(linha);
+  });
+
+  // Gerar CSV
+  var csv = linhas.map(function(r){
+    return r.map(function(c){ return '"'+(c+'').replace(/"/g,'""')+'"'; }).join(',');
+  }).join('\n');
+
   var blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
   a.href = url;
-  a.download = 'bolao-'+d.bolao.codigo+'-participantes.csv';
+  a.download = 'bolao-'+d.bolao.codigo+'-palpites-completos.csv';
   a.click();
   URL.revokeObjectURL(url);
 }
