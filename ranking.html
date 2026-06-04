@@ -177,10 +177,10 @@ async function carregarRanking(bolaoId, bolaoNome) {
       html += '<span>'+(r.pts_placares||'-')+'</span>';
       html += '<span class="status-icon" title="Palpite de placares '+(fase1Apelidos[r.apelido]?'enviado':'não enviado')+'">'+temFase1+'</span>';
       html += '</div>';
-      // Zebras: usa envio fase2
+      // Zebras: também vêm do fase1
       html += '<div class="ranking-pts" style="display:flex;flex-direction:column;align-items:center;gap:2px;">';
       html += '<span>'+(r.pts_zebras||'-')+'</span>';
-      html += '<span class="status-icon" title="Palpite de zebras/mata-mata '+(fase2Apelidos[r.apelido]?'enviado':'não enviado')+'">'+temFase2+'</span>';
+      html += '<span class="status-icon" title="Zebras '+(fase1Apelidos[r.apelido]?'enviadas':'não enviadas')+'">'+temFase1+'</span>';
       html += '</div>';
       html += '<div class="ranking-pts total">'+(r.total||'-')+'</div>';
       html += '</div>';

@@ -214,6 +214,7 @@
       <div class="regra-item"><strong>Apostou em vencedor mas o jogo empatou</strong> (ou errou tudo): <span class="pts">0 pts</span></div>
       <div class="regra-item pontos-max">Você aposta nos 72 jogos, mas no final só os seus <strong>24 melhores palpites</strong> contam. Os demais são descartados. Máximo: 24 × 3 = <strong>72 pontos</strong></div>
     </div>
+    <div style="text-align:right;margin-bottom:16px;"><button onclick="preencherAleatorioRodada('R1')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div id="placaresR1"></div>
     <div class="export-section">
       <button class="btn-export" onclick="exportarTabComModal('R1','Rodada 1')">Enviar Palpites Rodada 1</button>
@@ -228,6 +229,7 @@
       <div class="regra-item"><strong>Apostou em vencedor mas empatou:</strong> <span class="pts">0 pts</span></div>
       <div class="regra-item pontos-max">Lembre: dos 72 jogos totais, só os seus <strong>24 melhores palpites</strong> contam.</div>
     </div>
+    <div style="text-align:right;margin-bottom:16px;"><button onclick="preencherAleatorioRodada('R2')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div id="placaresR2"></div>
     <div class="export-section">
       <button class="btn-export" onclick="exportarTabComModal('R2','Rodada 2')">Enviar Palpites Rodada 2</button>
@@ -242,6 +244,7 @@
       <div class="regra-item"><strong>Apostou em vencedor mas empatou:</strong> <span class="pts">0 pts</span></div>
       <div class="regra-item pontos-max">Lembre: dos 72 jogos totais, só os seus <strong>24 melhores palpites</strong> contam.</div>
     </div>
+    <div style="text-align:right;margin-bottom:16px;"><button onclick="preencherAleatorioRodada('R3')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div id="placaresR3"></div>
     <div class="export-section">
       <button class="btn-export" onclick="exportarTabComModal('R3','Rodada 3')">Enviar Palpites Rodada 3</button>
@@ -570,7 +573,9 @@ function exportarTab1ComModal() {
     var row = { bolao_id: participante.bolao.id, apelido: participante.apelido, nome: participante.apelido, telefone: participante.telefone || null };
     var gkeys = Object.keys(GRUPOS_DISPLAY);
     gkeys.forEach(function(g) { for(var p=1;p<=4;p++) row['g'+g+'_'+p]=data['g'+g+'_'+p]||null; });
-    for(var ti=1;ti<=8;ti++) row['t'+ti]=data['t'+ti]||null;
+    // Salvar terceiros a partir da ordem do drag & drop
+    var terceiroOrder = getTerceiroOrder();
+    for(var ti=1;ti<=8;ti++) row['t'+ti]=terceiroOrder[ti-1]||null;
     for(var zi=1;zi<=4;zi++) row['zebra'+zi]=data['zebra'+zi]||null;
     var placares={};
     ['R1','R2','R3'].forEach(function(r){
@@ -597,7 +602,8 @@ function exportarTabComModal(rodada, label) {
     var row = { bolao_id: participante.bolao.id, apelido: participante.apelido, nome: participante.apelido, telefone: participante.telefone||null };
     var gkeys = Object.keys(GRUPOS_DISPLAY);
     gkeys.forEach(function(g){for(var p=1;p<=4;p++) row['g'+g+'_'+p]=data['g'+g+'_'+p]||null;});
-    for(var ti=1;ti<=8;ti++) row['t'+ti]=data['t'+ti]||null;
+    var terceiroOrder = getTerceiroOrder();
+    for(var ti=1;ti<=8;ti++) row['t'+ti]=terceiroOrder[ti-1]||null;
     for(var zi=1;zi<=4;zi++) row['zebra'+zi]=data['zebra'+zi]||null;
     var placares={};
     var jogos=rodada==='R1'?JOGOS_R1:rodada==='R2'?JOGOS_R2:JOGOS_R3;
@@ -614,6 +620,7 @@ function exportarTabComModal(rodada, label) {
   });
 }
 
+// Preencher aleatório só para grupos + terceiros + zebras (Etapa 1)
 function preencherAleatorio() {
   Object.keys(GRUPOS_DISPLAY).forEach(function(g) {
     var teams=GRUPOS_DISPLAY[g].slice();
@@ -636,16 +643,19 @@ function preencherAleatorio() {
     if(sel){sel.innerHTML='<option value="">Selecione...</option>';zCopy.forEach(function(t){sel.innerHTML+='<option value="'+t+'">'+t+'</option>';});sel.value=zCopy[idx];sel.classList.add('filled');}
     zCopy.splice(idx,1);
   }
-  ['R1','R2','R3'].forEach(function(r){
-    var jogos=r==='R1'?JOGOS_R1:r==='R2'?JOGOS_R2:JOGOS_R3;
-    buildPlacares(r,'placares'+r,null);
-    Object.keys(jogos).forEach(function(g){
-      jogos[g].forEach(function(jogo,ji){
-        var id='placar_'+r+'_'+g+'_'+ji;
-        var ea=document.getElementById(id+'_a'),eb=document.getElementById(id+'_b');
-        if(ea)ea.value=Math.floor(Math.random()*4);
-        if(eb)eb.value=Math.floor(Math.random()*4);
-      });
+  updateProgress(); markFilled();
+}
+
+// Preencher aleatório só placares de uma rodada específica
+function preencherAleatorioRodada(rodada) {
+  var jogos=rodada==='R1'?JOGOS_R1:rodada==='R2'?JOGOS_R2:JOGOS_R3;
+  buildPlacares(rodada,'placares'+rodada,null);
+  Object.keys(jogos).forEach(function(g){
+    jogos[g].forEach(function(jogo,ji){
+      var id='placar_'+rodada+'_'+g+'_'+ji;
+      var ea=document.getElementById(id+'_a'),eb=document.getElementById(id+'_b');
+      if(ea)ea.value=Math.floor(Math.random()*4);
+      if(eb)eb.value=Math.floor(Math.random()*4);
     });
   });
   updateProgress(); markFilled();
