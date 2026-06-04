@@ -11,21 +11,17 @@
   body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;
     background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(0,48,135,0.5) 0%,transparent 60%);}
   .wrapper{max-width:500px;margin:0 auto;padding:0 20px 80px;}
-  .back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;text-decoration:none;margin:20px 0 0;padding:8px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;}
-  .back:hover{color:var(--gold);border-color:var(--gold);}
-  header{padding:0 0 32px;}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;margin-top:24px;}
+  .card{background:var(--card);border:1px solid rgba(255,223,0,0.3);border-radius:16px;padding:32px;margin-top:8px;}
   .card-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--gold);margin-bottom:6px;}
   .card-sub{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.5;}
   label{display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
   input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:13px 16px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color 0.2s;margin-bottom:20px;}
   input:focus{border-color:var(--gold);}
+  input:read-only{opacity:0.6;cursor:not-allowed;}
   .btn{width:100%;background:var(--gold);color:var(--blue);border:none;border-radius:12px;padding:16px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;font-weight:900;transition:all 0.2s;}
   .btn:hover{background:#ffe933;transform:translateY(-2px);}
   .btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
   .erro{display:none;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);border-radius:8px;padding:12px 16px;font-size:13px;color:#e74c3c;margin-bottom:16px;}
-
-  /* SUCESSO */
   .sucesso{display:none;text-align:center;padding:32px 0;}
   .sucesso .icon{font-size:56px;margin-bottom:16px;}
   .sucesso h2{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--gold);margin-bottom:10px;}
@@ -36,49 +32,63 @@
   .codigo-hint{font-size:12px;color:var(--muted);margin-top:8px;}
   .btn-copy{width:100%;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:10px;padding:12px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;margin-bottom:10px;transition:all 0.2s;}
   .btn-copy:hover{background:rgba(255,223,0,0.1);}
-  .btn-form{width:100%;background:var(--gold);color:var(--blue);border:none;border-radius:10px;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;cursor:pointer;font-weight:900;}
+  .btn-form{width:100%;background:var(--gold);color:var(--blue);border:none;border-radius:10px;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;cursor:pointer;font-weight:900;margin-bottom:10px;}
+  .login-aviso{background:rgba(255,223,0,0.07);border:1px solid rgba(255,223,0,0.2);border-radius:12px;padding:20px;text-align:center;}
+  .usuario-box{background:rgba(0,196,79,0.08);border:1px solid rgba(0,196,79,0.2);border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
 </style>
 </head>
 <body>
 <div class="wrapper">
-  
-
-  <header>
-    <svg width="100%" viewBox="0 0 680 160" style="display:block;border-radius:16px;overflow:hidden;margin-bottom:20px;">
-      <rect x="0" y="0" width="340" height="80" fill="#003087"/>
-      <rect x="340" y="0" width="340" height="80" fill="#009c3b"/>
-      <rect x="0" y="80" width="340" height="80" fill="#ffdf00"/>
-      <rect x="340" y="80" width="340" height="80" fill="#ffffff"/>
-      <path d="M-10 80 Q60 80 60 30 Q60 -10 110 -10 L-10 -10 Z" fill="#ffdf00"/>
-      <path d="M690 80 Q620 80 620 30 Q620 -10 570 -10 L690 -10 Z" fill="#003087"/>
-      <path d="M-10 80 Q60 80 60 130 Q60 170 110 170 L-10 170 Z" fill="#003087"/>
-      <path d="M690 80 Q620 80 620 130 Q620 170 570 170 L690 170 Z" fill="#009c3b"/>
-      <rect x="100" y="28" width="480" height="104" rx="10" fill="#003087" opacity="0.93"/>
-      <rect x="100" y="28" width="480" height="104" rx="10" fill="none" stroke="#ffdf00" stroke-width="1.5"/>
-      <text x="340" y="52" text-anchor="middle" font-size="8" fill="#ffdf00">* * * * *</text>
-      <text x="340" y="88" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">CRIAR BOLÃO</text>
-      <text x="340" y="108" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="700" fill="#ffdf00" letter-spacing="4">COPA 2026</text>
-      <text x="340" y="124" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#7a9fd4" letter-spacing="3">COPA DO MUNDO 2026</text>
-    </svg>
+  <svg width="100%" viewBox="0 0 680 160" style="display:block;border-radius:16px;overflow:hidden;margin-bottom:20px;">
+    <rect x="0" y="0" width="340" height="80" fill="#003087"/>
+    <rect x="340" y="0" width="340" height="80" fill="#009c3b"/>
+    <rect x="0" y="80" width="340" height="80" fill="#ffdf00"/>
+    <rect x="340" y="80" width="340" height="80" fill="#ffffff"/>
+    <path d="M-10 80 Q60 80 60 30 Q60 -10 110 -10 L-10 -10 Z" fill="#ffdf00"/>
+    <path d="M690 80 Q620 80 620 30 Q620 -10 570 -10 L690 -10 Z" fill="#003087"/>
+    <path d="M-10 80 Q60 80 60 130 Q60 170 110 170 L-10 170 Z" fill="#003087"/>
+    <path d="M690 80 Q620 80 620 130 Q620 170 570 170 L690 170 Z" fill="#009c3b"/>
+    <rect x="100" y="28" width="480" height="104" rx="10" fill="#003087" opacity="0.93"/>
+    <rect x="100" y="28" width="480" height="104" rx="10" fill="none" stroke="#ffdf00" stroke-width="1.5"/>
+    <text x="340" y="52" text-anchor="middle" font-size="8" fill="#ffdf00">* * * * *</text>
+    <text x="340" y="88" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">CRIAR BOLÃO</text>
+    <text x="340" y="108" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="700" fill="#ffdf00" letter-spacing="4">COPA 2026</text>
+    <text x="340" y="124" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#7a9fd4" letter-spacing="3">COPA DO MUNDO 2026</text>
+  </svg>
   <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin:12px 0 16px;padding:8px 14px;background:#00194a;border:1px solid rgba(255,223,0,0.3);border-radius:8px;" onmouseover="this.style.borderColor='#ffdf00'" onmouseout="this.style.borderColor='rgba(255,223,0,0.3)'">&#8592; Voltar ao Início</a>
-  </header>
 
   <div class="card">
+    <!-- SEM LOGIN -->
+    <div id="semLoginArea" style="display:none;">
+      <div class="login-aviso">
+        <div style="font-size:36px;margin-bottom:12px;">🔐</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);letter-spacing:2px;margin-bottom:8px;">LOGIN NECESSÁRIO</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Para criar um bolão você precisa estar logado. Assim você se torna automaticamente o administrador do bolão.</div>
+        <a href="login.html?volta=criar-bolao.html" style="display:block;background:var(--gold);color:var(--blue);border:none;border-radius:12px;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;cursor:pointer;font-weight:900;text-decoration:none;text-align:center;">ENTRAR / CADASTRAR</a>
+      </div>
+    </div>
+
     <!-- FORMULÁRIO -->
-    <div id="formArea">
+    <div id="formArea" style="display:none;">
       <div class="card-title">Novo Bolão</div>
       <div class="card-sub">Crie seu bolão e compartilhe o código com seus amigos!</div>
+
+      <div id="usuarioBox" class="usuario-box">
+        <span style="font-size:20px;">👤</span>
+        <div>
+          <div style="font-size:11px;color:var(--muted);letter-spacing:1px;">CRIADOR (ADMINISTRADOR)</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);letter-spacing:2px;" id="usuarioNome">—</div>
+        </div>
+      </div>
 
       <div id="erroMsg" class="erro"></div>
 
       <label>Nome do Bolão</label>
-      <input type="text" id="nomeBolao" placeholder="Ex: Bolão do Escritório" style="text-transform:uppercase;" />
+      <input type="text" id="nomeBolao" placeholder="Ex: Bolão do Escritório" style="text-transform:uppercase;">
 
       <label>Código do Bolão</label>
-      <input type="text" id="codigoBolao" placeholder="Ex: TESTE345" style="text-transform:uppercase;" />
+      <input type="text" id="codigoBolao" placeholder="Ex: TESTE345" style="text-transform:uppercase;">
       <div style="font-size:12px;color:#7a9fd4;margin-top:-14px;margin-bottom:20px;">Escolha um código fácil de lembrar. Será usado para identificar seu bolão.</div>
-
-
 
       <button class="btn" id="btnCriar" onclick="criarBolao()">CRIAR BOLÃO</button>
     </div>
@@ -95,54 +105,70 @@
       </div>
       <button class="btn-copy" onclick="copiarCodigo()">📋 Copiar Código</button>
       <button class="btn-form" onclick="window.location.href='formulario1.html'">IR PARA OS PALPITES →</button>
+      <button class="btn-form" style="background:transparent;color:var(--gold);border:1px solid var(--gold);" onclick="window.location.href='admin.html?bolao='+document.getElementById('codigoGerado').textContent">⚙️ PAINEL ADMIN</button>
     </div>
   </div>
 </div>
 
+<script src="db.js"></script>
+<script src="auth.js"></script>
 <script>
-var SUPABASE_URL = 'https://myytheficqokbjbkmeiv.supabase.co';
-var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15eXRoZWZpY3Fva2JqYmttZWl2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDM1NTMwNCwiZXhwIjoyMDk1OTMxMzA0fQ.-KV4Iaz-hSxdXyhJGYBXo0W9VTmwZctk0kWvZWqIDaE';
+var _usuario = null;
+
+window.onload = function() {
+  _usuario = AUTH.get();
+  if (!_usuario) {
+    document.getElementById('semLoginArea').style.display = 'block';
+  } else {
+    document.getElementById('formArea').style.display = 'block';
+    document.getElementById('usuarioNome').textContent = _usuario.apelido;
+  }
+};
 
 async function criarBolao() {
-  var nome = document.getElementById('nomeBolao').value.trim();
+  var nome   = document.getElementById('nomeBolao').value.trim().toUpperCase();
+  var codigo = document.getElementById('codigoBolao').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
   var erroEl = document.getElementById('erroMsg');
 
-  if (!nome) { erroEl.textContent = 'Digite o nome do bolão.'; erroEl.style.display='block'; return; }
+  if (!nome)   { erroEl.textContent='Digite o nome do bolão.';  erroEl.style.display='block'; return; }
+  if (!codigo) { erroEl.textContent='Digite um código para o bolão.'; erroEl.style.display='block'; return; }
   erroEl.style.display = 'none';
 
   var btn = document.getElementById('btnCriar');
   btn.textContent = 'CRIANDO...'; btn.disabled = true;
 
-  var codigo = document.getElementById('codigoBolao').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
-  if (!codigo) { erroEl.textContent = 'Digite um código para o bolão.'; erroEl.style.display='block'; btn.textContent='CRIAR BOLÃO'; btn.disabled=false; return; }
+  var payload = {
+    nome:             nome,
+    codigo:           codigo,
+    senha:            '-',
+    criador_apelido:  _usuario.apelido,
+    criador_telefone: _usuario.telefone
+  };
 
-  var resp = await fetch(SUPABASE_URL + '/rest/v1/boloes', {
+  var resp = await fetch('https://myytheficqokbjbkmeiv.supabase.co/rest/v1/boloes', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'apikey': SUPABASE_KEY,
-      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15eXRoZWZpY3Fva2JqYmttZWl2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDM1NTMwNCwiZXhwIjoyMDk1OTMxMzA0fQ.-KV4Iaz-hSxdXyhJGYBXo0W9VTmwZctk0kWvZWqIDaE',
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15eXRoZWZpY3Fva2JqYmttZWl2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDM1NTMwNCwiZXhwIjoyMDk1OTMxMzA0fQ.-KV4Iaz-hSxdXyhJGYBXo0W9VTmwZctk0kWvZWqIDaE',
       'Prefer': 'return=representation'
     },
-    body: JSON.stringify({ nome: nome, senha: '-', codigo: codigo })
+    body: JSON.stringify(payload)
   });
 
   btn.textContent = 'CRIAR BOLÃO'; btn.disabled = false;
 
   if (!resp.ok) {
     var err = await resp.text();
-    console.error('erro:', resp.status, err);
-    erroEl.textContent = 'Erro ao criar bolão. Tente novamente.';
+    erroEl.textContent = err.includes('duplicate') ? 'Esse código já está em uso. Escolha outro.' : 'Erro ao criar bolão. Tente novamente.';
     erroEl.style.display = 'block';
     return;
   }
 
   var data = await resp.json();
   var bolao = Array.isArray(data) ? data[0] : data;
-
-  // Save to session for use in forms
+  AUTH.salvarUltimoBolao(bolao.codigo);
   sessionStorage.setItem('bolaoAtual', JSON.stringify(bolao));
-
   document.getElementById('codigoGerado').textContent = bolao.codigo;
   document.getElementById('formArea').style.display = 'none';
   document.getElementById('sucessoArea').style.display = 'block';

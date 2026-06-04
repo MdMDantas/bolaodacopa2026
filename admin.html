@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Bolão da Copa 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#ffdf00;--green:#009c3b;--green-light:#00c44f;--blue:#003087;--bg:#001a4a;--bg2:#002266;--bg3:#002d80;--card:#00194a;--border:#1a3d7a;--text:#e8f0ff;--muted:#7a9fd4;--white:#fff;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;
+    background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(0,48,135,0.5) 0%,transparent 60%);}
+  .wrapper{max-width:800px;margin:0 auto;padding:0 20px 80px;}
+  .card{background:var(--card);border:1px solid rgba(255,223,0,0.3);border-radius:14px;overflow:hidden;margin-bottom:20px;}
+  .card-header{background:var(--bg3);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
+  .card-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--gold);}
+  .card-body{padding:20px;}
+  .btn{background:var(--gold);color:var(--blue);border:none;border-radius:10px;padding:10px 20px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;cursor:pointer;font-weight:900;}
+  .btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:10px;padding:10px 20px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;cursor:pointer;}
+  .btn-verde{background:var(--green);color:#fff;}
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+  .stat-card{background:var(--bg2);border-radius:10px;padding:16px;text-align:center;}
+  .stat-val{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gold);}
+  .stat-label{font-size:11px;color:var(--muted);margin-top:4px;}
+  .participante-row{display:grid;grid-template-columns:1fr 80px 80px 80px 80px;gap:8px;align-items:center;padding:10px 16px;border-bottom:1px solid rgba(26,61,122,0.3);font-size:13px;}
+  .participante-row:last-child{border-bottom:none;}
+  .participante-row.header{background:var(--bg3);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:8px 16px;}
+  .status-ok{color:var(--green-light);}
+  .status-no{color:#ff6b6b;}
+  .acesso-negado{text-align:center;padding:40px 20px;}
+  .acesso-negado .icone{font-size:48px;margin-bottom:16px;}
+  .loading{text-align:center;padding:40px;color:var(--muted);}
+  .busca-wrap{background:var(--card);border:1px solid rgba(255,223,0,0.3);border-radius:14px;padding:24px;margin-bottom:20px;}
+  .busca-wrap label{display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+  .busca-row{display:flex;gap:10px;}
+  .busca-row input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;outline:none;text-transform:uppercase;}
+  .busca-row input:focus{border-color:var(--gold);}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <svg width="100%" viewBox="0 0 680 160" style="display:block;border-radius:16px;overflow:hidden;margin-bottom:20px;">
+    <rect x="0" y="0" width="340" height="80" fill="#003087"/>
+    <rect x="340" y="0" width="340" height="80" fill="#009c3b"/>
+    <rect x="0" y="80" width="340" height="80" fill="#ffdf00"/>
+    <rect x="340" y="80" width="340" height="80" fill="#ffffff"/>
+    <path d="M-10 80 Q60 80 60 30 Q60 -10 110 -10 L-10 -10 Z" fill="#ffdf00"/>
+    <path d="M690 80 Q620 80 620 30 Q620 -10 570 -10 L690 -10 Z" fill="#003087"/>
+    <path d="M-10 80 Q60 80 60 130 Q60 170 110 170 L-10 170 Z" fill="#003087"/>
+    <path d="M690 80 Q620 80 620 130 Q620 170 570 170 L690 170 Z" fill="#009c3b"/>
+    <rect x="100" y="28" width="480" height="104" rx="10" fill="#003087" opacity="0.93"/>
+    <rect x="100" y="28" width="480" height="104" rx="10" fill="none" stroke="#ffdf00" stroke-width="1.5"/>
+    <text x="340" y="52" text-anchor="middle" font-size="8" fill="#ffdf00">* * * * *</text>
+    <text x="340" y="88" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">PAINEL ADMIN</text>
+    <text x="340" y="108" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="700" fill="#ffdf00" letter-spacing="4">COPA 2026</text>
+    <text x="340" y="124" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#7a9fd4" letter-spacing="3">COPA DO MUNDO 2026</text>
+  </svg>
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin:12px 0 16px;padding:8px 14px;background:#00194a;border:1px solid rgba(255,223,0,0.3);border-radius:8px;" onmouseover="this.style.borderColor='#ffdf00'" onmouseout="this.style.borderColor='rgba(255,223,0,0.3)'">&#8592; Voltar ao Início</a>
+
+  <div id="mainArea"><div class="loading">Verificando acesso...</div></div>
+</div>
+
+<script src="db.js"></script>
+<script src="auth.js"></script>
+<script>
+var SU = 'https://myytheficqokbjbkmeiv.supabase.co';
+var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15eXRoZWZpY3Fva2JqYmttZWl2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDM1NTMwNCwiZXhwIjoyMDk1OTMxMzA0fQ.-KV4Iaz-hSxdXyhJGYBXo0W9VTmwZctk0kWvZWqIDaE';
+var H = {'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json'};
+var _usuario = null;
+var _bolaoAtual = null;
+
+window.onload = async function() {
+  _usuario = AUTH.get();
+  var area = document.getElementById('mainArea');
+
+  if (!_usuario) {
+    area.innerHTML = '<div class="card"><div class="card-body"><div class="acesso-negado">'
+      + '<div class="icone">🔐</div>'
+      + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--gold);letter-spacing:2px;margin-bottom:8px;">FAÇA LOGIN PRIMEIRO</div>'
+      + '<div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Você precisa estar logado para acessar o painel admin.</div>'
+      + '<a href="login.html?volta=admin.html" style="display:inline-block;background:var(--gold);color:var(--blue);border-radius:10px;padding:12px 24px;font-family:\'Bebas Neue\',sans-serif;font-size:16px;font-weight:900;text-decoration:none;letter-spacing:1px;">ENTRAR</a>'
+      + '</div></div></div>';
+    return;
+  }
+
+  // Verificar se tem código na URL
+  var params = new URLSearchParams(window.location.search);
+  var codigoUrl = params.get('bolao');
+
+  area.innerHTML = '<div class="busca-wrap">'
+    + '<label>Código do Bolão</label>'
+    + '<div class="busca-row">'
+    + '<input type="text" id="codigoAdmin" placeholder="Digite o código do seu bolão" value="'+(codigoUrl||'')+'">'
+    + '<button class="btn" onclick="acessarAdmin()">ACESSAR</button>'
+    + '</div></div>'
+    + '<div id="adminContent"></div>';
+
+  if (codigoUrl) acessarAdmin();
+};
+
+async function acessarAdmin() {
+  var codigo = document.getElementById('codigoAdmin').value.trim().toUpperCase();
+  if (!codigo) return;
+  var content = document.getElementById('adminContent');
+  content.innerHTML = '<div class="loading">Verificando...</div>';
+
+  // Buscar bolão
+  var r = await fetch(SU+'/rest/v1/boloes?codigo=eq.'+encodeURIComponent(codigo)+'&select=*', {headers:H});
+  if (!r.ok) { content.innerHTML = '<div class="loading">Erro ao buscar bolão.</div>'; return; }
+  var boloes = await r.json();
+  if (!boloes.length) { content.innerHTML = '<div class="loading">Bolão não encontrado.</div>'; return; }
+
+  _bolaoAtual = boloes[0];
+
+  // Verificar se o usuário logado é o criador
+  if (_bolaoAtual.criador_telefone && _bolaoAtual.criador_telefone !== _usuario.telefone) {
+    content.innerHTML = '<div class="card"><div class="card-body"><div class="acesso-negado">'
+      + '<div class="icone">🚫</div>'
+      + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:#ff6b6b;letter-spacing:2px;margin-bottom:8px;">ACESSO NEGADO</div>'
+      + '<div style="font-size:13px;color:var(--muted);">Somente o criador do bolão pode acessar o painel admin.</div>'
+      + '</div></div></div>';
+    return;
+  }
+
+  carregarAdmin();
+}
+
+async function carregarAdmin() {
+  var content = document.getElementById('adminContent');
+  content.innerHTML = '<div class="loading">Carregando dados...</div>';
+
+  // Buscar palpites fase 1
+  var r1 = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+_bolaoAtual.id+'&select=apelido,placares,criado_em&order=criado_em.asc', {headers:H});
+  var palpites1 = r1.ok ? await r1.json() : [];
+
+  // Buscar palpites fase 2
+  var r2 = await fetch(SU+'/rest/v1/palpites_fase2?bolao_id=eq.'+_bolaoAtual.id+'&select=apelido,criado_em&order=criado_em.asc', {headers:H});
+  var palpites2 = r2.ok ? await r2.json() : [];
+
+  // Montar mapa
+  var p1Map = {}, p2Map = {}, placMap = {};
+  palpites1.forEach(function(x){
+    p1Map[x.apelido] = true;
+    var pl = x.placares;
+    if (pl) {
+      if (typeof pl === 'string') { try { pl = JSON.parse(pl); } catch(e){ pl={}; } }
+      if (typeof pl === 'object' && Object.keys(pl).some(function(k){ return k.indexOf('placar_')===0; })) {
+        placMap[x.apelido] = true;
+      }
+    }
+  });
+  palpites2.forEach(function(x){ p2Map[x.apelido] = true; });
+
+  var todos = {};
+  Object.keys(p1Map).forEach(function(a){ todos[a]=true; });
+  Object.keys(p2Map).forEach(function(a){ todos[a]=true; });
+  var participantes = Object.keys(todos);
+
+  var totalP = participantes.length;
+  var totalGrupos = Object.keys(p1Map).length;
+  var totalMata = Object.keys(p2Map).length;
+
+  var html = '';
+
+  // Stats
+  html += '<div class="stat-grid">';
+  html += '<div class="stat-card"><div class="stat-val">'+totalP+'</div><div class="stat-label">Participantes</div></div>';
+  html += '<div class="stat-card"><div class="stat-val">'+totalGrupos+'</div><div class="stat-label">Grupos enviados</div></div>';
+  html += '<div class="stat-card"><div class="stat-val">'+totalMata+'</div><div class="stat-label">Mata-mata enviados</div></div>';
+  html += '</div>';
+
+  // Tabela de participantes
+  html += '<div class="card"><div class="card-header"><span class="card-title">👥 PARTICIPANTES — '+_bolaoAtual.nome+'</span>';
+  html += '<button class="btn btn-verde" onclick="exportarCSV()">⬇️ EXPORTAR CSV</button>';
+  html += '</div>';
+  html += '<div class="participante-row header"><div>Apelido</div><div style="text-align:center">Grupos</div><div style="text-align:center">Placares</div><div style="text-align:center">Mata-Mata</div><div style="text-align:center">Total</div></div>';
+
+  if (!participantes.length) {
+    html += '<div style="text-align:center;padding:24px;color:var(--muted);">Nenhum palpite enviado ainda.</div>';
+  } else {
+    participantes.forEach(function(ap) {
+      html += '<div class="participante-row">';
+      html += '<div style="font-weight:600;">'+ap+'</div>';
+      html += '<div style="text-align:center;">'+(p1Map[ap]?'<span class="status-ok">✅</span>':'<span class="status-no">❌</span>')+'</div>';
+      html += '<div style="text-align:center;">'+(placMap[ap]?'<span class="status-ok">✅</span>':'<span class="status-no">❌</span>')+'</div>';
+      html += '<div style="text-align:center;">'+(p2Map[ap]?'<span class="status-ok">✅</span>':'<span class="status-no">❌</span>')+'</div>';
+      var total = (p1Map[ap]?1:0)+(placMap[ap]?1:0)+(p2Map[ap]?1:0);
+      html += '<div style="text-align:center;color:var(--gold);font-weight:700;">'+total+'/3</div>';
+      html += '</div>';
+    });
+  }
+  html += '</div>';
+
+  // Quem não enviou
+  var naoEnviou = participantes.filter(function(a){ return !p1Map[a] || !p2Map[a]; });
+  if (naoEnviou.length) {
+    html += '<div class="card"><div class="card-header"><span class="card-title">⚠️ PALPITES PENDENTES</span></div><div class="card-body">';
+    naoEnviou.forEach(function(ap){
+      var faltam = [];
+      if (!p1Map[ap]) faltam.push('Grupos');
+      if (!placMap[ap]) faltam.push('Placares');
+      if (!p2Map[ap]) faltam.push('Mata-Mata');
+      html += '<div style="padding:8px 0;border-bottom:1px solid rgba(26,61,122,0.3);display:flex;justify-content:space-between;align-items:center;">';
+      html += '<span style="font-weight:600;">'+ap+'</span>';
+      html += '<span style="font-size:12px;color:#ff6b6b;">Falta: '+faltam.join(', ')+'</span>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  content.innerHTML = html;
+
+  // Guardar dados para exportação
+  window._dadosExport = { participantes: participantes, p1Map: p1Map, placMap: placMap, p2Map: p2Map, bolao: _bolaoAtual };
+}
+
+function exportarCSV() {
+  var d = window._dadosExport;
+  if (!d) return;
+
+  var linhas = [['Apelido','Grupos','Placares','Mata-Mata','Palpites Completos']];
+  d.participantes.forEach(function(ap) {
+    linhas.push([
+      ap,
+      d.p1Map[ap] ? 'Sim' : 'Não',
+      d.placMap[ap] ? 'Sim' : 'Não',
+      d.p2Map[ap] ? 'Sim' : 'Não',
+      ((d.p1Map[ap]?1:0)+(d.placMap[ap]?1:0)+(d.p2Map[ap]?1:0))+'/3'
+    ]);
+  });
+
+  var csv = linhas.map(function(r){ return r.join(','); }).join('\n');
+  var blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'bolao-'+d.bolao.codigo+'-participantes.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>

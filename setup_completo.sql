@@ -140,3 +140,9 @@ alter table usuarios enable row level security;
 
 create policy "usuarios_select" on usuarios for select using (true);
 create policy "usuarios_insert" on usuarios for insert with check (true);
+
+-- =============================================
+-- ATUALIZAÇÃO: vincular criador ao bolão
+-- =============================================
+alter table boloes add column if not exists criador_apelido text;
+alter table boloes add column if not exists criador_telefone text;
