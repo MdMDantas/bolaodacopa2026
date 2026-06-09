@@ -196,8 +196,7 @@
       <rect x="100" y="28" width="480" height="104" rx="10" fill="none" stroke="#ffdf00" stroke-width="1.5"/>
       <text x="340" y="52" text-anchor="middle" font-size="8" fill="#ffdf00">* * * * *</text>
       <text x="340" y="88" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">MATA-MATA</text>
-      <text x="340" y="108" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="700" fill="#ffdf00" letter-spacing="4">COPA 2026</text>
-      <text x="340" y="124" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#7a9fd4" letter-spacing="3">COPA DO MUNDO 2026</text>
+      <text x="340" y="108" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="700" fill="#ffdf00" letter-spacing="4">Copa do Mundo 2026</text>
     </svg>
   </header>
   <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin:12px 0 16px;padding:8px 14px;background:#00194a;border:1px solid rgba(255,223,0,0.3);border-radius:8px;" onmouseover="this.style.borderColor='#ffdf00'" onmouseout="this.style.borderColor='rgba(255,223,0,0.3)'">&#8592; Voltar ao Início</a>
@@ -670,7 +669,7 @@ var RODADAS_MM = {
   'roitavas': ['Jogo 17','Jogo 18','Jogo 19','Jogo 20','Jogo 21','Jogo 22','Jogo 23','Jogo 24'],
   'rquartas': ['Jogo 25','Jogo 26','Jogo 27','Jogo 28'],
   'rsemi':    ['Jogo 29','Jogo 30'],
-  'rfinal':   ['Jogo 31 · 3º Lugar', 'Jogo 32 · Final']
+  'rfinal':   ['3º Lugar — Jogo 31', 'Final — Jogo 32']
 };
 
 var RODADAS_LABELS = {
@@ -716,12 +715,15 @@ function mostrarRodada(id, btn) {
 }
 
 function preencherAleatorioMM(rid) {
-  var container = document.getElementById('jogos-' + rid);
-  if (!container) { console.warn('container nao encontrado: jogos-'+rid); return; }
-  var inputs = container.querySelectorAll('input[type="number"]');
-  inputs.forEach(function(inp) {
-    inp.value = Math.floor(Math.random() * 4);
-    inp.classList.add('filled');
+  var jogos = RODADAS_MM[rid];
+  if (!jogos) return;
+  jogos.forEach(function(label, idx) {
+    var idA = rid + '_' + idx + '_A';
+    var idB = rid + '_' + idx + '_B';
+    var inA = document.getElementById(idA);
+    var inB = document.getElementById(idB);
+    if (inA) { inA.value = Math.floor(Math.random()*4); inA.classList.add('filled'); }
+    if (inB) { inB.value = Math.floor(Math.random()*4); inB.classList.add('filled'); }
   });
   updateProgress();
 }

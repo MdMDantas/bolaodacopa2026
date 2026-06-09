@@ -9,7 +9,7 @@
   :root{--gold:#ffdf00;--green:#009c3b;--green-light:#00c44f;--blue:#003087;--bg:#001a4a;--bg2:#002266;--bg3:#002d80;--card:#00194a;--border:#1a3d7a;--text:#e8f0ff;--muted:#7a9fd4;--white:#fff;}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(0,48,135,0.5) 0%,transparent 60%);}
-  .wrapper{max-width:100%;margin:0 auto;padding:0 20px 80px;}
+  .wrapper{max-width:1200px;margin:0 auto;padding:0 20px 80px;}
   .back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;text-decoration:none;margin:20px 0 0;padding:8px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;}
   .back:hover{color:var(--gold);border-color:var(--gold);}
   header{padding:0 0 32px;}
@@ -63,8 +63,7 @@
       <rect x="100" y="28" width="480" height="104" rx="10" fill="none" stroke="#ffdf00" stroke-width="1.5"/>
       <text x="340" y="52" text-anchor="middle" font-size="8" fill="#ffdf00">* * * * *</text>
       <text x="340" y="88" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">RANKING</text>
-      <text x="340" y="108" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="700" fill="#ffdf00" letter-spacing="4">COPA 2026</text>
-      <text x="340" y="124" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#7a9fd4" letter-spacing="3">COPA DO MUNDO 2026</text>
+      <text x="340" y="108" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="700" fill="#ffdf00" letter-spacing="4">Copa do Mundo 2026</text>
     </svg>
   <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin:12px 0 16px;padding:8px 14px;background:#00194a;border:1px solid rgba(255,223,0,0.3);border-radius:8px;" onmouseover="this.style.borderColor='#ffdf00'" onmouseout="this.style.borderColor='rgba(255,223,0,0.3)'">&#8592; Voltar ao Início</a>
   </header>
@@ -167,7 +166,7 @@ async function carregarRanking(bolaoId, bolaoNome) {
 
     // HEADER — duas seções de colunas
     // Grid: Posição | Apelido | Grupos | R1 | R2 | R3 | MM | 16Avos | Oitavas | Quartas | Semi | Final | Total
-    var GRID = '36px 1fr 56px 46px 46px 46px 56px 52px 58px 54px 46px 46px 42px';
+    var GRID = '40px 1fr 60px 50px 50px 50px 62px 58px 64px 60px 50px 52px 46px';
     html += '<div style="background:var(--bg3);padding:6px 12px;">';
     html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:8px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:4px 0;">';
     html += '<div></div><div></div>';
@@ -221,7 +220,7 @@ async function carregarRanking(bolaoId, bolaoNome) {
       var pSemi    = r.pts_semi      !== undefined ? r.pts_semi      : 0;
       var pFinal   = r.pts_final     !== undefined ? r.pts_final     : 0;
 
-      html += '<div style="display:grid;grid-template-columns:36px 1fr 56px 46px 46px 46px 56px 52px 58px 54px 46px 46px 42px;align-items:center;padding:8px 12px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;">';
+      html += '<div style="display:grid;grid-template-columns:40px 1fr 60px 50px 50px 50px 62px 58px 64px 60px 50px 52px 46px;align-items:center;padding:8px 12px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;">';
       html += '<div class="ranking-pos '+cls+'">'+num+'<sup>º</sup></div>';
       html += '<div class="ranking-apelido">'+r.apelido+'</div>';
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pGrupos+' pts</div><div style="font-size:15px;">'+temGrupos+'</div></div>';
