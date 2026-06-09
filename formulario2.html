@@ -666,11 +666,7 @@ function renderBtnMataMata() {
   }
 }
 
-buildBracket(null);
-updateProgress();
 document.addEventListener('change', updateProgress);
-renderBtnMataMata();
-setInterval(renderBtnMataMata, 60000);
 
 // ── PLACARES MATA-MATA ────────────────────────────────────
 var RODADAS_MM = {
@@ -765,8 +761,11 @@ function switchMMTab(id, btn) {
 
 // Inicialização e hash navigation
 document.addEventListener('DOMContentLoaded', function() {
+  buildBracket(null);
   buildJogos(null);
   updateProgress();
+  renderBtnMataMata();
+  setInterval(renderBtnMataMata, 60000);
   var hash = window.location.hash.replace('#', '');
   if (hash && document.getElementById(hash)) {
     var btns = document.querySelectorAll('.mm-card-btn');
