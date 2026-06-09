@@ -605,7 +605,7 @@ function exportarTabComModal(rodada, label) {
     if (existente && existente.placares) {
       placaresAtuais = typeof existente.placares === 'string' ? JSON.parse(existente.placares) : existente.placares;
     }
-    // Coletar placares desta rodada e mesclar
+    // Coletar placares desta rodada e mesclar (salva também os nomes dos times)
     var jogos = rodada==='R1'?JOGOS_R1:rodada==='R2'?JOGOS_R2:JOGOS_R3;
     Object.keys(jogos).forEach(function(g){
       jogos[g].forEach(function(jogo,ji){
@@ -613,6 +613,8 @@ function exportarTabComModal(rodada, label) {
         var ea = document.getElementById(id+'_a'), eb = document.getElementById(id+'_b');
         if(ea&&ea.value!=='') placaresAtuais[id+'_a'] = ea.value;
         if(eb&&eb.value!=='') placaresAtuais[id+'_b'] = eb.value;
+        // Salvar nomes dos times para exibição no PDF
+        placaresAtuais[id+'_times'] = jogo[0] + ' × ' + jogo[1];
       });
     });
     // Salva APENAS os placares mesclados — não toca em grupos/terceiros/zebras

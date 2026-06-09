@@ -864,13 +864,15 @@ function exportarPalpitesPDF() {
           var kb = ka.replace(/_a$/,'_b');
           var va = pl[ka] !== undefined ? pl[ka] : '?';
           var vb = pl[kb] !== undefined ? pl[kb] : '?';
-          var parts = ka.replace('placar_'+r+'_','').replace('_a','').split('_');
-          var grp = parts[0], jogo = parts[1];
-          doc.setFillColor(235,240,255); doc.roundedRect(px, y-5, pColW-2, 10, 1.5,1.5,'F');
-          doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(0,34,102);
-          doc.text('Grp '+grp+' · J'+(parseInt(jogo)+1), px+2, y-1);
-          doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(0,34,102);
-          doc.text(va+' × '+vb, px+2, y+4.5);
+          var timesKey = ka.replace('_a','_times');
+          var times = pl[timesKey] || ka.replace('placar_'+r+'_','').replace('_a','').replace(/_/g,' Grp ');
+          // Quebrar nome dos times se muito longo
+          var timesShort = times.length > 28 ? times.substring(0,26)+'…' : times;
+          doc.setFillColor(235,240,255); doc.roundedRect(px, y-5, pColW-2, 11, 1.5,1.5,'F');
+          doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(80,80,120);
+          doc.text(timesShort, px+2, y-1);
+          doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(0,34,102);
+          doc.text(va+' × '+vb, px+2, y+5);
         });
         y += 14;
       });
