@@ -133,7 +133,7 @@ async function carregarAdmin() {
   var palpites1 = r1.ok ? await r1.json() : [];
 
   // Buscar palpites fase 2 completos
-  var r2 = await fetch(SU+'/rest/v1/palpites_fase2?bolao_id=eq.'+_bolaoAtual.id+'&select=*&order=criado_em.asc', {headers:H});
+  var r2 = await fetch(SU+'/rest/v1/palpites_fase2?bolao_id=eq.'+_bolaoAtual.id+'&select=apelido,fase&order=criado_em.asc', {headers:H});
   var palpites2 = r2.ok ? await r2.json() : [];
 
   // Montar mapas
