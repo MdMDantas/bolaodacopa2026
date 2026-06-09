@@ -370,7 +370,7 @@ function renderGrupos() {
   Object.keys(GRUPOS_DISPLAY).forEach(function(g) {
     html += '<div class="grupo-block"><div class="grupo-titulo">Grupo ' + g + '</div>';
     for (var p = 1; p <= 4; p++) {
-      var val = _palpite1['g'+g+'_'+p] || '';
+      var val = _palpite1['g'+g.toLowerCase()+'_'+p] || _palpite1['g'+g+'_'+p] || '';
       html += '<div class="grupo-row">';
       html += '<div class="pos-badge '+posClasses[p-1]+'">'+posLabels[p-1]+'</div>';
       html += val ? '<div class="team-name">'+val+'</div>' : '<div class="team-name team-empty">Não preenchido</div>';

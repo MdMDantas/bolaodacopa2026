@@ -263,7 +263,7 @@ function exportarCSV() {
 
     // Grupos
     GRUPOS.forEach(function(g){
-      for(var pos=1;pos<=4;pos++) linha.push(p1['g'+g+'_'+pos]||'');
+      for(var pos=1;pos<=4;pos++) linha.push(p1['g'+g.toLowerCase()+'_'+pos]||p1['g'+g+'_'+pos]||'');
     });
 
     // Zebras
