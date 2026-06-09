@@ -174,19 +174,27 @@ async function carregarAdmin() {
   html += '<div class="card"><div class="card-header"><span class="card-title">👥 PARTICIPANTES — '+_bolaoAtual.nome+'</span>';
   html += '<button class="btn" onclick="exportarPDF()" style="background:#003087;color:#ffdf00;border:1px solid #ffdf00;">📄 PDF POR JOGADOR</button>';
   html += '</div>';
-  html += '<div class="participante-row header"><div>Apelido</div><div style="text-align:center">Grupos</div><div style="text-align:center">Placares</div><div style="text-align:center">Mata-Mata</div><div style="text-align:center">Total</div></div>';
+  html += '<div class="participante-row header" style="grid-template-columns:1fr repeat(10,62px);"><div>Apelido</div><div style="text-align:center">Grupos</div><div style="text-align:center">Rod.1</div><div style="text-align:center">Rod.2</div><div style="text-align:center">Rod.3</div><div style="text-align:center">Mata-Mata</div><div style="text-align:center">16 Avos</div><div style="text-align:center">Oitavas</div><div style="text-align:center">Quartas</div><div style="text-align:center">Semi</div><div style="text-align:center">Final</div></div>';
 
   if (!participantes.length) {
     html += '<div style="text-align:center;padding:24px;color:var(--muted);">Nenhum palpite enviado ainda.</div>';
   } else {
     participantes.forEach(function(ap) {
-      html += '<div class="participante-row">';
+      var ok = '<span class="status-ok">✅</span>', no = '<span class="status-no">❌</span>';
+      var total = (p1Map[ap]?1:0)+(placR1Map[ap]?1:0)+(placR2Map[ap]?1:0)+(placR3Map[ap]?1:0)+(p2Map[ap]?1:0)+(p2R16Map[ap]?1:0)+(p2OitMap[ap]?1:0)+(p2QuaMap[ap]?1:0)+(p2SemMap[ap]?1:0)+(p2FinMap[ap]?1:0);
+      html += '<div class="participante-row" style="grid-template-columns:1fr repeat(10,62px);">';
       html += '<div style="font-weight:600;">'+ap+'</div>';
-      html += '<div style="text-align:center;">'+(p1Map[ap]?'<span class="status-ok">✅</span>':'<span class="status-no">❌</span>')+'</div>';
-      html += '<div style="text-align:center;">'+(placMap[ap]?'<span class="status-ok">✅</span>':'<span class="status-no">❌</span>')+'</div>';
-      html += '<div style="text-align:center;">'+(p2Map[ap]?'<span class="status-ok">✅</span>':'<span class="status-no">❌</span>')+'</div>';
-      var total = (p1Map[ap]?1:0)+(placMap[ap]?1:0)+(p2Map[ap]?1:0);
-      html += '<div style="text-align:center;color:var(--gold);font-weight:700;">'+total+'/3</div>';
+      html += '<div style="text-align:center;">'+(p1Map[ap]?ok:no)+'</div>';
+      html += '<div style="text-align:center;">'+(placR1Map[ap]?ok:no)+'</div>';
+      html += '<div style="text-align:center;">'+(placR2Map[ap]?ok:no)+'</div>';
+      html += '<div style="text-align:center;">'+(placR3Map[ap]?ok:no)+'</div>';
+      html += '<div style="text-align:center;">'+(p2Map[ap]?ok:no)+'</div>';
+      html += '<div style="text-align:center;">'+(p2R16Map[ap]?ok:no)+'</div>';
+      html += '<div style="text-align:center;">'+(p2OitMap[ap]?ok:no)+'</div>';
+      html += '<div style="text-align:center;">'+(p2QuaMap[ap]?ok:no)+'</div>';
+      html += '<div style="text-align:center;">'+(p2SemMap[ap]?ok:no)+'</div>';
+      html += '<div style="text-align:center;">'+(p2FinMap[ap]?ok:no)+'</div>';
+      html += '<div style="text-align:center;color:var(--gold);font-weight:700;">'+total+'/10</div>';
       html += '</div>';
     });
   }
@@ -366,7 +374,7 @@ function exportarPDF() {
       GRUPOS.forEach(function(g) {
         html += '<div class="grupo-card"><div class="grupo-label">Grupo ' + g + '</div><div class="grupo-times">';
         for (var pos = 1; pos <= 4; pos++) {
-          var time = p1['g' + g.toLowerCase() + '_' + pos] || p1['g' + g + '_' + pos] || '—';
+          var time = p1['g' + g + '_' + pos] || '—';
           html += '<span>' + pos + 'º ' + time + '</span>';
         }
         html += '</div></div>';

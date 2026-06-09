@@ -160,10 +160,7 @@
       <div class="nome" id="headerNome">—</div>
       <div class="bolao-tag" id="headerBolao"></div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
-      <button onclick="exportarPalpitesPDF()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.4);color:#ffdf00;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">📄 EXPORTAR PDF</button>
-      <button class="btn-sair" onclick="trocarBolao()">Trocar bolão</button>
-    </div>
+    <button class="btn-sair" onclick="trocarBolao()">Trocar bolão</button>
   </div>
 
   <!-- Busca de bolão -->
@@ -220,6 +217,7 @@
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="db.js"></script>
 <script src="auth.js"></script>
 <script>
