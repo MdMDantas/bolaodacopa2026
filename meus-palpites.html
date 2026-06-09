@@ -182,7 +182,8 @@
   <div id="mainContent" style="display:none;">
     <div class="tabs">
       <button class="tab active" onclick="mudarAba('grupos',this)">🏟️ GRUPOS</button>
-      <button class="tab" onclick="mudarAba('placares',this)">⚽ PLACARES</button>
+      <button class="tab" onclick="mudarAba('placares',this)">⚽ PLACARES GRUPOS</button>
+    <button class="tab" onclick="mudarAba('placaresMM',this)">⚔️ PLACARES MM</button>
       <button class="tab" onclick="mudarAba('matamata',this)">⚔️ MATA-MATA</button>
       <button class="tab" onclick="mudarAba('pontuacao',this)">🏆 PONTUAÇÃO</button>
     </div>
@@ -195,6 +196,11 @@
     <!-- ABA PLACARES -->
     <div id="aba-placares" class="tab-panel">
       <div id="placaresContent"><div class="loading"><span class="spinner"></span>Carregando...</div></div>
+    </div>
+
+    <!-- ABA PLACARES MM -->
+    <div id="aba-placaresMM" class="tab-panel">
+      <div id="placaresMmContent"><div class="loading"><span class="spinner"></span>Carregando...</div></div>
     </div>
 
     <!-- ABA MATA-MATA -->
@@ -333,6 +339,7 @@ async function carregarTudo() {
 
   renderGrupos();
   renderPlacares();
+  renderPlacaresMM();
   renderMataMata();
   renderPontuacao();
 }
@@ -420,41 +427,6 @@ function renderPlacares() {
   var html = '';
   var rodadas = [['R1','🗓️ Rodada 1',JOGOS_R1],['R2','🗓️ Rodada 2',JOGOS_R2],['R3','🗓️ Rodada 3',JOGOS_R3]];
 
-  // ── PLACARES MATA-MATA ────────────────────────────────────
-  var fasesMM = [
-    {id:'r16avos',  label:'⚔️ 16 Avos de Final',  link:'card-16avos',  jogos:16},
-    {id:'roitavas', label:'⚔️ Oitavas de Final',   link:'card-oitavas', jogos:8},
-    {id:'rquartas', label:'⚔️ Quartas de Final',   link:'card-quartas', jogos:4},
-    {id:'rsemi',    label:'⚔️ Semifinal',           link:'card-semi',    jogos:2},
-    {id:'rfinal',   label:'🏆 Final',              link:'card-final',   jogos:1}
-  ];
-  var placaresMM = _palpite2 ? (_palpite2.placares_mm || {}) : null;
-  fasesMM.forEach(function(fase) {
-    html += '<div class="section-card"><div class="section-card-header"><span class="section-card-title">'+fase.label+'</span></div><div class="section-card-body">';
-    var temAlgum = false;
-    if (placaresMM) {
-      for (var i=0; i<fase.jogos; i++) {
-        if (placaresMM[fase.id+'_'+i+'_A'] !== undefined) { temAlgum = true; break; }
-      }
-    }
-    if (!temAlgum) {
-      html += '<div class="nao-enviado"><strong>Nenhum placar preenchido nesta fase</strong>Você ainda não enviou placares para esta fase.<a href="formulario2.html" class="btn-ir">PREENCHER AGORA</a></div>';
-    } else {
-      for (var j=0; j<fase.jogos; j++) {
-        var va = placaresMM[fase.id+'_'+j+'_A'];
-        var vb = placaresMM[fase.id+'_'+j+'_B'];
-        html += '<div class="jogo-row">';
-        html += '<div class="jogo-time">Jogo '+(j+1)+'</div>';
-        if (va !== undefined || vb !== undefined) {
-          html += '<div class="jogo-placar"><div class="placar-num">'+(va!==undefined?va:'?')+'</div><div class="placar-x">×</div><div class="placar-num">'+(vb!==undefined?vb:'?')+'</div></div>';
-        } else {
-          html += '<div class="jogo-placar"><span class="placar-vazio">— × —</span></div>';
-        }
-        html += '</div>';
-      }
-    }
-    html += '</div></div>';
-  });
 
   rodadas.forEach(function(rod) {
     var rKey = rod[0], rLabel = rod[1], jogos = rod[2];
@@ -496,6 +468,47 @@ function renderPlacares() {
     html += '</div></div>';
   });
 
+  el.innerHTML = html;
+}
+
+function renderPlacaresMM() {
+  var el = document.getElementById('placaresMmContent');
+  if (!el) return;
+  var fasesMM = [
+    {id:'r16avos',  label:'⚔️ 16 Avos de Final',  jogos:16},
+    {id:'roitavas', label:'⚔️ Oitavas de Final',   jogos:8},
+    {id:'rquartas', label:'⚔️ Quartas de Final',   jogos:4},
+    {id:'rsemi',    label:'⚔️ Semifinal',           jogos:2},
+    {id:'rfinal',   label:'🏆 3º Lugar e Final',   jogos:2}
+  ];
+  var placaresMM = _palpite2 ? (_palpite2.placares_mm || {}) : null;
+  var html = '';
+  fasesMM.forEach(function(fase) {
+    html += '<div class="section-card"><div class="section-card-header"><span class="section-card-title">'+fase.label+'</span></div><div class="section-card-body">';
+    var temAlgum = false;
+    if (placaresMM) {
+      for (var i=0; i<fase.jogos; i++) {
+        if (placaresMM[fase.id+'_'+i+'_A'] !== undefined) { temAlgum = true; break; }
+      }
+    }
+    if (!temAlgum) {
+      html += '<div class="nao-enviado"><strong>Nenhum placar preenchido nesta fase</strong>Você ainda não enviou placares para esta fase.<a href="formulario2.html" class="btn-ir">PREENCHER AGORA</a></div>';
+    } else {
+      for (var j=0; j<fase.jogos; j++) {
+        var va = placaresMM[fase.id+'_'+j+'_A'];
+        var vb = placaresMM[fase.id+'_'+j+'_B'];
+        html += '<div class="jogo-row">';
+        html += '<div class="jogo-time">Jogo '+(j+1)+'</div>';
+        if (va !== undefined || vb !== undefined) {
+          html += '<div class="jogo-placar"><div class="placar-num">'+(va!==undefined?va:'?')+'</div><div class="placar-x">×</div><div class="placar-num">'+(vb!==undefined?vb:'?')+'</div></div>';
+        } else {
+          html += '<div class="jogo-placar"><span class="placar-vazio">— × —</span></div>';
+        }
+        html += '</div>';
+      }
+    }
+    html += '</div></div>';
+  });
   el.innerHTML = html;
 }
 

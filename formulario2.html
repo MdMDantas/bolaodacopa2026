@@ -281,7 +281,6 @@
       <div class="regra-item"><strong>Apostou em vencedor mas o jogo empatou</strong> (ou errou tudo): <span class="pts">0 pts</span></div>
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
-    <div style="text-align:right;margin-bottom:12px;"><button onclick="preencherAleatorioMM('r16avos')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="jogos-grid" id="jogos-r16avos"></div>
     <div class="save-section" id="btn16avos"></div>
   </div>
@@ -297,7 +296,6 @@
       <div class="regra-item"><strong>Apostou em vencedor mas o jogo empatou</strong> (ou errou tudo): <span class="pts">0 pts</span></div>
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
-    <div style="text-align:right;margin-bottom:12px;"><button onclick="preencherAleatorioMM('roitavas')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="jogos-grid" id="jogos-roitavas"></div>
     <div class="save-section" id="btnOitavas"></div>
   </div>
@@ -313,7 +311,6 @@
       <div class="regra-item"><strong>Apostou em vencedor mas o jogo empatou</strong> (ou errou tudo): <span class="pts">0 pts</span></div>
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
-    <div style="text-align:right;margin-bottom:12px;"><button onclick="preencherAleatorioMM('rquartas')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="jogos-grid" id="jogos-rquartas"></div>
     <div class="save-section" id="btnQuartas"></div>
   </div>
@@ -329,7 +326,6 @@
       <div class="regra-item"><strong>Apostou em vencedor mas o jogo empatou</strong> (ou errou tudo): <span class="pts">0 pts</span></div>
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
-    <div style="text-align:right;margin-bottom:12px;"><button onclick="preencherAleatorioMM('rsemi')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="jogos-grid" id="jogos-rsemi"></div>
     <div class="save-section" id="btnSemi"></div>
   </div>
@@ -337,7 +333,7 @@
   <!-- ══ CARD 6: FINAL ══ -->
   <div class="mm-tab-panel" id="mm-final">
     <div class="prazo-badge-mm">📅 Prazo: até 18/07 às 18h (horário de Brasília)</div>
-    <div class="phase-header"><div class="phase-badge"></div><h2>PLACARES — FINAL</h2></div>
+    <div class="phase-header"><div class="phase-badge"></div><h2>PLACARES — 3º LUGAR E FINAL</h2></div>
     <div class="regras-box">
       <div class="regra-item"><strong>Placar exato</strong> (inclusive empate certo, ex: disse 1×1, foi 1×1): <span class="pts">+3 pts</span></div>
       <div class="regra-item"><strong>Vencedor + diferença de gols</strong> (ex: disse 3×1, foi 2×0) <strong>OU acertou o empate mas errou o placar</strong> (ex: disse 2×2, foi 1×1): <span class="pts">+2 pts</span></div>
@@ -345,7 +341,6 @@
       <div class="regra-item"><strong>Apostou em vencedor mas o jogo empatou</strong> (ou errou tudo): <span class="pts">0 pts</span></div>
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
-    <div style="text-align:right;margin-bottom:12px;"><button onclick="preencherAleatorioMM('rfinal')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="jogos-grid" id="jogos-rfinal"></div>
     <div class="save-section" id="btnFinal"></div>
   </div>
@@ -566,14 +561,29 @@ function buildBracket(saved) {
 function markFilled(sel) { sel.classList.toggle('filled', !!sel.value); }
 
 function updateProgress() {
-  const sels = document.querySelectorAll('select');
-  const filled = [...sels].filter(s => s.value).length;
-  const pct = Math.round((filled / sels.length) * 100);
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressPct').textContent = pct + '%';
+  var activePanel = document.querySelector('.mm-tab-panel.active');
+  if (!activePanel) return;
+  var sels = activePanel.querySelectorAll('select');
+  var inputs = activePanel.querySelectorAll('.placar-inputs input');
+  var total = sels.length + inputs.length;
+  if (total === 0) { document.getElementById('progressFill').style.width='0%'; document.getElementById('progressPct').textContent='0%'; return; }
+  var filled = 0;
+  sels.forEach(function(s){if(s.value)filled++;});
+  inputs.forEach(function(i){if(i.value!=='')filled++;});
+  var pct = Math.round((filled/total)*100);
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('progressPct').textContent = pct+'%';
 }
 
 function fecharModal(e) { if (e.target.id === 'modalOverlay') e.target.style.display = 'none'; }
+
+function preencherAleatorioAtivo() {
+  var activePanel = document.querySelector('.mm-tab-panel.active');
+  if (!activePanel) return;
+  var id = activePanel.id;
+  if (id === 'mm-matamata') preencherAleatorioMataMata();
+  else preencherAleatorioMM(id.replace('mm-',''));
+}
 
 function preencherAleatorioMataMata() {
   var teams = ALL_TEAMS.slice();
@@ -656,7 +666,7 @@ var RODADAS_MM = {
   'roitavas': ['Jogo 17','Jogo 18','Jogo 19','Jogo 20','Jogo 21','Jogo 22','Jogo 23','Jogo 24'],
   'rquartas': ['Jogo 25','Jogo 26','Jogo 27','Jogo 28'],
   'rsemi':    ['Jogo 29','Jogo 30'],
-  'rfinal':   ['Jogo 31']
+  'rfinal':   ['Jogo 3º Lugar', 'Jogo 31 · Final']
 };
 
 var RODADAS_LABELS = {

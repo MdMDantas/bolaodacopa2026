@@ -145,6 +145,10 @@
   <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin:12px 0 16px;padding:8px 14px;background:#00194a;border:1px solid rgba(255,223,0,0.3);border-radius:8px;" onmouseover="this.style.borderColor='#ffdf00'" onmouseout="this.style.borderColor='rgba(255,223,0,0.3)'">&#8592; Voltar ao Início</a>
 
   <!-- NOME -->
+  <!-- ALEATÓRIO GLOBAL -->
+  <div style="text-align:right;margin-bottom:12px;">
+    <button onclick="preencherAleatorioAtivo()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
+  </div>
   <!-- TABS -->
   <div class="tabs-nav">
     <button class="tab-btn active" onclick="switchTab('tab1',this)">Parte 1 — Palpites</button>
@@ -191,7 +195,6 @@
       <div class="zebra-card"><div class="z-num">ZEBRA 4</div><div class="sel-wrap"><select id="zebra4"><option value="">Selecione...</option></select></div></div>
     </div>
 
-    <div style="text-align:right;margin-bottom:16px;margin-top:24px;"><button onclick="preencherAleatorio()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="export-section" id="btnTab1"></div>
   </div>
 
@@ -492,8 +495,13 @@ function buildPlacares(rodada, containerEl, saved) {
 
 // ── PROGRESS ──────────────────────────────────────────────
 function updateProgress() {
-  var sels = document.querySelectorAll('select'), inputs = document.querySelectorAll('.jogo-placar input');
-  var total = sels.length + inputs.length, filled = 0;
+  var activePanel = document.querySelector('.tab-panel.active');
+  if (!activePanel) return;
+  var sels = activePanel.querySelectorAll('select');
+  var inputs = activePanel.querySelectorAll('.jogo-placar input');
+  var total = sels.length + inputs.length;
+  if (total === 0) { document.getElementById('progressFill').style.width='0%'; document.getElementById('progressPct').textContent='0%'; return; }
+  var filled = 0;
   sels.forEach(function(s){if(s.value)filled++;});
   inputs.forEach(function(i){if(i.value!=='')filled++;});
   var pct = Math.round((filled/total)*100);
@@ -616,6 +624,16 @@ function exportarTabComModal(rodada, label) {
 }
 
 // Preencher aleatório só para grupos + terceiros + zebras (Etapa 1)
+function preencherAleatorioAtivo() {
+  var activePanel = document.querySelector('.tab-panel.active');
+  if (!activePanel) return;
+  var id = activePanel.id;
+  if (id === 'tab1') preencherAleatorio();
+  else if (id === 'tab2') preencherAleatorioRodada('R1');
+  else if (id === 'tab3') preencherAleatorioRodada('R2');
+  else if (id === 'tab4') preencherAleatorioRodada('R3');
+}
+
 function preencherAleatorio() {
   Object.keys(GRUPOS_DISPLAY).forEach(function(g) {
     var teams=GRUPOS_DISPLAY[g].slice();

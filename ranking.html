@@ -162,20 +162,20 @@ async function carregarRanking(bolaoId, bolaoNome) {
     }
 
     var posClasses = ['gold','silver','bronze'];
-    var html = '<div class="ranking-card">';
+    var html = '<div class="ranking-card" style="overflow-x:visible;width:100%;">';
     html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO — '+(bolaoNome||'')+'</span><span class="ranking-update">Ao vivo</span></div>';
 
     // HEADER — duas seções de colunas
     // Grid: Posição | Apelido | Grupos | R1 | R2 | R3 | MM | 16Avos | Oitavas | Quartas | Semi | Final | Total
-    var GRID = '60px 1fr 70px 60px 60px 60px 70px 65px 70px 70px 60px 60px 55px';
+    var GRID = '44px 1fr 60px 52px 52px 52px 60px 58px 64px 60px 52px 52px 48px';
     html += '<div style="background:var(--bg3);padding:6px 20px;overflow-x:auto;">';
-    html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 0;min-width:860px;">';
+    html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 0;">';
     html += '<div></div><div></div>';
-    html += '<div style="grid-column:span 4;text-align:center;color:var(--gold);border-bottom:2px solid rgba(255,223,0,0.4);padding-bottom:3px;">FASE DE GRUPOS</div>';
+    html += '<div style="grid-column:span 4;text-align:center;color:var(--gold);border-bottom:2px solid rgba(255,223,0,0.4);padding-bottom:3px;font-size:8px;">FASE DE GRUPOS</div>';
     html += '<div style="grid-column:span 6;text-align:center;color:var(--muted);border-bottom:2px solid rgba(122,159,212,0.3);padding-bottom:3px;">MATA-MATA</div>';
     html += '<div></div>';
     html += '</div>';
-    html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:4px 0 6px;min-width:860px;">';
+    html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:4px 0 6px;">';
     html += '<div>Pos.</div><div>Apelido</div>';
     html += '<div style="text-align:center">Grupos</div>';
     html += '<div style="text-align:center">Rod. 1</div>';
@@ -221,7 +221,7 @@ async function carregarRanking(bolaoId, bolaoNome) {
       var pSemi    = r.pts_semi      !== undefined ? r.pts_semi      : 0;
       var pFinal   = r.pts_final     !== undefined ? r.pts_final     : 0;
 
-      html += '<div style="display:grid;grid-template-columns:60px 1fr 70px 60px 60px 60px 70px 65px 70px 70px 60px 60px 55px;align-items:center;padding:10px 20px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;min-width:860px;">';
+      html += '<div style="display:grid;grid-template-columns:44px 1fr 60px 52px 52px 52px 60px 58px 64px 60px 52px 52px 48px;align-items:center;padding:10px 20px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;">';
       html += '<div class="ranking-pos '+cls+'">'+num+'<sup>º</sup></div>';
       html += '<div class="ranking-apelido">'+r.apelido+'</div>';
       html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--gold);font-weight:700;">'+pGrupos+' pts</div><div style="font-size:15px;">'+temGrupos+'</div></div>';
