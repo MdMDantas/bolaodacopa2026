@@ -113,7 +113,7 @@ async function carregarRanking(bolaoId, bolaoNome) {
   area.innerHTML = '<div class="loading">Carregando...</div>';
   try {
     // Buscar palpites fase 1 — verificar grupos E placares separadamente
-    var r2 = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&select=apelido,gA_1,placares&order=criado_em.asc',{headers:H});
+    var r2 = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&select=apelido,placares&order=criado_em.asc',{headers:H});
     var fase1Grupos = {};
     var fase1Placares = {};
     if (r2.ok) {
