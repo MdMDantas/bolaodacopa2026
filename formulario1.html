@@ -448,7 +448,8 @@ function buildZebras(saved) {
     var cur = saved && saved['zebra'+zi] ? saved['zebra'+zi] : '';
     sel.innerHTML = '<option value="">Selecione...</option>';
     ZEBRA_TEAMS.forEach(function(t){
-      sel.innerHTML += '<option value="'+t+'"'+(cur===t?' selected':'')+'>'+t+'</option>';
+      var label = ZEBRA_GRUPO[t] ? 'Grupo '+ZEBRA_GRUPO[t]+' - '+t : t;
+      sel.innerHTML += '<option value="'+t+'"'+(cur===t?' selected':'')+'>'+label+'</option>';
     });
   }
 }
