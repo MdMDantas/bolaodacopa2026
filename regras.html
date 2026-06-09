@@ -7,7 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --gold:#ffdf00;--green:#009c3b;--blue:#003087;--blue-light:#1a52c7;
+    --gold:#ffdf00;--green:#009c3b;--green-light:#00c44f;
+    --blue:#003087;--blue-light:#1a52c7;
+    --red:#C0392B;--red-light:#E74C3C;
     --bg:#001a4a;--bg2:#002266;--bg3:#002d80;--card:#00194a;--border:#1a3d7a;
     --text:#e8f0ff;--muted:#7a9fd4;--white:#fff;
   }
@@ -24,6 +26,43 @@
   .intro p{font-size:15px;line-height:1.9;color:var(--text);}
   .intro p+p{margin-top:12px;}
   .intro strong{color:var(--gold);}
+
+  /* ── CARDS DE NAVEGAÇÃO ── */
+  .nav-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:36px;}
+  @media(max-width:480px){.nav-cards{grid-template-columns:1fr;}}
+
+  .nav-card{
+    border-radius:16px;padding:28px 24px;cursor:pointer;
+    border:2px solid transparent;
+    transition:border-color 0.25s, transform 0.2s, box-shadow 0.2s;
+    user-select:none;
+  }
+  .nav-card.grupos{
+    background:linear-gradient(135deg,rgba(0,156,59,0.18),rgba(0,26,74,0.95));
+    border-color:rgba(0,196,79,0.35);
+  }
+  .nav-card.matamata{
+    background:linear-gradient(135deg,rgba(192,57,43,0.2),rgba(0,26,74,0.95));
+    border-color:rgba(231,76,60,0.35);
+  }
+  .nav-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,0.4);}
+  .nav-card.active.grupos{border-color:var(--green-light);box-shadow:0 0 0 3px rgba(0,196,79,0.2);}
+  .nav-card.active.matamata{border-color:var(--red-light);box-shadow:0 0 0 3px rgba(231,76,60,0.2);}
+
+  .nav-card .nc-icon{font-size:40px;margin-bottom:14px;}
+  .nav-card .nc-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:6px;}
+  .nav-card.grupos .nc-title{color:var(--green-light);}
+  .nav-card.matamata .nc-title{color:#E74C3C;}
+  .nav-card .nc-sub{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:14px;}
+  .nav-card .nc-pts{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;}
+  .nav-card.grupos .nc-pts{color:var(--gold);}
+  .nav-card.matamata .nc-pts{color:var(--gold);}
+  .nav-card .nc-arrow{font-size:11px;color:var(--muted);margin-top:10px;transition:color 0.2s;}
+  .nav-card.active .nc-arrow{color:var(--gold);}
+
+  /* ── PAINÉIS DE CONTEÚDO ── */
+  .panel{display:none;}
+  .panel.active{display:block;}
 
   /* SECTION */
   .section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px;}
@@ -58,17 +97,28 @@
   .zebra-chip{background:rgba(0,156,59,0.15);border:1px solid rgba(0,196,79,0.25);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);}
   @media(max-width:480px){.zebra-list{grid-template-columns:1fr;}}
 
+  /* FAVORITAS (decepções) */
+  .fav-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0;}
+  .fav-chip{background:rgba(192,57,43,0.12);border:1px solid rgba(231,76,60,0.25);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);}
+  @media(max-width:480px){.fav-list{grid-template-columns:1fr;}}
+
   /* TOTAL TABLE */
-  .total-card{background:linear-gradient(135deg,rgba(255,223,0,0.08),rgba(0,26,74,0.9));border:1px solid rgba(255,223,0,0.3);border-radius:16px;padding:28px;margin-top:32px;}
+  .total-card{border:1px solid rgba(255,223,0,0.3);border-radius:16px;padding:28px;margin-top:8px;}
+  .total-card.grupos-total{background:linear-gradient(135deg,rgba(0,156,59,0.08),rgba(0,26,74,0.9));}
+  .total-card.matamata-total{background:linear-gradient(135deg,rgba(192,57,43,0.08),rgba(0,26,74,0.9));}
   .total-card h3{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--gold);margin-bottom:20px;}
   .total-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;}
   .total-row:last-child{border-bottom:none;font-size:16px;font-weight:700;padding-top:16px;}
   .total-row .label{color:var(--muted);}
   .total-row .val{color:var(--gold);font-weight:700;}
-  .total-row:last-child .label,.total-row:last-child .val{color:var(--gold);}
 
   /* DIVIDER */
   .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:28px 0;}
+
+  /* AVISO */
+  .aviso-box{background:rgba(0,156,59,0.1);border:1px solid rgba(0,196,79,0.3);border-radius:12px;padding:16px 18px;margin-bottom:16px;}
+  .aviso-box p{font-size:13px;color:var(--muted);line-height:1.6;}
+  .aviso-box p strong{color:var(--text);}
 
   /* FOOTER */
   .footer{text-align:center;margin-top:40px;color:var(--muted);font-size:13px;}
@@ -96,186 +146,309 @@
       <text x="340" y="108" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="700" fill="#ffdf00" letter-spacing="4">COPA 2026</text>
       <text x="340" y="124" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#7a9fd4" letter-spacing="3">COPA DO MUNDO 2026</text>
     </svg>
-  <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin:12px 0 16px;padding:8px 14px;background:#00194a;border:1px solid rgba(255,223,0,0.3);border-radius:8px;" onmouseover="this.style.borderColor='#ffdf00'" onmouseout="this.style.borderColor='rgba(255,223,0,0.3)'">&#8592; Voltar ao Início</a>
-  
+    <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin:12px 0 16px;padding:8px 14px;background:#00194a;border:1px solid rgba(255,223,0,0.3);border-radius:8px;" onmouseover="this.style.borderColor='#ffdf00'" onmouseout="this.style.borderColor='rgba(255,223,0,0.3)'">&#8592; Voltar ao Início</a>
   </header>
 
   <!-- INTRO -->
   <div class="intro">
     <p>Olá! 👋 Bem-vindo ao <strong>Bolão da Copa 2026</strong>!</p>
     <p>A ideia é simples: você vai tentar <strong>adivinhar o que vai acontecer na Copa do Mundo</strong>. Quanto mais você acertar, mais pontos ganha. No final, quem tiver mais pontos leva o título de campeão do bolão! 🏆</p>
-    <p>Existem <strong>3 jeitos de ganhar pontos</strong>. Vamos explicar cada um com calma:</p>
+    <p>O bolão é dividido em <strong>duas fases</strong>. Escolha abaixo qual quer consultar:</p>
   </div>
 
-  <!-- FASE DE GRUPOS: QUEM PASSA DE FASE? -->
-  <div class="section">
-    <div class="section-header">
-      <span class="section-icon">🏟️</span>
-      <div>
-        <div class="section-title">Fase de Grupos — Quem Passa de Fase?</div>
-        <div class="section-subtitle">Preencher antes da Copa começar</div>
+  <!-- CARDS DE NAVEGAÇÃO -->
+  <div class="nav-cards">
+    <div class="nav-card grupos active" onclick="mostrar('grupos')">
+      <div class="nc-icon">🏟️</div>
+      <div class="nc-title">Fase de Grupos</div>
+      <div class="nc-sub">Classificação, Terceiros, Zebras e Placares da fase de grupos</div>
+      <div class="nc-pts">Máx. 184 pontos</div>
+      <div class="nc-arrow">▼ Ver regras</div>
+    </div>
+    <div class="nav-card matamata" onclick="mostrar('matamata')">
+      <div class="nc-icon">⚔️</div>
+      <div class="nc-title">Mata-Mata</div>
+      <div class="nc-sub">Chaveamento, Placares, Top 4 e Decepções do mata-mata</div>
+      <div class="nc-pts">Máx. 104 pontos</div>
+      <div class="nc-arrow">▼ Ver regras</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- PAINEL FASE DE GRUPOS                                   -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="panel active" id="panel-grupos">
+
+    <!-- QUEM PASSA DE FASE -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">🏟️</span>
+        <div>
+          <div class="section-title">Quem Passa de Fase?</div>
+          <div class="section-subtitle">Preencher antes da Copa começar</div>
+        </div>
+      </div>
+      <p>A Copa tem <strong>12 grupos</strong>, cada um com 4 seleções. Você precisa colocar as seleções <strong>em ordem</strong> — quem vai ficar em 1º, 2º, 3º e 4º lugar em cada grupo.</p>
+      <div class="example">
+        <div class="example-label">Exemplo — Grupo C</div>
+        <p>Você disse: 1º Brasil, 2º Marrocos, 3º Haiti, 4º Escócia<br>
+        Resultado real: 1º Brasil ✅, 2º Marrocos ✅, 3º Escócia ❌, 4º Haiti ❌<br>
+        <strong>Você acertou 2 posições exatas e os 2 classificados diretos — ótimo!</strong></p>
+      </div>
+      <div class="score-row">
+        <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Posição exata:</em> você disse que um time ficaria em 3º e ele ficou mesmo em 3º</span></div>
+        <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Classificado direto:</em> você acertou que um time passou entre os 2 primeiros — mesmo que tenha invertido a ordem</span></div>
+      </div>
+      <div class="max-box">
+        <span class="icon">🏆</span>
+        <p>Máximo nessa seção: <strong>72 pontos</strong><br><span style="font-size:12px">(48 pts de posições + 24 pts de classificados diretos)</span></p>
       </div>
     </div>
 
-    <p>A Copa tem <strong>12 grupos</strong>, cada um com 4 seleções. Você precisa colocar as seleções <strong>em ordem</strong> — quem vai ficar em 1º, 2º, 3º e 4º lugar em cada grupo.</p>
-
-    <p>Pensa assim: é como organizar os alunos da turma do melhor pro pior em futebol. Você escolhe a ordem!</p>
-
-    <div class="example">
-      <div class="example-label">Exemplo — Grupo C</div>
-      <p>Você disse: 1º Brasil, 2º Marrocos, 3º Haiti, 4º Escócia<br>
-      Resultado real: 1º Brasil ✅, 2º Marrocos ✅, 3º Escócia ❌, 4º Haiti ❌<br>
-      <strong>Você acertou 2 posições exatas e os 2 classificados diretos — ótimo!</strong></p>
-    </div>
-
-    <div class="score-row">
-      <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Posição exata:</em> você disse que um time ficaria em 3º e ele ficou mesmo em 3º</span></div>
-      <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Classificado direto:</em> você acertou que um time passou entre os 2 primeiros — mesmo que tenha invertido a ordem</span></div>
-    </div>
-
-    <div class="max-box">
-      <span class="icon">🏆</span>
-      <p>Máximo nessa seção (só grupos): <strong>72 pontos</strong><br><span style="font-size:12px">(48 pts de posições + 24 pts de classificados diretos)</span></p>
-    </div>
-  </div>
-
-  <!-- MELHORES TERCEIROS -->
-  <div class="section">
-    <div class="section-header">
-      <span class="section-icon">🥉</span>
-      <div>
-        <div class="section-title">Fase de Grupos — Os Melhores Terceiros</div>
-        <div class="section-subtitle">Preencher antes da Copa começar</div>
+    <!-- MELHORES TERCEIROS -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">🥉</span>
+        <div>
+          <div class="section-title">Os Melhores Terceiros</div>
+          <div class="section-subtitle">Preencher antes da Copa começar</div>
+        </div>
+      </div>
+      <p>Na Copa de 2026, <strong>12 seleções ficam em 3º lugar</strong> — uma por grupo. Mas nem todas passam de fase! Só as <strong>8 melhores</strong> avançam para o mata-mata.</p>
+      <p>Você precisa adivinhar <strong>quais 8 terceiros vão avançar</strong> e ainda <strong>colocá-los em ordem</strong> do melhor ao pior entre eles.</p>
+      <div class="example">
+        <div class="example-label">Como a FIFA decide quais 8 avançam?</div>
+        <p>A FIFA pega todos os 12 terceiros colocados e os compara entre si usando os seguintes critérios, <strong>nessa ordem</strong>:</p>
+      </div>
+      <div class="score-row">
+        <div class="score-item"><span class="score-pts" style="font-size:14px;min-width:34px">1º</span><span class="score-desc"><em>Pontos:</em> vitória = 3 pts, empate = 1 pt, derrota = 0 pt</span></div>
+        <div class="score-item"><span class="score-pts" style="font-size:14px;min-width:34px">2º</span><span class="score-desc"><em>Saldo de gols:</em> gols marcados menos gols sofridos</span></div>
+        <div class="score-item"><span class="score-pts" style="font-size:14px;min-width:34px">3º</span><span class="score-desc"><em>Gols marcados:</em> quem fez mais gols no total dos 3 jogos</span></div>
+        <div class="score-item"><span class="score-pts" style="font-size:14px;min-width:34px">4º</span><span class="score-desc"><em>Disciplina:</em> menos cartões (vermelho direto = 3 pts, AM+VM = 3 pts, amarelo = 1 pt)</span></div>
+        <div class="score-item"><span class="score-pts" style="font-size:14px;min-width:34px">5º</span><span class="score-desc"><em>Ranking FIFA:</em> melhor posição no ranking passa na frente</span></div>
+      </div>
+      <div class="score-row">
+        <div class="score-item"><span class="score-pts">+2 pts</span><span class="score-desc"><em>Acertou qual terceiro avançou E sua posição no ranking dos 8</em></span></div>
+        <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Acertou que o terceiro avançou, mas errou a posição no ranking</em></span></div>
+        <div class="score-item"><span class="score-pts">0 pts</span><span class="score-desc"><em>A seleção não avançou como terceiro</em></span></div>
+      </div>
+      <div class="max-box">
+        <span class="icon">🏆</span>
+        <p>Máximo nessa seção: <strong>16 pontos</strong><br><span style="font-size:12px">(8 terceiros × 2 pontos cada)</span></p>
       </div>
     </div>
 
-    <p>Na Copa de 2026, <strong>12 seleções ficam em 3º lugar</strong> — uma por grupo. Mas nem todas passam de fase! Só as <strong>8 melhores</strong> avançam para o mata-mata.</p>
-
-    <p>Você precisa adivinhar <strong>quais 8 terceiros vão avançar</strong> e ainda <strong>colocá-los em ordem</strong> do melhor ao pior entre eles.</p>
-
-    <div class="example">
-      <div class="example-label">Como a FIFA decide quais 8 avançam?</div>
-      <p>A FIFA pega todos os 12 terceiros colocados e os compara entre si usando os seguintes critérios, <strong>nessa ordem</strong>:</p>
-    </div>
-
-    <div class="score-row">
-      <div class="score-item"><span class="score-pts" style="font-size:14px;min-width:34px">1º</span><span class="score-desc"><em>Pontos:</em> vitória = 3 pts, empate = 1 pt, derrota = 0 pt. Quem tem mais pontos fica na frente</span></div>
-      <div class="score-item"><span class="score-pts" style="font-size:14px;min-width:34px">2º</span><span class="score-desc"><em>Saldo de gols:</em> gols marcados menos gols sofridos. Ex: ganhou 2×0 e perdeu 0×1 → saldo +1</span></div>
-      <div class="score-item"><span class="score-pts" style="font-size:14px;min-width:34px">3º</span><span class="score-desc"><em>Gols marcados:</em> quem fez mais gols no total dos 3 jogos</span></div>
-      <div class="score-item"><span class="score-pts" style="font-size:14px;min-width:34px">4º</span><span class="score-desc"><em>Disciplina:</em> menos cartões amarelos e vermelhos (vermelho direto = 3 pts, amarelo + vermelho = 3 pts, só amarelo = 1 pt)</span></div>
-      <div class="score-item"><span class="score-pts" style="font-size:14px;min-width:34px">5º</span><span class="score-desc"><em>Ranking FIFA:</em> se ainda empatados, a seleção com melhor posição no ranking FIFA passa na frente</span></div>
-    </div>
-
-    <div class="example">
-      <div class="example-label">Exemplo simples</div>
-      <p>Imagine que Haiti e Panamá são dois dos 12 terceiros. Ambos fizeram <strong>4 pontos</strong>. Aí vai para o saldo de gols: Haiti tem +2, Panamá tem +1. <strong>Haiti passa!</strong> Se o saldo também fosse igual, aí veriam quem fez mais gols, e assim por diante.</p>
-    </div>
-
-    <p>No bolão, você ordena os 8 terceiros que escolheu da mesma forma — do que você acha que vai ter <strong>melhor desempenho ao pior</strong> entre eles.</p>
-
-    <div class="score-row">
-      <div class="score-item"><span class="score-pts">+2 pts</span><span class="score-desc"><em>Acertou qual terceiro avançou E sua posição no ranking dos 8</em></span></div>
-      <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Acertou que o terceiro avançou, mas errou a posição no ranking</em></span></div>
-      <div class="score-item"><span class="score-pts">0 pts</span><span class="score-desc"><em>A seleção não avançou como terceiro</em></span></div>
-    </div>
-
-    <div class="max-box">
-      <span class="icon">🏆</span>
-      <p>Máximo nessa seção: <strong>16 pontos</strong><br><span style="font-size:12px">(8 terceiros × 2 pontos cada)</span></p>
-    </div>
-  </div>
-
-  <!-- FASE DE GRUPOS: ZEBRAS -->
-  <div class="section">
-    <div class="section-header">
-      <span class="section-icon">🐎</span>
-      <div>
-        <div class="section-title">Fase de Grupos — Zebras</div>
-        <div class="section-subtitle">Preencher antes da Copa começar</div>
+    <!-- ZEBRAS -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">🐎</span>
+        <div>
+          <div class="section-title">Zebras</div>
+          <div class="section-subtitle">Preencher antes da Copa começar</div>
+        </div>
+      </div>
+      <p>Escolha <strong>4 seleções azarão</strong> que você acha que vão surpreender na fase de grupos. Só pode escolher entre essas 12 seleções:</p>
+      <div class="zebra-list">
+        <div class="zebra-chip">🇿🇦 África do Sul</div>
+        <div class="zebra-chip">🇶🇦 Catar</div>
+        <div class="zebra-chip">🇭🇹 Haiti</div>
+        <div class="zebra-chip">🇦🇺 Austrália</div>
+        <div class="zebra-chip">🇨🇼 Curaçao</div>
+        <div class="zebra-chip">🇹🇳 Tunísia</div>
+        <div class="zebra-chip">🇳🇿 Nova Zelândia</div>
+        <div class="zebra-chip">🇮🇶 Iraque</div>
+        <div class="zebra-chip">🇯🇴 Jordânia</div>
+        <div class="zebra-chip">🇨🇩 RD Congo</div>
+        <div class="zebra-chip">🇨🇻 Cabo Verde</div>
+        <div class="zebra-chip">🇵🇦 Panamá</div>
+      </div>
+      <div class="score-row">
+        <div class="score-item"><span class="score-pts">+6 pts</span><span class="score-desc"><em>Sua zebra ficou em 1º lugar do grupo!</em> 🥇</span></div>
+        <div class="score-item"><span class="score-pts">+4 pts</span><span class="score-desc"><em>Sua zebra ficou em 2º lugar do grupo</em> 🥈</span></div>
+        <div class="score-item"><span class="score-pts">+2 pts</span><span class="score-desc"><em>Sua zebra ficou em 3º lugar no grupo</em> 🥉</span></div>
+        <div class="score-item"><span class="score-pts">0 pts</span><span class="score-desc"><em>Sua zebra foi eliminada</em> 😢</span></div>
+      </div>
+      <div class="max-box">
+        <span class="icon">🏆</span>
+        <p>Máximo nessa seção: <strong>24 pontos</strong><br><span style="font-size:12px">(4 zebras × 6 pontos cada)</span></p>
       </div>
     </div>
 
-    <p>Sabe aquele time que <strong>quase ninguém acredita</strong>? Você escolhe <strong>4 seleções azarão</strong> que você acha que vão surpreender todo mundo na fase de grupos!</p>
-
-    <p>Só pode escolher entre essas 8 seleções:</p>
-
-    <div class="zebra-list">
-      <div class="zebra-chip">🇨🇼 Curaçao</div>
-      <div class="zebra-chip">🇭🇹 Haiti</div>
-      <div class="zebra-chip">🇳🇿 Nova Zelândia</div>
-      <div class="zebra-chip">🇯🇴 Jordânia</div>
-      <div class="zebra-chip">🇮🇶 Iraque</div>
-      <div class="zebra-chip">🇵🇦 Panamá</div>
-      <div class="zebra-chip">🇶🇦 Catar</div>
-      <div class="zebra-chip">🇸🇦 Arábia Saudita</div>
-    </div>
-
-    <p>Quanto melhor sua zebra se sair, mais pontos você ganha:</p>
-
-    <div class="score-row">
-      <div class="score-item"><span class="score-pts">+6 pts</span><span class="score-desc"><em>Sua zebra ficou em 1º lugar do grupo!</em> Uau! 🥇</span></div>
-      <div class="score-item"><span class="score-pts">+4 pts</span><span class="score-desc"><em>Sua zebra ficou em 2º lugar do grupo</em> 🥈</span></div>
-      <div class="score-item"><span class="score-pts">+2 pts</span><span class="score-desc"><em>Sua zebra passou como um dos melhores terceiros</em> 🥉</span></div>
-      <div class="score-item"><span class="score-pts">0 pts</span><span class="score-desc"><em>Sua zebra foi eliminada</em> 😢</span></div>
-    </div>
-
-    <div class="max-box">
-      <span class="icon">🏆</span>
-      <p>Máximo nessa seção: <strong>24 pontos</strong><br><span style="font-size:12px">(4 zebras × 6 pontos cada)</span></p>
-    </div>
-  </div>
-
-  <!-- FASE DE GRUPOS: PLACARES -->
-  <div class="section">
-    <div class="section-header">
-      <span class="section-icon">⚽</span>
-      <div>
-        <div class="section-title">Fase de Grupos — Qual vai ser o placar?</div>
-        <div class="section-subtitle">Preencher antes de cada rodada</div>
+    <!-- PLACARES GRUPOS -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">⚽</span>
+        <div>
+          <div class="section-title">Placares da Fase de Grupos</div>
+          <div class="section-subtitle">Preencher antes de cada rodada</div>
+        </div>
+      </div>
+      <p>Antes de cada rodada, você tenta adivinhar o <strong>placar de cada partida</strong>. São 72 jogos no total — mas <strong>só os seus 24 melhores palpites contam no final</strong>.</p>
+      <div class="example">
+        <div class="example-label">Prazos</div>
+        <p>📅 <strong>Rodada 1:</strong> enviar até 11/06 antes do primeiro jogo<br>
+        📅 <strong>Rodada 2:</strong> enviar até 18/06 antes do primeiro jogo<br>
+        📅 <strong>Rodada 3:</strong> enviar até 24/06 antes do primeiro jogo</p>
+      </div>
+      <div class="score-row">
+        <div class="score-item"><span class="score-pts">+3 pts</span><span class="score-desc"><em>Placar exato!</em> Você disse 2×1, foi 2×1. Empate exato também vale 3!</span></div>
+        <div class="score-item"><span class="score-pts">+2 pts</span><span class="score-desc"><em>Vencedor certo + diferença de gols certa.</em> Ex: disse 3×1, foi 2×0. Ou acertou o empate mas errou o placar (disse 2×2, foi 1×1)</span></div>
+        <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Só o vencedor.</em> Ex: disse 3×0, foi 1×0</span></div>
+        <div class="score-item"><span class="score-pts">0 pts</span><span class="score-desc"><em>Apostou em vencedor mas o jogo empatou,</em> ou errou completamente</span></div>
+      </div>
+      <div class="max-box">
+        <span class="icon">🏆</span>
+        <p>Máximo nessa seção: <strong>72 pontos</strong><br><span style="font-size:12px">(24 melhores palpites × 3 pontos cada)</span></p>
       </div>
     </div>
 
-    <p>Antes de cada rodada de jogos, você tenta adivinhar o <strong>placar de cada partida</strong>. São 72 jogos no total — mas não se preocupe, <strong>só os seus 24 melhores palpites contam no final</strong>. Os ruins vão pro lixo! 🗑️😂</p>
-
-    <p>Existem 3 rodadas com prazos diferentes:</p>
-    <div class="example">
-      <div class="example-label">Prazos</div>
-      <p>📅 <strong>Rodada 1:</strong> enviar até 11/06 antes do primeiro jogo<br>
-      📅 <strong>Rodada 2:</strong> enviar até 18/06 antes do primeiro jogo<br>
-      📅 <strong>Rodada 3:</strong> enviar até 24/06 antes do primeiro jogo</p>
+    <!-- TOTAL GRUPOS -->
+    <div class="total-card grupos-total">
+      <h3>📊 Total — Fase de Grupos</h3>
+      <div class="total-row"><span class="label">🏟️ Grupos</span><span class="val">72 pts</span></div>
+      <div class="total-row"><span class="label">🥉 Melhores Terceiros</span><span class="val">16 pts</span></div>
+      <div class="total-row"><span class="label">🐎 Zebras</span><span class="val">24 pts</span></div>
+      <div class="total-row"><span class="label">⚽ Placares (24 melhores)</span><span class="val">72 pts</span></div>
+      <div class="total-row"><span class="label">🏆 TOTAL MÁXIMO</span><span class="val">184 pontos</span></div>
     </div>
 
-    <p><strong>Como funciona a pontuação:</strong></p>
+  </div><!-- /panel-grupos -->
 
-    <div class="score-row">
-      <div class="score-item"><span class="score-pts">+3 pts</span><span class="score-desc"><em>Placar exato!</em> Você disse 2×1, foi 2×1. Ou disse 1×1, foi 1×1 (empate certo também vale 3!)</span></div>
-      <div class="score-item"><span class="score-pts">+2 pts</span><span class="score-desc"><em>Vencedor certo + diferença de gols certa.</em> Ex: disse 3×1, foi 2×0 (mesmo time ganhou por 2 de diferença). Ou acertou que era empate mas errou o placar (disse 2×2, foi 1×1)</span></div>
-      <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Só o vencedor.</em> Ex: disse 3×0, foi 1×0. Vale apenas quando há um vencedor — não existe "+1 no empate"</span></div>
-      <div class="score-item"><span class="score-pts">0 pts</span><span class="score-desc"><em>Apostou em um vencedor mas o jogo empatou</em>, ou errou completamente</span></div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- PAINEL MATA-MATA                                        -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-matamata">
+
+    <!-- CHAVEAMENTO -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">🏟️</span>
+        <div>
+          <div class="section-title">Chaveamento Completo</div>
+          <div class="section-subtitle">Preencher antes do início do mata-mata</div>
+        </div>
+      </div>
+      <p>Antes do 1º jogo eliminatório, você preenche <strong>todo o chaveamento</strong> — desde o Round of 32 até o campeão. A lógica é simples: se a seleção que você colocou avançando realmente avançar naquela fase, você ganha os pontos.</p>
+      <div class="score-row">
+        <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Round of 32 → Oitavas:</em> cada classificado correto · Máx. 16 pts</span></div>
+        <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Oitavas → Quartas:</em> cada classificado correto · Máx. 8 pts</span></div>
+        <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Quartas → Semis:</em> cada classificado correto · Máx. 4 pts</span></div>
+        <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Semis → Final:</em> cada finalista correto · Máx. 2 pts</span></div>
+        <div class="score-item"><span class="score-pts">+2 pts</span><span class="score-desc"><em>Campeão:</em> acertou o campeão</span></div>
+      </div>
+      <div class="max-box">
+        <span class="icon">🏆</span>
+        <p>Máximo nessa seção: <strong>32 pontos</strong><br><span style="font-size:12px">(16 + 8 + 4 + 2 + 2)</span></p>
+      </div>
     </div>
 
-    <div class="example">
-      <div class="example-label">Atenção — regra do empate</div>
-      <p>Se o jogo terminou <strong>0×0</strong> e você disse <strong>0×0</strong> → <strong>+3 pontos</strong> (placar exato!)<br>
-      Se terminou <strong>1×1</strong> e você disse <strong>2×2</strong> → <strong>+2 pontos</strong> (acertou o empate, errou o placar)<br>
-      Se terminou <strong>1×1</strong> e você disse <strong>2×0</strong> → <strong>0 pontos</strong> (apostou em vencedor, deu empate)</p>
+    <!-- PLACARES MATA-MATA -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">⚽</span>
+        <div>
+          <div class="section-title">Placares do Mata-Mata</div>
+          <div class="section-subtitle">Preencher por rodada</div>
+        </div>
+      </div>
+      <div class="aviso-box">
+        <p>Os palpites de placares <strong>não são feitos antes do mata-mata</strong> — serão abertos a cada rodada. São 32 jogos disponíveis, mas <strong>contam apenas os 16 melhores resultados</strong> de cada participante.</p>
+      </div>
+      <div class="score-row">
+        <div class="score-item"><span class="score-pts">+3 pts</span><span class="score-desc"><em>Placar exato</em></span></div>
+        <div class="score-item"><span class="score-pts">+2 pts</span><span class="score-desc"><em>Acertou o vencedor e a diferença de gols</em></span></div>
+        <div class="score-item"><span class="score-pts">+2 pts</span><span class="score-desc"><em>Acertou que seria empate no tempo normal, mas errou o placar</em></span></div>
+        <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Acertou apenas o vencedor</em></span></div>
+        <div class="score-item"><span class="score-pts">0 pts</span><span class="score-desc"><em>Errou o resultado</em></span></div>
+      </div>
+      <div class="example">
+        <div class="example-label">Regra importante — pênaltis</div>
+        <p>O placar considerado é sempre o do <strong>tempo normal</strong>. Exemplo: Brasil 1×1 França no tempo normal, Brasil passa nos pênaltis.<br>
+        → Para <strong>placares</strong>: resultado é 1×1.<br>
+        → Para o <strong>chaveamento</strong>: o classificado é Brasil.</p>
+      </div>
+      <div class="max-box">
+        <span class="icon">🏆</span>
+        <p>Máximo nessa seção: <strong>48 pontos</strong><br><span style="font-size:12px">(16 melhores palpites × 3 pontos cada)</span></p>
+      </div>
     </div>
 
-    <div class="max-box">
-      <span class="icon">🏆</span>
-      <p>Máximo nessa seção: <strong>72 pontos</strong><br><span style="font-size:12px">(24 melhores palpites × 3 pontos cada)</span></p>
+    <!-- TOP 4 -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">🏅</span>
+        <div>
+          <div class="section-title">Top 4 Final</div>
+          <div class="section-subtitle">Preencher antes do início do mata-mata</div>
+        </div>
+      </div>
+      <p>Indique o <strong>Top 4 final</strong> da competição: campeão, vice, 3º e 4º colocado.</p>
+      <div class="score-row">
+        <div class="score-item"><span class="score-pts">+2 pts</span><span class="score-desc"><em>Acertou a seleção e a posição exata</em></span></div>
+        <div class="score-item"><span class="score-pts">+1 pt</span><span class="score-desc"><em>Acertou que a seleção ficou no Top 4, mas errou a posição</em></span></div>
+        <div class="score-item"><span class="score-pts">0 pts</span><span class="score-desc"><em>A seleção não ficou no Top 4</em></span></div>
+      </div>
+      <div class="example">
+        <div class="example-label">Exemplo</div>
+        <p>Seu palpite: 1º Brasil · 2º Espanha · 3º Argentina · 4º França<br>
+        Resultado real: 1º Espanha · 2º Argentina · 3º Brasil · 4º França<br>
+        Brasil (Top 4, posição errada) = +1 · Espanha (Top 4, posição errada) = +1 · Argentina (Top 4, posição errada) = +1 · França (posição exata) = +2 → <strong>Total: 5 pontos</strong></p>
+      </div>
+      <div class="max-box">
+        <span class="icon">🏆</span>
+        <p>Máximo nessa seção: <strong>8 pontos</strong><br><span style="font-size:12px">(4 posições × 2 pontos cada)</span></p>
+      </div>
     </div>
-  </div>
 
-  <!-- TOTAL -->
-  <div class="total-card">
-    <h3>📊 Total do Bolão</h3>
-    <div class="total-row"><span class="label">🏟️ Grupos</span><span class="val">72 pts</span></div>
-    <div class="total-row"><span class="label">🥉 Melhores Terceiros</span><span class="val">16 pts</span></div>
-    <div class="total-row"><span class="label">⚽ Placares (24 melhores)</span><span class="val">72 pts</span></div>
-    <div class="total-row"><span class="label">🐎 Zebras</span><span class="val">24 pts</span></div>
-    <div class="total-row"><span class="label">🏆 TOTAL MÁXIMO</span><span class="val">184 pontos</span></div>
-  </div>
+    <!-- DECEPÇÕES -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">💣</span>
+        <div>
+          <div class="section-title">Decepções</div>
+          <div class="section-subtitle">Preencher antes do início do mata-mata</div>
+        </div>
+      </div>
+      <p>Escolha <strong>2 seleções favoritas</strong> que você acha que vão decepcionar e sair antes do esperado. Só pode escolher entre essas 8 seleções:</p>
+      <div class="fav-list">
+        <div class="fav-chip">🇩🇪 Alemanha</div>
+        <div class="fav-chip">🇦🇷 Argentina</div>
+        <div class="fav-chip">🇧🇷 Brasil</div>
+        <div class="fav-chip">🇪🇸 Espanha</div>
+        <div class="fav-chip">🇫🇷 França</div>
+        <div class="fav-chip">🇳🇱 Holanda</div>
+        <div class="fav-chip">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra</div>
+        <div class="fav-chip">🇵🇹 Portugal</div>
+      </div>
+      <div class="score-row">
+        <div class="score-item"><span class="score-pts">+8 pts</span><span class="score-desc"><em>Sua decepção caiu no Round of 32</em></span></div>
+        <div class="score-item"><span class="score-pts">+6 pts</span><span class="score-desc"><em>Sua decepção caiu nas Oitavas</em></span></div>
+        <div class="score-item"><span class="score-pts">+4 pts</span><span class="score-desc"><em>Sua decepção caiu nas Quartas</em></span></div>
+        <div class="score-item"><span class="score-pts">0 pts</span><span class="score-desc"><em>Chegou à Semifinal ou além</em></span></div>
+      </div>
+      <div class="example">
+        <div class="example-label">Exemplo</div>
+        <p>Você escolheu Alemanha e Inglaterra como decepções.<br>
+        Alemanha cai nas Oitavas → +6 pts. Inglaterra cai nas Quartas → +4 pts. <strong>Total: 10 pontos.</strong></p>
+      </div>
+      <div class="max-box">
+        <span class="icon">🏆</span>
+        <p>Máximo nessa seção: <strong>16 pontos</strong><br><span style="font-size:12px">(2 decepções × 8 pontos cada)</span></p>
+      </div>
+    </div>
+
+    <!-- TOTAL MATA-MATA -->
+    <div class="total-card matamata-total">
+      <h3>📊 Total — Mata-Mata</h3>
+      <div class="total-row"><span class="label">🏟️ Chaveamento</span><span class="val">32 pts</span></div>
+      <div class="total-row"><span class="label">⚽ Placares (16 melhores)</span><span class="val">48 pts</span></div>
+      <div class="total-row"><span class="label">🏅 Top 4 Final</span><span class="val">8 pts</span></div>
+      <div class="total-row"><span class="label">💣 Decepções</span><span class="val">16 pts</span></div>
+      <div class="total-row"><span class="label">🏆 TOTAL MÁXIMO</span><span class="val">104 pontos</span></div>
+    </div>
+
+  </div><!-- /panel-matamata -->
 
   <div class="footer" style="margin-top:40px;">
     <p>Boa sorte a todos! ⚽🎉</p>
@@ -283,5 +456,19 @@
   </div>
 
 </div>
+
+<script>
+function mostrar(fase) {
+  // Cards
+  document.querySelectorAll('.nav-card').forEach(function(c){ c.classList.remove('active'); });
+  document.querySelector('.nav-card.'+fase).classList.add('active');
+  // Painéis
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('panel-'+fase).classList.add('active');
+  // Scroll suave para o painel
+  document.getElementById('panel-'+fase).scrollIntoView({behavior:'smooth', block:'start'});
+}
+</script>
+
 </body>
 </html>

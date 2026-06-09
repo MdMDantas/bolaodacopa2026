@@ -35,15 +35,16 @@ var REGRAS = {
   zebras: {
     primeiro_lugar: 6,  // sua zebra ficou em 1º lugar do grupo
     segundo_lugar: 4,   // sua zebra ficou em 2º lugar do grupo
-    melhor_terceiro: 2, // sua zebra passou como um dos melhores terceiros
+    melhor_terceiro: 2, // sua zebra ficou em 3º lugar no grupo (independente de avançar)
     eliminada: 0        // sua zebra foi eliminada na fase de grupos
     // Máximo: 4 zebras × 6pts = 24 pontos
   },
 
   // ── TIMES CONSIDERADOS ZEBRA ────────────────────────────────
   times_zebra: [
-    'Curaçao', 'Haiti', 'Nova Zelândia', 'Jordânia',
-    'Iraque', 'Panamá', 'Catar', 'Arábia Saudita'
+    'África do Sul', 'Catar', 'Haiti', 'Austrália',
+    'Curaçao', 'Tunísia', 'Nova Zelândia', 'Iraque',
+    'Jordânia', 'RD Congo', 'Cabo Verde', 'Panamá'
   ],
 
   // ── CRITÉRIOS DE DESEMPATE (classificação dos grupos) ───────
@@ -57,13 +58,57 @@ var REGRAS = {
     'ranking_fifa'   // 5º: melhor posição no ranking FIFA
   ],
 
+  // ── PARTE 4: MATA-MATA ───────────────────────────────────────
+  matamata: {
+    chaveamento: {
+      r32_para_oitavas: 1,
+      oitavas_para_quartas: 1,
+      quartas_para_semis: 1,
+      semis_para_final: 1,
+      campiao: 2
+      // Máximo: 16 + 8 + 4 + 2 + 2 = 32 pontos
+    },
+    placares: {
+      placar_exato: 3,
+      vencedor_diff_certa: 2,
+      empate_errado: 2,
+      so_vencedor: 1,
+      errou: 0,
+      melhores_contam: 16,
+      total_jogos: 32
+      // Máximo: 16 × 3pts = 48 pontos
+    },
+    top4: {
+      posicao_exata: 2,
+      top4_posicao_errada: 1,
+      fora_do_top4: 0
+      // Máximo: 4 × 2pts = 8 pontos
+    },
+    decepcoes: {
+      caiu_r32: 8,
+      caiu_oitavas: 6,
+      caiu_quartas: 4,
+      semifinal_ou_alem: 0,
+      num_escolhas: 2
+      // Máximo: 2 × 8pts = 16 pontos
+    },
+    times_decepcao: [
+      'Alemanha', 'Argentina', 'Brasil', 'Espanha',
+      'França', 'Holanda', 'Inglaterra', 'Portugal'
+    ]
+  },
+
   // ── PONTUAÇÃO MÁXIMA TOTAL ───────────────────────────────────
   maximos: {
-    grupos: 72,      // 48pts posições + 24pts classificados diretos
-    terceiros: 16,   // 8 × 2pts
-    placares: 72,    // 24 melhores × 3pts
-    zebras: 24,      // 4 × 6pts
-    total: 184
+    grupos: 72,
+    terceiros: 16,
+    placares_grupos: 72,
+    zebras: 24,
+    mm_chaveamento: 32,
+    mm_placares: 48,
+    mm_top4: 8,
+    mm_decepcoes: 16,
+    mm_total: 104
   },
 
   // ── LÓGICA DE PONTUAÇÃO DE PLACAR ───────────────────────────

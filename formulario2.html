@@ -77,57 +77,44 @@
     min-width: 860px;
     align-items: center;
   }
-
-  /* Slot de seleção */
-  .slot {
-    display: flex; align-items: center;
-    padding: 0 4px;
-  }
+  .slot { display: flex; align-items: center; padding: 0 4px; }
   .slot .sel-wrap select { font-size: 10px; padding: 4px 20px 4px 6px; height: 22px; border-radius: 4px; }
-
-  /* Label do seed (1ºE, 3ºs etc) */
-  .seed-label {
-    font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
-    color: var(--muted); text-align: center; padding: 0 2px;
-    line-height: 1;
-  }
-
-  /* Conectores visuais */
+  .seed-label { font-size: 9px; font-weight: 700; letter-spacing: 0.5px; color: var(--muted); text-align: center; padding: 0 2px; line-height: 1; }
   .conn-right { border-right: 1px solid var(--border); border-radius: 0 4px 4px 0; }
   .conn-left  { border-left:  1px solid var(--border); border-radius: 4px 0 0 4px; }
   .conn-top   { border-top: 1px solid var(--border); }
   .conn-bot   { border-bottom: 1px solid var(--border); }
-
-  /* Célula vazia só para espaçamento */
   .spacer { display: block; }
-
-  /* CAMPEÃO central */
   .champion-area { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
   .champion-area .trophy-icon { font-size: 28px; }
   .champion-area .champ-label { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 2px; color: var(--gold); }
   .champion-area .sel-wrap select { font-size: 11px; text-align: center; border-color: rgba(245,197,24,0.4); border-width: 2px; }
   .champion-area .sel-wrap select:focus { border-color: var(--gold); }
-
-  /* Coluna de rounds — títulos */
   .round-labels { display: grid; grid-template-columns: 130px 100px 80px 70px 80px 80px 70px 80px 100px 130px; min-width: 860px; margin-bottom: 8px; }
   .round-label { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 1.5px; color: var(--gold); text-align: center; padding: 4px 2px; }
 
-  /* ESPECIAL CARDS */
-  .especial-grid { display: grid; grid-template-columns: 1fr; gap: 14px; max-width: 420px; }
+  /* TOP 4 */
+  .top4-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .top4-card { background: linear-gradient(135deg, rgba(0,48,135,0.4), rgba(0,26,74,0.9)); border: 1px solid rgba(255,223,0,0.3); border-radius: 12px; padding: 18px; }
+  .top4-card .t4-pos { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 2px; color: var(--gold); margin-bottom: 8px; }
+  .top4-card .sel-wrap select { font-size: 13px; padding: 8px 28px 8px 10px; height: auto; border-radius: 8px; }
+
+  /* DECEPÇÕES */
+  .decep-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 500px; }
   .especial-card { border-radius: 12px; padding: 20px; border: 1px solid; }
   .especial-card.decep { background: linear-gradient(135deg, rgba(192,57,43,0.2), rgba(0,26,74,0.9)); border-color: rgba(231,76,60,0.4); }
   .especial-card .card-icon { font-size: 26px; margin-bottom: 10px; }
-  .especial-card .card-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; margin-bottom: 4px; color: #E74C3C; }
-  .especial-card .card-desc { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
-  .especial-card .sel-wrap select { font-size: 14px; padding: 10px 32px 10px 14px; height: auto; border-radius: 8px; }
+  .especial-card .card-title { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; margin-bottom: 4px; color: #E74C3C; }
+  .especial-card .card-desc { font-size: 11px; color: var(--muted); margin-bottom: 12px; line-height: 1.4; }
+  .especial-card .sel-wrap select { font-size: 13px; padding: 8px 28px 8px 10px; height: auto; border-radius: 8px; }
   .especial-card .sel-wrap::after { font-size: 11px; right: 10px; }
 
-  /* SUMMARY TABLE */
-  .summary-table { width: 100%; max-width: 420px; border-collapse: collapse; margin-top: 8px; }
-  .summary-table td { padding: 8px 12px; font-size: 13px; border-bottom: 1px solid var(--border); }
-  .summary-table tr:last-child td { border-bottom: none; font-weight: 700; color: var(--gold); background: rgba(255,223,0,0.05); }
-  .summary-table td:last-child { text-align: right; color: var(--gold); font-weight: 600; }
-  .summary-table tr:last-child td:last-child { color: var(--gold); }
+  /* PONTUAÇÃO TOTAL */
+  .total-box { background: rgba(255,223,0,0.07); border: 1px solid rgba(255,223,0,0.3); border-radius: 14px; padding: 20px 24px; max-width: 420px; margin-top: 8px; }
+  .total-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; font-size: 13px; border-bottom: 1px solid rgba(255,223,0,0.1); }
+  .total-row:last-child { border-bottom: none; font-weight: 700; font-size: 15px; color: var(--gold); padding-top: 12px; margin-top: 4px; }
+  .total-row .label { color: var(--muted); }
+  .total-row .val { color: var(--gold); font-weight: 600; }
 
   /* BUTTONS */
   .save-section { text-align: center; margin-top: 50px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
@@ -150,6 +137,12 @@
   /* TOAST */
   .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--blue); border: 1px solid var(--gold); color: var(--white); padding: 14px 28px; border-radius: 12px; font-size: 14px; font-weight: 500; opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s; z-index: 999; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* AVISO PLACARES */
+  .aviso-box { background: rgba(0,156,59,0.1); border: 1px solid rgba(0,196,79,0.3); border-radius: 12px; padding: 18px 20px; margin-bottom: 20px; }
+  .aviso-box .aviso-title { font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 2px; color: var(--green-light); margin-bottom: 8px; }
+  .aviso-box p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .aviso-box p strong { color: var(--text); }
 </style>
 </head>
 <body>
@@ -181,24 +174,32 @@
   </header>
   <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin:12px 0 16px;padding:8px 14px;background:#00194a;border:1px solid rgba(255,223,0,0.3);border-radius:8px;" onmouseover="this.style.borderColor='#ffdf00'" onmouseout="this.style.borderColor='rgba(255,223,0,0.3)'">&#8592; Voltar ao Início</a>
 
-
-
   <div style="text-align:right;margin-bottom:16px;">
     <button onclick="preencherAleatorioF2()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
   </div>
 
-  <!-- CHAVEAMENTO -->
+  <!-- PONTUAÇÃO TOTAL -->
+  <div class="phase-header"><div class="phase-badge"></div><h2>RESUMO DE PONTUAÇÃO</h2></div>
+  <div class="total-box">
+    <div class="total-row"><span class="label">🏟️ Chaveamento</span><span class="val">máx. 32 pts</span></div>
+    <div class="total-row"><span class="label">⚽ Placares (16 melhores)</span><span class="val">máx. 48 pts</span></div>
+    <div class="total-row"><span class="label">🏅 Top 4 Final</span><span class="val">máx. 8 pts</span></div>
+    <div class="total-row"><span class="label">💣 Decepções</span><span class="val">máx. 16 pts</span></div>
+    <div class="total-row"><span class="label">TOTAL GERAL</span><span class="val">104 pts</span></div>
+  </div>
 
+  <div class="divider"></div>
 
-  <div class="phase-header"><div class="phase-badge"></div><h2>CHAVEAMENTO COMPLETO</h2></div>
+  <!-- 1. CHAVEAMENTO -->
+  <div class="phase-header"><div class="phase-badge"></div><h2>1. CHAVEAMENTO COMPLETO</h2></div>
   <div class="regras-box">
     <div class="regra-item">📌 Preencha toda a chave antes do 1º jogo eliminatório. <strong>Não será possível alterar depois.</strong></div>
-    <div class="regra-item">🎯 <strong>Fase de 32 → 16:</strong> cada classificado correto = <span class="pts">+2 pontos</span> · Máx. <span class="pts">32 pts</span></div>
-    <div class="regra-item">🎯 <strong>Oitavas → Quartas:</strong> cada classificado correto = <span class="pts">+4 pontos</span> · Máx. <span class="pts">32 pts</span></div>
-    <div class="regra-item">🎯 <strong>Quartas → Semis:</strong> cada semifinalista correto = <span class="pts">+6 pontos</span> · Máx. <span class="pts">24 pts</span></div>
-    <div class="regra-item">🎯 <strong>Semis → Final:</strong> cada finalista correto = <span class="pts">+8 pontos</span> · Máx. <span class="pts">16 pts</span></div>
-    <div class="regra-item">🏅 <strong>Campeão:</strong> acertou = <span class="pts">+15 pontos</span></div>
-    <div class="regra-item pontos-max">🏆 Máximo do bloco: 32 + 32 + 24 + 16 + 15 = <strong>119 pontos</strong></div>
+    <div class="regra-item">🎯 <strong>Round of 32 → Oitavas:</strong> cada classificado correto = <span class="pts">+1 ponto</span> · Máx. <span class="pts">16 pts</span></div>
+    <div class="regra-item">🎯 <strong>Oitavas → Quartas:</strong> cada classificado correto = <span class="pts">+1 ponto</span> · Máx. <span class="pts">8 pts</span></div>
+    <div class="regra-item">🎯 <strong>Quartas → Semis:</strong> cada classificado correto = <span class="pts">+1 ponto</span> · Máx. <span class="pts">4 pts</span></div>
+    <div class="regra-item">🎯 <strong>Semis → Final:</strong> cada finalista correto = <span class="pts">+1 ponto</span> · Máx. <span class="pts">2 pts</span></div>
+    <div class="regra-item">🏅 <strong>Campeão:</strong> acertou = <span class="pts">+2 pontos</span></div>
+    <div class="regra-item pontos-max">🏆 Máximo do bloco: <strong>32 pontos</strong></div>
   </div>
 
   <div class="bracket-wrapper">
@@ -208,31 +209,85 @@
 
   <div class="divider"></div>
 
-  <!-- DECEPÇÃO -->
-  <div class="phase-header"><div class="phase-badge"></div><h2>💣 DECEPÇÃO DO MATA-MATA</h2></div>
-  <div class="regras-box">
-    <div class="regra-item">📌 Escolha uma seleção favorita que vai <strong>cair antes do esperado</strong> no mata-mata.</div>
-    <div class="regra-item">💣 <strong>Caiu na fase de 32:</strong> <span class="pts">+15 pontos</span></div>
-    <div class="regra-item">💣 <strong>Caiu nas oitavas:</strong> <span class="pts">+10 pontos</span></div>
-    <div class="regra-item">💣 <strong>Caiu nas quartas:</strong> <span class="pts">+5 pontos</span></div>
-    <div class="regra-item">❌ <strong>Chegou na semifinal ou além:</strong> <span class="pts">0 pontos</span></div>
-    <div class="regra-item pontos-max">🏆 Máximo do bloco: <strong>15 pontos</strong></div>
+  <!-- 2. PLACARES -->
+  <div class="phase-header"><div class="phase-badge"></div><h2>2. PLACARES DOS JOGOS</h2></div>
+  <div class="aviso-box">
+    <div class="aviso-title">📅 Palpites feitos por rodada</div>
+    <p>Os palpites de placares <strong>não são feitos antes do mata-mata</strong>. Eles serão abertos a cada rodada para manter o jogo justo. Os 32 jogos do mata-mata estarão disponíveis para palpite, mas <strong>contam apenas os 16 melhores resultados</strong> de cada participante.</p>
   </div>
-  <div class="especial-grid">
-    <div class="especial-card decep">
-      <div class="card-icon">💣</div>
-      <div class="card-title">Decepção do Mata-mata</div>
-      <div class="card-desc">Favorito que cairá antes do esperado na fase eliminatória.</div>
-      <div class="sel-wrap"><select id="decepcaoMata"><option value="">Selecione...</option></select></div>
+  <div class="regras-box">
+    <div class="regra-item">✅ <strong>Placar exato:</strong> <span class="pts">+3 pontos</span></div>
+    <div class="regra-item">✅ <strong>Acertou o vencedor e a diferença de gols:</strong> <span class="pts">+2 pontos</span></div>
+    <div class="regra-item">✅ <strong>Acertou que seria empate (placar errado):</strong> <span class="pts">+2 pontos</span></div>
+    <div class="regra-item">✅ <strong>Acertou apenas o vencedor:</strong> <span class="pts">+1 ponto</span></div>
+    <div class="regra-item">❌ <strong>Errou o resultado:</strong> <span class="pts">0 pontos</span></div>
+    <div class="regra-item" style="margin-top:4px;padding-top:10px;border-top:1px solid rgba(255,223,0,0.15);font-size:12px;">
+      ⚠️ <strong>Importante:</strong> no mata-mata, considera-se o placar do <strong>tempo normal</strong> apenas. Se o jogo for para pênaltis, o resultado para placar é o do tempo normal, mas para o chaveamento o classificado é quem passou.
+    </div>
+    <div class="regra-item pontos-max">🏆 Máximo do bloco: 16 melhores × 3 pts = <strong>48 pontos</strong></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 3. TOP 4 -->
+  <div class="phase-header"><div class="phase-badge"></div><h2>3. TOP 4 FINAL</h2></div>
+  <div class="regras-box">
+    <div class="regra-item">📌 Indique o Top 4 final da competição antes do início do mata-mata.</div>
+    <div class="regra-item">🥇 <strong>Acertou a seleção e a posição exata:</strong> <span class="pts">+2 pontos</span></div>
+    <div class="regra-item">🏅 <strong>Acertou que a seleção ficou no Top 4, mas errou a posição:</strong> <span class="pts">+1 ponto</span></div>
+    <div class="regra-item">❌ <strong>A seleção não ficou no Top 4:</strong> <span class="pts">0 pontos</span></div>
+    <div class="regra-item pontos-max">🏆 Máximo do bloco: 4 posições × 2 pts = <strong>8 pontos</strong></div>
+  </div>
+  <div class="top4-grid">
+    <div class="top4-card">
+      <div class="t4-pos">🥇 1º LUGAR — CAMPEÃO</div>
+      <div class="sel-wrap"><select id="top4_1" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
+    </div>
+    <div class="top4-card">
+      <div class="t4-pos">🥈 2º LUGAR — VICE</div>
+      <div class="sel-wrap"><select id="top4_2" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
+    </div>
+    <div class="top4-card">
+      <div class="t4-pos">🥉 3º LUGAR</div>
+      <div class="sel-wrap"><select id="top4_3" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
+    </div>
+    <div class="top4-card">
+      <div class="t4-pos">4️⃣ 4º LUGAR</div>
+      <div class="sel-wrap"><select id="top4_4" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
     </div>
   </div>
 
+  <div class="divider"></div>
 
+  <!-- 4. DECEPÇÕES -->
+  <div class="phase-header"><div class="phase-badge"></div><h2>4. DECEPÇÕES</h2></div>
+  <div class="regras-box">
+    <div class="regra-item">📌 Escolha <strong>2 seleções favoritas</strong> que vão decepcionar no mata-mata.</div>
+    <div class="regra-item">💣 <strong>Caiu no Round of 32:</strong> <span class="pts">+8 pontos</span></div>
+    <div class="regra-item">💣 <strong>Caiu nas Oitavas:</strong> <span class="pts">+6 pontos</span></div>
+    <div class="regra-item">💣 <strong>Caiu nas Quartas:</strong> <span class="pts">+4 pontos</span></div>
+    <div class="regra-item">❌ <strong>Chegou à Semifinal ou além:</strong> <span class="pts">0 pontos</span></div>
+    <div class="regra-item pontos-max">🏆 Máximo do bloco: 2 decepções × 8 pts = <strong>16 pontos</strong></div>
+  </div>
+  <div class="decep-grid">
+    <div class="especial-card decep">
+      <div class="card-icon">💣</div>
+      <div class="card-title">Decepção 1</div>
+      <div class="card-desc">Favorito que cairá antes do esperado.</div>
+      <div class="sel-wrap"><select id="decepcao1" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
+    </div>
+    <div class="especial-card decep">
+      <div class="card-icon">💣</div>
+      <div class="card-title">Decepção 2</div>
+      <div class="card-desc">Outro favorito que também vai cair cedo.</div>
+      <div class="sel-wrap"><select id="decepcao2" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
+    </div>
+  </div>
 
   <div class="save-section" id="btnMataMata"></div>
 </div>
 
-<!-- MODAL -->
+<!-- MODAL EXPORT -->
 <div class="modal-overlay" id="modalOverlay" onclick="fecharModal(event)">
   <div class="modal">
     <div class="modal-header">
@@ -246,12 +301,9 @@
 </div>
 <div class="toast" id="toast">✅ Palpites salvos!</div>
 
-
-
+<!-- MODAL BOLÃO -->
 <div id="bolaoModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center;padding:20px;">
   <div style="background:#002266;border:1px solid #1a3d7a;border-radius:18px;padding:32px;width:100%;max-width:440px;">
-
-    <!-- STEP LOGIN: não está logado -->
     <div id="bolaoStepLogin" style="display:none;text-align:center;">
       <div style="font-size:40px;margin-bottom:12px;">🔐</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#ffdf00;margin-bottom:8px;">FAÇA LOGIN PRIMEIRO</div>
@@ -259,8 +311,6 @@
       <a href="login.html" style="display:block;width:100%;background:#ffdf00;color:#003087;border:none;border-radius:12px;padding:15px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;font-weight:900;text-decoration:none;text-align:center;margin-bottom:10px;">ENTRAR / CADASTRAR</a>
       <button onclick="fecharBolaoModal()" style="width:100%;background:transparent;color:#7a9fd4;border:none;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Cancelar</button>
     </div>
-
-    <!-- STEP 1: logado, só código do bolão -->
     <div id="bolaoStep1" style="display:none;">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:#ffdf00;margin-bottom:4px;">ENVIAR PALPITES</div>
       <div id="m_usuario_label" style="font-size:13px;color:#00c44f;margin-bottom:20px;"></div>
@@ -273,8 +323,6 @@
       <button id="m_btn_confirmar" onclick="confirmarBolao()" style="width:100%;background:#ffdf00;color:#003087;border:none;border-radius:12px;padding:15px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;margin-top:20px;font-weight:900;">CONFIRMAR E ENVIAR</button>
       <button onclick="fecharBolaoModal()" style="width:100%;background:transparent;color:#7a9fd4;border:none;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:4px;">Cancelar</button>
     </div>
-
-    <!-- STEP 2: sucesso -->
     <div id="bolaoStep2" style="display:none;text-align:center;">
       <div style="font-size:48px;margin-bottom:16px;">✅</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:#ffdf00;margin-bottom:10px;">PALPITES ENVIADOS!</div>
@@ -282,21 +330,18 @@
       <button onclick="verMeusPalpites()" style="width:100%;background:#ffdf00;color:#003087;border:none;border-radius:12px;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;margin-bottom:10px;font-weight:900;">VER MEUS PALPITES</button>
       <button onclick="fecharBolaoModal()" style="width:100%;background:transparent;color:#7a9fd4;border:none;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Fechar</button>
     </div>
-
   </div>
 </div>
+
 <script>
 var SUPABASE_URL="https://myytheficqokbjbkmeiv.supabase.co";
 var SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15eXRoZWZpY3Fva2JqYmttZWl2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDM1NTMwNCwiZXhwIjoyMDk1OTMxMzA0fQ.-KV4Iaz-hSxdXyhJGYBXo0W9VTmwZctk0kWvZWqIDaE";
 
 const ALL_TEAMS = ['África do Sul','Alemanha','Arábia Saudita','Argentina','Argélia','Austrália','Áustria','Bélgica','Bósnia e Herzegovina','Brasil','Cabo Verde','Canadá','Catar','Colômbia','Coreia do Sul','Costa do Marfim','Croácia','Curaçao','Egito','Equador','Escócia','Espanha','Estados Unidos','França','Gana','Haiti','Holanda','Inglaterra','Iraque','Irã','Japão','Jordânia','México','Marrocos','Nova Zelândia','Noruega','Panamá','Paraguai','Portugal','RD Congo','República Tcheca','Senegal','Suécia','Suíça','Tunísia','Turquia','Uruguai','Uzbequistão'];
 
-const DECEPCAO_TEAMS = ['Argentina','França','Espanha','Inglaterra','Brasil','Portugal','Alemanha','Holanda'];
+// Favoritas para decepção — ordem alfabética
+const DECEPCAO_TEAMS = ['Alemanha','Argentina','Brasil','Espanha','França','Holanda','Inglaterra','Portugal'];
 
-// Chaveamento: 16 confrontos da fase de 32
-// Lado esquerdo: confrontos 1-8 (de cima pra baixo)
-// Lado direito: confrontos 9-16 (de cima pra baixo)
-// Seeds conforme imagem
 const SEEDS_LEFT = [
   ['1ºE','3ºs'], ['1ºI','3ºs'],
   ['2ºA','2ºB'], ['1ºF','2ºC'],
@@ -322,14 +367,9 @@ function sel(id, saved) {
 function buildBracket(saved) {
   saved = saved || {};
 
-  // Grid 32 linhas × 10 colunas
-  // cols: 1=seedL, 2=r32L, 3=r16L, 4=qfL, 5=sfL, 6=sfR, 7=qfR, 8=r16R, 9=r32R, 10=seedR
-  // Cada confronto ocupa 4 linhas, 8 confrontos por lado = 32 linhas
-
-  // Labels das colunas
   const labelEl = document.getElementById('roundLabels');
   labelEl.innerHTML = `
-    <div class="round-label">Fase de 32</div>
+    <div class="round-label">Round of 32</div>
     <div class="round-label">Oitavas</div>
     <div class="round-label">Quartas</div>
     <div class="round-label">Semis</div>
@@ -337,15 +377,11 @@ function buildBracket(saved) {
     <div class="round-label">Semis</div>
     <div class="round-label">Quartas</div>
     <div class="round-label">Oitavas</div>
-    <div class="round-label">Fase de 32</div>
+    <div class="round-label">Round of 32</div>
   `;
 
   const br = document.getElementById('bracket');
   br.innerHTML = '';
-
-  // Monta células numa matriz 32×10
-  // Usaremos posicionamento por grid-row/grid-column
-  const cells = [];
 
   function cell(col, row, colspan, rowspan, content, extra='') {
     const div = document.createElement('div');
@@ -356,41 +392,28 @@ function buildBracket(saved) {
     br.appendChild(div);
   }
 
-  // ── LADO ESQUERDO ─────────────────────────────────────────
-  // 8 confrontos, cada um em 4 linhas
-  // Linhas: confronto i → linhas (i*4+1) a (i*4+4)
   SEEDS_LEFT.forEach((seeds, i) => {
     const baseRow = i * 4 + 1;
     const idA = `r32L_${i}_A`;
     const idB = `r32L_${i}_B`;
     const idW = `r16L_${i}`;
-
-    // Seed labels col 1
     cell(1, baseRow,   1, 1, `<div class="seed-label">${seeds[0]}</div>`);
     cell(1, baseRow+2, 1, 1, `<div class="seed-label">${seeds[1]}</div>`);
-
-    // Selects fase 32 col 2
     cell(2, baseRow,   1, 1, sel(idA, saved[idA]), 'slot');
     cell(2, baseRow+2, 1, 1, sel(idB, saved[idB]), 'slot');
-
-    // Conector vertical col 2 entre os dois slots
     cell(2, baseRow+1, 1, 1, '', 'conn-right');
     cell(2, baseRow+3, 1, 1, '', 'conn-right');
-
-    // Vencedor oitavas col 3 — centralizado entre as 4 linhas
     cell(3, baseRow+1, 1, 2, sel(idW, saved[idW]), 'slot');
   });
 
-  // Quartas (col 4): pares de oitavas: 0+1, 2+3, 4+5, 6+7
   [0,2,4,6].forEach((i, qi) => {
-    const baseRow = i * 4 + 3; // linha central do par
+    const baseRow = i * 4 + 3;
     const idW = `qfL_${qi}`;
     cell(3, baseRow,   1, 1, '', 'conn-right');
     cell(3, baseRow+4, 1, 1, '', 'conn-right');
     cell(4, baseRow+1, 1, 2, sel(idW, saved[idW]), 'slot');
   });
 
-  // Semis (col 5): pares 0+1 e 2+3 de quartas
   [0,2].forEach((qi, si) => {
     const baseRow = qi * 8 + 5;
     const idW = `sfL_${si}`;
@@ -399,11 +422,9 @@ function buildBracket(saved) {
     cell(5, baseRow+3, 1, 2, sel(idW, saved[idW]), 'slot');
   });
 
-  // Final esquerdo col 5 → conector
   cell(5, 9,  1, 1, '', 'conn-right');
   cell(5, 22, 1, 1, '', 'conn-right');
 
-  // ── CAMPEÃO CENTRAL (cols 5-6, linhas 14-18) ──────────────
   const champDiv = document.createElement('div');
   champDiv.style.gridColumn = '5 / span 2';
   champDiv.style.gridRow = '14 / span 5';
@@ -418,25 +439,20 @@ function buildBracket(saved) {
     </div>`;
   br.appendChild(champDiv);
 
-  // ── LADO DIREITO ──────────────────────────────────────────
   SEEDS_RIGHT.forEach((seeds, i) => {
     const baseRow = i * 4 + 1;
     const idA = `r32R_${i}_A`;
     const idB = `r32R_${i}_B`;
     const idW = `r16R_${i}`;
-
     cell(9, baseRow,   1, 1, `<div class="seed-label" style="text-align:left">${seeds[0]}</div>`);
     cell(9, baseRow+2, 1, 1, `<div class="seed-label" style="text-align:left">${seeds[1]}</div>`);
-
     cell(9, baseRow,   1, 1, sel(idA, saved[idA]), 'slot');
     cell(9, baseRow+2, 1, 1, sel(idB, saved[idB]), 'slot');
     cell(9, baseRow+1, 1, 1, '', 'conn-left');
     cell(9, baseRow+3, 1, 1, '', 'conn-left');
-
     cell(8, baseRow+1, 1, 2, sel(idW, saved[idW]), 'slot');
   });
 
-  // Quartas direito col 7
   [0,2,4,6].forEach((i, qi) => {
     const baseRow = i * 4 + 3;
     const idW = `qfR_${qi}`;
@@ -445,7 +461,6 @@ function buildBracket(saved) {
     cell(7, baseRow+1, 1, 2, sel(idW, saved[idW]), 'slot');
   });
 
-  // Semis direito col 6
   [0,2].forEach((qi, si) => {
     const baseRow = qi * 8 + 5;
     const idW = `sfR_${si}`;
@@ -457,20 +472,31 @@ function buildBracket(saved) {
   cell(6, 9,  1, 1, '', 'conn-left');
   cell(6, 22, 1, 1, '', 'conn-left');
 
-  // Seed labels direito col 10
   SEEDS_RIGHT.forEach((seeds, i) => {
     const baseRow = i * 4 + 1;
     cell(10, baseRow,   1, 1, `<div class="seed-label">${seeds[0]}</div>`);
     cell(10, baseRow+2, 1, 1, `<div class="seed-label">${seeds[1]}</div>`);
   });
 
-  // Decepção select
-  const decSel = document.getElementById('decepcaoMata');
-  if (decSel) {
-    const cur = saved['decepcaoMata'] || '';
-    decSel.innerHTML = `<option value="">Selecione...</option>` +
+  // Top 4
+  ['top4_1','top4_2','top4_3','top4_4'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var cur = saved[id] || '';
+    el.innerHTML = '<option value="">Selecione...</option>' +
+      ALL_TEAMS.map(t => `<option value="${t}"${cur===t?' selected':''}>${t}</option>`).join('');
+    el.classList.toggle('filled', !!cur);
+  });
+
+  // Decepções
+  ['decepcao1','decepcao2'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var cur = saved[id] || '';
+    el.innerHTML = '<option value="">Selecione...</option>' +
       DECEPCAO_TEAMS.map(t => `<option value="${t}"${cur===t?' selected':''}>${t}</option>`).join('');
-  }
+    el.classList.toggle('filled', !!cur);
+  });
 }
 
 function markFilled(sel) { sel.classList.toggle('filled', !!sel.value); }
@@ -483,40 +509,33 @@ function updateProgress() {
   document.getElementById('progressPct').textContent = pct + '%';
 }
 
-function salvar() {
-    var sels = document.querySelectorAll('select');
-    var data = {};
-    sels.forEach(function(s) { data[s.id] = s.value; });
-    data.nome = document.getElementById('nome').value.trim();
-    localStorage.setItem('bolaodacopa2026_fase2_' + (data.nome||'participante'), JSON.stringify(data));
-}
-
 function fecharModal(e) { if (e.target.id === 'modalOverlay') e.target.style.display = 'none'; }
-
-// INIT
-buildBracket(null);
-updateProgress();
-
-document.getElementById('nome').addEventListener('blur', function () {
-  if (this.value.trim()) tryLoad(this.value.trim());
-});
-document.addEventListener('change', updateProgress);
 
 function preencherAleatorioF2() {
   var teams = ALL_TEAMS.slice();
   function rnd() { return teams[Math.floor(Math.random()*teams.length)]; }
-  document.querySelectorAll('.bracket-slot select, .slot-select').forEach(function(s){
-    s.value = rnd(); s.classList.add('filled');
-  });
+  document.querySelectorAll('#bracket select').forEach(function(s){ s.value = rnd(); s.classList.add('filled'); });
   var champ = document.getElementById('champion');
   if(champ){champ.value=rnd();champ.classList.add('filled');}
-  var dec = document.getElementById('decepcaoMata');
-  if(dec){dec.value=['Argentina','França','Espanha','Inglaterra','Brasil','Portugal','Alemanha','Holanda'][Math.floor(Math.random()*8)];dec.classList.add('filled');}
+  ['top4_1','top4_2','top4_3','top4_4'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.value=rnd();el.classList.add('filled');}
+  });
+  var decTeams = DECEPCAO_TEAMS.slice();
+  ['decepcao1','decepcao2'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){
+      var idx=Math.floor(Math.random()*decTeams.length);
+      el.value=decTeams[idx];
+      decTeams.splice(idx,1);
+      el.classList.add('filled');
+    }
+  });
   updateProgress();
 }
 
-// ── PRAZO MATA-MATA ────────────────────────────────────────
-var PRAZO_MATAMATA = new Date('2026-06-11T19:00:00Z'); // 11/06 16h Brasília
+// PRAZO
+var PRAZO_MATAMATA = new Date('2026-06-11T19:00:00Z');
 
 function renderBtnMataMata() {
   var el = document.getElementById('btnMataMata');
@@ -538,19 +557,12 @@ function renderBtnMataMata() {
   }
 }
 
+buildBracket(null);
+updateProgress();
+document.addEventListener('change', updateProgress);
 renderBtnMataMata();
 setInterval(renderBtnMataMata, 60000);
-
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
