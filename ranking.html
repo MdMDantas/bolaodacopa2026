@@ -9,7 +9,7 @@
   :root{--gold:#ffdf00;--green:#009c3b;--green-light:#00c44f;--blue:#003087;--bg:#001a4a;--bg2:#002266;--bg3:#002d80;--card:#00194a;--border:#1a3d7a;--text:#e8f0ff;--muted:#7a9fd4;--white:#fff;}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(0,48,135,0.5) 0%,transparent 60%);}
-  .wrapper{max-width:700px;margin:0 auto;padding:0 20px 80px;}
+  .wrapper{max-width:100%;margin:0 auto;padding:0 20px 80px;}
   .back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;text-decoration:none;margin:20px 0 0;padding:8px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;}
   .back:hover{color:var(--gold);border-color:var(--gold);}
   header{padding:0 0 32px;}
@@ -167,15 +167,15 @@ async function carregarRanking(bolaoId, bolaoNome) {
 
     // HEADER — duas seções de colunas
     // Grid: Posição | Apelido | Grupos | R1 | R2 | R3 | MM | 16Avos | Oitavas | Quartas | Semi | Final | Total
-    var GRID = '44px 1fr 60px 52px 52px 52px 60px 58px 64px 60px 52px 52px 48px';
-    html += '<div style="background:var(--bg3);padding:6px 20px;overflow-x:auto;">';
-    html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 0;">';
+    var GRID = '36px 1fr 56px 46px 46px 46px 56px 52px 58px 54px 46px 46px 42px';
+    html += '<div style="background:var(--bg3);padding:6px 12px;">';
+    html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:8px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:4px 0;">';
     html += '<div></div><div></div>';
     html += '<div style="grid-column:span 4;text-align:center;color:var(--gold);border-bottom:2px solid rgba(255,223,0,0.4);padding-bottom:3px;font-size:8px;">FASE DE GRUPOS</div>';
     html += '<div style="grid-column:span 6;text-align:center;color:var(--muted);border-bottom:2px solid rgba(122,159,212,0.3);padding-bottom:3px;">MATA-MATA</div>';
     html += '<div></div>';
     html += '</div>';
-    html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:4px 0 6px;">';
+    html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:8px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted);padding:4px 0 6px;">';
     html += '<div>Pos.</div><div>Apelido</div>';
     html += '<div style="text-align:center">Grupos</div>';
     html += '<div style="text-align:center">Rod. 1</div>';
@@ -221,19 +221,19 @@ async function carregarRanking(bolaoId, bolaoNome) {
       var pSemi    = r.pts_semi      !== undefined ? r.pts_semi      : 0;
       var pFinal   = r.pts_final     !== undefined ? r.pts_final     : 0;
 
-      html += '<div style="display:grid;grid-template-columns:44px 1fr 60px 52px 52px 52px 60px 58px 64px 60px 52px 52px 48px;align-items:center;padding:10px 20px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;">';
+      html += '<div style="display:grid;grid-template-columns:36px 1fr 56px 46px 46px 46px 56px 52px 58px 54px 46px 46px 42px;align-items:center;padding:8px 12px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;">';
       html += '<div class="ranking-pos '+cls+'">'+num+'<sup>º</sup></div>';
       html += '<div class="ranking-apelido">'+r.apelido+'</div>';
-      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--gold);font-weight:700;">'+pGrupos+' pts</div><div style="font-size:15px;">'+temGrupos+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--gold);font-weight:700;">'+pR1+' pts</div><div style="font-size:15px;">'+temR1+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--gold);font-weight:700;">'+pR2+' pts</div><div style="font-size:15px;">'+temR2+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--gold);font-weight:700;">'+pR3+' pts</div><div style="font-size:15px;">'+temR3+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--muted);font-weight:700;">'+pChaveamento+' pts</div><div style="font-size:15px;">'+temChaveamento+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--muted);font-weight:700;">'+p16avos+' pts</div><div style="font-size:15px;">'+tem16avos+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--muted);font-weight:700;">'+pOitavas+' pts</div><div style="font-size:15px;">'+temOitavas+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--muted);font-weight:700;">'+pQuartas+' pts</div><div style="font-size:15px;">'+temQuartas+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--muted);font-weight:700;">'+pSemi+' pts</div><div style="font-size:15px;">'+temSemi+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--muted);font-weight:700;">'+pFinal+' pts</div><div style="font-size:15px;">'+temFinal+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pGrupos+' pts</div><div style="font-size:15px;">'+temGrupos+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pR1+' pts</div><div style="font-size:15px;">'+temR1+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pR2+' pts</div><div style="font-size:15px;">'+temR2+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pR3+' pts</div><div style="font-size:15px;">'+temR3+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pChaveamento+' pts</div><div style="font-size:15px;">'+temChaveamento+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+p16avos+' pts</div><div style="font-size:15px;">'+tem16avos+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pOitavas+' pts</div><div style="font-size:15px;">'+temOitavas+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pQuartas+' pts</div><div style="font-size:15px;">'+temQuartas+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pSemi+' pts</div><div style="font-size:15px;">'+temSemi+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pFinal+' pts</div><div style="font-size:15px;">'+temFinal+'</div></div>';
       html += '<div class="ranking-pts total">'+(r.total||0)+'</div>';
       html += '</div>';
     });

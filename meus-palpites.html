@@ -425,11 +425,11 @@ function renderPlacares() {
   if (typeof placares === 'string') { try { placares = JSON.parse(placares); } catch(e) { placares = {}; } }
 
   var html = '';
-  var rodadas = [['R1','🗓️ Rodada 1',JOGOS_R1],['R2','🗓️ Rodada 2',JOGOS_R2],['R3','🗓️ Rodada 3',JOGOS_R3]];
+  var rodadas = [['R1','🗓️ Rodada 1',JOGOS_R1,'tab2'],['R2','🗓️ Rodada 2',JOGOS_R2,'tab3'],['R3','🗓️ Rodada 3',JOGOS_R3,'tab4']];
 
 
   rodadas.forEach(function(rod) {
-    var rKey = rod[0], rLabel = rod[1], jogos = rod[2];
+    var rKey = rod[0], rLabel = rod[1], jogos = rod[2], tab = rod[3];
     html += '<div class="section-card"><div class="section-card-header"><span class="section-card-title">'+rLabel+'</span></div><div class="section-card-body">';
     var temAlgum = false;
     Object.keys(jogos).forEach(function(g) {
@@ -441,7 +441,7 @@ function renderPlacares() {
       });
     });
     if (!temAlgum) {
-      html += '<div class="nao-enviado"><strong>Nenhum placar preenchido nesta rodada</strong>Você ainda não enviou placares para esta rodada.<a href="formulario1.html" class="btn-ir">PREENCHER AGORA</a></div>';
+      html += '<div class="nao-enviado"><strong>Nenhum placar preenchido nesta rodada</strong>Você ainda não enviou placares para esta rodada.<a href="formulario1.html#'+tab+'" class="btn-ir">PREENCHER AGORA</a></div>';
     } else {
       Object.keys(jogos).forEach(function(g) {
         html += '<div class="rodada-block"><div class="rodada-titulo">Grupo '+g+'</div>';
@@ -475,11 +475,11 @@ function renderPlacaresMM() {
   var el = document.getElementById('placaresMmContent');
   if (!el) return;
   var fasesMM = [
-    {id:'r16avos',  label:'⚔️ 16 Avos de Final',  jogos:16},
-    {id:'roitavas', label:'⚔️ Oitavas de Final',   jogos:8},
-    {id:'rquartas', label:'⚔️ Quartas de Final',   jogos:4},
-    {id:'rsemi',    label:'⚔️ Semifinal',           jogos:2},
-    {id:'rfinal',   label:'🏆 3º Lugar e Final',   jogos:2}
+    {id:'r16avos',  label:'⚔️ 16 Avos de Final',  jogos:16, card:'mm-16avos'},
+    {id:'roitavas', label:'⚔️ Oitavas de Final',   jogos:8,  card:'mm-oitavas'},
+    {id:'rquartas', label:'⚔️ Quartas de Final',   jogos:4,  card:'mm-quartas'},
+    {id:'rsemi',    label:'⚔️ Semifinal',           jogos:2,  card:'mm-semi'},
+    {id:'rfinal',   label:'🏆 3º Lugar e Final',   jogos:2,  card:'mm-final'}
   ];
   var placaresMM = _palpite2 ? (_palpite2.placares_mm || {}) : null;
   var html = '';
@@ -492,7 +492,7 @@ function renderPlacaresMM() {
       }
     }
     if (!temAlgum) {
-      html += '<div class="nao-enviado"><strong>Nenhum placar preenchido nesta fase</strong>Você ainda não enviou placares para esta fase.<a href="formulario2.html" class="btn-ir">PREENCHER AGORA</a></div>';
+      html += '<div class="nao-enviado"><strong>Nenhum placar preenchido nesta fase</strong>Você ainda não enviou placares para esta fase.<a href="formulario2.html#'+fase.card+'" class="btn-ir">PREENCHER AGORA</a></div>';
     } else {
       for (var j=0; j<fase.jogos; j++) {
         var va = placaresMM[fase.id+'_'+j+'_A'];
