@@ -33,23 +33,54 @@ var DB = {
   },
 
   salvarPalpiteFase1: async function(row) {
-    var resp = await fetch(SUPABASE_URL + '/rest/v1/palpites_fase1', {
+    // Tenta PATCH (atualizar linha existente) — só toca nos campos enviados
+    var filtro = '?bolao_id=eq.' + row.bolao_id + '&apelido=eq.' + encodeURIComponent(row.apelido);
+    var patch = await fetch(SUPABASE_URL + '/rest/v1/palpites_fase1' + filtro, {
+      method: 'PATCH',
+      headers: Object.assign({}, DB.h(), {'Prefer': 'return=minimal'}),
+      body: JSON.stringify(row)
+    });
+    if (patch.ok) return true;
+    // Se não existe ainda, cria com POST
+    var post = await fetch(SUPABASE_URL + '/rest/v1/palpites_fase1', {
       method: 'POST',
       headers: Object.assign({}, DB.h(), {'Prefer': 'return=minimal'}),
       body: JSON.stringify(row)
     });
-    if (!resp.ok) { var e = await resp.text(); console.error('salvarFase1:', resp.status, e); }
-    return resp.ok;
+    if (!post.ok) { var e = await post.text(); console.error('salvarFase1:', post.status, e); }
+    return post.ok;
+  },
+
+  buscarPalpiteFase1: async function(bolaoId, apelido) {
+    var url = SUPABASE_URL + '/rest/v1/palpites_fase1?bolao_id=eq.' + bolaoId + '&apelido=eq.' + encodeURIComponent(apelido) + '&select=*&limit=1';
+    var resp = await fetch(url, { headers: DB.h() });
+    if (!resp.ok) return null;
+    var data = await resp.json();
+    return data.length ? data[0] : null;
   },
 
   salvarPalpiteFase2: async function(row) {
     var resp = await fetch(SUPABASE_URL + '/rest/v1/palpites_fase2', {
       method: 'POST',
-      headers: Object.assign({}, DB.h(), {'Prefer': 'return=minimal'}),
+      headers: Object.assign({}, DB.h(), {
+        'Prefer': 'resolution=merge-duplicates,return=minimal',
+        'on_conflict': 'bolao_id,apelido,fase'
+      }),
       body: JSON.stringify(row)
     });
     if (!resp.ok) { var e = await resp.text(); console.error('salvarFase2:', resp.status, e); }
     return resp.ok;
+  },
+
+  buscarPalpitesFase2: async function(bolaoId, apelido) {
+    var url = SUPABASE_URL + '/rest/v1/palpites_fase2?bolao_id=eq.' + bolaoId + '&apelido=eq.' + encodeURIComponent(apelido) + '&select=fase,placares_mm';
+    var resp = await fetch(url, { headers: DB.h() });
+    if (!resp.ok) return {};
+    var rows = await resp.json();
+    // retorna objeto indexado por fase: { r16avos: {...}, roitavas: {...}, ... }
+    var result = {};
+    rows.forEach(function(r) { result[r.fase] = r.placares_mm || {}; });
+    return result;
   },
 
   buscarRanking: async function(bolaoId) {

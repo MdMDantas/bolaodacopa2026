@@ -567,54 +567,45 @@ function fecharModal(e){if(e.target.id==='modalOverlay')e.target.style.display='
 function exportarTab1ComModal() {
   abrirBolaoModal(async function(participante) {
     var sels = document.querySelectorAll('select');
-    var data = {_terceiroOrder: getTerceiroOrder()};
+    var data = {};
     sels.forEach(function(s) { data[s.id] = s.value; });
+    // Salva APENAS grupos + terceiros + zebras — não toca nos placares
     var row = { bolao_id: participante.bolao.id, apelido: participante.apelido, nome: participante.apelido, telefone: participante.telefone || null };
     var gkeys = Object.keys(GRUPOS_DISPLAY);
     gkeys.forEach(function(g) { for(var p=1;p<=4;p++) row['g'+g+'_'+p]=data['g'+g+'_'+p]||null; });
-    // Salvar terceiros a partir da ordem do drag & drop
     var terceiroOrder = getTerceiroOrder();
     for(var ti=1;ti<=8;ti++) row['t'+ti]=terceiroOrder[ti-1]||null;
     for(var zi=1;zi<=4;zi++) row['zebra'+zi]=data['zebra'+zi]||null;
-    var placares={};
-    ['R1','R2','R3'].forEach(function(r){
-      var jogos=r==='R1'?JOGOS_R1:r==='R2'?JOGOS_R2:JOGOS_R3;
-      Object.keys(jogos).forEach(function(g){
-        jogos[g].forEach(function(jogo,ji){
-          var id='placar_'+r+'_'+g+'_'+ji;
-          var ea=document.getElementById(id+'_a'),eb=document.getElementById(id+'_b');
-          if(ea&&ea.value!=='') placares[id+'_a']=ea.value;
-          if(eb&&eb.value!=='') placares[id+'_b']=eb.value;
-        });
-      });
-    });
-    row.placares=placares;
     return await DB.salvarPalpiteFase1(row);
   });
 }
 
 function exportarTabComModal(rodada, label) {
   abrirBolaoModal(async function(participante) {
-    var sels = document.querySelectorAll('select');
-    var data = {};
-    sels.forEach(function(s){data[s.id]=s.value;});
-    var row = { bolao_id: participante.bolao.id, apelido: participante.apelido, nome: participante.apelido, telefone: participante.telefone||null };
-    var gkeys = Object.keys(GRUPOS_DISPLAY);
-    gkeys.forEach(function(g){for(var p=1;p<=4;p++) row['g'+g+'_'+p]=data['g'+g+'_'+p]||null;});
-    var terceiroOrder = getTerceiroOrder();
-    for(var ti=1;ti<=8;ti++) row['t'+ti]=terceiroOrder[ti-1]||null;
-    for(var zi=1;zi<=4;zi++) row['zebra'+zi]=data['zebra'+zi]||null;
-    var placares={};
-    var jogos=rodada==='R1'?JOGOS_R1:rodada==='R2'?JOGOS_R2:JOGOS_R3;
+    // Buscar placares já salvos para mesclar (não perder outras rodadas)
+    var existente = await DB.buscarPalpiteFase1(participante.bolao.id, participante.apelido);
+    var placaresAtuais = {};
+    if (existente && existente.placares) {
+      placaresAtuais = typeof existente.placares === 'string' ? JSON.parse(existente.placares) : existente.placares;
+    }
+    // Coletar placares desta rodada e mesclar
+    var jogos = rodada==='R1'?JOGOS_R1:rodada==='R2'?JOGOS_R2:JOGOS_R3;
     Object.keys(jogos).forEach(function(g){
       jogos[g].forEach(function(jogo,ji){
-        var id='placar_'+rodada+'_'+g+'_'+ji;
-        var ea=document.getElementById(id+'_a'),eb=document.getElementById(id+'_b');
-        if(ea&&ea.value!=='') placares[id+'_a']=ea.value;
-        if(eb&&eb.value!=='') placares[id+'_b']=eb.value;
+        var id = 'placar_'+rodada+'_'+g+'_'+ji;
+        var ea = document.getElementById(id+'_a'), eb = document.getElementById(id+'_b');
+        if(ea&&ea.value!=='') placaresAtuais[id+'_a'] = ea.value;
+        if(eb&&eb.value!=='') placaresAtuais[id+'_b'] = eb.value;
       });
     });
-    row.placares=placares;
+    // Salva APENAS os placares mesclados — não toca em grupos/terceiros/zebras
+    var row = {
+      bolao_id: participante.bolao.id,
+      apelido: participante.apelido,
+      nome: participante.apelido,
+      telefone: participante.telefone || null,
+      placares: placaresAtuais
+    };
     return await DB.salvarPalpiteFase1(row);
   });
 }

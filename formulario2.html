@@ -619,16 +619,17 @@ var PRAZOS_MM = {
 
 function exportarComModal() {
   abrirBolaoModal(async function(participante) {
-    var data = {};
-    document.querySelectorAll('#mm-matamata select').forEach(function(s){ data[s.id]=s.value; });
+    var dados = {};
+    document.querySelectorAll('#mm-matamata select').forEach(function(s){ dados[s.id] = s.value; });
     var row = {
       bolao_id: participante.bolao.id,
       apelido: participante.apelido,
       nome: participante.apelido,
-      telefone: participante.telefone || null
+      telefone: participante.telefone || null,
+      fase: 'matamata',
+      placares_mm: {},
+      dados_mm: dados
     };
-    // Chaveamento
-    Object.keys(data).forEach(function(k){ row[k] = data[k] || null; });
     return await DB.salvarPalpiteFase2(row);
   });
 }
@@ -648,7 +649,8 @@ function exportarPlacaresMM(rid) {
       nome: participante.apelido,
       telefone: participante.telefone || null,
       fase: rid,
-      placares_mm: placares
+      placares_mm: placares,
+      dados_mm: {}
     };
     return await DB.salvarPalpiteFase2(row);
   });
@@ -684,9 +686,23 @@ function renderBtnMataMata() {
 }
 
 document.addEventListener('change', updateProgress);
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
   buildBracket(null);
-  buildJogos(null);
+  buildJogos({});
+  // Carregar palpites salvos silenciosamente (sem abrir modal)
+  try {
+    var usuario = (typeof AUTH !== 'undefined') ? AUTH.get() : null;
+    var ultimoBolao = (typeof AUTH !== 'undefined') ? AUTH.getUltimoBolao() : null;
+    if (usuario && ultimoBolao) {
+      var bolao = await DB.buscarBolao(ultimoBolao);
+      if (bolao) {
+        var fases = await DB.buscarPalpitesFase2(bolao.id, usuario.apelido);
+        var todosPlacares = {};
+        Object.keys(fases).forEach(function(f) { Object.assign(todosPlacares, fases[f]); });
+        if (Object.keys(todosPlacares).length > 0) buildJogos(todosPlacares);
+      }
+    }
+  } catch(e) { console.warn('Carregamento silencioso falhou:', e); }
   updateProgress();
   renderBtnMataMata();
   setInterval(renderBtnMataMata, 60000);

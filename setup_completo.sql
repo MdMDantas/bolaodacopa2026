@@ -47,38 +47,30 @@ CREATE TABLE palpites_fase1 (
   zebra1 text, zebra2 text, zebra3 text, zebra4 text,
   -- Placares (rodada_grupo_jogo_time)
   -- Armazenados como JSONB para simplicidade
-  placares jsonb DEFAULT '{}'::jsonb
+  placares jsonb DEFAULT '{}'::jsonb,
+  CONSTRAINT palpites_fase1_unique UNIQUE (bolao_id, apelido)
 );
 
 -- 4. PALPITES FASE 2
+-- Uma linha por (bolao_id, apelido, fase) — cada aba é completamente independente
+-- fase pode ser: 'matamata', 'r16avos', 'roitavas', 'rquartas', 'rsemi', 'rfinal'
 CREATE TABLE palpites_fase2 (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   criado_em timestamptz DEFAULT now(),
+  atualizado_em timestamptz DEFAULT now(),
   bolao_id uuid REFERENCES boloes(id),
   apelido text NOT NULL,
   nome text NOT NULL,
   telefone text,
-  r32L_0_A text, r32L_0_B text, r16L_0 text,
-  r32L_1_A text, r32L_1_B text, r16L_1 text,
-  r32L_2_A text, r32L_2_B text, r16L_2 text,
-  r32L_3_A text, r32L_3_B text, r16L_3 text,
-  r32L_4_A text, r32L_4_B text, r16L_4 text,
-  r32L_5_A text, r32L_5_B text, r16L_5 text,
-  r32L_6_A text, r32L_6_B text, r16L_6 text,
-  r32L_7_A text, r32L_7_B text, r16L_7 text,
-  r32R_0_A text, r32R_0_B text, r16R_0 text,
-  r32R_1_A text, r32R_1_B text, r16R_1 text,
-  r32R_2_A text, r32R_2_B text, r16R_2 text,
-  r32R_3_A text, r32R_3_B text, r16R_3 text,
-  r32R_4_A text, r32R_4_B text, r16R_4 text,
-  r32R_5_A text, r32R_5_B text, r16R_5 text,
-  r32R_6_A text, r32R_6_B text, r16R_6 text,
-  r32R_7_A text, r32R_7_B text, r16R_7 text,
-  qfL_0 text, qfL_1 text, qfL_2 text, qfL_3 text,
-  qfR_0 text, qfR_1 text, qfR_2 text, qfR_3 text,
-  sfL_0 text, sfL_1 text, sfR_0 text, sfR_1 text,
-  champion text, decepcao_mata text
+  fase text NOT NULL,          -- qual aba: 'matamata', 'r16avos', 'roitavas', etc.
+  placares_mm jsonb DEFAULT '{}'::jsonb,  -- placares dos jogos daquela fase
+  dados_mm jsonb DEFAULT '{}'::jsonb,     -- dados extras (chaveamento, campeão, etc.)
+  CONSTRAINT palpites_fase2_unique UNIQUE (bolao_id, apelido, fase)
 );
+
+-- Índices para busca rápida
+CREATE INDEX idx_pf2_bolao_apelido ON palpites_fase2(bolao_id, apelido);
+CREATE INDEX idx_pf2_fase ON palpites_fase2(fase);
 
 -- 5. RESULTADOS REAIS (alimentados pela API)
 CREATE TABLE resultados (
