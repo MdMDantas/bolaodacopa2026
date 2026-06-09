@@ -171,18 +171,6 @@
   .placar-inputs input:focus { border-color: var(--gold); }
   .placar-inputs input.filled { border-color: rgba(0,156,59,0.7); }
   .placar-inputs .sep { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--muted); }
-  /* BRACKET VISUAL */
-  .btree { display: flex; gap: 16px; overflow-x: auto; padding: 16px 0 20px; align-items: flex-start; }
-  .btree-round { display: flex; flex-direction: column; justify-content: space-around; flex: 1; min-width: 160px; }
-  .btree-round-title { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 2px; color: var(--gold); text-align: center; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,223,0,0.2); }
-  .btree-match { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin: 8px 0; }
-  .btree-match-num { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
-  .btree-teams { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
-  .btree-placar { display: flex; align-items: center; gap: 4px; }
-  .btree-placar input { width: 36px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 4px; color: var(--white); font-family: 'Bebas Neue', sans-serif; font-size: 18px; text-align: center; outline: none; transition: border-color 0.2s; }
-  .btree-placar input:focus { border-color: var(--gold); }
-  .btree-placar input.filled { border-color: rgba(0,156,59,0.7); }
-  .btree-placar .btree-sep { font-family: 'Bebas Neue', sans-serif; font-size: 14px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -209,9 +197,13 @@
       <text x="340" y="52" text-anchor="middle" font-size="8" fill="#ffdf00">* * * * *</text>
       <text x="340" y="88" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">MATA-MATA</text>
       <text x="340" y="108" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="700" fill="#ffdf00" letter-spacing="4">Copa do Mundo 2026</text>
-    </svg>
+          </svg>
   </header>
   <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin:12px 0 16px;padding:8px 14px;background:#00194a;border:1px solid rgba(255,223,0,0.3);border-radius:8px;" onmouseover="this.style.borderColor='#ffdf00'" onmouseout="this.style.borderColor='rgba(255,223,0,0.3)'">&#8592; Voltar ao Início</a>
+
+  <div style="text-align:right;margin-bottom:16px;">
+    <button onclick="preencherAleatorioF2()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
+  </div>
 
   <!-- 6 CARDS DE NAVEGAÇÃO -->
   <div class="mm-cards-nav">
@@ -225,7 +217,7 @@
 
   <!-- ══ CARD 1: MATA-MATA (Chaveamento + Top 4 + Decepções) ══ -->
   <div class="mm-tab-panel active" id="mm-matamata">
-    <div class="prazo-badge-mm" id="prazo-matamata">📅 Prazo: até 28/06 às 16h (horário de Brasília)</div>
+    <div class="prazo-badge-mm">📅 Prazo: até 28/06 às 16h (horário de Brasília)</div>
 
     <div class="phase-header"><div class="phase-badge"></div><h2>1. CHAVEAMENTO COMPLETO</h2></div>
     <div class="regras-box">
@@ -280,7 +272,7 @@
 
   <!-- ══ CARD 2: 16 AVOS ══ -->
   <div class="mm-tab-panel" id="mm-16avos">
-    <div class="prazo-badge-mm">📅 Prazo: até 28/06 às 16h (horário de Brasília)</div>
+    <div class="prazo-badge-mm" >📅 Prazo: até 28/06 às 16h (horário de Brasília)</div>
     <div class="phase-header"><div class="phase-badge"></div><h2>PLACARES — 16 AVOS DE FINAL</h2></div>
     <div class="regras-box">
       <div class="regra-item"><strong>Placar exato</strong> (inclusive empate certo, ex: disse 1×1, foi 1×1): <span class="pts">+3 pts</span></div>
@@ -289,14 +281,14 @@
       <div class="regra-item"><strong>Apostou em vencedor mas o jogo empatou</strong> (ou errou tudo): <span class="pts">0 pts</span></div>
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
-    <div id="bracket-r16avos"></div>
+    <div class="jogos-grid" id="jogos-r16avos"></div>
     <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioMM('r16avos')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="save-section" id="btn16avos"></div>
   </div>
 
   <!-- ══ CARD 3: OITAVAS ══ -->
   <div class="mm-tab-panel" id="mm-oitavas">
-    <div class="prazo-badge-mm">📅 Prazo: até 04/07 às 14h (horário de Brasília)</div>
+    <div class="prazo-badge-mm" >📅 Prazo: até 04/07 às 14h (horário de Brasília)</div>
     <div class="phase-header"><div class="phase-badge"></div><h2>PLACARES — OITAVAS DE FINAL</h2></div>
     <div class="regras-box">
       <div class="regra-item"><strong>Placar exato</strong> (inclusive empate certo, ex: disse 1×1, foi 1×1): <span class="pts">+3 pts</span></div>
@@ -305,14 +297,14 @@
       <div class="regra-item"><strong>Apostou em vencedor mas o jogo empatou</strong> (ou errou tudo): <span class="pts">0 pts</span></div>
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
-    <div id="bracket-roitavas"></div>
+    <div class="jogos-grid" id="jogos-roitavas"></div>
     <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioMM('roitavas')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="save-section" id="btnOitavas"></div>
   </div>
 
   <!-- ══ CARD 4: QUARTAS ══ -->
   <div class="mm-tab-panel" id="mm-quartas">
-    <div class="prazo-badge-mm">📅 Prazo: até 09/07 às 17h (horário de Brasília)</div>
+    <div class="prazo-badge-mm" >📅 Prazo: até 09/07 às 17h (horário de Brasília)</div>
     <div class="phase-header"><div class="phase-badge"></div><h2>PLACARES — QUARTAS DE FINAL</h2></div>
     <div class="regras-box">
       <div class="regra-item"><strong>Placar exato</strong> (inclusive empate certo, ex: disse 1×1, foi 1×1): <span class="pts">+3 pts</span></div>
@@ -321,14 +313,14 @@
       <div class="regra-item"><strong>Apostou em vencedor mas o jogo empatou</strong> (ou errou tudo): <span class="pts">0 pts</span></div>
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
-    <div id="bracket-rquartas"></div>
+    <div class="jogos-grid" id="jogos-rquartas"></div>
     <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioMM('rquartas')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="save-section" id="btnQuartas"></div>
   </div>
 
   <!-- ══ CARD 5: SEMIFINAL ══ -->
   <div class="mm-tab-panel" id="mm-semi">
-    <div class="prazo-badge-mm">📅 Prazo: até 14/07 às 16h (horário de Brasília)</div>
+    <div class="prazo-badge-mm" >📅 Prazo: até 14/07 às 16h (horário de Brasília)</div>
     <div class="phase-header"><div class="phase-badge"></div><h2>PLACARES — SEMIFINAL</h2></div>
     <div class="regras-box">
       <div class="regra-item"><strong>Placar exato</strong> (inclusive empate certo, ex: disse 1×1, foi 1×1): <span class="pts">+3 pts</span></div>
@@ -337,15 +329,15 @@
       <div class="regra-item"><strong>Apostou em vencedor mas o jogo empatou</strong> (ou errou tudo): <span class="pts">0 pts</span></div>
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
-    <div id="bracket-rsemi"></div>
+    <div class="jogos-grid" id="jogos-rsemi"></div>
     <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioMM('rsemi')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="save-section" id="btnSemi"></div>
   </div>
 
   <!-- ══ CARD 6: FINAL ══ -->
   <div class="mm-tab-panel" id="mm-final">
-    <div class="prazo-badge-mm">📅 Prazo: até 18/07 às 18h (horário de Brasília)</div>
-    <div class="phase-header"><div class="phase-badge"></div><h2>PLACARES — 3º LUGAR E FINAL</h2></div>
+    <div class="prazo-badge-mm" >📅 Prazo: até 18/07 às 18h (horário de Brasília)</div>
+    <div class="phase-header"><div class="phase-badge"></div><h2>PLACARES — FINAL</h2></div>
     <div class="regras-box">
       <div class="regra-item"><strong>Placar exato</strong> (inclusive empate certo, ex: disse 1×1, foi 1×1): <span class="pts">+3 pts</span></div>
       <div class="regra-item"><strong>Vencedor + diferença de gols</strong> (ex: disse 3×1, foi 2×0) <strong>OU acertou o empate mas errou o placar</strong> (ex: disse 2×2, foi 1×1): <span class="pts">+2 pts</span></div>
@@ -353,7 +345,7 @@
       <div class="regra-item"><strong>Apostou em vencedor mas o jogo empatou</strong> (ou errou tudo): <span class="pts">0 pts</span></div>
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
-    <div id="bracket-rfinal"></div>
+    <div class="jogos-grid" id="jogos-rfinal"></div>
     <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioMM('rfinal')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="save-section" id="btnFinal"></div>
   </div>
@@ -574,51 +566,14 @@ function buildBracket(saved) {
 function markFilled(sel) { sel.classList.toggle('filled', !!sel.value); }
 
 function updateProgress() {
-  var activePanel = document.querySelector('.mm-tab-panel.active');
-  if (!activePanel) return;
-  var sels = activePanel.querySelectorAll('select');
-  var inputs = activePanel.querySelectorAll('.placar-inputs input');
-  var total = sels.length + inputs.length;
-  if (total === 0) { document.getElementById('progressFill').style.width='0%'; document.getElementById('progressPct').textContent='0%'; return; }
-  var filled = 0;
-  sels.forEach(function(s){if(s.value)filled++;});
-  inputs.forEach(function(i){if(i.value!=='')filled++;});
-  var pct = Math.round((filled/total)*100);
-  document.getElementById('progressFill').style.width = pct+'%';
-  document.getElementById('progressPct').textContent = pct+'%';
+  const sels = document.querySelectorAll('select');
+  const filled = [...sels].filter(s => s.value).length;
+  const pct = Math.round((filled / sels.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
 }
 
 function fecharModal(e) { if (e.target.id === 'modalOverlay') e.target.style.display = 'none'; }
-
-function preencherAleatorioAtivo() {
-  var activePanel = document.querySelector('.mm-tab-panel.active');
-  if (!activePanel) return;
-  var id = activePanel.id;
-  if (id === 'mm-matamata') preencherAleatorioMataMata();
-  else if (id === 'mm-16avos')  preencherAleatorioMM('r16avos');
-  else if (id === 'mm-oitavas') preencherAleatorioMM('roitavas');
-  else if (id === 'mm-quartas') preencherAleatorioMM('rquartas');
-  else if (id === 'mm-semi')    preencherAleatorioMM('rsemi');
-  else if (id === 'mm-final')   preencherAleatorioMM('rfinal');
-}
-
-function preencherAleatorioMataMata() {
-  var teams = ALL_TEAMS.slice();
-  function rnd() { return teams[Math.floor(Math.random()*teams.length)]; }
-  document.querySelectorAll('#bracket select').forEach(function(s){ s.value = rnd(); s.classList.add('filled'); });
-  var champ = document.getElementById('champion');
-  if(champ){champ.value=rnd();champ.classList.add('filled');}
-  ['top4_1','top4_2','top4_3','top4_4'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(el){el.value=rnd();el.classList.add('filled');}
-  });
-  var decTeams = DECEPCAO_TEAMS.slice();
-  ['decepcao1','decepcao2'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(el){var idx=Math.floor(Math.random()*decTeams.length);el.value=decTeams[idx];decTeams.splice(idx,1);el.classList.add('filled');}
-  });
-  updateProgress();
-}
 
 function preencherAleatorioF2() {
   var teams = ALL_TEAMS.slice();
@@ -667,6 +622,20 @@ function renderBtnMataMata() {
 }
 
 document.addEventListener('change', updateProgress);
+document.addEventListener('DOMContentLoaded', function() {
+  buildBracket(null);
+  buildJogos(null);
+  updateProgress();
+  renderBtnMataMata();
+  setInterval(renderBtnMataMata, 60000);
+  var hash = window.location.hash.replace('#','');
+  if (hash && document.getElementById(hash)) {
+    var btns = document.querySelectorAll('.mm-card-btn');
+    var cards = ['mm-matamata','mm-16avos','mm-oitavas','mm-quartas','mm-semi','mm-final'];
+    var idx = cards.indexOf(hash);
+    if (idx >= 0) switchMMTab(hash, btns[idx]);
+  }
+});
 
 // ── PLACARES MATA-MATA ────────────────────────────────────
 var RODADAS_MM = {
@@ -690,44 +659,27 @@ var RODADAS_LABELS = {
   'rfinal': 'Final'
 };
 
-// Bracket layout config: rounds per phase
-var BRACKET_ROUNDS = {
-  'r16avos':  [{title:'Grupo A',games:[0,1]},{title:'Grupo B',games:[2,3]},{title:'Grupo C',games:[4,5]},{title:'Grupo D',games:[6,7]},{title:'Grupo E',games:[8,9]},{title:'Grupo F',games:[10,11]},{title:'Grupo G',games:[12,13]},{title:'Grupo H',games:[14,15]}],
-  'roitavas': [{title:'Lado Esquerdo',games:[0,1,2,3]},{title:'Lado Direito',games:[4,5,6,7]}],
-  'rquartas': [{title:'Quartas',games:[0,1,2,3]}],
-  'rsemi':    [{title:'Semifinais',games:[0,1]}],
-  'rfinal':   [{title:'3º Lugar',games:[0]},{title:'Final',games:[1]}]
-};
-
 function buildJogos(saved) {
   saved = saved || {};
   Object.keys(RODADAS_MM).forEach(function(rid) {
-    var container = document.getElementById('bracket-' + rid);
+    var container = document.getElementById('jogos-' + rid);
     if (!container) return;
-    var rounds = BRACKET_ROUNDS[rid];
-    var jogos = RODADAS_MM[rid];
-    var html = '<div class="btree">';
-    rounds.forEach(function(round) {
-      html += '<div class="btree-round">';
-      html += '<div class="btree-round-title">' + round.title + '</div>';
-      round.games.forEach(function(idx) {
-        var label = jogos[idx] || ('Jogo ' + (idx+1));
-        var idA = rid + '_' + idx + '_A';
-        var idB = rid + '_' + idx + '_B';
-        var valA = saved[idA] || '';
-        var valB = saved[idB] || '';
-        html += '<div class="btree-match">';
-        html += '<div class="btree-match-num">' + label + '</div>';
-        html += '<div class="btree-teams">Time A <span class="vs">vs</span> Time B</div>';
-        html += '<div class="btree-placar">';
-        html += '<input type="number" id="' + idA + '" min="0" max="20" placeholder="0" value="' + valA + '"' + (valA!==''?' class="filled"':'') + ' oninput="this.classList.toggle('filled',this.value!=='');updateProgress()">';
-        html += '<span class="btree-sep">×</span>';
-        html += '<input type="number" id="' + idB + '" min="0" max="20" placeholder="0" value="' + valB + '"' + (valB!==''?' class="filled"':'') + ' oninput="this.classList.toggle('filled',this.value!=='');updateProgress()">';
-        html += '</div></div>';
-      });
-      html += '</div>';
+    var html = '';
+    RODADAS_MM[rid].forEach(function(label, idx) {
+      var idA = rid + '_' + idx + '_A';
+      var idB = rid + '_' + idx + '_B';
+      var valA = saved[idA] || '';
+      var valB = saved[idB] || '';
+      html += '<div class="jogo-card">' +
+        '<div class="jogo-label">' + RODADAS_LABELS[rid] + ' · ' + label + '</div>' +
+        '<div class="jogo-times"><span>Time A</span><span class="vs">vs</span><span>Time B</span></div>' +
+        '<div class="placar-inputs">' +
+          '<input type="number" id="' + idA + '" min="0" max="20" placeholder="0" value="' + valA + '"' + (valA!==''?' class="filled"':'') + ' oninput="markInputFilled(this);updateProgress()">' +
+          '<span class="sep">×</span>' +
+          '<input type="number" id="' + idB + '" min="0" max="20" placeholder="0" value="' + valB + '"' + (valB!==''?' class="filled"':'') + ' oninput="markInputFilled(this);updateProgress()">' +
+        '</div>' +
+      '</div>';
     });
-    html += '</div>';
     container.innerHTML = html;
   });
 }
@@ -741,39 +693,12 @@ function mostrarRodada(id, btn) {
   btn.classList.add('active');
 }
 
-function preencherAleatorioMM(rid) {
-  var container = document.getElementById('bracket-' + rid);
-  if (!container) return;
-  container.querySelectorAll('input[type="number"]').forEach(function(inp) {
-    inp.value = Math.floor(Math.random()*4);
-    inp.classList.add('filled');
-  });
-  updateProgress();
-}
-
 function switchMMTab(id, btn) {
   document.querySelectorAll('.mm-tab-panel').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('.mm-card-btn').forEach(function(b){ b.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
-  updateProgress();
 }
-
-// Inicialização e hash navigation
-document.addEventListener('DOMContentLoaded', function() {
-  buildBracket(null);
-  buildJogos(null);
-  updateProgress();
-  renderBtnMataMata();
-  setInterval(renderBtnMataMata, 60000);
-  var hash = window.location.hash.replace('#', '');
-  if (hash && document.getElementById(hash)) {
-    var btns = document.querySelectorAll('.mm-card-btn');
-    var cards = ['mm-matamata','mm-16avos','mm-oitavas','mm-quartas','mm-semi','mm-final'];
-    var idx = cards.indexOf(hash);
-    if (idx >= 0) switchMMTab(hash, btns[idx]);
-  }
-});
 </script>
 
 </body>
