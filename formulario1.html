@@ -272,6 +272,11 @@ var GRUPOS_DISPLAY = {
 };
 
 var ZEBRA_TEAMS = ['África do Sul','Catar','Haiti','Austrália','Curaçao','Tunísia','Nova Zelândia','Iraque','Jordânia','RD Congo','Cabo Verde','Panamá'];
+var ZEBRA_GRUPO = {
+  'África do Sul':'A','Catar':'B','Haiti':'C','Austrália':'D',
+  'Curaçao':'E','Tunísia':'F','Nova Zelândia':'G','Iraque':'I',
+  'Jordânia':'J','RD Congo':'K','Cabo Verde':'H','Panamá':'L'
+};
 
 // Jogos divididos por rodada
 // Formato: [time1, time2, data, horario] — horários de Brasília
@@ -694,15 +699,17 @@ function renderTodosBotoes() {
   renderBtnPrazo('btnTab4', 'R3',   'Enviar Palpites Rodada 3', "exportarTabComModal('R3','Rodada 3')");
 }
 
-buildGroups(null);
-buildTerceiros(null);
-buildZebras(null);
-buildPlacares('R1','placaresR1',null);
-buildPlacares('R2','placaresR2',null);
-buildPlacares('R3','placaresR3',null);
-renderTodosBotoes();
-setInterval(renderTodosBotoes, 60000); // atualiza countdown a cada minuto
-document.addEventListener('change',function(){markFilled();updateProgress();});
+document.addEventListener('DOMContentLoaded', function() {
+  buildGroups(null);
+  buildTerceiros(null);
+  buildZebras(null);
+  buildPlacares('R1','placaresR1',null);
+  buildPlacares('R2','placaresR2',null);
+  buildPlacares('R3','placaresR3',null);
+  renderTodosBotoes();
+  setInterval(renderTodosBotoes, 60000);
+  document.addEventListener('change',function(){markFilled();updateProgress();});
+});
 </script>
 </html>
 
