@@ -96,6 +96,8 @@
   .jogo-time.right{text-align:right;}
   .jogo-placar{display:flex;align-items:center;gap:5px;flex-shrink:0;}
   .jogo-placar input{width:40px;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:6px 4px;color:var(--white);font-family:'Bebas Neue',sans-serif;font-size:16px;text-align:center;outline:none;}
+  .jogo-placar input:placeholder-shown{border-color:rgba(255,100,100,0.5);background:rgba(255,50,50,0.08);}
+  .jogo-placar input:not(:placeholder-shown){border-color:var(--gold);}
   .jogo-placar input:focus{border-color:var(--gold);}
   .jogo-placar span{color:var(--muted);font-weight:700;}
 
@@ -474,9 +476,9 @@ function buildPlacares(rodada, containerEl, saved) {
           '<div style="display:flex;align-items:center;gap:8px">'+
             '<span class="jogo-time">'+jogo[0]+'</span>'+
             '<div class="jogo-placar">'+
-              '<input type="number" id="'+id+'_a" min="0" max="99" value="'+va+'" placeholder="0" oninput="updateProgress()">'+
+              '<input type="number" id="'+id+'_a" min="0" max="99" value="'+va+'" placeholder="" oninput="updateProgress()">'+
               '<span>x</span>'+
-              '<input type="number" id="'+id+'_b" min="0" max="99" value="'+vb+'" placeholder="0" oninput="updateProgress()">'+
+              '<input type="number" id="'+id+'_b" min="0" max="99" value="'+vb+'" placeholder="" oninput="updateProgress()">'+
             '</div>'+
             '<span class="jogo-time right">'+jogo[1]+'</span>'+
           '</div>'+
@@ -581,6 +583,20 @@ function exportarTab1ComModal() {
 }
 
 function exportarTabComModal(rodada, label) {
+  // Validar: todos os placares da rodada devem estar preenchidos
+  var jogosVal = rodada==='R1'?JOGOS_R1:rodada==='R2'?JOGOS_R2:JOGOS_R3;
+  var incompletos = [];
+  Object.keys(jogosVal).forEach(function(g){
+    jogosVal[g].forEach(function(jogo,ji){
+      var id = 'placar_'+rodada+'_'+g+'_'+ji;
+      var ea = document.getElementById(id+'_a'), eb = document.getElementById(id+'_b');
+      if(!ea||ea.value===''||!eb||eb.value==='') incompletos.push(jogo[0]+' x '+jogo[1]);
+    });
+  });
+  if(incompletos.length>0){
+    alert('Preencha todos os placares antes de salvar.\n\nJogos incompletos ('+incompletos.length+'):\n'+incompletos.slice(0,5).join('\n')+(incompletos.length>5?'\n...e mais '+(incompletos.length-5):''));
+    return;
+  }
   abrirBolaoModal(async function(participante) {
     // Buscar placares já salvos para mesclar (não perder outras rodadas)
     var existente = await DB.buscarPalpiteFase1(participante.bolao.id, participante.apelido);
