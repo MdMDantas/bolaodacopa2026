@@ -266,7 +266,6 @@
         <div class="sel-wrap"><select id="decepcao2" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
       </div>
     </div>
-    <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioMataMata()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="save-section" id="btnMataMata"></div>
   </div>
 
@@ -599,26 +598,81 @@ function preencherAleatorioF2() {
 }
 
 // PRAZO
-var PRAZO_MATAMATA = new Date('2026-06-11T19:00:00Z');
+var PRAZO_MATAMATA = new Date('2026-06-28T19:00:00Z'); // 28/06 às 16h Brasília
 
-function renderBtnMataMata() {
-  var el = document.getElementById('btnMataMata');
+var PRAZOS_MM = {
+  'btnMataMata': new Date('2026-06-28T19:00:00Z'),
+  'btn16avos':   new Date('2026-06-28T19:00:00Z'),
+  'btnOitavas':  new Date('2026-07-04T17:00:00Z'),
+  'btnQuartas':  new Date('2026-07-09T20:00:00Z'),
+  'btnSemi':     new Date('2026-07-14T19:00:00Z'),
+  'btnFinal':    new Date('2026-07-18T21:00:00Z')
+};
+
+function exportarComModal() {
+  abrirBolaoModal(async function(participante) {
+    var data = {};
+    document.querySelectorAll('#mm-matamata select').forEach(function(s){ data[s.id]=s.value; });
+    var row = {
+      bolao_id: participante.bolao.id,
+      apelido: participante.apelido,
+      nome: participante.apelido,
+      telefone: participante.telefone || null
+    };
+    // Chaveamento
+    Object.keys(data).forEach(function(k){ row[k] = data[k] || null; });
+    return await DB.salvarPalpiteFase2(row);
+  });
+}
+
+function exportarPlacaresMM(rid) {
+  abrirBolaoModal(async function(participante) {
+    var placares = {};
+    var container = document.getElementById('jogos-' + rid);
+    if (container) {
+      container.querySelectorAll('input[type="number"]').forEach(function(inp){
+        if (inp.value !== '') placares[inp.id] = inp.value;
+      });
+    }
+    var row = {
+      bolao_id: participante.bolao.id,
+      apelido: participante.apelido,
+      nome: participante.apelido,
+      telefone: participante.telefone || null,
+      fase: rid,
+      placares_mm: placares
+    };
+    return await DB.salvarPalpiteFase2(row);
+  });
+}
+
+function renderBtnFase(elId, prazo, onClickFn) {
+  var el = document.getElementById(elId);
   if (!el) return;
-  if (new Date() > PRAZO_MATAMATA) {
+  var agora = new Date();
+  if (agora > prazo) {
     el.innerHTML = '<div style="background:rgba(255,80,80,0.08);border:1px solid rgba(255,80,80,0.25);border-radius:12px;padding:16px;text-align:center;">'
       + '<div style="font-size:20px;margin-bottom:6px;">🔒</div>'
-      + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;color:#ff8080;letter-spacing:1px;">PRAZO ENCERRADO</div>'
-      + '<div style="font-size:12px;color:#7a9fd4;margin-top:4px;">O envio encerrou em 11/06 às 16h</div>'
+      + '<div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:#ff8080;letter-spacing:1px;">PRAZO ENCERRADO</div>'
       + '</div>';
   } else {
-    var diff = PRAZO_MATAMATA - new Date();
-    var dias = Math.floor(diff / 86400000);
-    var horas = Math.floor((diff % 86400000) / 3600000);
-    var mins = Math.floor((diff % 3600000) / 60000);
+    var diff = prazo - agora;
+    var dias = Math.floor(diff/86400000);
+    var horas = Math.floor((diff%86400000)/3600000);
+    var mins = Math.floor((diff%3600000)/60000);
     var countdown = dias > 0 ? 'Faltam '+dias+'d '+horas+'h '+mins+'min' : 'Faltam '+horas+'h '+mins+'min';
     el.innerHTML = '<div style="font-size:11px;color:#7a9fd4;text-align:center;margin-bottom:8px;">⏱️ '+countdown+'</div>'
-      + '<button class="btn-export" onclick="exportarComModal()">Enviar Palpites!</button>';
+      + '<button class="btn-export" onclick="'+onClickFn+'">Enviar Palpites!</button>';
   }
+}
+
+function renderBtnMataMata() {
+  renderBtnFase('btnMataMata', PRAZOS_MM['btnMataMata'], 'exportarComModal()');
+  renderBtnFase('btn16avos',  PRAZOS_MM['btn16avos'],  'exportarPlacaresMM(\'r16avos\')');
+  renderBtnFase('btnOitavas', PRAZOS_MM['btnOitavas'], 'exportarPlacaresMM(\'roitavas\')');
+  renderBtnFase('btnQuartas', PRAZOS_MM['btnQuartas'], 'exportarPlacaresMM(\'rquartas\')');
+  renderBtnFase('btnSemi',    PRAZOS_MM['btnSemi'],    'exportarPlacaresMM(\'rsemi\')');
+  renderBtnFase('btnFinal',   PRAZOS_MM['btnFinal'],   'exportarPlacaresMM(\'rfinal\')');
 }
 
 document.addEventListener('change', updateProgress);
