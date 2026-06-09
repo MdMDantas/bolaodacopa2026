@@ -33,28 +33,26 @@ var DB = {
   },
 
   salvarPalpiteFase1: async function(row) {
-    // Primeiro tenta buscar se já existe registro
-    var existente = await DB.buscarPalpiteFase1(row.bolao_id, row.apelido);
-    if (existente) {
-      // Registro existe: PATCH atualiza só os campos enviados
-      var filtro = '?bolao_id=eq.' + row.bolao_id + '&apelido=eq.' + encodeURIComponent(row.apelido);
-      var patch = await fetch(SUPABASE_URL + '/rest/v1/palpites_fase1' + filtro, {
-        method: 'PATCH',
-        headers: Object.assign({}, DB.h(), {'Prefer': 'return=minimal'}),
-        body: JSON.stringify(row)
-      });
-      if (!patch.ok) { var e = await patch.text(); console.error('salvarFase1 PATCH:', patch.status, e); }
-      return patch.ok;
-    } else {
-      // Registro novo: POST cria
-      var post = await fetch(SUPABASE_URL + '/rest/v1/palpites_fase1', {
-        method: 'POST',
-        headers: Object.assign({}, DB.h(), {'Prefer': 'return=minimal'}),
-        body: JSON.stringify(row)
-      });
-      if (!post.ok) { var e = await post.text(); console.error('salvarFase1 POST:', post.status, e); }
-      return post.ok;
+    var filtro = '?bolao_id=eq.' + row.bolao_id + '&apelido=eq.' + encodeURIComponent(row.apelido);
+    // PATCH com Prefer: return=representation para saber se atualizou algo
+    var patch = await fetch(SUPABASE_URL + '/rest/v1/palpites_fase1' + filtro, {
+      method: 'PATCH',
+      headers: Object.assign({}, DB.h(), {'Prefer': 'return=representation'}),
+      body: JSON.stringify(row)
+    });
+    if (patch.ok) {
+      var updated = await patch.json();
+      if (updated && updated.length > 0) return true; // atualizou
     }
+    // Nenhuma linha atualizada — criar novo registro
+    var post = await fetch(SUPABASE_URL + '/rest/v1/palpites_fase1', {
+      method: 'POST',
+      headers: Object.assign({}, DB.h(), {'Prefer': 'return=minimal'}),
+      body: JSON.stringify(row)
+    });
+    if (post.status === 201 || post.status === 200 || post.status === 204) return true;
+    var e = await post.text(); console.error('salvarFase1 POST:', post.status, e);
+    return false;
   },
 
   buscarPalpiteFase1: async function(bolaoId, apelido) {
