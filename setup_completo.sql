@@ -130,6 +130,8 @@ create index if not exists idx_usuarios_apelido on usuarios(apelido);
 -- Row Level Security: leitura pública, inserção pública
 alter table usuarios enable row level security;
 
+drop policy if exists "usuarios_select" on usuarios;
+drop policy if exists "usuarios_insert" on usuarios;
 create policy "usuarios_select" on usuarios for select using (true);
 create policy "usuarios_insert" on usuarios for insert with check (true);
 

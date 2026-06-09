@@ -33,22 +33,28 @@ var DB = {
   },
 
   salvarPalpiteFase1: async function(row) {
-    // Tenta PATCH (atualizar linha existente) — só toca nos campos enviados
-    var filtro = '?bolao_id=eq.' + row.bolao_id + '&apelido=eq.' + encodeURIComponent(row.apelido);
-    var patch = await fetch(SUPABASE_URL + '/rest/v1/palpites_fase1' + filtro, {
-      method: 'PATCH',
-      headers: Object.assign({}, DB.h(), {'Prefer': 'return=minimal'}),
-      body: JSON.stringify(row)
-    });
-    if (patch.ok) return true;
-    // Se não existe ainda, cria com POST
-    var post = await fetch(SUPABASE_URL + '/rest/v1/palpites_fase1', {
-      method: 'POST',
-      headers: Object.assign({}, DB.h(), {'Prefer': 'return=minimal'}),
-      body: JSON.stringify(row)
-    });
-    if (!post.ok) { var e = await post.text(); console.error('salvarFase1:', post.status, e); }
-    return post.ok;
+    // Primeiro tenta buscar se já existe registro
+    var existente = await DB.buscarPalpiteFase1(row.bolao_id, row.apelido);
+    if (existente) {
+      // Registro existe: PATCH atualiza só os campos enviados
+      var filtro = '?bolao_id=eq.' + row.bolao_id + '&apelido=eq.' + encodeURIComponent(row.apelido);
+      var patch = await fetch(SUPABASE_URL + '/rest/v1/palpites_fase1' + filtro, {
+        method: 'PATCH',
+        headers: Object.assign({}, DB.h(), {'Prefer': 'return=minimal'}),
+        body: JSON.stringify(row)
+      });
+      if (!patch.ok) { var e = await patch.text(); console.error('salvarFase1 PATCH:', patch.status, e); }
+      return patch.ok;
+    } else {
+      // Registro novo: POST cria
+      var post = await fetch(SUPABASE_URL + '/rest/v1/palpites_fase1', {
+        method: 'POST',
+        headers: Object.assign({}, DB.h(), {'Prefer': 'return=minimal'}),
+        body: JSON.stringify(row)
+      });
+      if (!post.ok) { var e = await post.text(); console.error('salvarFase1 POST:', post.status, e); }
+      return post.ok;
+    }
   },
 
   buscarPalpiteFase1: async function(bolaoId, apelido) {
