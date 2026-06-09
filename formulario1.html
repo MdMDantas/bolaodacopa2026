@@ -651,7 +651,15 @@ function preencherAleatorio() {
     }
     filterGroupSelects(g);
   });
-  buildTerceiros(null);
+  // Sortear terceiros aleatoriamente nos 8 slots
+  var thirds = getThirds();
+  if (thirds.length) {
+    var shuffled = thirds.slice();
+    for(var si=shuffled.length-1;si>0;si--){var sj=Math.floor(Math.random()*(si+1));var st=shuffled[si];shuffled[si]=shuffled[sj];shuffled[sj]=st;}
+    buildTerceiros(shuffled.map(function(x){return x.team;}));
+  } else {
+    buildTerceiros(null);
+  }
   var zCopy=ZEBRA_TEAMS.slice();
   for(var zi=1;zi<=4;zi++){
     if(!zCopy.length)break;

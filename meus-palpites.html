@@ -160,7 +160,10 @@
       <div class="nome" id="headerNome">—</div>
       <div class="bolao-tag" id="headerBolao"></div>
     </div>
-    <button class="btn-sair" onclick="trocarBolao()">Trocar bolão</button>
+    <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+      <button onclick="exportarPalpitesPDF()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.4);color:#ffdf00;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">📄 EXPORTAR PDF</button>
+      <button class="btn-sair" onclick="trocarBolao()">Trocar bolão</button>
+    </div>
   </div>
 
   <!-- Busca de bolão -->
@@ -217,6 +220,7 @@
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="db.js"></script>
 <script src="auth.js"></script>
 <script>
@@ -646,6 +650,133 @@ window.addEventListener('DOMContentLoaded', function() {
     buscar();
   }
 });
+
+function exportarPalpitesPDF() {
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  var agora = new Date();
+  var dataHora = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR');
+  var apelido = document.getElementById('headerNome') ? document.getElementById('headerNome').textContent : '';
+  var bolao = document.getElementById('headerBolao') ? document.getElementById('headerBolao').textContent : '';
+
+  var y = 20;
+  var pageW = 210;
+  var margin = 15;
+  var lineH = 6;
+
+  function checkPage() { if (y > 270) { doc.addPage(); y = 20; } }
+
+  function titulo(txt) {
+    checkPage();
+    doc.setFillColor(0, 48, 135);
+    doc.rect(margin, y-4, pageW-margin*2, 8, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(255, 223, 0);
+    doc.text(txt, margin+3, y+1);
+    y += 10;
+  }
+
+  function linha(label, val) {
+    checkPage();
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(60, 60, 60);
+    doc.text(label + ':', margin+2, y);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text(String(val || '—'), margin + 50, y);
+    y += lineH;
+  }
+
+  // Cabeçalho
+  doc.setFillColor(0, 26, 74);
+  doc.rect(0, 0, 210, 28, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  doc.setTextColor(255, 223, 0);
+  doc.text('BOLÃO DA COPA 2026', margin, 12);
+  doc.setFontSize(9);
+  doc.setTextColor(122, 159, 212);
+  doc.text('Comprovante de Palpites — ' + apelido + ' — ' + bolao, margin, 19);
+  doc.setTextColor(100, 180, 100);
+  doc.text('Exportado em: ' + dataHora, margin, 25);
+  y = 36;
+
+  // Grupos
+  if (_palpite1) {
+    titulo('CLASSIFICAÇÃO DOS GRUPOS');
+    var grupos = typeof GRUPOS_DISPLAY !== 'undefined' ? Object.keys(GRUPOS_DISPLAY) : [];
+    grupos.forEach(function(g) {
+      for (var p = 1; p <= 4; p++) {
+        var val = _palpite1['g'+g.toLowerCase()+'_'+p] || _palpite1['g'+g+'_'+p] || '';
+        if (val) linha('Grupo ' + g + ' — ' + p + 'º lugar', val);
+      }
+    });
+
+    // Terceiros
+    var terceiros = [];
+    for (var ti = 1; ti <= 8; ti++) { if (_palpite1['t'+ti]) terceiros.push(_palpite1['t'+ti]); }
+    if (terceiros.length) {
+      titulo('MELHORES TERCEIROS');
+      terceiros.forEach(function(t, i) { linha((i+1)+'º melhor terceiro', t); });
+    }
+
+    // Zebras
+    titulo('ZEBRAS');
+    for (var zi = 1; zi <= 4; zi++) { if (_palpite1['zebra'+zi]) linha('Zebra ' + zi, _palpite1['zebra'+zi]); }
+
+    // Placares
+    if (_palpite1.placares && Object.keys(_palpite1.placares).length) {
+      titulo('PLACARES — FASE DE GRUPOS');
+      var pl = _palpite1.placares;
+      var rodadas = { R1: 'Rodada 1', R2: 'Rodada 2', R3: 'Rodada 3' };
+      Object.keys(rodadas).forEach(function(r) {
+        var keys = Object.keys(pl).filter(function(k){ return k.indexOf('placar_'+r+'_') === 0 && k.endsWith('_a'); });
+        if (keys.length) {
+          checkPage();
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(9);
+          doc.setTextColor(0, 48, 135);
+          doc.text(rodadas[r], margin+2, y); y += lineH;
+          keys.forEach(function(ka) {
+            var kb = ka.replace(/_a$/, '_b');
+            var va = pl[ka] !== undefined ? pl[ka] : '?';
+            var vb = pl[kb] !== undefined ? pl[kb] : '?';
+            var jogo = ka.replace('placar_'+r+'_','').replace('_a','').replace(/_/g,' ');
+            linha('  Jogo ' + jogo, va + ' × ' + vb);
+          });
+        }
+      });
+    }
+  }
+
+  // Placares Mata-Mata
+  if (_palpite2 && _palpite2.placares_mm) {
+    var pl = typeof _palpite2.placares_mm === 'string' ? JSON.parse(_palpite2.placares_mm) : _palpite2.placares_mm;
+    var keysA = Object.keys(pl).filter(function(k){ return k.endsWith('_A'); });
+    if (keysA.length) {
+      titulo('PLACARES — MATA-MATA');
+      keysA.forEach(function(ka) {
+        var kb = ka.replace(/_A$/, '_B');
+        linha('  ' + ka.replace(/_A$/,'').replace(/_/g,' '), (pl[ka]||'?') + ' × ' + (pl[kb]||'?'));
+      });
+    }
+  }
+
+  // Rodapé em todas as páginas
+  var totalPages = doc.internal.getNumberOfPages();
+  for (var pi = 1; pi <= totalPages; pi++) {
+    doc.setPage(pi);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(150, 150, 150);
+    doc.text('Bolão da Copa 2026 · Exportado em ' + dataHora + ' · Página ' + pi + ' de ' + totalPages, margin, 292);
+  }
+
+  doc.save('palpites-' + (apelido||'jogador') + '-' + agora.getFullYear() + (agora.getMonth()+1).toString().padStart(2,'0') + agora.getDate().toString().padStart(2,'0') + '.pdf');
+}
 </script>
 </body>
 </html>
