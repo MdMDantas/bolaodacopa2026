@@ -202,7 +202,6 @@
   <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin:12px 0 16px;padding:8px 14px;background:#00194a;border:1px solid rgba(255,223,0,0.3);border-radius:8px;" onmouseover="this.style.borderColor='#ffdf00'" onmouseout="this.style.borderColor='rgba(255,223,0,0.3)'">&#8592; Voltar ao Início</a>
 
   <div style="text-align:right;margin-bottom:16px;">
-    <button onclick="preencherAleatorioF2()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
   </div>
 
   <!-- 6 CARDS DE NAVEGAÇÃO -->
@@ -281,7 +280,6 @@
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
     <div class="jogos-grid" id="jogos-r16avos"></div>
-    <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioMM('r16avos')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="save-section" id="btn16avos"></div>
   </div>
 
@@ -297,7 +295,6 @@
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
     <div class="jogos-grid" id="jogos-roitavas"></div>
-    <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioMM('roitavas')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="save-section" id="btnOitavas"></div>
   </div>
 
@@ -313,7 +310,6 @@
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
     <div class="jogos-grid" id="jogos-rquartas"></div>
-    <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioMM('rquartas')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="save-section" id="btnQuartas"></div>
   </div>
 
@@ -329,7 +325,6 @@
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
     <div class="jogos-grid" id="jogos-rsemi"></div>
-    <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioMM('rsemi')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="save-section" id="btnSemi"></div>
   </div>
 
@@ -345,7 +340,6 @@
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
     <div class="jogos-grid" id="jogos-rfinal"></div>
-    <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioMM('rfinal')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="save-section" id="btnFinal"></div>
   </div>
 </div>
@@ -573,10 +567,6 @@ function updateProgress() {
 }
 
 function fecharModal(e) { if (e.target.id === 'modalOverlay') e.target.style.display = 'none'; }
-
-function preencherAleatorioF2() {
-  var teams = ALL_TEAMS.slice();
-  function rnd() { return teams[Math.floor(Math.random()*teams.length)]; }
   document.querySelectorAll('#bracket select').forEach(function(s){ s.value = rnd(); s.classList.add('filled'); });
   var champ = document.getElementById('champion');
   if(champ){champ.value=rnd();champ.classList.add('filled');}
