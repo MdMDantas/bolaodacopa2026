@@ -657,125 +657,261 @@ function exportarPalpitesPDF() {
 
   var agora = new Date();
   var dataHora = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR');
-  var apelido = document.getElementById('headerNome') ? document.getElementById('headerNome').textContent : '';
-  var bolao = document.getElementById('headerBolao') ? document.getElementById('headerBolao').textContent : '';
+  var apelido = (document.getElementById('headerNome') ? document.getElementById('headerNome').textContent : '') || 'Jogador';
+  var bolao   = (document.getElementById('headerBolao') ? document.getElementById('headerBolao').textContent : '') || '';
 
-  var y = 20;
-  var pageW = 210;
-  var margin = 15;
-  var lineH = 6;
+  var W = 210, H = 297, M = 14, y = 0;
+  var colW = (W - M*2) / 4; // largura de coluna para grids
 
-  function checkPage() { if (y > 270) { doc.addPage(); y = 20; } }
-
-  function titulo(txt) {
-    checkPage();
-    doc.setFillColor(0, 48, 135);
-    doc.rect(margin, y-4, pageW-margin*2, 8, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.setTextColor(255, 223, 0);
-    doc.text(txt, margin+3, y+1);
-    y += 10;
+  // ── Helpers ────────────────────────────────────────────
+  function checkPage(need) {
+    if (y + (need||8) > 278) {
+      rodape();
+      doc.addPage();
+      cabecalhoMini();
+    }
   }
 
-  function linha(label, val) {
-    checkPage();
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(60, 60, 60);
-    doc.text(label + ':', margin+2, y);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(0, 0, 0);
-    doc.text(String(val || '—'), margin + 50, y);
-    y += lineH;
+  function rodape() {
+    var total = doc.internal.getNumberOfPages();
+    var pg = doc.internal.getCurrentPageInfo().pageNumber;
+    doc.setDrawColor(200,200,200); doc.line(M, 287, W-M, 287);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(160,160,160);
+    doc.text('Bolão da Copa 2026  ·  Comprovante de ' + apelido + '  ·  ' + dataHora + '  ·  Página ' + pg, M, 292);
   }
 
-  // Cabeçalho
-  doc.setFillColor(0, 26, 74);
-  doc.rect(0, 0, 210, 28, 'F');
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
-  doc.setTextColor(255, 223, 0);
-  doc.text('BOLÃO DA COPA 2026', margin, 12);
-  doc.setFontSize(9);
-  doc.setTextColor(122, 159, 212);
-  doc.text('Comprovante de Palpites — ' + apelido + ' — ' + bolao, margin, 19);
-  doc.setTextColor(100, 180, 100);
-  doc.text('Exportado em: ' + dataHora, margin, 25);
-  y = 36;
+  function cabecalhoMini() {
+    doc.setFillColor(0,34,102); doc.rect(0,0,W,14,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(255,223,0);
+    doc.text('BOLÃO DA COPA 2026  ·  ' + apelido.toUpperCase(), M, 9);
+    y = 20;
+  }
 
-  // Grupos
+  function secao(titulo, cor) {
+    checkPage(14);
+    cor = cor || [0,34,102];
+    doc.setFillColor(cor[0],cor[1],cor[2]);
+    doc.roundedRect(M, y, W-M*2, 8, 1.5, 1.5, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.setTextColor(255,223,0);
+    doc.text(titulo.toUpperCase(), M+4, y+5.5);
+    y += 11;
+  }
+
+  function subSecao(txt) {
+    checkPage(8);
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(0,34,102);
+    doc.text(txt, M+2, y); y += 6;
+  }
+
+  function pill(x, py, txt, bgR, bgG, bgB, fgR, fgG, fgB) {
+    var tw = doc.getTextWidth(txt) + 4;
+    doc.setFillColor(bgR,bgG,bgB);
+    doc.roundedRect(x, py-3.5, tw, 5, 1, 1, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(fgR,fgG,fgB);
+    doc.text(txt, x+2, py);
+    return tw + 2;
+  }
+
+  function linhaTabela(pos, nome, zebrado) {
+    checkPage(7);
+    if (zebrado) { doc.setFillColor(245,247,252); doc.rect(M, y-4, W-M*2, 6.5, 'F'); }
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(80,80,120);
+    doc.text(pos, M+2, y);
+    doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30);
+    doc.text(nome || '—', M+16, y);
+    y += 6.5;
+  }
+
+  function placarBox(x, py, gA, gB) {
+    var bw = 28, bh = 7;
+    doc.setFillColor(240,243,252); doc.roundedRect(x, py-5, bw, bh, 1.5, 1.5, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(0,34,102);
+    doc.text(String(gA), x+5, py);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(120,120,120);
+    doc.text('×', x+12, py);
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(0,34,102);
+    doc.text(String(gB), x+18, py);
+  }
+
+  // ── Capa ────────────────────────────────────────────────
+  // Faixa azul escuro topo
+  doc.setFillColor(0,26,74); doc.rect(0,0,W,38,'F');
+  // Faixa dourada decorativa
+  doc.setFillColor(255,223,0); doc.rect(0,38,W,2,'F');
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(22); doc.setTextColor(255,223,0);
+  doc.text('BOLÃO DA COPA 2026', M, 16);
+
+  doc.setFontSize(11); doc.setTextColor(180,210,255);
+  doc.text('Comprovante de Palpites', M, 25);
+
+  doc.setFontSize(9); doc.setTextColor(255,255,255);
+  doc.text(apelido.toUpperCase(), M, 33);
+
+  // Info box
+  doc.setFillColor(0,34,102); doc.roundedRect(M, 45, W-M*2, 18, 2, 2, 'F');
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(122,159,212);
+  doc.text('PARTICIPANTE', M+4, 52);
+  doc.text('BOLÃO', M+80, 52);
+  doc.text('EXPORTADO EM', M+140, 52);
+  doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
+  doc.text(apelido, M+4, 58);
+  doc.text(bolao || '—', M+80, 58);
+  doc.setFontSize(7.5);
+  doc.text(dataHora, M+140, 58);
+
+  y = 72;
+
+  // ── GRUPOS ─────────────────────────────────────────────
   if (_palpite1) {
-    titulo('CLASSIFICAÇÃO DOS GRUPOS');
-    var grupos = typeof GRUPOS_DISPLAY !== 'undefined' ? Object.keys(GRUPOS_DISPLAY) : [];
-    grupos.forEach(function(g) {
+    var GRUPOS_KEYS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+    var posLabel = ['1º','2º','3º','4º'];
+    secao('Classificação dos Grupos', [0,34,102]);
+
+    // Grid 4 colunas de grupos
+    var gruposCols = 4;
+    var gColW = (W - M*2) / gruposCols;
+    var gStartY = y;
+    var gruposData = {};
+    GRUPOS_KEYS.forEach(function(g) {
+      gruposData[g] = [];
       for (var p = 1; p <= 4; p++) {
-        var val = _palpite1['g'+g.toLowerCase()+'_'+p] || _palpite1['g'+g+'_'+p] || '';
-        if (val) linha('Grupo ' + g + ' — ' + p + 'º lugar', val);
+        gruposData[g].push(_palpite1['g'+g.toLowerCase()+'_'+p] || _palpite1['g'+g+'_'+p] || '—');
       }
     });
 
-    // Terceiros
+    // Renderizar em blocos de 4 grupos por linha
+    for (var gi = 0; gi < GRUPOS_KEYS.length; gi += gruposCols) {
+      checkPage(32);
+      var rowY = y;
+      for (var col = 0; col < gruposCols && gi+col < GRUPOS_KEYS.length; col++) {
+        var g = GRUPOS_KEYS[gi+col];
+        var cx = M + col * gColW;
+        // Header do grupo
+        doc.setFillColor(230,235,250); doc.rect(cx, rowY, gColW-2, 6, 'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(0,34,102);
+        doc.text('GRUPO ' + g, cx+2, rowY+4.2);
+        // Times
+        gruposData[g].forEach(function(team, idx) {
+          var ty = rowY + 8 + idx*6;
+          doc.setFont('helvetica', idx===0?'bold':'normal');
+          doc.setFontSize(7.5);
+          doc.setTextColor(idx===0?30:80, idx===0?30:80, idx===0?30:80);
+          doc.text((idx+1)+'º '+team, cx+2, ty);
+        });
+      }
+      y = rowY + 8 + 4*6 + 4;
+    }
+
+    y += 2;
+
+    // ── TERCEIROS ────────────────────────────────────────
     var terceiros = [];
     for (var ti = 1; ti <= 8; ti++) { if (_palpite1['t'+ti]) terceiros.push(_palpite1['t'+ti]); }
     if (terceiros.length) {
-      titulo('MELHORES TERCEIROS');
-      terceiros.forEach(function(t, i) { linha((i+1)+'º melhor terceiro', t); });
+      secao('Melhores Terceiros', [0,80,40]);
+      checkPage(12);
+      var tCols = 4, tColW = (W-M*2)/tCols;
+      for (var ti2 = 0; ti2 < terceiros.length; ti2++) {
+        var tcol = ti2 % tCols, trow = Math.floor(ti2/tCols);
+        if (ti2 % tCols === 0 && ti2 > 0) y += 10;
+        if (ti2 % tCols === 0) checkPage(10);
+        var tx = M + tcol * tColW;
+        doc.setFillColor(240,250,244); doc.roundedRect(tx, y-4, tColW-2, 7, 1,1,'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(0,100,40);
+        doc.text((ti2+1)+'º', tx+2, y);
+        doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30);
+        doc.text(terceiros[ti2], tx+10, y);
+      }
+      y += 10;
     }
 
-    // Zebras
-    titulo('ZEBRAS');
-    for (var zi = 1; zi <= 4; zi++) { if (_palpite1['zebra'+zi]) linha('Zebra ' + zi, _palpite1['zebra'+zi]); }
+    // ── ZEBRAS ───────────────────────────────────────────
+    var zebras = [];
+    for (var zi = 1; zi <= 4; zi++) { if (_palpite1['zebra'+zi]) zebras.push(_palpite1['zebra'+zi]); }
+    if (zebras.length) {
+      secao('Zebras', [120,20,20]);
+      checkPage(10);
+      var zColW = (W-M*2)/4;
+      zebras.forEach(function(z, zi2) {
+        var zx = M + zi2 * zColW;
+        doc.setFillColor(252,240,240); doc.roundedRect(zx, y-4, zColW-2, 7, 1,1,'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(150,20,20);
+        doc.text('Zebra '+(zi2+1), zx+2, y);
+        doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30);
+        doc.text(z, zx+2, y+5);
+      });
+      y += 12;
+    }
 
-    // Placares
+    // ── PLACARES GRUPOS ──────────────────────────────────
     if (_palpite1.placares && Object.keys(_palpite1.placares).length) {
-      titulo('PLACARES — FASE DE GRUPOS');
       var pl = _palpite1.placares;
-      var rodadas = { R1: 'Rodada 1', R2: 'Rodada 2', R3: 'Rodada 3' };
-      Object.keys(rodadas).forEach(function(r) {
-        var keys = Object.keys(pl).filter(function(k){ return k.indexOf('placar_'+r+'_') === 0 && k.endsWith('_a'); });
-        if (keys.length) {
-          checkPage();
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(9);
-          doc.setTextColor(0, 48, 135);
-          doc.text(rodadas[r], margin+2, y); y += lineH;
-          keys.forEach(function(ka) {
-            var kb = ka.replace(/_a$/, '_b');
-            var va = pl[ka] !== undefined ? pl[ka] : '?';
-            var vb = pl[kb] !== undefined ? pl[kb] : '?';
-            var jogo = ka.replace('placar_'+r+'_','').replace('_a','').replace(/_/g,' ');
-            linha('  Jogo ' + jogo, va + ' × ' + vb);
-          });
-        }
+      var rodadasList = [['R1','Rodada 1'],['R2','Rodada 2'],['R3','Rodada 3']];
+      rodadasList.forEach(function(rv) {
+        var r = rv[0], rLabel = rv[1];
+        var keysA = Object.keys(pl).filter(function(k){ return k.indexOf('placar_'+r+'_')===0 && k.endsWith('_a'); });
+        if (!keysA.length) return;
+        secao('Placares — ' + rLabel, [0,60,130]);
+        // Grid de placares: 3 por linha
+        var pCols = 3, pColW = (W-M*2)/pCols;
+        keysA.forEach(function(ka, ki) {
+          if (ki % pCols === 0) { checkPage(12); }
+          var col = ki % pCols;
+          var px = M + col * pColW;
+          if (ki % pCols === 0 && ki > 0) y += 12;
+          var kb = ka.replace(/_a$/,'_b');
+          var va = pl[ka] !== undefined ? pl[ka] : '?';
+          var vb = pl[kb] !== undefined ? pl[kb] : '?';
+          var parts = ka.replace('placar_'+r+'_','').replace('_a','').split('_');
+          var grp = parts[0], jogo = parts[1];
+          doc.setFillColor(235,240,255); doc.roundedRect(px, y-5, pColW-2, 10, 1.5,1.5,'F');
+          doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(0,34,102);
+          doc.text('Grp '+grp+' · J'+(parseInt(jogo)+1), px+2, y-1);
+          doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(0,34,102);
+          doc.text(va+' × '+vb, px+2, y+4.5);
+        });
+        y += 14;
       });
     }
   }
 
-  // Placares Mata-Mata
+  // ── PLACARES MATA-MATA ──────────────────────────────────
   if (_palpite2 && _palpite2.placares_mm) {
-    var pl = typeof _palpite2.placares_mm === 'string' ? JSON.parse(_palpite2.placares_mm) : _palpite2.placares_mm;
-    var keysA = Object.keys(pl).filter(function(k){ return k.endsWith('_A'); });
+    var plMM = typeof _palpite2.placares_mm === 'string' ? JSON.parse(_palpite2.placares_mm) : _palpite2.placares_mm;
+    var keysA = Object.keys(plMM).filter(function(k){ return k.endsWith('_A'); });
     if (keysA.length) {
-      titulo('PLACARES — MATA-MATA');
-      keysA.forEach(function(ka) {
-        var kb = ka.replace(/_A$/, '_B');
-        linha('  ' + ka.replace(/_A$/,'').replace(/_/g,' '), (pl[ka]||'?') + ' × ' + (pl[kb]||'?'));
+      secao('Placares — Mata-Mata', [80,20,100]);
+      var fasesMMLabel = { r16avos:'16 Avos', roitavas:'Oitavas', rquartas:'Quartas', rsemi:'Semifinal', rfinal:'Final' };
+      var fasesMMOrder = ['r16avos','roitavas','rquartas','rsemi','rfinal'];
+      fasesMMOrder.forEach(function(fase) {
+        var fKeys = keysA.filter(function(k){ return k.indexOf(fase+'_')===0; });
+        if (!fKeys.length) return;
+        subSecao(fasesMMLabel[fase] || fase);
+        var pCols = 4, pColW = (W-M*2)/pCols;
+        fKeys.forEach(function(ka, ki) {
+          if (ki % pCols === 0) checkPage(12);
+          var col = ki % pCols;
+          var px = M + col * pColW;
+          if (ki % pCols === 0 && ki > 0) y += 12;
+          var kb = ka.replace(/_A$/,'_B');
+          var va = plMM[ka]||'?', vb = plMM[kb]||'?';
+          doc.setFillColor(245,240,255); doc.roundedRect(px, y-5, pColW-2, 10, 1.5,1.5,'F');
+          doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(80,20,100);
+          doc.text('Jogo '+(ki+1), px+2, y-1);
+          doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(80,20,100);
+          doc.text(va+' × '+vb, px+2, y+4.5);
+        });
+        y += 14;
       });
     }
   }
 
-  // Rodapé em todas as páginas
-  var totalPages = doc.internal.getNumberOfPages();
-  for (var pi = 1; pi <= totalPages; pi++) {
-    doc.setPage(pi);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
-    doc.setTextColor(150, 150, 150);
-    doc.text('Bolão da Copa 2026 · Exportado em ' + dataHora + ' · Página ' + pi + ' de ' + totalPages, margin, 292);
-  }
+  // Rodapé última página
+  rodape();
 
-  doc.save('palpites-' + (apelido||'jogador') + '-' + agora.getFullYear() + (agora.getMonth()+1).toString().padStart(2,'0') + agora.getDate().toString().padStart(2,'0') + '.pdf');
+  doc.save('palpites-' + apelido.replace(/\s+/g,'_') + '-' + agora.getFullYear() + (agora.getMonth()+1).toString().padStart(2,'0') + agora.getDate().toString().padStart(2,'0') + '.pdf');
 }
 </script>
 </body>

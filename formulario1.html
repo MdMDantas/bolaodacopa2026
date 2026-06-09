@@ -402,7 +402,7 @@ function buildTerceiros(savedOrder) {
     container.innerHTML = '<div class="etapa2-aviso"><strong>Preencha a Etapa 1 primeiro</strong>As seleções em 3º lugar de cada grupo aparecerão aqui.</div>';
     return;
   }
-  var medals = ['🥇','🥈','🥉','4º','5º','6º','7º','8º'];
+  var medals = ['1º','2º','3º','4º','5º','6º','7º','8º'];
   var html = '<div class="terceiros-selects">';
   for (var i = 0; i < 8; i++) {
     var saved = (savedOrder && savedOrder[i]) ? savedOrder[i] : '';
@@ -436,7 +436,7 @@ function refreshTerceiroOptions(thirds, savedOrder) {
         if (j !== i && selected[j] === item.team) { usedElsewhere = true; break; }
       }
       if (!usedElsewhere) {
-        opts += '<option value="'+item.team+'"'+(current===item.team?' selected':'')+'>'+item.team+' (Grp '+item.group+')</option>';
+        opts += '<option value="'+item.team+'"'+(current===item.team?' selected':'')+'>'+item.team+'</option>';
       }
     });
     sel.innerHTML = opts;
@@ -651,10 +651,14 @@ function preencherAleatorio() {
     }
     filterGroupSelects(g);
   });
-  // Sortear terceiros aleatoriamente nos 8 slots
-  var thirds = getThirds();
-  if (thirds.length) {
-    var shuffled = thirds.slice();
+  // Coletar 3ºs lugares diretamente dos valores setados acima (não via getThirds que lê do DOM filtrado)
+  var thirdsAleatorio = [];
+  Object.keys(GRUPOS_DISPLAY).forEach(function(g) {
+    var sel = document.getElementById('g'+g+'_3');
+    if (sel && sel.value) thirdsAleatorio.push({group: g, team: sel.value});
+  });
+  if (thirdsAleatorio.length) {
+    var shuffled = thirdsAleatorio.slice();
     for(var si=shuffled.length-1;si>0;si--){var sj=Math.floor(Math.random()*(si+1));var st=shuffled[si];shuffled[si]=shuffled[sj];shuffled[sj]=st;}
     buildTerceiros(shuffled.map(function(x){return x.team;}));
   } else {
