@@ -10,7 +10,7 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;
     background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(0,48,135,0.5) 0%,transparent 60%);}
-  .wrapper{max-width:800px;margin:0 auto;padding:0 20px 80px;}
+  .wrapper{max-width:1060px;margin:0 auto;padding:0 20px 80px;}
   .card{background:var(--card);border:1px solid rgba(255,223,0,0.3);border-radius:14px;overflow:hidden;margin-bottom:20px;}
   .card-header{background:var(--bg3);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
   .card-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--gold);}
@@ -22,9 +22,14 @@
   .stat-card{background:var(--bg2);border-radius:10px;padding:16px;text-align:center;}
   .stat-val{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gold);}
   .stat-label{font-size:11px;color:var(--muted);margin-top:4px;}
-  .participante-row{display:grid;grid-template-columns:1fr 80px 80px 80px 80px;gap:8px;align-items:center;padding:10px 16px;border-bottom:1px solid rgba(26,61,122,0.3);font-size:13px;}
+  .participante-row{display:grid;grid-template-columns:140px repeat(11,1fr);gap:0;align-items:center;border-bottom:1px solid rgba(26,61,122,0.3);font-size:12px;min-width:860px;}
+  .participante-row > div{padding:10px 4px;text-align:center;}
+  .participante-row > div:first-child{padding-left:16px;text-align:left;}
   .participante-row:last-child{border-bottom:none;}
-  .participante-row.header{background:var(--bg3);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:8px 16px;}
+  .participante-row.header{background:var(--bg3);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+  .participante-row.header > div{padding:8px 4px;}
+  .participante-row.header > div:first-child{padding-left:16px;}
+  .tabela-participantes{overflow-x:auto;}
   .status-ok{color:var(--green-light);}
   .status-no{color:#ff6b6b;}
   .acesso-negado{text-align:center;padding:40px 20px;}
@@ -130,11 +135,11 @@ async function carregarAdmin() {
   try {
 
   // Buscar palpites fase 1
-  var r1 = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+_bolaoAtual.id+'&select=apelido,ga_1,placares&order=criado_em.asc', {headers:H});
+  var r1 = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+_bolaoAtual.id+'&select=*&order=criado_em.asc', {headers:H});
   var palpites1 = r1.ok ? await r1.json() : [];
 
   // Buscar palpites fase 2
-  var r2 = await fetch(SU+'/rest/v1/palpites_fase2?bolao_id=eq.'+_bolaoAtual.id+'&select=apelido,fase&order=criado_em.asc', {headers:H});
+  var r2 = await fetch(SU+'/rest/v1/palpites_fase2?bolao_id=eq.'+_bolaoAtual.id+'&select=*&order=criado_em.asc', {headers:H});
   var palpites2 = r2.ok ? await r2.json() : [];
 
   // Montar mapas
@@ -159,13 +164,12 @@ async function carregarAdmin() {
   });
   palpites2.forEach(function(x){
     if (!x.apelido) return;
-    if (x.fase === 'matamata')  p2Map[x.apelido] = true;
+    if (x.fase === 'matamata')  { p2Map[x.apelido] = true; p2Data[x.apelido] = x; }
     if (x.fase === 'r16avos')   p2R16Map[x.apelido] = true;
     if (x.fase === 'roitavas')  p2OitMap[x.apelido] = true;
     if (x.fase === 'rquartas')  p2QuaMap[x.apelido] = true;
     if (x.fase === 'rsemi')     p2SemMap[x.apelido] = true;
     if (x.fase === 'rfinal')    p2FinMap[x.apelido] = true;
-    p2Data[x.apelido] = x;
   });
 
   var todos = {};
@@ -190,7 +194,8 @@ async function carregarAdmin() {
   html += '<div class="card"><div class="card-header"><span class="card-title">👥 PARTICIPANTES — '+_bolaoAtual.nome+'</span>';
   html += '<button class="btn" onclick="exportarPDF()" style="background:#003087;color:#ffdf00;border:1px solid #ffdf00;">📄 PDF POR JOGADOR</button>';
   html += '</div>';
-  html += '<div class="participante-row header" style="grid-template-columns:1fr repeat(10,62px);"><div>Apelido</div><div style="text-align:center">Grupos</div><div style="text-align:center">Rod.1</div><div style="text-align:center">Rod.2</div><div style="text-align:center">Rod.3</div><div style="text-align:center">Mata-Mata</div><div style="text-align:center">16 Avos</div><div style="text-align:center">Oitavas</div><div style="text-align:center">Quartas</div><div style="text-align:center">Semi</div><div style="text-align:center">Final</div></div>';
+  html += '<div class="tabela-participantes">';
+  html += '<div class="participante-row header"><div>Apelido</div><div>Grupos</div><div>Rod.1</div><div>Rod.2</div><div>Rod.3</div><div>Mata-Mata</div><div>16 Avos</div><div>Oitavas</div><div>Quartas</div><div>Semi</div><div>Final</div><div>Total</div></div>';
 
   if (!participantes.length) {
     html += '<div style="text-align:center;padding:24px;color:var(--muted);">Nenhum palpite enviado ainda.</div>';
@@ -198,23 +203,23 @@ async function carregarAdmin() {
     participantes.forEach(function(ap) {
       var ok = '<span class="status-ok">✅</span>', no = '<span class="status-no">❌</span>';
       var total = (p1Map[ap]?1:0)+(placR1Map[ap]?1:0)+(placR2Map[ap]?1:0)+(placR3Map[ap]?1:0)+(p2Map[ap]?1:0)+(p2R16Map[ap]?1:0)+(p2OitMap[ap]?1:0)+(p2QuaMap[ap]?1:0)+(p2SemMap[ap]?1:0)+(p2FinMap[ap]?1:0);
-      html += '<div class="participante-row" style="grid-template-columns:1fr repeat(10,62px);">';
+      html += '<div class="participante-row">';
       html += '<div style="font-weight:600;">'+ap+'</div>';
-      html += '<div style="text-align:center;">'+(p1Map[ap]?ok:no)+'</div>';
-      html += '<div style="text-align:center;">'+(placR1Map[ap]?ok:no)+'</div>';
-      html += '<div style="text-align:center;">'+(placR2Map[ap]?ok:no)+'</div>';
-      html += '<div style="text-align:center;">'+(placR3Map[ap]?ok:no)+'</div>';
-      html += '<div style="text-align:center;">'+(p2Map[ap]?ok:no)+'</div>';
-      html += '<div style="text-align:center;">'+(p2R16Map[ap]?ok:no)+'</div>';
-      html += '<div style="text-align:center;">'+(p2OitMap[ap]?ok:no)+'</div>';
-      html += '<div style="text-align:center;">'+(p2QuaMap[ap]?ok:no)+'</div>';
-      html += '<div style="text-align:center;">'+(p2SemMap[ap]?ok:no)+'</div>';
-      html += '<div style="text-align:center;">'+(p2FinMap[ap]?ok:no)+'</div>';
-      html += '<div style="text-align:center;color:var(--gold);font-weight:700;">'+total+'/10</div>';
+      html += '<div>'+(p1Map[ap]?ok:no)+'</div>';
+      html += '<div>'+(placR1Map[ap]?ok:no)+'</div>';
+      html += '<div>'+(placR2Map[ap]?ok:no)+'</div>';
+      html += '<div>'+(placR3Map[ap]?ok:no)+'</div>';
+      html += '<div>'+(p2Map[ap]?ok:no)+'</div>';
+      html += '<div>'+(p2R16Map[ap]?ok:no)+'</div>';
+      html += '<div>'+(p2OitMap[ap]?ok:no)+'</div>';
+      html += '<div>'+(p2QuaMap[ap]?ok:no)+'</div>';
+      html += '<div>'+(p2SemMap[ap]?ok:no)+'</div>';
+      html += '<div>'+(p2FinMap[ap]?ok:no)+'</div>';
+      html += '<div style="color:var(--gold);font-weight:700;">'+total+'/10</div>';
       html += '</div>';
     });
   }
-  html += '</div>';
+  html += '</div></div>';
 
   // Quem não enviou
   var naoEnviou = participantes.filter(function(a){ return !p1Map[a] || !p2Map[a]; });
