@@ -651,6 +651,52 @@ window.addEventListener('DOMContentLoaded', function() {
   }
 });
 
+// Tabela de jogos para exibição no PDF
+var PDF_JOGOS = {
+  R1: {
+    A:[['México','África do Sul'],['Coreia do Sul','República Tcheca']],
+    B:[['Canadá','Bósnia e Herzegovina'],['Catar','Suíça']],
+    C:[['Brasil','Marrocos'],['Haiti','Escócia']],
+    D:[['Estados Unidos','Paraguai'],['Austrália','Turquia']],
+    E:[['Alemanha','Curaçao'],['Costa do Marfim','Equador']],
+    F:[['Holanda','Japão'],['Suécia','Tunísia']],
+    G:[['Bélgica','Egito'],['Irã','Nova Zelândia']],
+    H:[['Espanha','Cabo Verde'],['Arábia Saudita','Uruguai']],
+    I:[['França','Senegal'],['Noruega','Iraque']],
+    J:[['Argentina','Argélia'],['Áustria','Jordânia']],
+    K:[['Portugal','RD Congo'],['Uzbequistão','Colômbia']],
+    L:[['Inglaterra','Croácia'],['Gana','Panamá']]
+  },
+  R2: {
+    A:[['México','Coreia do Sul'],['África do Sul','República Tcheca']],
+    B:[['Canadá','Catar'],['Bósnia e Herzegovina','Suíça']],
+    C:[['Brasil','Haiti'],['Marrocos','Escócia']],
+    D:[['Estados Unidos','Austrália'],['Turquia','Paraguai']],
+    E:[['Alemanha','Costa do Marfim'],['Curaçao','Equador']],
+    F:[['Holanda','Suécia'],['Japão','Tunísia']],
+    G:[['Bélgica','Irã'],['Egito','Nova Zelândia']],
+    H:[['Espanha','Arábia Saudita'],['Cabo Verde','Uruguai']],
+    I:[['França','Iraque'],['Noruega','Senegal']],
+    J:[['Argentina','Áustria'],['Argélia','Jordânia']],
+    K:[['Portugal','Uzbequistão'],['Colômbia','RD Congo']],
+    L:[['Inglaterra','Gana'],['Croácia','Panamá']]
+  },
+  R3: {
+    A:[['México','República Tcheca'],['África do Sul','Coreia do Sul']],
+    B:[['Canadá','Suíça'],['Bósnia e Herzegovina','Catar']],
+    C:[['Brasil','Escócia'],['Marrocos','Haiti']],
+    D:[['Estados Unidos','Turquia'],['Paraguai','Austrália']],
+    E:[['Alemanha','Equador'],['Curaçao','Costa do Marfim']],
+    F:[['Holanda','Tunísia'],['Japão','Suécia']],
+    G:[['Bélgica','Nova Zelândia'],['Egito','Irã']],
+    H:[['Espanha','Uruguai'],['Cabo Verde','Arábia Saudita']],
+    I:[['França','Noruega'],['Senegal','Iraque']],
+    J:[['Argentina','Jordânia'],['Argélia','Áustria']],
+    K:[['Portugal','Colômbia'],['RD Congo','Uzbequistão']],
+    L:[['Inglaterra','Panamá'],['Croácia','Gana']]
+  }
+};
+
 function exportarPalpitesPDF() {
   var { jsPDF } = window.jspdf;
   var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -864,10 +910,16 @@ function exportarPalpitesPDF() {
           var kb = ka.replace(/_a$/,'_b');
           var va = pl[ka] !== undefined ? pl[ka] : '?';
           var vb = pl[kb] !== undefined ? pl[kb] : '?';
+          // Buscar nomes dos times: primeiro do campo _times salvo, depois da tabela fixa
           var timesKey = ka.replace('_a','_times');
-          var times = pl[timesKey] || ka.replace('placar_'+r+'_','').replace('_a','').replace(/_/g,' Grp ');
-          // Quebrar nome dos times se muito longo
-          var timesShort = times.length > 28 ? times.substring(0,26)+'…' : times;
+          var times = pl[timesKey];
+          if (!times) {
+            var parts2 = ka.replace('placar_'+r+'_','').replace('_a','').split('_');
+            var grp2 = parts2[0], ji2 = parseInt(parts2[1]);
+            var jogoData = PDF_JOGOS[r] && PDF_JOGOS[r][grp2] && PDF_JOGOS[r][grp2][ji2];
+            times = jogoData ? jogoData[0]+' × '+jogoData[1] : ka.replace('placar_'+r+'_','').replace('_a','');
+          }
+          var timesShort = times.length > 30 ? times.substring(0,28)+'…' : times;
           doc.setFillColor(235,240,255); doc.roundedRect(px, y-5, pColW-2, 11, 1.5,1.5,'F');
           doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(80,80,120);
           doc.text(timesShort, px+2, y-1);
