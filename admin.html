@@ -366,7 +366,7 @@ function exportarPDF() {
       GRUPOS.forEach(function(g) {
         html += '<div class="grupo-card"><div class="grupo-label">Grupo ' + g + '</div><div class="grupo-times">';
         for (var pos = 1; pos <= 4; pos++) {
-          var time = p1['g' + g + '_' + pos] || '—';
+          var time = p1['g' + g.toLowerCase() + '_' + pos] || p1['g' + g + '_' + pos] || '—';
           html += '<span>' + pos + 'º ' + time + '</span>';
         }
         html += '</div></div>';

@@ -72,11 +72,11 @@
   .sel-wrap select.filled{border-color:rgba(0,156,59,0.6);}
 
   /* TERCEIROS */
-  .terceiros-selects{display:flex;flex-direction:column;gap:8px;}
-  .terceiro-slot{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;}
+  .terceiros-list{display:flex;flex-direction:column;gap:8px;}
+  .terceiro-row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;cursor:grab;}
+  .terceiro-row:hover{border-color:rgba(255,223,0,0.3);}
   .terceiro-num{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);width:24px;text-align:center;flex-shrink:0;}
-  .terceiro-slot select{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--white);font-size:13px;outline:none;}
-  .terceiro-slot select.filled{border-color:rgba(255,223,0,0.5);}
+  .terceiro-group-tag{font-size:10px;font-weight:700;color:var(--muted);background:var(--bg3);padding:2px 7px;border-radius:20px;white-space:nowrap;}
   .etapa2-aviso{background:var(--bg3);border:1px dashed var(--border);border-radius:10px;padding:18px;text-align:center;color:var(--muted);font-size:13px;}
   .etapa2-aviso strong{color:var(--gold);display:block;font-size:15px;margin-bottom:5px;}
 
@@ -402,65 +402,48 @@ function buildTerceiros(savedOrder) {
     container.innerHTML = '<div class="etapa2-aviso"><strong>Preencha a Etapa 1 primeiro</strong>As seleções em 3º lugar de cada grupo aparecerão aqui.</div>';
     return;
   }
-  var medals = ['1º','2º','3º','4º','5º','6º','7º','8º'];
-  var html = '<div class="terceiros-selects">';
-  for (var i = 0; i < 8; i++) {
-    var saved = (savedOrder && savedOrder[i]) ? savedOrder[i] : '';
-    html += '<div class="terceiro-slot">'+
-      '<span class="terceiro-num">'+medals[i]+'</span>'+
-      '<select id="terceiro_slot_'+i+'" onchange="onTerceiroChange()" class="'+(saved?'filled':'')+'">'+
-        '<option value="">-- Selecione --</option>'+
-      '</select>'+
+  var ordered = [];
+  if (savedOrder && savedOrder.length) {
+    savedOrder.forEach(function(t){var f=thirds.find(function(x){return x.team===t;});if(f)ordered.push(f);});
+    thirds.forEach(function(x){if(!ordered.find(function(o){return o.team===x.team;}))ordered.push(x);});
+  } else ordered = thirds.slice();
+  var html = '<div class="terceiros-list" id="sortableList">';
+  ordered.forEach(function(item,i){
+    html += '<div class="terceiro-row" draggable="true" data-team="'+item.team+'">'+
+      '<span class="terceiro-num">'+(i+1)+'</span>'+
+      '<span style="flex:1;font-size:13px;font-weight:500">'+item.team+'</span>'+
+      '<span class="terceiro-group-tag">GRP '+item.group+'</span>'+
+      '<span style="color:var(--muted);padding:0 4px">::::</span>'+
     '</div>';
-  }
-  html += '</div>';
-  container.innerHTML = html;
-  refreshTerceiroOptions(thirds, savedOrder || []);
+  });
+  container.innerHTML = html + '</div>';
+  initDrag(); renumberTerceiros();
 }
 
-function refreshTerceiroOptions(thirds, savedOrder) {
-  var selected = [];
-  for (var i = 0; i < 8; i++) {
-    var sel = document.getElementById('terceiro_slot_'+i);
-    if (sel) selected.push(sel.value);
-  }
-  for (var i = 0; i < 8; i++) {
-    var sel = document.getElementById('terceiro_slot_'+i);
-    if (!sel) continue;
-    var current = sel.value;
-    var opts = '<option value="">-- Selecione --</option>';
-    thirds.forEach(function(item) {
-      // Mostrar se não foi selecionado em outro slot, ou é o valor atual deste slot
-      var usedElsewhere = false;
-      for (var j = 0; j < 8; j++) {
-        if (j !== i && selected[j] === item.team) { usedElsewhere = true; break; }
-      }
-      if (!usedElsewhere) {
-        opts += '<option value="'+item.team+'"'+(current===item.team?' selected':'')+'>'+item.team+'</option>';
+function renumberTerceiros() {
+  document.querySelectorAll('#sortableList .terceiro-row').forEach(function(r,i){r.querySelector('.terceiro-num').textContent=i+1;});
+}
+
+var dragSrc = null;
+function initDrag() {
+  document.querySelectorAll('#sortableList .terceiro-row').forEach(function(row){
+    row.addEventListener('dragstart',function(e){dragSrc=row;e.dataTransfer.effectAllowed='move';setTimeout(function(){row.style.opacity='0.4';},0);});
+    row.addEventListener('dragend',function(){row.style.opacity='1';renumberTerceiros();updateProgress();});
+    row.addEventListener('dragover',function(e){e.preventDefault();});
+    row.addEventListener('dragenter',function(){if(row!==dragSrc)row.style.background='rgba(255,223,0,0.07)';});
+    row.addEventListener('dragleave',function(){row.style.background='';});
+    row.addEventListener('drop',function(e){
+      e.preventDefault();row.style.background='';
+      if(dragSrc&&row!==dragSrc){
+        var list=row.parentNode,all=Array.from(list.querySelectorAll('.terceiro-row'));
+        if(all.indexOf(dragSrc)<all.indexOf(row))list.insertBefore(dragSrc,row.nextSibling);
+        else list.insertBefore(dragSrc,row);
       }
     });
-    sel.innerHTML = opts;
-    sel.value = current;
-    sel.classList.toggle('filled', !!current);
-  }
+  });
 }
 
-function onTerceiroChange() {
-  var thirds = getThirds();
-  var saved = getTerceiroOrder();
-  refreshTerceiroOptions(thirds, saved);
-  updateProgress();
-  markFilled(event && event.target ? event.target : null);
-}
-
-function getTerceiroOrder() {
-  var order = [];
-  for (var i = 0; i < 8; i++) {
-    var sel = document.getElementById('terceiro_slot_'+i);
-    order.push(sel ? sel.value : '');
-  }
-  return order;
-}
+function getTerceiroOrder(){return Array.from(document.querySelectorAll('#sortableList .terceiro-row')).map(function(r){return r.dataset.team;});}
 
 // ── ZEBRAS ────────────────────────────────────────────────
 function buildZebras(saved) {
@@ -605,7 +588,7 @@ function exportarTabComModal(rodada, label) {
     if (existente && existente.placares) {
       placaresAtuais = typeof existente.placares === 'string' ? JSON.parse(existente.placares) : existente.placares;
     }
-    // Coletar placares desta rodada e mesclar (salva também os nomes dos times)
+    // Coletar placares desta rodada e mesclar
     var jogos = rodada==='R1'?JOGOS_R1:rodada==='R2'?JOGOS_R2:JOGOS_R3;
     Object.keys(jogos).forEach(function(g){
       jogos[g].forEach(function(jogo,ji){
@@ -613,8 +596,6 @@ function exportarTabComModal(rodada, label) {
         var ea = document.getElementById(id+'_a'), eb = document.getElementById(id+'_b');
         if(ea&&ea.value!=='') placaresAtuais[id+'_a'] = ea.value;
         if(eb&&eb.value!=='') placaresAtuais[id+'_b'] = eb.value;
-        // Salvar nomes dos times para exibição no PDF
-        placaresAtuais[id+'_times'] = jogo[0] + ' × ' + jogo[1];
       });
     });
     // Salva APENAS os placares mesclados — não toca em grupos/terceiros/zebras
@@ -653,19 +634,7 @@ function preencherAleatorio() {
     }
     filterGroupSelects(g);
   });
-  // Coletar 3ºs lugares diretamente dos valores setados acima (não via getThirds que lê do DOM filtrado)
-  var thirdsAleatorio = [];
-  Object.keys(GRUPOS_DISPLAY).forEach(function(g) {
-    var sel = document.getElementById('g'+g+'_3');
-    if (sel && sel.value) thirdsAleatorio.push({group: g, team: sel.value});
-  });
-  if (thirdsAleatorio.length) {
-    var shuffled = thirdsAleatorio.slice();
-    for(var si=shuffled.length-1;si>0;si--){var sj=Math.floor(Math.random()*(si+1));var st=shuffled[si];shuffled[si]=shuffled[sj];shuffled[sj]=st;}
-    buildTerceiros(shuffled.map(function(x){return x.team;}));
-  } else {
-    buildTerceiros(null);
-  }
+  buildTerceiros(null);
   var zCopy=ZEBRA_TEAMS.slice();
   for(var zi=1;zi<=4;zi++){
     if(!zCopy.length)break;

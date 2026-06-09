@@ -113,27 +113,20 @@ async function carregarRanking(bolaoId, bolaoNome) {
   area.innerHTML = '<div class="loading">Carregando...</div>';
   try {
     // Buscar palpites fase 1 — verificar grupos E placares separadamente
-    var r2 = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&select=apelido,ga_1,placares&order=criado_em.asc',{headers:H});
+    var r2 = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&select=apelido,gA_1,placares&order=criado_em.asc',{headers:H});
     var fase1Grupos = {};
     var fase1Placares = {};
-    var fase1PlacR1 = {};
-    var fase1PlacR2 = {};
-    var fase1PlacR3 = {};
     if (r2.ok) {
       var p1 = await r2.json();
       p1.forEach(function(x){
         if (!x.apelido) return;
         fase1Grupos[x.apelido] = true;
-        // Placares: checar cada rodada separadamente
+        // Placares: objeto com pelo menos 1 chave começando com "placar_"
         var pl = x.placares;
         if (pl) {
           if (typeof pl === 'string') { try { pl = JSON.parse(pl); } catch(e){ pl = {}; } }
-          if (typeof pl === 'object') {
-            var keys = Object.keys(pl);
-            if (keys.some(function(k){ return k.indexOf('placar_') === 0; })) fase1Placares[x.apelido] = true;
-            if (keys.some(function(k){ return k.indexOf('placar_R1_') === 0; })) fase1PlacR1[x.apelido] = true;
-            if (keys.some(function(k){ return k.indexOf('placar_R2_') === 0; })) fase1PlacR2[x.apelido] = true;
-            if (keys.some(function(k){ return k.indexOf('placar_R3_') === 0; })) fase1PlacR3[x.apelido] = true;
+          if (typeof pl === 'object' && Object.keys(pl).some(function(k){ return k.indexOf('placar_') === 0; })) {
+            fase1Placares[x.apelido] = true;
           }
         }
       });
@@ -210,9 +203,9 @@ async function carregarRanking(bolaoId, bolaoNome) {
       var pChaveamento= r.pts_chaveamento !== undefined ? r.pts_chaveamento : 0;
       var pPlacaresMM = r.pts_placares_mata!== undefined? r.pts_placares_mata: 0;
 
-      var temR1  = fase1PlacR1[r.apelido] ? '✅' : '❌';
-      var temR2  = fase1PlacR2[r.apelido] ? '✅' : '❌';
-      var temR3  = fase1PlacR3[r.apelido] ? '✅' : '❌';
+      var temR1  = fase1Placares[r.apelido] ? '✅' : '❌';
+      var temR2  = fase1Placares[r.apelido] ? '✅' : '❌';
+      var temR3  = fase1Placares[r.apelido] ? '✅' : '❌';
       var tem16avos  = fase2Chaveamento[r.apelido] ? '✅' : '❌';
       var temOitavas = fase2Chaveamento[r.apelido] ? '✅' : '❌';
       var temQuartas = fase2Chaveamento[r.apelido] ? '✅' : '❌';
