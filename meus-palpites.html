@@ -107,6 +107,9 @@
 
   /* PONTUAÇÃO */
   .pontos-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
+  .pontos-section-title{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--muted);margin:20px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+  .pontos-section-title.grupos{color:var(--green-light);}
+  .pontos-section-title.matamata{color:#E74C3C;}
   .ponto-card{background:var(--bg2);border-radius:10px;padding:16px;text-align:center;}
   .ponto-card .valor{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gold);line-height:1;}
   .ponto-card .label{font-size:11px;color:var(--muted);margin-top:4px;}
@@ -573,25 +576,33 @@ function renderMataMata() {
 function renderPontuacao() {
   var el = document.getElementById('pontuacaoContent');
   var html = '';
+  var p = _pontuacao || {};
+  function v(key) { return p[key] !== undefined ? p[key] : '—'; }
 
-  if (!_pontuacao) {
-    // Sem pontuação ainda — mostrar zeros e status de envio
-    html += '<div class="pontos-grid">';
-    html += '<div class="ponto-card"><div class="valor">—</div><div class="label">🏟️ Grupos</div></div>';
-    html += '<div class="ponto-card"><div class="valor">—</div><div class="label">⚽ Placares</div></div>';
-    html += '<div class="ponto-card"><div class="valor">—</div><div class="label">🐎 Zebras</div></div>';
-    html += '<div class="ponto-card"><div class="valor">—</div><div class="label">🥉 Terceiros</div></div>';
-    html += '</div>';
-    html += '<div class="ponto-total"><div class="valor">—</div><div class="label">Pontuação total (apuração começa com os jogos)</div></div>';
-  } else {
-    html += '<div class="pontos-grid">';
-    html += '<div class="ponto-card"><div class="valor">'+(_pontuacao.pts_grupos||0)+'</div><div class="label">🏟️ Grupos</div></div>';
-    html += '<div class="ponto-card"><div class="valor">'+(_pontuacao.pts_placares||0)+'</div><div class="label">⚽ Placares</div></div>';
-    html += '<div class="ponto-card"><div class="valor">'+(_pontuacao.pts_zebras||0)+'</div><div class="label">🐎 Zebras</div></div>';
-    html += '<div class="ponto-card"><div class="valor">'+(_pontuacao.pts_terceiros||0)+'</div><div class="label">🥉 Terceiros</div></div>';
-    html += '</div>';
-    html += '<div class="ponto-total"><div class="valor">'+(_pontuacao.total||0)+'</div><div class="label">pontos no total</div></div>';
-  }
+  // ── FASE DE GRUPOS ──
+  html += '<div class="pontos-section-title grupos">🏟️ FASE DE GRUPOS</div>';
+  html += '<div class="pontos-grid">';
+  html += '<div class="ponto-card"><div class="valor">'+v('pts_grupos')+'</div><div class="label">🏟️ Grupos</div></div>';
+  html += '<div class="ponto-card"><div class="valor">'+v('pts_placares_r1')+'</div><div class="label">⚽ Placares Rod. 1</div></div>';
+  html += '<div class="ponto-card"><div class="valor">'+v('pts_placares_r2')+'</div><div class="label">⚽ Placares Rod. 2</div></div>';
+  html += '<div class="ponto-card"><div class="valor">'+v('pts_placares_r3')+'</div><div class="label">⚽ Placares Rod. 3</div></div>';
+  html += '<div class="ponto-card"><div class="valor">'+v('pts_zebras')+'</div><div class="label">🐎 Zebras</div></div>';
+  html += '<div class="ponto-card"><div class="valor">'+v('pts_terceiros')+'</div><div class="label">🥉 Terceiros</div></div>';
+  html += '</div>';
+
+  // ── MATA-MATA ──
+  html += '<div class="pontos-section-title matamata">⚔️ MATA-MATA</div>';
+  html += '<div class="pontos-grid">';
+  html += '<div class="ponto-card"><div class="valor">'+v('pts_chaveamento')+'</div><div class="label">🏟️ Chaveamento</div></div>';
+  html += '<div class="ponto-card"><div class="valor">'+v('pts_16avos')+'</div><div class="label">⚽ 16 Avos</div></div>';
+  html += '<div class="ponto-card"><div class="valor">'+v('pts_oitavas')+'</div><div class="label">⚽ Oitavas</div></div>';
+  html += '<div class="ponto-card"><div class="valor">'+v('pts_quartas')+'</div><div class="label">⚽ Quartas</div></div>';
+  html += '<div class="ponto-card"><div class="valor">'+v('pts_semi')+'</div><div class="label">⚽ Semifinal</div></div>';
+  html += '<div class="ponto-card"><div class="valor">'+v('pts_final')+'</div><div class="label">⚽ 3º Lugar e Final</div></div>';
+  html += '</div>';
+
+  // ── TOTAL ──
+  html += '<div class="ponto-total"><div class="valor">'+v('total')+'</div><div class="label">pontos no total</div></div>';
 
   // Posição no ranking
   html += '<div id="rankingPosBox" class="ranking-pos-box"><div class="label">Calculando posição...</div></div>';

@@ -728,8 +728,6 @@ function preencherAleatorioMM(rid) {
   updateProgress();
 }
 
-buildJogos(null);
-
 function switchMMTab(id, btn) {
   document.querySelectorAll('.mm-tab-panel').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('.mm-card-btn').forEach(function(b){ b.classList.remove('active'); });
@@ -738,8 +736,10 @@ function switchMMTab(id, btn) {
   updateProgress();
 }
 
-// Abre o card correto ao chegar via hash (ex: formulario2.html#mm-16avos)
+// Inicialização e hash navigation
 document.addEventListener('DOMContentLoaded', function() {
+  buildJogos(null);
+  updateProgress();
   var hash = window.location.hash.replace('#', '');
   if (hash && document.getElementById(hash)) {
     var btns = document.querySelectorAll('.mm-card-btn');
