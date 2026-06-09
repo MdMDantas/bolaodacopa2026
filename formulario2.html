@@ -145,8 +145,16 @@
   .aviso-box p strong { color: var(--text); }
 
   /* RODADA TABS */
+  /* TABS PRINCIPAIS */
+  .mm-tabs-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
+  .mm-tab-btn { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 9px 18px; font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1.5px; color: var(--muted); cursor: pointer; white-space: nowrap; transition: all 0.2s; flex-shrink: 0; }
+  .mm-tab-btn.active { background: rgba(255,223,0,0.12); border-color: var(--gold); color: var(--gold); box-shadow: 0 0 0 1px rgba(255,223,0,0.15); }
+  .mm-tab-btn:hover:not(.active) { border-color: rgba(255,223,0,0.4); color: var(--text); }
+  .mm-tab-panel { display: none; }
+  .mm-tab-panel.active { display: block; }
+  /* RODADA TABS (placares) — reutiliza o mesmo estilo */
   .rodada-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 0; }
-  .rtab { background: var(--bg3); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 9px 18px; font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1.5px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .rtab { background: var(--bg3); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 9px 18px; font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1.5px; cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; }
   .rtab:hover { border-color: rgba(255,223,0,0.4); color: var(--text); }
   .rtab.active { background: rgba(255,223,0,0.12); border-color: var(--gold); color: var(--gold); }
   .rodada-panel { display: none; margin-top: 16px; }
@@ -197,127 +205,125 @@
     <button onclick="preencherAleatorioF2()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
   </div>
 
-  <!-- 1. CHAVEAMENTO -->
-  <div class="phase-header"><div class="phase-badge"></div><h2>1. CHAVEAMENTO COMPLETO</h2></div>
-  <div class="regras-box">
-    <div class="regra-item">📌 Preencha toda a chave antes do 1º jogo eliminatório. <strong>Não será possível alterar depois.</strong></div>
-    <div class="regra-item">🎯 <strong>Round of 32 → Oitavas:</strong> cada classificado correto = <span class="pts">+1 ponto</span> · Máx. <span class="pts">16 pts</span></div>
-    <div class="regra-item">🎯 <strong>Oitavas → Quartas:</strong> cada classificado correto = <span class="pts">+1 ponto</span> · Máx. <span class="pts">8 pts</span></div>
-    <div class="regra-item">🎯 <strong>Quartas → Semis:</strong> cada classificado correto = <span class="pts">+1 ponto</span> · Máx. <span class="pts">4 pts</span></div>
-    <div class="regra-item">🎯 <strong>Semis → Final:</strong> cada finalista correto = <span class="pts">+1 ponto</span> · Máx. <span class="pts">2 pts</span></div>
-    <div class="regra-item">🏅 <strong>Campeão:</strong> acertou = <span class="pts">+2 pontos</span></div>
-    <div class="regra-item pontos-max">🏆 Máximo do bloco: <strong>32 pontos</strong></div>
+  <!-- ABAS PRINCIPAIS -->
+  <div class="mm-tabs-nav">
+    <button class="mm-tab-btn active" onclick="switchMMTab('mm-prematamata',this)">🏟️ Pré Mata-Mata</button>
+    <button class="mm-tab-btn" onclick="switchMMTab('mm-placares',this)">⚽ Placares por Rodada</button>
   </div>
 
-  <div class="bracket-wrapper">
-    <div class="round-labels" id="roundLabels"></div>
-    <div class="bracket" id="bracket"></div>
-  </div>
+  <!-- ══ ABA 1: PRÉ MATA-MATA ══ -->
+  <div class="mm-tab-panel active" id="mm-prematamata">
 
-  <div class="divider"></div>
-
-  <!-- 2. PLACARES -->
-  <div class="phase-header"><div class="phase-badge"></div><h2>2. PLACARES DOS JOGOS</h2></div>
-  <div class="regras-box">
-    <div class="regra-item">✅ <strong>Placar exato:</strong> <span class="pts">+3 pontos</span></div>
-    <div class="regra-item">✅ <strong>Acertou o vencedor e a diferença de gols:</strong> <span class="pts">+2 pontos</span></div>
-    <div class="regra-item">✅ <strong>Acertou que seria empate (placar errado):</strong> <span class="pts">+2 pontos</span></div>
-    <div class="regra-item">✅ <strong>Acertou apenas o vencedor:</strong> <span class="pts">+1 ponto</span></div>
-    <div class="regra-item">❌ <strong>Errou o resultado:</strong> <span class="pts">0 pontos</span></div>
-    <div class="regra-item" style="margin-top:4px;padding-top:10px;border-top:1px solid rgba(255,223,0,0.15);font-size:12px;">
-      ⚠️ <strong>Importante:</strong> considera-se o placar do <strong>tempo normal</strong> apenas. Se o jogo for para pênaltis, o resultado para placar é o do tempo normal, mas para o chaveamento o classificado é quem passou.
+    <!-- 1. CHAVEAMENTO -->
+    <div class="phase-header"><div class="phase-badge"></div><h2>1. CHAVEAMENTO COMPLETO</h2></div>
+    <div class="regras-box">
+      <div class="regra-item">📌 Preencha toda a chave antes do 1º jogo eliminatório. <strong>Não será possível alterar depois.</strong></div>
+      <div class="regra-item">🎯 <strong>Round of 32 → Oitavas:</strong> cada classificado correto = <span class="pts">+1 ponto</span> · Máx. <span class="pts">16 pts</span></div>
+      <div class="regra-item">🎯 <strong>Oitavas → Quartas:</strong> cada classificado correto = <span class="pts">+1 ponto</span> · Máx. <span class="pts">8 pts</span></div>
+      <div class="regra-item">🎯 <strong>Quartas → Semis:</strong> cada classificado correto = <span class="pts">+1 ponto</span> · Máx. <span class="pts">4 pts</span></div>
+      <div class="regra-item">🎯 <strong>Semis → Final:</strong> cada finalista correto = <span class="pts">+1 ponto</span> · Máx. <span class="pts">2 pts</span></div>
+      <div class="regra-item">🏅 <strong>Campeão:</strong> acertou = <span class="pts">+2 pontos</span></div>
+      <div class="regra-item pontos-max">🏆 Máximo do bloco: <strong>32 pontos</strong></div>
     </div>
-    <div class="regra-item pontos-max">🏆 Máximo: 16 melhores × 3 pts = <strong>48 pontos</strong></div>
-  </div>
-
-  <!-- ABAS DE RODADA -->
-  <div class="rodada-tabs">
-    <button class="rtab active" onclick="mostrarRodada('r16avos',this)">16 Avos</button>
-    <button class="rtab" onclick="mostrarRodada('roitavas',this)">Oitavas</button>
-    <button class="rtab" onclick="mostrarRodada('rquartas',this)">Quartas</button>
-    <button class="rtab" onclick="mostrarRodada('rsemi',this)">Semifinal</button>
-    <button class="rtab" onclick="mostrarRodada('rfinal',this)">Final</button>
-  </div>
-
-  <div class="rodada-panel active" id="r16avos">
-    <div class="rodada-aviso">📅 Palpites desta fase serão liberados antes do início dos 16 avos de final.</div>
-    <div class="jogos-grid" id="jogos-r16avos"></div>
-  </div>
-  <div class="rodada-panel" id="roitavas">
-    <div class="rodada-aviso">📅 Palpites desta fase serão liberados antes do início das oitavas de final.</div>
-    <div class="jogos-grid" id="jogos-roitavas"></div>
-  </div>
-  <div class="rodada-panel" id="rquartas">
-    <div class="rodada-aviso">📅 Palpites desta fase serão liberados antes do início das quartas de final.</div>
-    <div class="jogos-grid" id="jogos-rquartas"></div>
-  </div>
-  <div class="rodada-panel" id="rsemi">
-    <div class="rodada-aviso">📅 Palpites desta fase serão liberados antes do início das semifinais.</div>
-    <div class="jogos-grid" id="jogos-rsemi"></div>
-  </div>
-  <div class="rodada-panel" id="rfinal">
-    <div class="rodada-aviso">📅 Palpites desta fase serão liberados antes da final.</div>
-    <div class="jogos-grid" id="jogos-rfinal"></div>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- 3. TOP 4 -->
-  <div class="phase-header"><div class="phase-badge"></div><h2>3. TOP 4 FINAL</h2></div>
-  <div class="regras-box">
-    <div class="regra-item">📌 Indique o Top 4 final da competição antes do início do mata-mata.</div>
-    <div class="regra-item">🥇 <strong>Acertou a seleção e a posição exata:</strong> <span class="pts">+2 pontos</span></div>
-    <div class="regra-item">🏅 <strong>Acertou que a seleção ficou no Top 4, mas errou a posição:</strong> <span class="pts">+1 ponto</span></div>
-    <div class="regra-item">❌ <strong>A seleção não ficou no Top 4:</strong> <span class="pts">0 pontos</span></div>
-    <div class="regra-item pontos-max">🏆 Máximo do bloco: 4 posições × 2 pts = <strong>8 pontos</strong></div>
-  </div>
-  <div class="top4-grid">
-    <div class="top4-card">
-      <div class="t4-pos">🥇 1º LUGAR — CAMPEÃO</div>
-      <div class="sel-wrap"><select id="top4_1" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
+    <div class="bracket-wrapper">
+      <div class="round-labels" id="roundLabels"></div>
+      <div class="bracket" id="bracket"></div>
     </div>
-    <div class="top4-card">
-      <div class="t4-pos">🥈 2º LUGAR — VICE</div>
-      <div class="sel-wrap"><select id="top4_2" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
-    </div>
-    <div class="top4-card">
-      <div class="t4-pos">🥉 3º LUGAR</div>
-      <div class="sel-wrap"><select id="top4_3" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
-    </div>
-    <div class="top4-card">
-      <div class="t4-pos">4️⃣ 4º LUGAR</div>
-      <div class="sel-wrap"><select id="top4_4" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
-    </div>
-  </div>
 
-  <div class="divider"></div>
+    <div class="divider"></div>
 
-  <!-- 4. DECEPÇÕES -->
-  <div class="phase-header"><div class="phase-badge"></div><h2>4. DECEPÇÕES</h2></div>
-  <div class="regras-box">
-    <div class="regra-item">📌 Escolha <strong>2 seleções favoritas</strong> que vão decepcionar no mata-mata.</div>
-    <div class="regra-item">💣 <strong>Caiu no Round of 32:</strong> <span class="pts">+8 pontos</span></div>
-    <div class="regra-item">💣 <strong>Caiu nas Oitavas:</strong> <span class="pts">+6 pontos</span></div>
-    <div class="regra-item">💣 <strong>Caiu nas Quartas:</strong> <span class="pts">+4 pontos</span></div>
-    <div class="regra-item">❌ <strong>Chegou à Semifinal ou além:</strong> <span class="pts">0 pontos</span></div>
-    <div class="regra-item pontos-max">🏆 Máximo do bloco: 2 decepções × 8 pts = <strong>16 pontos</strong></div>
-  </div>
-  <div class="decep-grid">
-    <div class="especial-card decep">
-      <div class="card-icon">💣</div>
-      <div class="card-title">Decepção 1</div>
-      <div class="card-desc">Favorito que cairá antes do esperado.</div>
-      <div class="sel-wrap"><select id="decepcao1" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
+    <!-- 2. TOP 4 -->
+    <div class="phase-header"><div class="phase-badge"></div><h2>2. TOP 4 FINAL</h2></div>
+    <div class="regras-box">
+      <div class="regra-item">📌 Indique o Top 4 final da competição antes do início do mata-mata.</div>
+      <div class="regra-item">🥇 <strong>Acertou a seleção e a posição exata:</strong> <span class="pts">+2 pontos</span></div>
+      <div class="regra-item">🏅 <strong>Acertou que a seleção ficou no Top 4, mas errou a posição:</strong> <span class="pts">+1 ponto</span></div>
+      <div class="regra-item">❌ <strong>A seleção não ficou no Top 4:</strong> <span class="pts">0 pontos</span></div>
+      <div class="regra-item pontos-max">🏆 Máximo do bloco: 4 posições × 2 pts = <strong>8 pontos</strong></div>
     </div>
-    <div class="especial-card decep">
-      <div class="card-icon">💣</div>
-      <div class="card-title">Decepção 2</div>
-      <div class="card-desc">Favorito que cairá antes do esperado.</div>
-      <div class="sel-wrap"><select id="decepcao2" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
+    <div class="top4-grid">
+      <div class="top4-card"><div class="t4-pos">🥇 1º LUGAR — CAMPEÃO</div><div class="sel-wrap"><select id="top4_1" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div></div>
+      <div class="top4-card"><div class="t4-pos">🥈 2º LUGAR — VICE</div><div class="sel-wrap"><select id="top4_2" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div></div>
+      <div class="top4-card"><div class="t4-pos">🥉 3º LUGAR</div><div class="sel-wrap"><select id="top4_3" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div></div>
+      <div class="top4-card"><div class="t4-pos">4️⃣ 4º LUGAR</div><div class="sel-wrap"><select id="top4_4" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div></div>
     </div>
-  </div>
 
-  <div class="save-section" id="btnMataMata"></div>
+    <div class="divider"></div>
+
+    <!-- 3. DECEPÇÕES -->
+    <div class="phase-header"><div class="phase-badge"></div><h2>3. DECEPÇÕES</h2></div>
+    <div class="regras-box">
+      <div class="regra-item">📌 Escolha <strong>2 seleções favoritas</strong> que vão decepcionar no mata-mata.</div>
+      <div class="regra-item">💣 <strong>Caiu no Round of 32:</strong> <span class="pts">+8 pontos</span></div>
+      <div class="regra-item">💣 <strong>Caiu nas Oitavas:</strong> <span class="pts">+6 pontos</span></div>
+      <div class="regra-item">💣 <strong>Caiu nas Quartas:</strong> <span class="pts">+4 pontos</span></div>
+      <div class="regra-item">❌ <strong>Chegou à Semifinal ou além:</strong> <span class="pts">0 pontos</span></div>
+      <div class="regra-item pontos-max">🏆 Máximo do bloco: 2 decepções × 8 pts = <strong>16 pontos</strong></div>
+    </div>
+    <div class="decep-grid">
+      <div class="especial-card decep">
+        <div class="card-icon">💣</div>
+        <div class="card-title">Decepção 1</div>
+        <div class="card-desc">Favorito que cairá antes do esperado.</div>
+        <div class="sel-wrap"><select id="decepcao1" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
+      </div>
+      <div class="especial-card decep">
+        <div class="card-icon">💣</div>
+        <div class="card-title">Decepção 2</div>
+        <div class="card-desc">Favorito que cairá antes do esperado.</div>
+        <div class="sel-wrap"><select id="decepcao2" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
+      </div>
+    </div>
+
+    <div class="save-section" id="btnMataMata"></div>
+  </div><!-- /mm-prematamata -->
+
+  <!-- ══ ABA 2: PLACARES POR RODADA ══ -->
+  <div class="mm-tab-panel" id="mm-placares">
+    <div class="phase-header"><div class="phase-badge"></div><h2>PLACARES DO MATA-MATA</h2></div>
+    <div class="regras-box">
+      <div class="regra-item">✅ <strong>Placar exato:</strong> <span class="pts">+3 pontos</span></div>
+      <div class="regra-item">✅ <strong>Acertou o vencedor e a diferença de gols:</strong> <span class="pts">+2 pontos</span></div>
+      <div class="regra-item">✅ <strong>Acertou que seria empate (placar errado):</strong> <span class="pts">+2 pontos</span></div>
+      <div class="regra-item">✅ <strong>Acertou apenas o vencedor:</strong> <span class="pts">+1 ponto</span></div>
+      <div class="regra-item">❌ <strong>Errou o resultado:</strong> <span class="pts">0 pontos</span></div>
+      <div class="regra-item" style="margin-top:4px;padding-top:10px;border-top:1px solid rgba(255,223,0,0.15);font-size:12px;">
+        ⚠️ <strong>Importante:</strong> considera-se o placar do <strong>tempo normal</strong> apenas.
+      </div>
+      <div class="regra-item pontos-max">🏆 Máximo: 16 melhores × 3 pts = <strong>48 pontos</strong></div>
+    </div>
+
+    <div class="rodada-tabs">
+      <button class="rtab active" onclick="mostrarRodada('r16avos',this)">16 Avos</button>
+      <button class="rtab" onclick="mostrarRodada('roitavas',this)">Oitavas</button>
+      <button class="rtab" onclick="mostrarRodada('rquartas',this)">Quartas</button>
+      <button class="rtab" onclick="mostrarRodada('rsemi',this)">Semifinal</button>
+      <button class="rtab" onclick="mostrarRodada('rfinal',this)">Final</button>
+    </div>
+
+    <div class="rodada-panel active" id="r16avos">
+      <div class="rodada-aviso">📅 Palpites desta fase serão liberados antes do início dos 16 avos de final.</div>
+      <div class="jogos-grid" id="jogos-r16avos"></div>
+    </div>
+    <div class="rodada-panel" id="roitavas">
+      <div class="rodada-aviso">📅 Palpites desta fase serão liberados antes do início das oitavas de final.</div>
+      <div class="jogos-grid" id="jogos-roitavas"></div>
+    </div>
+    <div class="rodada-panel" id="rquartas">
+      <div class="rodada-aviso">📅 Palpites desta fase serão liberados antes do início das quartas de final.</div>
+      <div class="jogos-grid" id="jogos-rquartas"></div>
+    </div>
+    <div class="rodada-panel" id="rsemi">
+      <div class="rodada-aviso">📅 Palpites desta fase serão liberados antes do início das semifinais.</div>
+      <div class="jogos-grid" id="jogos-rsemi"></div>
+    </div>
+    <div class="rodada-panel" id="rfinal">
+      <div class="rodada-aviso">📅 Palpites desta fase serão liberados antes da final.</div>
+      <div class="jogos-grid" id="jogos-rfinal"></div>
+    </div>
+
+    <div class="save-section" id="btnPlacaresMM"></div>
+  </div><!-- /mm-placares -->
 </div>
 
 <!-- MODAL EXPORT -->
@@ -653,6 +659,13 @@ function mostrarRodada(id, btn) {
 }
 
 buildJogos(null);
+
+function switchMMTab(id, btn) {
+  document.querySelectorAll('.mm-tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.mm-tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
 </script>
 
 </body>

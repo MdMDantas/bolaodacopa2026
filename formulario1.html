@@ -27,8 +27,8 @@
   /* TABS */
   .tabs-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:32px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;}
   .tabs-nav::-webkit-scrollbar{display:none;}
-  .tab-btn{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 18px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1.5px;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all 0.2s;}
-  .tab-btn.active{background:rgba(255,223,0,0.12);border-color:var(--gold);color:var(--gold);}
+  .tab-btn{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 18px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1.5px;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all 0.2s;flex-shrink:0;}
+  .tab-btn.active{background:rgba(255,223,0,0.12);border-color:var(--gold);color:var(--gold);box-shadow:0 0 0 1px rgba(255,223,0,0.15);}
   .tab-btn:hover:not(.active){border-color:rgba(255,223,0,0.4);color:var(--text);}
   .tab-panel{display:none;}
   .tab-panel.active{display:block;}
