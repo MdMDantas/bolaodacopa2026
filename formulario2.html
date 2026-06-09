@@ -172,17 +172,17 @@
   .placar-inputs input.filled { border-color: rgba(0,156,59,0.7); }
   .placar-inputs .sep { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--muted); }
   /* BRACKET VISUAL */
-  .bracket-tree { display: flex; gap: 16px; overflow-x: auto; padding: 16px 0 20px; align-items: flex-start; }
-  .bracket-round { display: flex; flex-direction: column; justify-content: space-around; flex: 1; min-width: 160px; }
-  .bracket-round-title { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 2px; color: var(--gold); text-align: center; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,223,0,0.2); }
-  .bracket-match { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin: 8px 0; }
-  .bracket-match-num { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
-  .bracket-teams { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
-  .bracket-placar { display: flex; align-items: center; gap: 4px; }
-  .bracket-placar input { width: 36px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 4px; color: var(--white); font-family: 'Bebas Neue', sans-serif; font-size: 18px; text-align: center; outline: none; transition: border-color 0.2s; }
-  .bracket-placar input:focus { border-color: var(--gold); }
-  .bracket-placar input.filled { border-color: rgba(0,156,59,0.7); }
-  .bracket-placar .bsep { font-family: 'Bebas Neue', sans-serif; font-size: 14px; color: var(--muted); }
+  .btree { display: flex; gap: 16px; overflow-x: auto; padding: 16px 0 20px; align-items: flex-start; }
+  .btree-round { display: flex; flex-direction: column; justify-content: space-around; flex: 1; min-width: 160px; }
+  .btree-round-title { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 2px; color: var(--gold); text-align: center; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,223,0,0.2); }
+  .btree-match { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin: 8px 0; }
+  .btree-match-num { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+  .btree-teams { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .btree-placar { display: flex; align-items: center; gap: 4px; }
+  .btree-placar input { width: 36px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 4px; color: var(--white); font-family: 'Bebas Neue', sans-serif; font-size: 18px; text-align: center; outline: none; transition: border-color 0.2s; }
+  .btree-placar input:focus { border-color: var(--gold); }
+  .btree-placar input.filled { border-color: rgba(0,156,59,0.7); }
+  .btree-placar .btree-sep { font-family: 'Bebas Neue', sans-serif; font-size: 14px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -710,22 +710,22 @@ function buildJogos(saved) {
     if (!container) return;
     var rounds = BRACKET_ROUNDS[rid];
     var jogos = RODADAS_MM[rid];
-    var html = '<div class="bracket-tree">';
+    var html = '<div class="btree">';
     rounds.forEach(function(round) {
-      html += '<div class="bracket-round">';
-      html += '<div class="bracket-round-title">' + round.title + '</div>';
+      html += '<div class="btree-round">';
+      html += '<div class="btree-round-title">' + round.title + '</div>';
       round.games.forEach(function(idx) {
         var label = jogos[idx] || ('Jogo ' + (idx+1));
         var idA = rid + '_' + idx + '_A';
         var idB = rid + '_' + idx + '_B';
         var valA = saved[idA] || '';
         var valB = saved[idB] || '';
-        html += '<div class="bracket-match">';
-        html += '<div class="bracket-match-num">' + label + '</div>';
-        html += '<div class="bracket-teams">Time A <span class="vs">vs</span> Time B</div>';
-        html += '<div class="bracket-placar">';
+        html += '<div class="btree-match">';
+        html += '<div class="btree-match-num">' + label + '</div>';
+        html += '<div class="btree-teams">Time A <span class="vs">vs</span> Time B</div>';
+        html += '<div class="btree-placar">';
         html += '<input type="number" id="' + idA + '" min="0" max="20" placeholder="0" value="' + valA + '"' + (valA!==''?' class="filled"':'') + ' oninput="this.classList.toggle('filled',this.value!=='');updateProgress()">';
-        html += '<span class="bsep">×</span>';
+        html += '<span class="btree-sep">×</span>';
         html += '<input type="number" id="' + idB + '" min="0" max="20" placeholder="0" value="' + valB + '"' + (valB!==''?' class="filled"':'') + ' oninput="this.classList.toggle('filled',this.value!=='');updateProgress()">';
         html += '</div></div>';
       });
