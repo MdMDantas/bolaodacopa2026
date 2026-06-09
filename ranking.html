@@ -113,15 +113,15 @@ async function carregarRanking(bolaoId, bolaoNome) {
   area.innerHTML = '<div class="loading">Carregando...</div>';
   try {
     // Buscar palpites fase 1 — verificar grupos E placares separadamente
-    var r2 = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&select=apelido,placares&order=criado_em.asc',{headers:H});
+    var r2 = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&select=*&order=criado_em.asc',{headers:H});
     var fase1Grupos = {};
     var fase1Placares = {};
     if (r2.ok) {
       var p1 = await r2.json();
       p1.forEach(function(x){
         if (!x.apelido) return;
-        // Só marca grupos se ga_1 foi preenchido (não apenas registro vazio de placares)
-        if (x.ga_1) fase1Grupos[x.apelido] = true;
+        // Só marca grupos se ga_1 foi preenchido
+        if (x['ga_1'] || x['gA_1']) fase1Grupos[x.apelido] = true;
         // Placares: objeto com pelo menos 1 chave começando com "placar_"
         var pl = x.placares;
         if (pl) {
