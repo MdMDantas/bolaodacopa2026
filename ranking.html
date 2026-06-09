@@ -166,23 +166,27 @@ async function carregarRanking(bolaoId, bolaoNome) {
     html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO — '+(bolaoNome||'')+'</span><span class="ranking-update">Ao vivo</span></div>';
 
     // HEADER — duas seções de colunas
-    // Grid: Posição(70px) | Apelido(1fr) | Grupos(80px) | Placares(80px) | Chaveamento(90px) | Placares MM(90px) | Total(60px)
-    var GRID = '70px 1fr 80px 80px 90px 90px 60px';
-    html += '<div style="background:var(--bg3);padding:6px 20px;">';
-    // Linha 1: labels de seção agrupando colunas
-    html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:6px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 0;">';
+    // Grid: Posição | Apelido | Grupos | R1 | R2 | R3 | MM | 16Avos | Oitavas | Quartas | Semi | Final | Total
+    var GRID = '60px 1fr 70px 60px 60px 60px 70px 65px 70px 70px 60px 60px 55px';
+    html += '<div style="background:var(--bg3);padding:6px 20px;overflow-x:auto;">';
+    html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 0;min-width:860px;">';
     html += '<div></div><div></div>';
-    html += '<div style="grid-column:span 2;text-align:center;color:var(--gold);border-bottom:2px solid rgba(255,223,0,0.4);padding-bottom:3px;">FASE DE GRUPOS</div>';
-    html += '<div style="grid-column:span 2;text-align:center;color:var(--muted);border-bottom:2px solid rgba(122,159,212,0.3);padding-bottom:3px;">FASE MATA-MATA</div>';
+    html += '<div style="grid-column:span 4;text-align:center;color:var(--gold);border-bottom:2px solid rgba(255,223,0,0.4);padding-bottom:3px;">FASE DE GRUPOS</div>';
+    html += '<div style="grid-column:span 6;text-align:center;color:var(--muted);border-bottom:2px solid rgba(122,159,212,0.3);padding-bottom:3px;">MATA-MATA</div>';
     html += '<div></div>';
     html += '</div>';
-    // Linha 2: nomes das colunas
-    html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:6px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:4px 0 6px;">';
-    html += '<div>Posição</div><div>Apelido</div>';
+    html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:4px 0 6px;min-width:860px;">';
+    html += '<div>Pos.</div><div>Apelido</div>';
     html += '<div style="text-align:center">Grupos</div>';
-    html += '<div style="text-align:center">Placares</div>';
-    html += '<div style="text-align:center">Chaveamento</div>';
-    html += '<div style="text-align:center">Placares MM</div>';
+    html += '<div style="text-align:center">Rod. 1</div>';
+    html += '<div style="text-align:center">Rod. 2</div>';
+    html += '<div style="text-align:center">Rod. 3</div>';
+    html += '<div style="text-align:center">MM</div>';
+    html += '<div style="text-align:center">16 Avos</div>';
+    html += '<div style="text-align:center">Oitavas</div>';
+    html += '<div style="text-align:center">Quartas</div>';
+    html += '<div style="text-align:center">Semi</div>';
+    html += '<div style="text-align:center">Final</div>';
     html += '<div style="text-align:center">Total</div>';
     html += '</div></div>';
 
@@ -200,19 +204,36 @@ async function carregarRanking(bolaoId, bolaoNome) {
       var pChaveamento= r.pts_chaveamento !== undefined ? r.pts_chaveamento : 0;
       var pPlacaresMM = r.pts_placares_mata!== undefined? r.pts_placares_mata: 0;
 
-      html += '<div style="display:grid;grid-template-columns:70px 1fr 80px 80px 90px 90px 60px;align-items:center;padding:10px 20px;border-bottom:1px solid rgba(26,61,122,0.4);gap:6px;">';
+      var temR1  = fase1Placares[r.apelido] ? '✅' : '❌';
+      var temR2  = fase1Placares[r.apelido] ? '✅' : '❌';
+      var temR3  = fase1Placares[r.apelido] ? '✅' : '❌';
+      var tem16avos  = fase2Chaveamento[r.apelido] ? '✅' : '❌';
+      var temOitavas = fase2Chaveamento[r.apelido] ? '✅' : '❌';
+      var temQuartas = fase2Chaveamento[r.apelido] ? '✅' : '❌';
+      var temSemi    = fase2Chaveamento[r.apelido] ? '✅' : '❌';
+      var temFinal   = fase2Chaveamento[r.apelido] ? '✅' : '❌';
+      var pR1  = r.pts_placares_r1   !== undefined ? r.pts_placares_r1   : 0;
+      var pR2  = r.pts_placares_r2   !== undefined ? r.pts_placares_r2   : 0;
+      var pR3  = r.pts_placares_r3   !== undefined ? r.pts_placares_r3   : 0;
+      var p16avos  = r.pts_16avos    !== undefined ? r.pts_16avos    : 0;
+      var pOitavas = r.pts_oitavas   !== undefined ? r.pts_oitavas   : 0;
+      var pQuartas = r.pts_quartas   !== undefined ? r.pts_quartas   : 0;
+      var pSemi    = r.pts_semi      !== undefined ? r.pts_semi      : 0;
+      var pFinal   = r.pts_final     !== undefined ? r.pts_final     : 0;
+
+      html += '<div style="display:grid;grid-template-columns:60px 1fr 70px 60px 60px 60px 70px 65px 70px 70px 60px 60px 55px;align-items:center;padding:10px 20px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;min-width:860px;">';
       html += '<div class="ranking-pos '+cls+'">'+num+'<sup>º</sup></div>';
       html += '<div class="ranking-apelido">'+r.apelido+'</div>';
-
-      // Grupos
       html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--gold);font-weight:700;">'+pGrupos+' pts</div><div style="font-size:15px;">'+temGrupos+'</div></div>';
-      // Placares fase grupos
-      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--gold);font-weight:700;">'+pPlacares+' pts</div><div style="font-size:15px;">'+temPlacares+'</div></div>';
-      // Chaveamento
+      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--gold);font-weight:700;">'+pR1+' pts</div><div style="font-size:15px;">'+temR1+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--gold);font-weight:700;">'+pR2+' pts</div><div style="font-size:15px;">'+temR2+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--gold);font-weight:700;">'+pR3+' pts</div><div style="font-size:15px;">'+temR3+'</div></div>';
       html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--muted);font-weight:700;">'+pChaveamento+' pts</div><div style="font-size:15px;">'+temChaveamento+'</div></div>';
-      // Placares mata-mata
-      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--muted);font-weight:700;">'+pPlacaresMM+' pts</div><div style="font-size:15px;">'+temPlacaresMM+'</div></div>';
-      // Total
+      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--muted);font-weight:700;">'+p16avos+' pts</div><div style="font-size:15px;">'+tem16avos+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--muted);font-weight:700;">'+pOitavas+' pts</div><div style="font-size:15px;">'+temOitavas+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--muted);font-weight:700;">'+pQuartas+' pts</div><div style="font-size:15px;">'+temQuartas+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--muted);font-weight:700;">'+pSemi+' pts</div><div style="font-size:15px;">'+temSemi+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:11px;color:var(--muted);font-weight:700;">'+pFinal+' pts</div><div style="font-size:15px;">'+temFinal+'</div></div>';
       html += '<div class="ranking-pts total">'+(r.total||0)+'</div>';
       html += '</div>';
     });
