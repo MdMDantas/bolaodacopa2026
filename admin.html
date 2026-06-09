@@ -148,18 +148,28 @@ async function carregarAdmin() {
   var p2R16Map = {}, p2OitMap = {}, p2QuaMap = {}, p2SemMap = {}, p2FinMap = {};
   palpites1.forEach(function(x){
     if (!x.apelido) return;
-    if (x['ga_1']) p1Map[x.apelido] = true;
-    p1Data[x.apelido] = x;
-    var pl = x.placares;
-    if (pl) {
-      if (typeof pl === 'string') { try { pl = JSON.parse(pl); } catch(e){ pl={}; } }
-      if (typeof pl === 'object') {
-        var keys = Object.keys(pl);
-        if (keys.some(function(k){ return k.indexOf('placar_')===0; })) placMap[x.apelido] = true;
-        if (keys.some(function(k){ return k.indexOf('placar_R1_')===0; })) placR1Map[x.apelido] = true;
-        if (keys.some(function(k){ return k.indexOf('placar_R2_')===0; })) placR2Map[x.apelido] = true;
-        if (keys.some(function(k){ return k.indexOf('placar_R3_')===0; })) placR3Map[x.apelido] = true;
+    // Mesclar todos os registros do mesmo apelido: nunca sobrescrever campo preenchido com null
+    if (!p1Data[x.apelido]) p1Data[x.apelido] = {};
+    Object.keys(x).forEach(function(k){
+      if (k === 'placares') {
+        var plNovo = x[k];
+        if (plNovo) {
+          if (typeof plNovo === 'string') { try { plNovo = JSON.parse(plNovo); } catch(e){ plNovo={}; } }
+          if (!p1Data[x.apelido].placares) p1Data[x.apelido].placares = {};
+          Object.assign(p1Data[x.apelido].placares, plNovo);
+        }
+      } else if (x[k] !== null && x[k] !== undefined && x[k] !== '') {
+        p1Data[x.apelido][k] = x[k];
       }
+    });
+    if (p1Data[x.apelido]['ga_1']) p1Map[x.apelido] = true;
+    var pl = p1Data[x.apelido].placares;
+    if (pl) {
+      var keys = Object.keys(pl);
+      if (keys.some(function(k){ return k.indexOf('placar_')===0; })) placMap[x.apelido] = true;
+      if (keys.some(function(k){ return k.indexOf('placar_R1_')===0; })) placR1Map[x.apelido] = true;
+      if (keys.some(function(k){ return k.indexOf('placar_R2_')===0; })) placR2Map[x.apelido] = true;
+      if (keys.some(function(k){ return k.indexOf('placar_R3_')===0; })) placR3Map[x.apelido] = true;
     }
   });
   palpites2.forEach(function(x){
