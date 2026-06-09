@@ -359,7 +359,7 @@ function buildGroups(saved) {
   Object.keys(GRUPOS_DISPLAY).forEach(function(g) {
     var rows = '';
     for (var p = 1; p <= 4; p++) {
-      var sv = saved ? (saved['g'+g+'_'+p]||'') : '';
+      var sv = saved ? (saved['g'+g.toLowerCase()+'_'+p]||saved['g'+g+'_'+p]||'') : '';
       rows += '<div class="place-row"><span class="place-icon">'+medals[p-1]+'</span>'+makeGroupSelect(g,p,sv)+'</div>';
     }
     grid.innerHTML += '<div class="group-card"><div class="group-label">GRUPO '+g+'</div>'+rows+'</div>';
@@ -572,7 +572,7 @@ function exportarTab1ComModal() {
     // Salva APENAS grupos + terceiros + zebras — não toca nos placares
     var row = { bolao_id: participante.bolao.id, apelido: participante.apelido, nome: participante.apelido, telefone: participante.telefone || null };
     var gkeys = Object.keys(GRUPOS_DISPLAY);
-    gkeys.forEach(function(g) { for(var p=1;p<=4;p++) row['g'+g+'_'+p]=data['g'+g+'_'+p]||null; });
+    gkeys.forEach(function(g) { for(var p=1;p<=4;p++) row['g'+g.toLowerCase()+'_'+p]=data['g'+g+'_'+p]||null; });
     var terceiroOrder = getTerceiroOrder();
     for(var ti=1;ti<=8;ti++) row['t'+ti]=terceiroOrder[ti-1]||null;
     for(var zi=1;zi<=4;zi++) row['zebra'+zi]=data['zebra'+zi]||null;
