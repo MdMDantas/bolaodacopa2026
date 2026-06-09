@@ -232,17 +232,29 @@ async function carregarAdmin() {
   html += '</div></div>';
 
   // Quem não enviou
-  var naoEnviou = participantes.filter(function(a){ return !p1Map[a] || !p2Map[a]; });
+  var naoEnviou = participantes.filter(function(a){
+    return !p1Map[a]||!placR1Map[a]||!placR2Map[a]||!placR3Map[a]||!p2Map[a]||!p2R16Map[a]||!p2OitMap[a]||!p2QuaMap[a]||!p2SemMap[a]||!p2FinMap[a];
+  });
   if (naoEnviou.length) {
-    html += '<div class="card"><div class="card-header"><span class="card-title">⚠️ PALPITES PENDENTES</span></div><div class="card-body">';
+    html += '<div class="card"><div class="card-header"><span class="card-title">⚠️ PALPITES PENDENTES</span></div>';
+    html += '<div class="tabela-participantes">';
+    html += '<div class="participante-row header"><div>Apelido</div><div>Grupos</div><div>Rod.1</div><div>Rod.2</div><div>Rod.3</div><div>Mata-Mata</div><div>16 Avos</div><div>Oitavas</div><div>Quartas</div><div>Semi</div><div>Final</div><div>Total</div></div>';
     naoEnviou.forEach(function(ap){
-      var faltam = [];
-      if (!p1Map[ap]) faltam.push('Grupos');
-      if (!placMap[ap]) faltam.push('Placares');
-      if (!p2Map[ap]) faltam.push('Mata-Mata');
-      html += '<div style="padding:8px 0;border-bottom:1px solid rgba(26,61,122,0.3);display:flex;justify-content:space-between;align-items:center;">';
-      html += '<span style="font-weight:600;">'+ap+'</span>';
-      html += '<span style="font-size:12px;color:#ff6b6b;">Falta: '+faltam.join(', ')+'</span>';
+      var ok = '<span class="status-ok">✅</span>', no = '<span class="status-no">❌</span>';
+      var total = (p1Map[ap]?1:0)+(placR1Map[ap]?1:0)+(placR2Map[ap]?1:0)+(placR3Map[ap]?1:0)+(p2Map[ap]?1:0)+(p2R16Map[ap]?1:0)+(p2OitMap[ap]?1:0)+(p2QuaMap[ap]?1:0)+(p2SemMap[ap]?1:0)+(p2FinMap[ap]?1:0);
+      html += '<div class="participante-row">';
+      html += '<div style="font-weight:600;">'+ap+'</div>';
+      html += '<div>'+(p1Map[ap]?ok:no)+'</div>';
+      html += '<div>'+(placR1Map[ap]?ok:no)+'</div>';
+      html += '<div>'+(placR2Map[ap]?ok:no)+'</div>';
+      html += '<div>'+(placR3Map[ap]?ok:no)+'</div>';
+      html += '<div>'+(p2Map[ap]?ok:no)+'</div>';
+      html += '<div>'+(p2R16Map[ap]?ok:no)+'</div>';
+      html += '<div>'+(p2OitMap[ap]?ok:no)+'</div>';
+      html += '<div>'+(p2QuaMap[ap]?ok:no)+'</div>';
+      html += '<div>'+(p2SemMap[ap]?ok:no)+'</div>';
+      html += '<div>'+(p2FinMap[ap]?ok:no)+'</div>';
+      html += '<div style="color:#ff6b6b;font-weight:700;">'+total+'/10</div>';
       html += '</div>';
     });
     html += '</div></div>';
@@ -303,7 +315,7 @@ function exportarCSV() {
 
     // Grupos
     GRUPOS.forEach(function(g){
-      for(var pos=1;pos<=4;pos++) linha.push(p1['g'+g.toLowerCase()+'_'+pos]||p1['g'+g+'_'+pos]||'');
+      for(var pos=1;pos<=4;pos++) linha.push(p1['g'+g+'_'+pos]||'');
     });
 
     // Zebras
