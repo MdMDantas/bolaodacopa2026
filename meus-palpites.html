@@ -910,15 +910,11 @@ function exportarPalpitesPDF() {
           var kb = ka.replace(/_a$/,'_b');
           var va = pl[ka] !== undefined ? pl[ka] : '?';
           var vb = pl[kb] !== undefined ? pl[kb] : '?';
-          // Buscar nomes dos times: primeiro do campo _times salvo, depois da tabela fixa
-          var timesKey = ka.replace('_a','_times');
-          var times = pl[timesKey];
-          if (!times) {
-            var parts2 = ka.replace('placar_'+r+'_','').replace('_a','').split('_');
-            var grp2 = parts2[0], ji2 = parseInt(parts2[1]);
-            var jogoData = PDF_JOGOS[r] && PDF_JOGOS[r][grp2] && PDF_JOGOS[r][grp2][ji2];
-            times = jogoData ? jogoData[0]+' × '+jogoData[1] : ka.replace('placar_'+r+'_','').replace('_a','');
-          }
+          // Buscar nomes dos times sempre da tabela fixa (garante para palpites antigos e novos)
+          var parts2 = ka.replace('placar_'+r+'_','').replace(/_a$/,'').split('_');
+          var grp2 = parts2[0], ji2 = parseInt(parts2[1]);
+          var jogoData = PDF_JOGOS[r] && PDF_JOGOS[r][grp2] ? PDF_JOGOS[r][grp2][ji2] : null;
+          var times = jogoData ? jogoData[0]+' × '+jogoData[1] : (pl[ka.replace(/_a$/,'_times')] || 'Jogo '+grp2+(ji2+1));
           var timesShort = times.length > 30 ? times.substring(0,28)+'…' : times;
           doc.setFillColor(235,240,255); doc.roundedRect(px, y-5, pColW-2, 11, 1.5,1.5,'F');
           doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(80,80,120);
