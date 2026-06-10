@@ -346,16 +346,22 @@ async function calcularEPublicarRanking(){
   if(!confirm('Calcular e publicar ranking para TODOS os bolões?')) return;
   var H = {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
 
-  // Salvar resultados silenciosamente sem fechar o modo edição
+  console.log('[CALC] Iniciando...');
   await _salvarResultadosSilencioso();
+  console.log('[CALC] Resultados salvos. Carregando...');
   await carregarResultados();
+  console.log('[CALC] Resultados carregados:', _resultadosDB.length);
 
   var rb = await fetch(SUPABASE_URL+'/rest/v1/boloes?select=*',{headers:H});
+  console.log('[CALC] Boloes status:', rb.status);
   var boloes = rb.ok ? await rb.json() : [];
+  console.log('[CALC] Boloes:', boloes.length);
   if(!boloes.length){ alert('Nenhum bolão encontrado.'); return; }
 
   var rp1 = await fetch(SUPABASE_URL+'/rest/v1/palpites_fase1?select=*&order=criado_em.asc',{headers:H});
+  console.log('[CALC] Palpites status:', rp1.status);
   var todosPalpites1 = rp1.ok ? await rp1.json() : [];
+  console.log('[CALC] Palpites:', todosPalpites1.length);
 
   // Mesclar registros por bolao_id+apelido
   var palpitesMap = {};
@@ -468,12 +474,21 @@ async function calcularEPublicarRanking(){
 
   // Limpar pontuações antigas e reinserir
   for(var i=0;i<boloes.length;i++){
-    await fetch(SUPABASE_URL+'/rest/v1/pontuacoes?bolao_id=eq.'+boloes[i].id,{method:'DELETE',headers:H});
+    var delResp = await fetch(SUPABASE_URL+'/rest/v1/pontuacoes?bolao_id=eq.'+boloes[i].id,{method:'DELETE',headers:H});
+    if(!delResp.ok){ var delErr=await delResp.text(); console.error('DELETE erro:',delResp.status,delErr); }
+    else { console.log('DELETE OK para bolao',boloes[i].id); }
   }
   if(pontuacoes.length){
-    var H2=Object.assign({},H,{'Prefer':'resolution=merge-duplicates'});
+    // Usar upsert com a constraint única
+    var H2=Object.assign({},H,{'Prefer':'resolution=merge-duplicates,return=minimal'});
     var resp=await fetch(SUPABASE_URL+'/rest/v1/pontuacoes',{method:'POST',headers:H2,body:JSON.stringify(pontuacoes)});
-    if(!resp.ok){alert('Erro ao publicar ranking.');return;}
+    if(!resp.ok){
+      var errText=await resp.text();
+      console.error('INSERT erro:',resp.status,errText);
+      alert('Erro ao publicar ranking: '+errText);
+      return;
+    }
+    console.log('INSERT OK —',pontuacoes.length,'registros');
   }
   alert('✅ Ranking publicado para '+pontuacoes.length+' jogador(es) em '+boloes.length+' bolão(ões)!');
 }
