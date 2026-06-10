@@ -115,80 +115,59 @@ var GRUPOS_DISPLAY = {
   L:['Inglaterra','Croácia','Gana','Panamá']
 };
 
-var JOGOS = [
-  {r:'R1',g:'A',i:0,a:'México',b:'África do Sul'},
-  {r:'R1',g:'A',i:1,a:'Coreia do Sul',b:'República Tcheca'},
-  {r:'R1',g:'B',i:0,a:'Canadá',b:'Bósnia e Herzegovina'},
-  {r:'R1',g:'B',i:1,a:'Catar',b:'Suíça'},
-  {r:'R1',g:'C',i:0,a:'Brasil',b:'Marrocos'},
-  {r:'R1',g:'C',i:1,a:'Haiti',b:'Escócia'},
-  {r:'R1',g:'D',i:0,a:'Estados Unidos',b:'Paraguai'},
-  {r:'R1',g:'D',i:1,a:'Austrália',b:'Turquia'},
-  {r:'R1',g:'E',i:0,a:'Alemanha',b:'Curaçao'},
-  {r:'R1',g:'E',i:1,a:'Costa do Marfim',b:'Equador'},
-  {r:'R1',g:'F',i:0,a:'Holanda',b:'Japão'},
-  {r:'R1',g:'F',i:1,a:'Suécia',b:'Tunísia'},
-  {r:'R1',g:'G',i:0,a:'Bélgica',b:'Egito'},
-  {r:'R1',g:'G',i:1,a:'Irã',b:'Nova Zelândia'},
-  {r:'R1',g:'H',i:0,a:'Espanha',b:'Cabo Verde'},
-  {r:'R1',g:'H',i:1,a:'Arábia Saudita',b:'Uruguai'},
-  {r:'R1',g:'I',i:0,a:'França',b:'Senegal'},
-  {r:'R1',g:'I',i:1,a:'Noruega',b:'Iraque'},
-  {r:'R1',g:'J',i:0,a:'Argentina',b:'Argélia'},
-  {r:'R1',g:'J',i:1,a:'Áustria',b:'Jordânia'},
-  {r:'R1',g:'K',i:0,a:'Portugal',b:'RD Congo'},
-  {r:'R1',g:'K',i:1,a:'Uzbequistão',b:'Colômbia'},
-  {r:'R1',g:'L',i:0,a:'Inglaterra',b:'Croácia'},
-  {r:'R1',g:'L',i:1,a:'Gana',b:'Panamá'},
-  {r:'R2',g:'A',i:0,a:'México',b:'República Tcheca'},
-  {r:'R2',g:'A',i:1,a:'África do Sul',b:'Coreia do Sul'},
-  {r:'R2',g:'B',i:0,a:'Canadá',b:'Catar'},
-  {r:'R2',g:'B',i:1,a:'Suíça',b:'Bósnia e Herzegovina'},
-  {r:'R2',g:'C',i:0,a:'Brasil',b:'Haiti'},
-  {r:'R2',g:'C',i:1,a:'Escócia',b:'Marrocos'},
-  {r:'R2',g:'D',i:0,a:'Estados Unidos',b:'Austrália'},
-  {r:'R2',g:'D',i:1,a:'Turquia',b:'Paraguai'},
-  {r:'R2',g:'E',i:0,a:'Alemanha',b:'Costa do Marfim'},
-  {r:'R2',g:'E',i:1,a:'Equador',b:'Curaçao'},
-  {r:'R2',g:'F',i:0,a:'Holanda',b:'Suécia'},
-  {r:'R2',g:'F',i:1,a:'Tunísia',b:'Japão'},
-  {r:'R2',g:'G',i:0,a:'Bélgica',b:'Irã'},
-  {r:'R2',g:'G',i:1,a:'Nova Zelândia',b:'Egito'},
-  {r:'R2',g:'H',i:0,a:'Espanha',b:'Arábia Saudita'},
-  {r:'R2',g:'H',i:1,a:'Uruguai',b:'Cabo Verde'},
-  {r:'R2',g:'I',i:0,a:'França',b:'Noruega'},
-  {r:'R2',g:'I',i:1,a:'Iraque',b:'Senegal'},
-  {r:'R2',g:'J',i:0,a:'Argentina',b:'Áustria'},
-  {r:'R2',g:'J',i:1,a:'Jordânia',b:'Argélia'},
-  {r:'R2',g:'K',i:0,a:'Portugal',b:'Uzbequistão'},
-  {r:'R2',g:'K',i:1,a:'Colômbia',b:'RD Congo'},
-  {r:'R2',g:'L',i:0,a:'Inglaterra',b:'Gana'},
-  {r:'R2',g:'L',i:1,a:'Panamá',b:'Croácia'},
-  {r:'R3',g:'A',i:0,a:'México',b:'Coreia do Sul'},
-  {r:'R3',g:'A',i:1,a:'República Tcheca',b:'África do Sul'},
-  {r:'R3',g:'B',i:0,a:'Canadá',b:'Suíça'},
-  {r:'R3',g:'B',i:1,a:'Bósnia e Herzegovina',b:'Catar'},
-  {r:'R3',g:'C',i:0,a:'Brasil',b:'Escócia'},
-  {r:'R3',g:'C',i:1,a:'Marrocos',b:'Haiti'},
-  {r:'R3',g:'D',i:0,a:'Estados Unidos',b:'Turquia'},
-  {r:'R3',g:'D',i:1,a:'Paraguai',b:'Austrália'},
-  {r:'R3',g:'E',i:0,a:'Alemanha',b:'Equador'},
-  {r:'R3',g:'E',i:1,a:'Curaçao',b:'Costa do Marfim'},
-  {r:'R3',g:'F',i:0,a:'Holanda',b:'Tunísia'},
-  {r:'R3',g:'F',i:1,a:'Japão',b:'Suécia'},
-  {r:'R3',g:'G',i:0,a:'Bélgica',b:'Nova Zelândia'},
-  {r:'R3',g:'G',i:1,a:'Egito',b:'Irã'},
-  {r:'R3',g:'H',i:0,a:'Espanha',b:'Uruguai'},
-  {r:'R3',g:'H',i:1,a:'Cabo Verde',b:'Arábia Saudita'},
-  {r:'R3',g:'I',i:0,a:'França',b:'Iraque'},
-  {r:'R3',g:'I',i:1,a:'Senegal',b:'Noruega'},
-  {r:'R3',g:'J',i:0,a:'Argentina',b:'Jordânia'},
-  {r:'R3',g:'J',i:1,a:'Argélia',b:'Áustria'},
-  {r:'R3',g:'K',i:0,a:'Portugal',b:'Colômbia'},
-  {r:'R3',g:'K',i:1,a:'RD Congo',b:'Uzbequistão'},
-  {r:'R3',g:'L',i:0,a:'Inglaterra',b:'Panamá'},
-  {r:'R3',g:'L',i:1,a:'Croácia',b:'Gana'}
-];
+var JOGOS_R1 = {
+  A:[['México','África do Sul'],['Coreia do Sul','República Tcheca']],
+  B:[['Canadá','Bósnia e Herzegovina'],['Catar','Suíça']],
+  C:[['Brasil','Marrocos'],['Haiti','Escócia']],
+  D:[['Estados Unidos','Paraguai'],['Austrália','Turquia']],
+  E:[['Alemanha','Curaçao'],['Costa do Marfim','Equador']],
+  F:[['Holanda','Japão'],['Suécia','Tunísia']],
+  G:[['Bélgica','Egito'],['Irã','Nova Zelândia']],
+  H:[['Espanha','Cabo Verde'],['Arábia Saudita','Uruguai']],
+  I:[['França','Senegal'],['Noruega','Iraque']],
+  J:[['Argentina','Argélia'],['Áustria','Jordânia']],
+  K:[['Portugal','RD Congo'],['Uzbequistão','Colômbia']],
+  L:[['Inglaterra','Croácia'],['Gana','Panamá']]
+};
+var JOGOS_R2 = {
+  A:[['México','Coreia do Sul'],['África do Sul','República Tcheca']],
+  B:[['Canadá','Catar'],['Bósnia e Herzegovina','Suíça']],
+  C:[['Brasil','Haiti'],['Marrocos','Escócia']],
+  D:[['Estados Unidos','Austrália'],['Turquia','Paraguai']],
+  E:[['Alemanha','Costa do Marfim'],['Curaçao','Equador']],
+  F:[['Holanda','Suécia'],['Japão','Tunísia']],
+  G:[['Bélgica','Irã'],['Egito','Nova Zelândia']],
+  H:[['Espanha','Arábia Saudita'],['Cabo Verde','Uruguai']],
+  I:[['França','Iraque'],['Noruega','Senegal']],
+  J:[['Argentina','Áustria'],['Argélia','Jordânia']],
+  K:[['Portugal','Uzbequistão'],['Colômbia','RD Congo']],
+  L:[['Inglaterra','Gana'],['Croácia','Panamá']]
+};
+var JOGOS_R3 = {
+  A:[['México','República Tcheca'],['África do Sul','Coreia do Sul']],
+  B:[['Canadá','Suíça'],['Bósnia e Herzegovina','Catar']],
+  C:[['Brasil','Escócia'],['Marrocos','Haiti']],
+  D:[['Estados Unidos','Turquia'],['Paraguai','Austrália']],
+  E:[['Alemanha','Equador'],['Curaçao','Costa do Marfim']],
+  F:[['Holanda','Tunísia'],['Japão','Suécia']],
+  G:[['Bélgica','Nova Zelândia'],['Egito','Irã']],
+  H:[['Espanha','Uruguai'],['Cabo Verde','Arábia Saudita']],
+  I:[['França','Noruega'],['Senegal','Iraque']],
+  J:[['Argentina','Jordânia'],['Argélia','Áustria']],
+  K:[['Portugal','Colômbia'],['RD Congo','Uzbequistão']],
+  L:[['Inglaterra','Panamá'],['Croácia','Gana']]
+};
+
+// Montar array flat de jogos a partir dos objetos por rodada
+var JOGOS = [];
+[['R1',JOGOS_R1],['R2',JOGOS_R2],['R3',JOGOS_R3]].forEach(function(rd){
+  var r=rd[0], obj=rd[1];
+  Object.keys(obj).forEach(function(g){
+    obj[g].forEach(function(jogo,i){
+      JOGOS.push({r:r,g:g,i:i,a:jogo[0],b:jogo[1]});
+    });
+  });
+});
 
 function jogoKey(j){ return j.r+'_'+j.g+'_'+j.i; }
 
