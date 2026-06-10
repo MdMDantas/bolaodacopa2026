@@ -105,8 +105,8 @@ GRANT USAGE ON SCHEMA public TO anon;
 GRANT ALL ON boloes TO anon;
 GRANT ALL ON palpites_fase1 TO anon;
 GRANT ALL ON palpites_fase2 TO anon;
-GRANT SELECT ON resultados TO anon;
-GRANT SELECT ON pontuacoes TO anon;
+GRANT ALL ON resultados TO anon;
+GRANT ALL ON pontuacoes TO anon;
 
 ALTER TABLE boloes DISABLE ROW LEVEL SECURITY;
 ALTER TABLE palpites_fase1 DISABLE ROW LEVEL SECURITY;
