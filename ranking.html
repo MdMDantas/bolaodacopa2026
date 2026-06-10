@@ -189,17 +189,20 @@ async function gerarResumo(apelido, bolaoId) {
     var tabelaReal=calcTabelaR(g,resultados);
     html += '<div class="grupo-box"><div class="grupo-label">Grupo '+g+'</div>';
     html += '<div class="grupo-cols"><div class="col-label">Palpite</div><div class="col-label">Hoje</div></div>';
+    var bonusClassif = [];
     for(var pos=1;pos<=4;pos++){
       var tp=p1['g'+g.toLowerCase()+'_'+pos]||p1['g'+g+'_'+pos]||'—';
       var tr=tabelaReal[pos-1]?tabelaReal[pos-1].t:'—';
       var posReal=tabelaReal.findIndex(function(t){return t.t===tp;});
-      var acertouPos=(posReal+1===pos&&tp!=='—');
-      var acertouClass=(posReal<2&&pos<=2&&tp!=='—');
+      var acertouPos=(posReal!==-1&&posReal+1===pos&&tp!=='—');
+      var acertouClass=(posReal!==-1&&posReal<2&&pos<=2&&tp!=='—');
       if(acertouPos) pts_grupos+=1;
-      if(acertouClass) pts_grupos+=1;
+      if(acertouClass){ pts_grupos+=1; bonusClassif.push(tp); }
       html += '<div class="grupo-cols">';
       html += '<div class="col-item"><span class="pos">'+pos+'</span>'+tp+'</div>';
-      html += '<div class="col-item"><span class="pos">'+pos+'</span>'+tr+(acertouPos?'<span class="pts-badge pts-ok">+1</span>':'')+'</div>';
+      var badges = acertouPos?'<span class="pts-badge pts-ok">+1 pos</span>':'';
+      if(acertouClass) badges += '<span class="pts-badge pts-ok">+1 class</span>';
+      html += '<div class="col-item"><span class="pos">'+pos+'</span>'+tr+badges+'</div>';
       html += '</div>';
     }
     html += '</div>';
@@ -225,6 +228,38 @@ async function gerarResumo(apelido, bolaoId) {
     html += '<div class="zebra-item"><div class="zebra-nome">'+zebra+'</div><div class="zebra-pos">'+zDesc+'</div></div>';
   }
   html += '</div></div>';
+
+  // Melhores Terceiros
+  var pts_terceiros=0;
+  html += '<div class="secao"><div class="secao-titulo">Melhores Terceiros</div>';
+  // Calcular os 8 melhores terceiros reais
+  var todosTerceirosR=[];
+  Object.keys(GRUPOS_DISPLAY_R).forEach(function(g){
+    var tab=calcTabelaR(g,resultados);
+    if(tab[2]&&tab[2].j>0) todosTerceirosR.push({t:tab[2].t,p:tab[2].p,sg:tab[2].sg,gf:tab[2].gf});
+  });
+  todosTerceirosR.sort(function(a,b){if(b.p!==a.p)return b.p-a.p;if(b.sg!==a.sg)return b.sg-a.sg;return b.gf-a.gf;});
+  var oitoMelhoresR=todosTerceirosR.slice(0,8).map(function(x){return x.t;});
+  if(oitoMelhoresR.length===0){
+    html += '<div style="color:#888;font-size:11px;padding:8px;">Aguardando fase de grupos terminar.</div>';
+  } else {
+    html += '<table class="placares"><thead><tr><th>Posição</th><th>Seu palpite</th><th>Melhor terceiro real</th><th>Resultado</th><th>Pts</th></tr></thead><tbody>';
+    for(var ti=1;ti<=8;ti++){
+      var tPalpite=p1['t'+ti]||'—';
+      var tReal=oitoMelhoresR[ti-1]||'—';
+      var posRealT=oitoMelhoresR.indexOf(tPalpite);
+      var tPts=0, tDesc='Não avançou';
+      if(posRealT!==-1){
+        if(posRealT+1===ti){tPts=2;tDesc='Posição exata ✓';}
+        else{tPts=1;tDesc='Avançou (posição errada)';}
+      }
+      pts_terceiros+=tPts;
+      var cls=tPts===2?'pts3':tPts===1?'pts2':'pts0';
+      html += '<tr><td style="text-align:center;font-weight:700;">'+ti+'º</td><td style="font-weight:700;">'+tPalpite+'</td><td>'+tReal+'</td><td>'+tDesc+'</td><td class="pts-cell '+cls+'">'+tPts+'</td></tr>';
+    }
+    html += '</tbody></table>';
+  }
+  html += '</div>';
 
   // Placares
   var pts_placares=0,ptsLista=[];
@@ -253,11 +288,12 @@ async function gerarResumo(apelido, bolaoId) {
   html += '</tbody></table></div>';
 
   // Total
-  html += '<div class="resumo-total">';
+  html += '<div class="resumo-total" style="grid-template-columns:repeat(5,1fr);">';
   html += '<div><div class="total-item-label">Grupos</div><div class="total-item-val">'+pts_grupos+'</div></div>';
   html += '<div><div class="total-item-label">Zebras</div><div class="total-item-val">'+pts_zebras+'</div></div>';
+  html += '<div><div class="total-item-label">Terceiros</div><div class="total-item-val">'+pts_terceiros+'</div></div>';
   html += '<div><div class="total-item-label">Placares</div><div class="total-item-val">'+pts_placares+'</div></div>';
-  html += '<div><div class="total-item-label" style="color:#ffdf00;">Total Fase Grupos</div><div class="total-item-val" style="font-size:22px;">'+(pts_grupos+pts_zebras+pts_placares)+'</div></div>';
+  html += '<div><div class="total-item-label" style="color:#ffdf00;">Total Fase Grupos</div><div class="total-item-val" style="font-size:22px;">'+(pts_grupos+pts_zebras+pts_terceiros+pts_placares)+'</div></div>';
   html += '</div>';
   html += '</div></body></html>';
 

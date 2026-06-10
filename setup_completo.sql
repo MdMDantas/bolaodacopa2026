@@ -94,10 +94,16 @@ CREATE TABLE pontuacoes (
   palpite_id uuid,
   apelido text NOT NULL,
   pts_grupos int DEFAULT 0,
+  pts_zebras int DEFAULT 0,
   pts_terceiros int DEFAULT 0,
   pts_placares int DEFAULT 0,
-  pts_zebras int DEFAULT 0,
-  total int DEFAULT 0
+  pts_placares_r1 int DEFAULT 0,
+  pts_placares_r2 int DEFAULT 0,
+  pts_placares_r3 int DEFAULT 0,
+  pts_chaveamento int DEFAULT 0,
+  pts_placares_mata int DEFAULT 0,
+  total int DEFAULT 0,
+  CONSTRAINT pontuacoes_unique UNIQUE (bolao_id, apelido)
 );
 
 -- 7. PERMISSÕES

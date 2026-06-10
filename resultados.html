@@ -358,10 +358,21 @@ async function calcularEPublicarRanking(){
   console.log('[CALC] Boloes:', boloes.length);
   if(!boloes.length){ alert('Nenhum bolão encontrado.'); return; }
 
-  var rp1 = await fetch(SUPABASE_URL+'/rest/v1/palpites_fase1?select=*&order=criado_em.asc',{headers:H});
-  console.log('[CALC] Palpites status:', rp1.status);
-  var todosPalpites1 = rp1.ok ? await rp1.json() : [];
-  console.log('[CALC] Palpites:', todosPalpites1.length);
+  // Buscar TODOS os palpites sem limite (paginando se necessário)
+  var todosPalpites1 = [];
+  var pageSize = 1000;
+  var offset = 0;
+  while(true){
+    var H3 = Object.assign({},H,{'Range': offset+'-'+(offset+pageSize-1), 'Prefer':'count=none'});
+    var rp1 = await fetch(SUPABASE_URL+'/rest/v1/palpites_fase1?select=*&order=criado_em.asc&limit='+pageSize+'&offset='+offset,{headers:H3});
+    console.log('[CALC] Palpites status:', rp1.status, 'offset:', offset);
+    if(!rp1.ok) break;
+    var batch = await rp1.json();
+    todosPalpites1 = todosPalpites1.concat(batch);
+    if(batch.length < pageSize) break;
+    offset += pageSize;
+  }
+  console.log('[CALC] Palpites total:', todosPalpites1.length);
 
   // Mesclar registros por bolao_id+apelido
   var palpitesMap = {};
@@ -400,12 +411,11 @@ async function calcularEPublicarRanking(){
       }
     });
 
-    // Placares (top 24)
+    // Placares por rodada
     var placares = p1.placares||{};
     if(typeof placares==='string'){try{placares=JSON.parse(placares);}catch(e){placares={};}}
     if(typeof placares!=='object'||placares===null) placares={};
-    var ptsLista = [];
-    var debugPlacar = [];
+    var ptsR1=[], ptsR2=[], ptsR3=[];
     JOGOS.forEach(function(jogo){
       var res = getResultado(jogo);
       if(!res||res.gols_a===null||res.gols_b===null) return;
@@ -413,15 +423,16 @@ async function calcularEPublicarRanking(){
       var pa=placares['placar_'+key+'_a'], pb=placares['placar_'+key+'_b'];
       if(pa===undefined||pa===null||pb===undefined||pb===null) return;
       var pts = REGRAS.calcularPlacar(pa,pb,res.gols_a,res.gols_b);
-      debugPlacar.push(key+': palpite='+pa+'x'+pb+' real='+res.gols_a+'x'+res.gols_b+' pts='+pts);
-      ptsLista.push(pts);
+      if(jogo.r==='R1') ptsR1.push(pts);
+      else if(jogo.r==='R2') ptsR2.push(pts);
+      else ptsR3.push(pts);
     });
-    console.log('[PLACARES] '+p1.apelido+' — '+ptsLista.length+' jogos encontrados');
-    console.log('[PLACARES CHAVES] primeiras chaves do objeto placares:', Object.keys(placares).slice(0,5));
-    console.log('[PLACARES DETAIL]', debugPlacar.slice(0,5));
-    console.log('[RESULTADOS DB] total:', _resultadosDB.length, 'primeiro:', _resultadosDB[0]);
-    ptsLista.sort(function(a,b){return b-a;});
-    pts_placares = ptsLista.slice(0,24).reduce(function(s,v){return s+v;},0);
+    var todosPlacares = ptsR1.concat(ptsR2).concat(ptsR3);
+    todosPlacares.sort(function(a,b){return b-a;});
+    pts_placares = todosPlacares.slice(0,24).reduce(function(s,v){return s+v;},0);
+    var pts_placares_r1 = ptsR1.reduce(function(s,v){return s+v;},0);
+    var pts_placares_r2 = ptsR2.reduce(function(s,v){return s+v;},0);
+    var pts_placares_r3 = ptsR3.reduce(function(s,v){return s+v;},0);
 
     // Zebras
     for(var zi=1;zi<=4;zi++){
@@ -465,6 +476,9 @@ async function calcularEPublicarRanking(){
       apelido:p1.apelido,
       pts_grupos:pts_grupos,
       pts_placares:pts_placares,
+      pts_placares_r1:pts_placares_r1,
+      pts_placares_r2:pts_placares_r2,
+      pts_placares_r3:pts_placares_r3,
       pts_zebras:pts_zebras,
       pts_terceiros:pts_terceiros,
       total:pts_grupos+pts_placares+pts_zebras+pts_terceiros,
