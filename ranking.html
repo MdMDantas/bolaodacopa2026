@@ -89,6 +89,428 @@ var SU = 'https://myytheficqokbjbkmeiv.supabase.co';
 var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15eXRoZWZpY3Fva2JqYmttZWl2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDM1NTMwNCwiZXhwIjoyMDk1OTMxMzA0fQ.-KV4Iaz-hSxdXyhJGYBXo0W9VTmwZctk0kWvZWqIDaE';
 var H = {'apikey':SK,'Authorization':'Bearer '+SK};
 
+// ══ DADOS PARA RESUMO ══════════════════════════════════════
+var GRUPOS_DISPLAY_R = {
+  A:['México','África do Sul','Coreia do Sul','República Tcheca'],
+  B:['Canadá','Bósnia e Herzegovina','Catar','Suíça'],
+  C:['Brasil','Marrocos','Haiti','Escócia'],
+  D:['Estados Unidos','Turquia','Paraguai','Austrália'],
+  E:['Alemanha','Curaçao','Costa do Marfim','Equador'],
+  F:['Holanda','Japão','Suécia','Tunísia'],
+  G:['Bélgica','Egito','Irã','Nova Zelândia'],
+  H:['Espanha','Cabo Verde','Arábia Saudita','Uruguai'],
+  I:['França','Senegal','Noruega','Iraque'],
+  J:['Argentina','Argélia','Áustria','Jordânia'],
+  K:['Portugal','RD Congo','Uzbequistão','Colômbia'],
+  L:['Inglaterra','Croácia','Gana','Panamá']
+};
+var JOGOS_R = {
+  R1:{A:[['México','África do Sul'],['Coreia do Sul','República Tcheca']],B:[['Canadá','Bósnia e Herzegovina'],['Catar','Suíça']],C:[['Brasil','Marrocos'],['Haiti','Escócia']],D:[['Estados Unidos','Paraguai'],['Austrália','Turquia']],E:[['Alemanha','Curaçao'],['Costa do Marfim','Equador']],F:[['Holanda','Japão'],['Suécia','Tunísia']],G:[['Bélgica','Egito'],['Irã','Nova Zelândia']],H:[['Espanha','Cabo Verde'],['Arábia Saudita','Uruguai']],I:[['França','Senegal'],['Noruega','Iraque']],J:[['Argentina','Argélia'],['Áustria','Jordânia']],K:[['Portugal','RD Congo'],['Uzbequistão','Colômbia']],L:[['Inglaterra','Croácia'],['Gana','Panamá']]},
+  R2:{A:[['México','Coreia do Sul'],['África do Sul','República Tcheca']],B:[['Canadá','Catar'],['Bósnia e Herzegovina','Suíça']],C:[['Brasil','Haiti'],['Marrocos','Escócia']],D:[['Estados Unidos','Austrália'],['Turquia','Paraguai']],E:[['Alemanha','Costa do Marfim'],['Curaçao','Equador']],F:[['Holanda','Suécia'],['Japão','Tunísia']],G:[['Bélgica','Irã'],['Egito','Nova Zelândia']],H:[['Espanha','Arábia Saudita'],['Cabo Verde','Uruguai']],I:[['França','Iraque'],['Noruega','Senegal']],J:[['Argentina','Áustria'],['Argélia','Jordânia']],K:[['Portugal','Uzbequistão'],['Colômbia','RD Congo']],L:[['Inglaterra','Gana'],['Croácia','Panamá']]},
+  R3:{A:[['México','República Tcheca'],['África do Sul','Coreia do Sul']],B:[['Canadá','Suíça'],['Bósnia e Herzegovina','Catar']],C:[['Brasil','Escócia'],['Marrocos','Haiti']],D:[['Estados Unidos','Turquia'],['Paraguai','Austrália']],E:[['Alemanha','Equador'],['Curaçao','Costa do Marfim']],F:[['Holanda','Tunísia'],['Japão','Suécia']],G:[['Bélgica','Nova Zelândia'],['Egito','Irã']],H:[['Espanha','Uruguai'],['Cabo Verde','Arábia Saudita']],I:[['França','Noruega'],['Senegal','Iraque']],J:[['Argentina','Jordânia'],['Argélia','Áustria']],K:[['Portugal','Colômbia'],['RD Congo','Uzbequistão']],L:[['Inglaterra','Panamá'],['Croácia','Gana']]}
+};
+
+function calcPlacarDesc(pa,pb,ra,rb){
+  pa=parseInt(pa);pb=parseInt(pb);ra=parseInt(ra);rb=parseInt(rb);
+  if(isNaN(pa)||isNaN(pb)) return {pts:0,desc:'Não apostado'};
+  if(pa===ra&&pb===rb) return {pts:3,desc:'Placar exato ✓'};
+  var pe=(pa===pb),re=(ra===rb);
+  if(pe&&re) return {pts:2,desc:'Empate (placar errado)'};
+  if(!pe&&re) return {pts:0,desc:'Apostou vencedor, empatou'};
+  if(pe&&!re) return {pts:0,desc:'Apostou empate, teve vencedor'};
+  var pv=pa>pb?'A':'B', rv=ra>rb?'A':'B';
+  if(pv!==rv) return {pts:0,desc:'Vencedor errado'};
+  if(Math.abs(pa-pb)===Math.abs(ra-rb)) return {pts:2,desc:'Vencedor + diferença certa'};
+  return {pts:1,desc:'Só o vencedor'};
+}
+
+function calcTabela(g, resultadosArr){
+  var times=GRUPOS_DISPLAY_R[g], tab={};
+  times.forEach(function(t){tab[t]={t:t,p:0,j:0,v:0,e:0,d:0,gf:0,gc:0,sg:0};});
+  ['R1','R2','R3'].forEach(function(r){
+    (JOGOS_R[r][g]||[]).forEach(function(jogo,i){
+      var key=r+'_'+g+'_'+i;
+      var res=resultadosArr.find(function(x){return x.api_id===key;});
+      if(!res||res.gols_a===null||res.gols_b===null) return;
+      var ga=parseInt(res.gols_a),gb=parseInt(res.gols_b);
+      var ta=tab[jogo[0]],tb=tab[jogo[1]];
+      if(!ta||!tb) return;
+      ta.j++;tb.j++;ta.gf+=ga;ta.gc+=gb;ta.sg+=ga-gb;tb.gf+=gb;tb.gc+=ga;tb.sg+=gb-ga;
+      if(ga>gb){ta.v++;ta.p+=3;tb.d++;}
+      else if(ga<gb){tb.v++;tb.p+=3;ta.d++;}
+      else{ta.e++;ta.p++;tb.e++;tb.p++;}
+    });
+  });
+  return Object.values(tab).sort(function(a,b){if(b.p!==a.p)return b.p-a.p;if(b.sg!==a.sg)return b.sg-a.sg;return b.gf-a.gf;});
+}
+
+async function gerarResumo(apelido, bolaoId) {
+  var u = (typeof AUTH!=='undefined') ? AUTH.get() : null;
+  var isAdmin = u && u.apelido === 'MDANTAS';
+  if (!isAdmin && (!u || u.apelido !== apelido)) {
+    alert('Você só pode ver o seu próprio resumo.');
+    return;
+  }
+
+  var H2 = {'apikey':SK,'Authorization':'Bearer '+SK};
+
+  // Buscar palpite fase 1
+  var rp = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&apelido=eq.'+encodeURIComponent(apelido)+'&select=*&order=criado_em.desc',{headers:H2});
+  var palpites = rp.ok ? await rp.json() : [];
+  // Mesclar registros
+  var p1 = {};
+  palpites.reverse().forEach(function(x){
+    Object.keys(x).forEach(function(k){
+      if(k==='placares'){
+        var pl=x[k];
+        if(pl){if(typeof pl==='string'){try{pl=JSON.parse(pl);}catch(e){pl={};}}
+        if(!p1.placares)p1.placares={};Object.assign(p1.placares,pl);}
+      } else if(x[k]!==null&&x[k]!==undefined&&x[k]!==''){p1[k]=x[k];}
+    });
+  });
+  var placares = p1.placares||{};
+  if(typeof placares==='string'){try{placares=JSON.parse(placares);}catch(e){placares={};}}
+
+  // Buscar resultados reais
+  var rr = await fetch(SU+'/rest/v1/resultados?select=*',{headers:H2});
+  var resultados = rr.ok ? await rr.json() : [];
+
+  // Buscar bolão
+  var rb = await fetch(SU+'/rest/v1/boloes?id=eq.'+bolaoId+'&select=nome',{headers:H2});
+  var bolaoNome = rb.ok ? (await rb.json())[0]?.nome || '' : '';
+
+  // ── Montar HTML do PDF ──
+  var now = new Date();
+  var dataGeracao = now.toLocaleDateString('pt-BR')+' às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+
+  var css = `
+    body{font-family:'Helvetica Neue',Arial,sans-serif;color:#111;margin:0;padding:0;font-size:11px;}
+    .page{max-width:900px;margin:0 auto;padding:20px;}
+    .topo{background:#003087;color:#fff;padding:16px 20px;border-radius:8px 8px 0 0;display:flex;justify-content:space-between;align-items:center;}
+    .topo-nome{font-size:22px;font-weight:900;letter-spacing:2px;color:#ffdf00;}
+    .topo-sub{font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;}
+    .topo-bolao{text-align:right;font-size:11px;color:rgba(255,255,255,0.8);}
+    .secao{margin-top:16px;}
+    .secao-titulo{background:#003087;color:#ffdf00;font-weight:700;font-size:10px;letter-spacing:2px;padding:6px 10px;text-transform:uppercase;border-radius:4px;margin-bottom:8px;}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .grupo-box{border:1px solid #ddd;border-radius:6px;overflow:hidden;}
+    .grupo-label{background:#003087;color:#ffdf00;font-size:9px;font-weight:700;letter-spacing:1px;padding:4px 8px;text-transform:uppercase;}
+    .grupo-cols{display:grid;grid-template-columns:1fr 1fr;}
+    .col-label{background:#f0f4ff;font-size:8px;font-weight:700;color:#003087;padding:3px 6px;text-align:center;letter-spacing:1px;}
+    .col-item{padding:3px 6px;font-size:10px;display:flex;align-items:center;gap:4px;border-top:1px solid #eee;}
+    .pos{font-weight:700;color:#003087;min-width:16px;font-size:9px;}
+    .pts-badge{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:auto;}
+    .pts-ok{background:#e6f9ee;color:#00a050;}
+    .pts-parcial{background:#fff8e0;color:#cc8800;}
+    .pts-zero{background:#fee;color:#cc0000;}
+    table.placares{width:100%;border-collapse:collapse;}
+    table.placares th{background:#f0f4ff;color:#003087;font-size:9px;font-weight:700;padding:4px 6px;text-align:left;letter-spacing:1px;}
+    table.placares td{padding:4px 6px;border-bottom:1px solid #eee;font-size:10px;}
+    table.placares tr:last-child td{border-bottom:none;}
+    .pts-cell{font-weight:700;text-align:center;}
+    .pts3{color:#00a050;} .pts2{color:#2266cc;} .pts1{color:#cc8800;} .pts0{color:#cc0000;}
+    .zebra-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+    .zebra-item{border:1px solid #ddd;border-radius:6px;padding:6px 10px;flex:1;min-width:160px;}
+    .zebra-nome{font-weight:700;font-size:11px;}
+    .zebra-pos{font-size:10px;color:#666;margin-top:2px;}
+    .resumo-total{background:#003087;color:#fff;border-radius:6px;padding:12px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px;text-align:center;}
+    .total-item-label{font-size:9px;color:rgba(255,255,255,0.6);letter-spacing:1px;text-transform:uppercase;}
+    .total-item-val{font-size:18px;font-weight:900;color:#ffdf00;margin-top:2px;}
+    .rodada-titulo{font-size:9px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin:8px 0 4px;padding:3px 6px;background:#f8f8f8;border-left:3px solid #003087;}
+    @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+  `;
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resumo — '+apelido+'</title><style>'+css+'</style></head><body><div class="page">';
+
+  // Cabeçalho
+  html += '<div class="topo">';
+  html += '<div><div class="topo-nome">⚽ '+apelido+'</div><div class="topo-sub">Resumo de palpites — Copa do Mundo 2026</div></div>';
+  html += '<div class="topo-bolao"><div>'+bolaoNome+'</div><div style="margin-top:4px;color:rgba(255,255,255,0.5);">Gerado em '+dataGeracao+'</div></div>';
+  html += '</div>';
+
+  // ── GRUPOS ──
+  var pts_grupos=0;
+  html += '<div class="secao"><div class="secao-titulo">📊 Classificação dos Grupos</div><div class="grid2">';
+  Object.keys(GRUPOS_DISPLAY_R).forEach(function(g){
+    var tabelaReal = calcTabela(g, resultados);
+    html += '<div class="grupo-box"><div class="grupo-label">Grupo '+g+'</div>';
+    html += '<div class="grupo-cols"><div class="col-label">Seu palpite</div><div class="col-label">Resultado atual</div></div>';
+    for(var pos=1;pos<=4;pos++){
+      var timePalpite = p1['g'+g.toLowerCase()+'_'+pos]||p1['g'+g+'_'+pos]||'—';
+      var timeReal = tabelaReal[pos-1] ? tabelaReal[pos-1].t : '—';
+      var posReal = tabelaReal.findIndex(function(t){return t.t===timePalpite;});
+      var pts=0, badge='pts-zero';
+      if(timePalpite!=='—'&&posReal!==-1){
+        if(posReal+1===pos){pts+=1;badge='pts-ok';}
+        pts_grupos+=pts;
+        if(posReal<2&&pos<=2){pts_grupos+=1;}
+      }
+      html += '<div class="grupo-cols">';
+      html += '<div class="col-item"><span class="pos">'+pos+'º</span>'+timePalpite+'</div>';
+      html += '<div class="col-item"><span class="pos">'+pos+'º</span>'+timeReal+(timePalpite!=='—'&&posReal+1===pos?'<span class="pts-badge pts-ok">+1</span>':'')+'</div>';
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div></div>';
+
+  // ── ZEBRAS ──
+  var pts_zebras=0;
+  html += '<div class="secao"><div class="secao-titulo">🦓 Zebras</div><div class="zebra-row">';
+  for(var zi=1;zi<=4;zi++){
+    var zebra=p1['zebra'+zi]||'—';
+    var posZ=-1, grupoZ=null;
+    if(zebra!=='—'){
+      Object.keys(GRUPOS_DISPLAY_R).forEach(function(g){if(GRUPOS_DISPLAY_R[g].indexOf(zebra)>=0)grupoZ=g;});
+      if(grupoZ){
+        var tabZ=calcTabela(grupoZ,resultados);
+        posZ=tabZ.findIndex(function(t){return t.t===zebra;});
+      }
+    }
+    var zPts=0, zDesc='Aguardando';
+    if(posZ===0){zPts=6;zDesc='1º lugar — +6pts';}
+    else if(posZ===1){zPts=4;zDesc='2º lugar — +4pts';}
+    else if(posZ===2){zPts=2;zDesc='3º lugar — +2pts';}
+    else if(posZ>=3){zPts=0;zDesc='Eliminada — +0pts';}
+    pts_zebras+=zPts;
+    html += '<div class="zebra-item"><div class="zebra-nome">'+zebra+'</div><div class="zebra-pos">'+zDesc+'</div></div>';
+  }
+  html += '</div></div>';
+
+  // ── PLACARES ──
+  var pts_placares=0, ptsPlacaresList=[];
+  var placareRows = [];
+  ['R1','R2','R3'].forEach(function(r){
+    var rLabel=r==='R1'?'Rodada 1':r==='R2'?'Rodada 2':'Rodada 3';
+    placareRows.push({tipo:'rodada',label:rLabel});
+    Object.keys(JOGOS_R[r]).forEach(function(g){
+      JOGOS_R[r][g].forEach(function(jogo,i){
+        var key=r+'_'+g+'_'+i;
+        var res=resultados.find(function(x){return x.api_id===key;});
+        var pa=placares['placar_'+key+'_a'],pb=placares['placar_'+key+'_b'];
+        var palpiteStr=(pa!==undefined&&pa!==null)?pa+'×'+pb:'—';
+        var realStr=res&&res.gols_a!==null?res.gols_a+'×'+res.gols_b:'—';
+        var calc={pts:0,desc:'Aguardando resultado'};
+        if(res&&res.gols_a!==null&&pa!==undefined&&pa!==null){
+          calc=calcPlacarDesc(pa,pb,res.gols_a,res.gols_b);
+        } else if(pa===undefined||pa===null){
+          calc={pts:0,desc:'Não apostado'};
+        }
+        ptsPlacaresList.push(calc.pts);
+        placareRows.push({tipo:'jogo',a:jogo[0],b:jogo[1],palpite:palpiteStr,real:realStr,pts:calc.pts,desc:calc.desc});
+      });
+    });
+  });
+  ptsPlacaresList.sort(function(a,b){return b-a;});
+  pts_placares=ptsPlacaresList.slice(0,24).reduce(function(s,v){return s+v;},0);
+
+  html += '<div class="secao"><div class="secao-titulo">⚽ Placares (top 24 contam)</div>';
+  html += '<table class="placares"><thead><tr><th>Jogo</th><th>Seu Palpite</th><th>Resultado</th><th>Descrição</th><th style="text-align:center">Pts</th></tr></thead><tbody>';
+  placareRows.forEach(function(row){
+    if(row.tipo==='rodada'){
+      html += '<tr><td colspan="5" class="rodada-titulo">'+row.label+'</td></tr>';
+    } else {
+      var cls=row.pts===3?'pts3':row.pts===2?'pts2':row.pts===1?'pts1':'pts0';
+      html += '<tr><td>'+row.a+' × '+row.b+'</td><td style="text-align:center;font-weight:700;">'+row.palpite+'</td><td style="text-align:center;font-weight:700;">'+row.real+'</td><td>'+row.desc+'</td><td class="pts-cell '+cls+'">'+row.pts+'</td></tr>';
+    }
+  });
+  html += '</tbody></table></div>';
+
+  // ── TOTAL ──
+  var totalGrp = pts_grupos + pts_zebras;
+  html += '<div class="resumo-total">';
+  html += '<div><div class="total-item-label">Grupos</div><div class="total-item-val">'+pts_grupos+'</div></div>';
+  html += '<div><div class="total-item-label">Zebras</div><div class="total-item-val">'+pts_zebras+'</div></div>';
+  html += '<div><div class="total-item-label">Placares</div><div class="total-item-val">'+pts_placares+'</div></div>';
+  html += '<div><div class="total-item-label" style="color:#ffdf00;">Total Grupos</div><div class="total-item-val" style="font-size:22px;">'+(totalGrp+pts_placares)+'</div></div>';
+  html += '</div>';
+
+  html += '</div></body></html>';
+
+  // Abrir PDF em nova janela
+  var win = window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+  setTimeout(function(){ win.print(); }, 800);
+}
+
+// ══ DADOS PARA RESUMO ══════════════════════════════════════
+var GRUPOS_DISPLAY_R = {
+  A:['México','África do Sul','Coreia do Sul','República Tcheca'],
+  B:['Canadá','Bósnia e Herzegovina','Catar','Suíça'],
+  C:['Brasil','Marrocos','Haiti','Escócia'],
+  D:['Estados Unidos','Turquia','Paraguai','Austrália'],
+  E:['Alemanha','Curaçao','Costa do Marfim','Equador'],
+  F:['Holanda','Japão','Suécia','Tunísia'],
+  G:['Bélgica','Egito','Irã','Nova Zelândia'],
+  H:['Espanha','Cabo Verde','Arábia Saudita','Uruguai'],
+  I:['França','Senegal','Noruega','Iraque'],
+  J:['Argentina','Argélia','Áustria','Jordânia'],
+  K:['Portugal','RD Congo','Uzbequistão','Colômbia'],
+  L:['Inglaterra','Croácia','Gana','Panamá']
+};
+var JOGOS_R = {
+  R1:{A:[['México','África do Sul'],['Coreia do Sul','República Tcheca']],B:[['Canadá','Bósnia e Herzegovina'],['Catar','Suíça']],C:[['Brasil','Marrocos'],['Haiti','Escócia']],D:[['Estados Unidos','Paraguai'],['Austrália','Turquia']],E:[['Alemanha','Curaçao'],['Costa do Marfim','Equador']],F:[['Holanda','Japão'],['Suécia','Tunísia']],G:[['Bélgica','Egito'],['Irã','Nova Zelândia']],H:[['Espanha','Cabo Verde'],['Arábia Saudita','Uruguai']],I:[['França','Senegal'],['Noruega','Iraque']],J:[['Argentina','Argélia'],['Áustria','Jordânia']],K:[['Portugal','RD Congo'],['Uzbequistão','Colômbia']],L:[['Inglaterra','Croácia'],['Gana','Panamá']]},
+  R2:{A:[['México','Coreia do Sul'],['África do Sul','República Tcheca']],B:[['Canadá','Catar'],['Bósnia e Herzegovina','Suíça']],C:[['Brasil','Haiti'],['Marrocos','Escócia']],D:[['Estados Unidos','Austrália'],['Turquia','Paraguai']],E:[['Alemanha','Costa do Marfim'],['Curaçao','Equador']],F:[['Holanda','Suécia'],['Japão','Tunísia']],G:[['Bélgica','Irã'],['Egito','Nova Zelândia']],H:[['Espanha','Arábia Saudita'],['Cabo Verde','Uruguai']],I:[['França','Iraque'],['Noruega','Senegal']],J:[['Argentina','Áustria'],['Argélia','Jordânia']],K:[['Portugal','Uzbequistão'],['Colômbia','RD Congo']],L:[['Inglaterra','Gana'],['Croácia','Panamá']]},
+  R3:{A:[['México','República Tcheca'],['África do Sul','Coreia do Sul']],B:[['Canadá','Suíça'],['Bósnia e Herzegovina','Catar']],C:[['Brasil','Escócia'],['Marrocos','Haiti']],D:[['Estados Unidos','Turquia'],['Paraguai','Austrália']],E:[['Alemanha','Equador'],['Curaçao','Costa do Marfim']],F:[['Holanda','Tunísia'],['Japão','Suécia']],G:[['Bélgica','Nova Zelândia'],['Egito','Irã']],H:[['Espanha','Uruguai'],['Cabo Verde','Arábia Saudita']],I:[['França','Noruega'],['Senegal','Iraque']],J:[['Argentina','Jordânia'],['Argélia','Áustria']],K:[['Portugal','Colômbia'],['RD Congo','Uzbequistão']],L:[['Inglaterra','Panamá'],['Croácia','Gana']]}
+};
+
+function calcPlacarDesc(pa,pb,ra,rb){
+  pa=parseInt(pa);pb=parseInt(pb);ra=parseInt(ra);rb=parseInt(rb);
+  if(isNaN(pa)||isNaN(pb)) return {pts:0,desc:'Não apostado'};
+  if(pa===ra&&pb===rb) return {pts:3,desc:'Placar exato ✓'};
+  var pe=(pa===pb),re=(ra===rb);
+  if(pe&&re) return {pts:2,desc:'Empate (placar errado)'};
+  if(!pe&&re) return {pts:0,desc:'Apostou vencedor, empatou'};
+  if(pe&&!re) return {pts:0,desc:'Apostou empate, teve vencedor'};
+  var pv=pa>pb?'A':'B', rv=ra>rb?'A':'B';
+  if(pv!==rv) return {pts:0,desc:'Vencedor errado'};
+  if(Math.abs(pa-pb)===Math.abs(ra-rb)) return {pts:2,desc:'Vencedor + diferença certa'};
+  return {pts:1,desc:'Só o vencedor'};
+}
+
+function calcTabelaR(g, resultadosArr){
+  var times=GRUPOS_DISPLAY_R[g], tab={};
+  times.forEach(function(t){tab[t]={t:t,p:0,j:0,v:0,e:0,d:0,gf:0,gc:0,sg:0};});
+  ['R1','R2','R3'].forEach(function(r){
+    (JOGOS_R[r][g]||[]).forEach(function(jogo,i){
+      var key=r+'_'+g+'_'+i;
+      var res=resultadosArr.find(function(x){return x.api_id===key;});
+      if(!res||res.gols_a===null||res.gols_b===null) return;
+      var ga=parseInt(res.gols_a),gb=parseInt(res.gols_b);
+      var ta=tab[jogo[0]],tb=tab[jogo[1]];
+      if(!ta||!tb) return;
+      ta.j++;tb.j++;ta.gf+=ga;ta.gc+=gb;ta.sg+=ga-gb;tb.gf+=gb;tb.gc+=ga;tb.sg+=gb-ga;
+      if(ga>gb){ta.v++;ta.p+=3;tb.d++;}
+      else if(ga<gb){tb.v++;tb.p+=3;ta.d++;}
+      else{ta.e++;ta.p++;tb.e++;tb.p++;}
+    });
+  });
+  return Object.values(tab).sort(function(a,b){if(b.p!==a.p)return b.p-a.p;if(b.sg!==a.sg)return b.sg-a.sg;return b.gf-a.gf;});
+}
+
+async function gerarResumo(apelido, bolaoId) {
+  var u = (typeof AUTH!=='undefined') ? AUTH.get() : null;
+  var isAdmin = u && u.apelido === 'MDANTAS';
+  if (!isAdmin && (!u || u.apelido !== apelido)) {
+    alert('Você só pode ver o seu próprio resumo.');
+    return;
+  }
+
+  var H2 = {'apikey':SK,'Authorization':'Bearer '+SK};
+  var rp = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&apelido=eq.'+encodeURIComponent(apelido)+'&select=*&order=criado_em.asc',{headers:H2});
+  var palpites = rp.ok ? await rp.json() : [];
+  var p1 = {};
+  palpites.forEach(function(x){
+    Object.keys(x).forEach(function(k){
+      if(k==='placares'){
+        var pl=x[k];
+        if(pl){if(typeof pl==='string'){try{pl=JSON.parse(pl);}catch(e){pl={};}}
+        if(!p1.placares)p1.placares={};Object.assign(p1.placares,pl);}
+      } else if(x[k]!==null&&x[k]!==undefined&&x[k]!==''){p1[k]=x[k];}
+    });
+  });
+  var placares=p1.placares||{};
+  if(typeof placares==='string'){try{placares=JSON.parse(placares);}catch(e){placares={};}}
+
+  var rr = await fetch(SU+'/rest/v1/resultados?select=*',{headers:H2});
+  var resultados = rr.ok ? await rr.json() : [];
+  var rb = await fetch(SU+'/rest/v1/boloes?id=eq.'+bolaoId+'&select=nome',{headers:H2});
+  var bolaoNome = rb.ok ? ((await rb.json())[0]||{}).nome||'' : '';
+  var now = new Date();
+  var dataGeracao = now.toLocaleDateString('pt-BR')+' às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+
+  var css = '<style>body{font-family:Arial,sans-serif;color:#111;margin:0;padding:0;font-size:11px;}.page{max-width:900px;margin:0 auto;padding:20px;}.topo{background:#003087;color:#fff;padding:16px 20px;border-radius:8px 8px 0 0;display:flex;justify-content:space-between;align-items:center;}.topo-nome{font-size:22px;font-weight:900;letter-spacing:2px;color:#ffdf00;}.topo-sub{font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;}.topo-bolao{text-align:right;font-size:11px;color:rgba(255,255,255,0.8);}.secao{margin-top:16px;}.secao-titulo{background:#003087;color:#ffdf00;font-weight:700;font-size:10px;letter-spacing:2px;padding:6px 10px;text-transform:uppercase;border-radius:4px;margin-bottom:8px;}.grid2{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}.grupo-box{border:1px solid #ddd;border-radius:6px;overflow:hidden;}.grupo-label{background:#003087;color:#ffdf00;font-size:9px;font-weight:700;letter-spacing:1px;padding:4px 8px;text-transform:uppercase;}.grupo-cols{display:grid;grid-template-columns:1fr 1fr;}.col-label{background:#f0f4ff;font-size:8px;font-weight:700;color:#003087;padding:3px 6px;text-align:center;letter-spacing:1px;border-top:1px solid #e0e8ff;}.col-item{padding:3px 6px;font-size:9px;display:flex;align-items:center;gap:3px;border-top:1px solid #eee;}.pos{font-weight:700;color:#003087;min-width:14px;font-size:8px;}.pts-badge{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:auto;}.pts-ok{background:#e6f9ee;color:#00a050;}.pts-zero{background:#fee;color:#cc0000;}table.placares{width:100%;border-collapse:collapse;}table.placares th{background:#f0f4ff;color:#003087;font-size:9px;font-weight:700;padding:4px 6px;text-align:left;letter-spacing:1px;}table.placares td{padding:4px 6px;border-bottom:1px solid #eee;font-size:10px;}table.placares tr:last-child td{border-bottom:none;}.pts-cell{font-weight:700;text-align:center;}.pts3{color:#00a050;}.pts2{color:#2266cc;}.pts1{color:#cc8800;}.pts0{color:#cc0000;}.zebra-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}.zebra-item{border:1px solid #ddd;border-radius:6px;padding:6px 10px;}.zebra-nome{font-weight:700;font-size:11px;}.zebra-pos{font-size:10px;color:#666;margin-top:2px;}.resumo-total{background:#003087;color:#fff;border-radius:6px;padding:12px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px;text-align:center;}.total-item-label{font-size:9px;color:rgba(255,255,255,0.6);letter-spacing:1px;text-transform:uppercase;}.total-item-val{font-size:18px;font-weight:900;color:#ffdf00;margin-top:2px;}.rodada-titulo{font-size:9px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin:8px 0 4px;padding:3px 6px;background:#f8f8f8;border-left:3px solid #003087;}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}</style>';
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resumo — '+apelido+'</title>'+css+'</head><body><div class="page">';
+  html += '<div class="topo"><div><div class="topo-nome">'+apelido+'</div><div class="topo-sub">Resumo de palpites — Copa do Mundo 2026</div></div><div class="topo-bolao"><div>'+bolaoNome+'</div><div style="margin-top:4px;color:rgba(255,255,255,0.5);">Gerado em '+dataGeracao+'</div></div></div>';
+
+  // Grupos
+  var pts_grupos=0;
+  html += '<div class="secao"><div class="secao-titulo">Classificação dos Grupos</div><div class="grid2">';
+  Object.keys(GRUPOS_DISPLAY_R).forEach(function(g){
+    var tabelaReal=calcTabelaR(g,resultados);
+    html += '<div class="grupo-box"><div class="grupo-label">Grupo '+g+'</div>';
+    html += '<div class="grupo-cols"><div class="col-label">Palpite</div><div class="col-label">Hoje</div></div>';
+    for(var pos=1;pos<=4;pos++){
+      var tp=p1['g'+g.toLowerCase()+'_'+pos]||p1['g'+g+'_'+pos]||'—';
+      var tr=tabelaReal[pos-1]?tabelaReal[pos-1].t:'—';
+      var posReal=tabelaReal.findIndex(function(t){return t.t===tp;});
+      var acertouPos=(posReal+1===pos&&tp!=='—');
+      var acertouClass=(posReal<2&&pos<=2&&tp!=='—');
+      if(acertouPos) pts_grupos+=1;
+      if(acertouClass) pts_grupos+=1;
+      html += '<div class="grupo-cols">';
+      html += '<div class="col-item"><span class="pos">'+pos+'</span>'+tp+'</div>';
+      html += '<div class="col-item"><span class="pos">'+pos+'</span>'+tr+(acertouPos?'<span class="pts-badge pts-ok">+1</span>':'')+'</div>';
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div></div>';
+
+  // Zebras
+  var pts_zebras=0;
+  html += '<div class="secao"><div class="secao-titulo">Zebras</div><div class="zebra-row">';
+  for(var zi=1;zi<=4;zi++){
+    var zebra=p1['zebra'+zi]||'—';
+    var posZ=-1,grupoZ=null;
+    if(zebra!=='—'){
+      Object.keys(GRUPOS_DISPLAY_R).forEach(function(g){if(GRUPOS_DISPLAY_R[g].indexOf(zebra)>=0)grupoZ=g;});
+      if(grupoZ){var tabZ=calcTabelaR(grupoZ,resultados);posZ=tabZ.findIndex(function(t){return t.t===zebra;});}
+    }
+    var zPts=0,zDesc='Aguardando';
+    if(posZ===0){zPts=6;zDesc='1º lugar +6pts';}
+    else if(posZ===1){zPts=4;zDesc='2º lugar +4pts';}
+    else if(posZ===2){zPts=2;zDesc='3º lugar +2pts';}
+    else if(posZ>=3){zPts=0;zDesc='Eliminada +0pts';}
+    pts_zebras+=zPts;
+    html += '<div class="zebra-item"><div class="zebra-nome">'+zebra+'</div><div class="zebra-pos">'+zDesc+'</div></div>';
+  }
+  html += '</div></div>';
+
+  // Placares
+  var pts_placares=0,ptsLista=[];
+  html += '<div class="secao"><div class="secao-titulo">Placares (top 24 contam)</div><table class="placares"><thead><tr><th>Jogo</th><th>Palpite</th><th>Resultado</th><th>Descrição</th><th>Pts</th></tr></thead><tbody>';
+  ['R1','R2','R3'].forEach(function(r){
+    var rLabel=r==='R1'?'Rodada 1':r==='R2'?'Rodada 2':'Rodada 3';
+    html += '<tr><td colspan="5" class="rodada-titulo">'+rLabel+'</td></tr>';
+    Object.keys(JOGOS_R[r]).forEach(function(g){
+      JOGOS_R[r][g].forEach(function(jogo,i){
+        var key=r+'_'+g+'_'+i;
+        var res=resultados.find(function(x){return x.api_id===key;});
+        var pa=placares['placar_'+key+'_a'],pb=placares['placar_'+key+'_b'];
+        var palpiteStr=(pa!==undefined&&pa!==null)?pa+' × '+pb:'—';
+        var realStr=res&&res.gols_a!==null?res.gols_a+' × '+res.gols_b:'Aguardando';
+        var calc={pts:0,desc:'Aguardando resultado'};
+        if(res&&res.gols_a!==null&&pa!==undefined&&pa!==null) calc=calcPlacarDesc(pa,pb,res.gols_a,res.gols_b);
+        else if(pa===undefined||pa===null) calc={pts:0,desc:'Não apostado'};
+        ptsLista.push(calc.pts);
+        var cls=calc.pts===3?'pts3':calc.pts===2?'pts2':calc.pts===1?'pts1':'pts0';
+        html += '<tr><td>'+jogo[0]+' × '+jogo[1]+'</td><td style="text-align:center;font-weight:700;">'+palpiteStr+'</td><td style="text-align:center;font-weight:700;">'+realStr+'</td><td>'+calc.desc+'</td><td class="pts-cell '+cls+'">'+calc.pts+'</td></tr>';
+      });
+    });
+  });
+  ptsLista.sort(function(a,b){return b-a;});
+  pts_placares=ptsLista.slice(0,24).reduce(function(s,v){return s+v;},0);
+  html += '</tbody></table></div>';
+
+  // Total
+  html += '<div class="resumo-total">';
+  html += '<div><div class="total-item-label">Grupos</div><div class="total-item-val">'+pts_grupos+'</div></div>';
+  html += '<div><div class="total-item-label">Zebras</div><div class="total-item-val">'+pts_zebras+'</div></div>';
+  html += '<div><div class="total-item-label">Placares</div><div class="total-item-val">'+pts_placares+'</div></div>';
+  html += '<div><div class="total-item-label" style="color:#ffdf00;">Total Fase Grupos</div><div class="total-item-val" style="font-size:22px;">'+(pts_grupos+pts_zebras+pts_placares)+'</div></div>';
+  html += '</div>';
+  html += '</div></body></html>';
+
+  var win=window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+  setTimeout(function(){win.print();},800);
+}
+
+
 async function init() {
   var params = new URLSearchParams(window.location.search);
   if (params.get('bolao')) {
@@ -246,7 +668,7 @@ async function carregarRanking(bolaoId, bolaoNome) {
       var totalMM  = pChaveamento + p16avos + pOitavas + pQuartas + pSemi + pFinal;
       html += '<div style="display:grid;grid-template-columns:40px 1fr 60px 50px 50px 60px 60px 50px 50px 50px 58px 64px 60px 50px 52px 52px 52px;align-items:center;padding:8px 12px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;">';
       html += '<div class="ranking-pos '+cls+'">'+num+'<sup>º</sup></div>';
-      html += '<div class="ranking-apelido">'+r.apelido+'</div>';
+      html += '<div class="ranking-apelido" style="display:flex;align-items:center;gap:8px;">'+r.apelido+'<button onclick="gerarResumo(\''+r.apelido+'\',\''+bolaoId+'\')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.25);color:#ffdf00;border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:0.5px;white-space:nowrap;">📄 RESUMO</button></div>';
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pGrupos+' pts</div><div style="font-size:15px;">'+temGrupos+'</div></div>';
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pZebras+' pts</div></div>';
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pTerceiros+' pts</div></div>';
