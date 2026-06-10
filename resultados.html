@@ -420,14 +420,21 @@ async function calcularEPublicarRanking(){
     if(typeof placares==='string'){try{placares=JSON.parse(placares);}catch(e){placares={};}}
     if(typeof placares!=='object'||placares===null) placares={};
     var ptsLista = [];
+    var debugPlacar = [];
     JOGOS.forEach(function(jogo){
       var res = getResultado(jogo);
       if(!res||res.gols_a===null||res.gols_b===null) return;
       var key = jogoKey(jogo);
-      var pa=placares['placar_'+key+'_a'],pb=placares['placar_'+key+'_b'];
+      var pa=placares['placar_'+key+'_a'], pb=placares['placar_'+key+'_b'];
       if(pa===undefined||pa===null||pb===undefined||pb===null) return;
-      ptsLista.push(REGRAS.calcularPlacar(pa,pb,res.gols_a,res.gols_b));
+      var pts = REGRAS.calcularPlacar(pa,pb,res.gols_a,res.gols_b);
+      debugPlacar.push(key+': palpite='+pa+'x'+pb+' real='+res.gols_a+'x'+res.gols_b+' pts='+pts);
+      ptsLista.push(pts);
     });
+    console.log('[PLACARES] '+p1.apelido+' — '+ptsLista.length+' jogos encontrados');
+    console.log('[PLACARES CHAVES] primeiras chaves do objeto placares:', Object.keys(placares).slice(0,5));
+    console.log('[PLACARES DETAIL]', debugPlacar.slice(0,5));
+    console.log('[RESULTADOS DB] total:', _resultadosDB.length, 'primeiro:', _resultadosDB[0]);
     ptsLista.sort(function(a,b){return b-a;});
     pts_placares = ptsLista.slice(0,24).reduce(function(s,v){return s+v;},0);
 
