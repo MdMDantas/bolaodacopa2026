@@ -53,6 +53,8 @@
   .btn-salvar{background:rgba(255,223,0,0.15);border:1px solid rgba(255,223,0,0.4);color:#ffdf00;}
   .btn-calcular{background:rgba(0,196,79,0.15);border:1px solid rgba(0,196,79,0.4);color:#00c44f;}
   .btn-cancelar{background:transparent;border:1px solid var(--border);color:var(--muted);}
+  .btn-aleatorio{background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;}
+  .btn-limpar{background:rgba(255,80,80,0.1);border:1px solid rgba(255,80,80,0.3);color:#ff6b6b;}
   .acoes{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap;}
   .loading{text-align:center;color:var(--muted);padding:32px;}
 </style>
@@ -83,6 +85,8 @@
 
   <div id="acoesEdicao" style="display:none;" class="acoes">
     <button class="btn btn-cancelar" onclick="cancelarEdicao()">CANCELAR</button>
+    <button class="btn btn-limpar" onclick="limparResultados()">🗑️ LIMPAR RESULTADOS</button>
+    <button class="btn btn-aleatorio" onclick="preencherAleatorio()">🎲 PREENCHER ALEATÓRIO</button>
     <button class="btn btn-salvar" onclick="salvarResultados()">💾 SALVAR RESULTADOS</button>
     <button class="btn btn-calcular" onclick="calcularEPublicarRanking()">🏆 CALCULAR E PUBLICAR RANKING</button>
   </div>
@@ -443,6 +447,28 @@ async function calcularEPublicarRanking(){
     if(!resp.ok){alert('Erro ao publicar ranking.');return;}
   }
   alert('✅ Ranking publicado para '+pontuacoes.length+' jogador(es) em '+boloes.length+' bolão(ões)!');
+}
+
+function preencherAleatorio(){
+  JOGOS.forEach(function(jogo){
+    var key = jogoKey(jogo);
+    var elA = document.getElementById('res_'+key+'_a');
+    var elB = document.getElementById('res_'+key+'_b');
+    if(elA && elB){ elA.value = Math.floor(Math.random()*5); elB.value = Math.floor(Math.random()*5); }
+  });
+}
+
+async function limparResultados(){
+  if(!confirm('Apagar TODOS os resultados salvos? Esta ação não pode ser desfeita.')) return;
+  var H = {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+  var resp = await fetch(SUPABASE_URL+'/rest/v1/resultados?id=neq.00000000-0000-0000-0000-000000000000',{method:'DELETE',headers:H});
+  if(resp.ok){
+    _resultadosDB = [];
+    alert('Resultados apagados.');
+    renderTudo();
+  } else {
+    alert('Erro ao apagar resultados.');
+  }
 }
 
 // Init
