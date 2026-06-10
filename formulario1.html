@@ -823,49 +823,61 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="bolao-modal.js"></script>
 <script>
 async function recuperarUltimoPalpite() {
-  abrirBolaoModal(async function(participante) {
-    var H = {'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY};
-    // Buscar fase 1 (grupos, zebras, terceiros, placares)
-    var r1 = await fetch(SUPABASE_URL+'/rest/v1/palpites_fase1?bolao_id=eq.'+participante.bolao.id+'&apelido=eq.'+encodeURIComponent(participante.apelido)+'&select=*&order=criado_em.desc&limit=1', {headers:H});
-    var d1 = r1.ok ? await r1.json() : [];
-    if (!d1.length) { alert('Nenhum palpite encontrado para recuperar.'); return; }
-    var p1 = d1[0];
+  var H = {'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY};
 
-    // Preencher grupos
-    Object.keys(GRUPOS_DISPLAY).forEach(function(g) {
-      for (var pos = 1; pos <= 4; pos++) {
-        var sel = document.getElementById('g'+g+'_'+pos);
-        var val = p1['g'+g.toLowerCase()+'_'+pos] || p1['g'+g+'_'+pos] || '';
-        if (sel && val) sel.value = val;
-      }
-    });
+  // Usar PARTICIPANTE já salvo, ou tentar montar a partir do AUTH + último bolão
+  var participante = (typeof PARTICIPANTE !== 'undefined' && PARTICIPANTE) ? PARTICIPANTE : null;
 
-    // Preencher zebras
-    for (var zi = 1; zi <= 4; zi++) {
-      var sel = document.getElementById('zebra'+zi);
-      if (sel && p1['zebra'+zi]) sel.value = p1['zebra'+zi];
+  if (!participante) {
+    var usuario = (typeof AUTH !== 'undefined') ? AUTH.get() : null;
+    var ultimoCodigo = (typeof AUTH !== 'undefined') ? AUTH.getUltimoBolao() : '';
+    if (!usuario) { alert('Faça login primeiro para recuperar seu palpite.'); return; }
+    if (!ultimoCodigo) { alert('Envie um palpite pelo menos uma vez para poder recuperar.'); return; }
+    var bolao = await DB.buscarBolao(ultimoCodigo);
+    if (!bolao) { alert('Bolão não encontrado. Envie um palpite primeiro.'); return; }
+    participante = { apelido: usuario.apelido, nome: usuario.apelido, telefone: usuario.telefone, bolao: bolao };
+  }
+
+  // Buscar último palpite sem abrir modal
+  var r1 = await fetch(SUPABASE_URL+'/rest/v1/palpites_fase1?bolao_id=eq.'+participante.bolao.id+'&apelido=eq.'+encodeURIComponent(participante.apelido)+'&select=*&order=criado_em.desc&limit=1', {headers:H});
+  var d1 = r1.ok ? await r1.json() : [];
+  if (!d1.length) { alert('Nenhum palpite encontrado para recuperar.'); return; }
+  var p1 = d1[0];
+
+  // Preencher grupos
+  Object.keys(GRUPOS_DISPLAY).forEach(function(g) {
+    for (var pos = 1; pos <= 4; pos++) {
+      var sel = document.getElementById('g'+g+'_'+pos);
+      var val = p1['g'+g.toLowerCase()+'_'+pos] || p1['g'+g+'_'+pos] || '';
+      if (sel && val) sel.value = val;
     }
-    refreshZebras();
-
-    // Preencher terceiros
-    var terceirosSaved = [];
-    for (var ti = 1; ti <= 8; ti++) {
-      terceirosSaved.push(p1['t'+ti] || '');
-    }
-    buildTerceiros(terceirosSaved);
-
-    // Preencher placares
-    if (p1.placares) {
-      var pl = typeof p1.placares === 'string' ? JSON.parse(p1.placares) : p1.placares;
-      Object.keys(pl).forEach(function(k) {
-        var el = document.getElementById(k);
-        if (el) el.value = pl[k];
-      });
-    }
-
-    updateProgress();
-    alert('Palpite recuperado com sucesso!');
   });
+
+  // Preencher zebras
+  for (var zi = 1; zi <= 4; zi++) {
+    var sel = document.getElementById('zebra'+zi);
+    if (sel && p1['zebra'+zi]) sel.value = p1['zebra'+zi];
+  }
+  refreshZebras();
+
+  // Preencher terceiros
+  var terceirosSaved = [];
+  for (var ti = 1; ti <= 8; ti++) {
+    terceirosSaved.push(p1['t'+ti] || '');
+  }
+  buildTerceiros(terceirosSaved);
+
+  // Preencher placares
+  if (p1.placares) {
+    var pl = typeof p1.placares === 'string' ? JSON.parse(p1.placares) : p1.placares;
+    Object.keys(pl).forEach(function(k) {
+      var el = document.getElementById(k);
+      if (el) el.value = pl[k];
+    });
+  }
+
+  updateProgress();
+  alert('Palpite recuperado! Ajuste o que quiser e salve normalmente.');
 }
 
 var SUPABASE_URL="https://myytheficqokbjbkmeiv.supabase.co";
