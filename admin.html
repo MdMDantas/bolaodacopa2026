@@ -383,7 +383,14 @@ function exportarPDF() {
     html += '<div class="jogador">';
 
     // Header do jogador
-    html += '<div class="header-jogador"><h2>⚽ ' + ap + '</h2><span>' + d.bolao.nome + '</span></div>';
+    var dataRegistro = '—';
+    if (p1.criado_em) {
+      var dt = new Date(p1.criado_em);
+      var dia = dt.toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric'});
+      var hora = dt.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+      dataRegistro = dia + ' às ' + hora;
+    }
+    html += '<div class="header-jogador"><h2>⚽ ' + ap + '</h2><div style="text-align:right;"><div>' + d.bolao.nome + '</div><div style="font-size:10px;color:#888;margin-top:2px;">Registrado em: ' + dataRegistro + '</div></div></div>';
 
     // Classificação dos grupos
     if (d.p1Map[ap]) {
