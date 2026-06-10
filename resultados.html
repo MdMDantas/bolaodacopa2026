@@ -404,7 +404,7 @@ async function calcularEPublicarRanking(){
       var res = getResultado(jogo);
       if(!res||res.gols_a===null||res.gols_b===null) return;
       var key = jogoKey(jogo);
-      var pa=placares[key+'_a'],pb=placares[key+'_b'];
+      var pa=placares['placar_'+key+'_a'],pb=placares['placar_'+key+'_b'];
       if(pa===undefined||pa===null||pb===undefined||pb===null) return;
       ptsLista.push(REGRAS.calcularPlacar(pa,pb,res.gols_a,res.gols_b));
     });
