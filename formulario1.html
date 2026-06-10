@@ -175,7 +175,7 @@
 
     <div class="phase-header"><div class="phase-badge"></div><h2>MELHORES TERCEIROS</h2></div>
     <div class="regras-box">
-      <div class="regra-item">As seleções em 3º lugar aparecem aqui automaticamente. Arraste para ordenar.</div>
+      <div class="regra-item">As seleções em 3º lugar aparecem aqui automaticamente.</div>
       <div class="regra-item"><strong>Seleção + posição exata:</strong> <span class="pts">+2 pts</span> &nbsp; <strong>Só seleção:</strong> <span class="pts">+1 pt</span></div>
       <div class="regra-item pontos-max"><strong>Máximo: 16 pontos</strong></div>
     </div>
@@ -458,6 +458,35 @@ function buildZebras(saved) {
       var label = ZEBRA_GRUPO[t] ? 'Grupo '+ZEBRA_GRUPO[t]+' - '+t : t;
       sel.innerHTML += '<option value="'+t+'"'+(cur===t?' selected':'')+'>'+label+'</option>';
     });
+    sel.onchange = function(){ refreshZebras(); };
+  }
+}
+
+function refreshZebras() {
+  // Coletar valores atualmente selecionados em cada slot
+  var selected = {};
+  for (var zi = 1; zi <= 4; zi++) {
+    var s = document.getElementById('zebra'+zi);
+    if (s && s.value) selected[zi] = s.value;
+  }
+  // Reconstruir cada select excluindo as escolhas dos outros slots
+  for (var zi = 1; zi <= 4; zi++) {
+    var sel = document.getElementById('zebra'+zi);
+    if (!sel) continue;
+    var cur = sel.value;
+    sel.innerHTML = '<option value="">Selecione...</option>';
+    ZEBRA_TEAMS.forEach(function(t){
+      // Incluir se não está selecionada em outro slot
+      var usadaEmOutro = false;
+      for (var other = 1; other <= 4; other++) {
+        if (other !== zi && selected[other] === t) { usadaEmOutro = true; break; }
+      }
+      if (!usadaEmOutro) {
+        var label = ZEBRA_GRUPO[t] ? 'Grupo '+ZEBRA_GRUPO[t]+' - '+t : t;
+        sel.innerHTML += '<option value="'+t+'"'+(cur===t?' selected':'')+'>'+label+'</option>';
+      }
+    });
+    sel.onchange = function(){ refreshZebras(); };
   }
 }
 
