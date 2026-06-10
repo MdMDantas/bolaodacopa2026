@@ -175,11 +175,20 @@
 
     <div class="phase-header"><div class="phase-badge"></div><h2>MELHORES TERCEIROS</h2></div>
     <div class="regras-box">
-      <div class="regra-item">As seleções em 3º lugar aparecem aqui automaticamente.</div>
+      <div class="regra-item">Ordene os melhores terceiros conforme as regras da FIFA.</div>
       <div class="regra-item"><strong>Seleção + posição exata:</strong> <span class="pts">+2 pts</span> &nbsp; <strong>Só seleção:</strong> <span class="pts">+1 pt</span></div>
       <div class="regra-item pontos-max"><strong>Máximo: 16 pontos</strong></div>
+      <div class="regra-item" style="margin-top:8px;font-size:12px;color:var(--muted);">
+        <strong style="color:var(--white);">Como a FIFA decide quais 8 avançam:</strong> a FIFA compara os 12 terceiros colocados nesta ordem:
+        <span style="color:var(--gold);">1º Pontos</span> (vitória=3, empate=1, derrota=0) →
+        <span style="color:var(--gold);">2º Saldo de gols</span> →
+        <span style="color:var(--gold);">3º Gols marcados</span> →
+        <span style="color:var(--gold);">4º Disciplina</span> (vermelho direto=3pts, AM+VM=3pts, amarelo=1pt) →
+        <span style="color:var(--gold);">5º Ranking FIFA</span>
+      </div>
     </div>
     <div id="terceirosList"></div>
+    <div class="zebras-grid" id="terceirosGrid" style="margin-top:12px;"></div>
 
     <div class="divider"></div>
 
@@ -399,53 +408,60 @@ function getThirds() {
 }
 
 function buildTerceiros(savedOrder) {
-  var thirds = getThirds(), container = document.getElementById('terceirosList');
+  var thirds = getThirds();
+  var container = document.getElementById('terceirosList');
+  var grid = document.getElementById('terceirosGrid');
   if (!thirds.length) {
     container.innerHTML = '<div class="etapa2-aviso"><strong>Preencha a Etapa 1 primeiro</strong>As seleções em 3º lugar de cada grupo aparecerão aqui.</div>';
+    if (grid) grid.innerHTML = '';
     return;
   }
-  var ordered = [];
-  if (savedOrder && savedOrder.length) {
-    savedOrder.forEach(function(t){var f=thirds.find(function(x){return x.team===t;});if(f)ordered.push(f);});
-    thirds.forEach(function(x){if(!ordered.find(function(o){return o.team===x.team;}))ordered.push(x);});
-  } else ordered = thirds.slice();
-  var html = '<div class="terceiros-list" id="sortableList">';
-  ordered.forEach(function(item,i){
-    html += '<div class="terceiro-row" draggable="true" data-team="'+item.team+'">'+
-      '<span class="terceiro-num">'+(i+1)+'</span>'+
-      '<span style="flex:1;font-size:13px;font-weight:500">'+item.team+'</span>'+
-      '<span class="terceiro-group-tag">GRP '+item.group+'</span>'+
-      '<span style="color:var(--muted);padding:0 4px">::::</span>'+
+  container.innerHTML = '';
+  var html = '';
+  for (var ti = 1; ti <= 8; ti++) {
+    html += '<div class="zebra-card">'+
+      '<div class="z-num">'+ti+'º LUGAR</div>'+
+      '<div class="sel-wrap"><select id="t'+ti+'"><option value="">Selecione...</option></select></div>'+
     '</div>';
-  });
-  container.innerHTML = html + '</div>';
-  initDrag(); renumberTerceiros();
+  }
+  if (grid) grid.innerHTML = html;
+  refreshTerceiros(savedOrder);
 }
 
-function renumberTerceiros() {
-  document.querySelectorAll('#sortableList .terceiro-row').forEach(function(r,i){r.querySelector('.terceiro-num').textContent=i+1;});
-}
-
-var dragSrc = null;
-function initDrag() {
-  document.querySelectorAll('#sortableList .terceiro-row').forEach(function(row){
-    row.addEventListener('dragstart',function(e){dragSrc=row;e.dataTransfer.effectAllowed='move';setTimeout(function(){row.style.opacity='0.4';},0);});
-    row.addEventListener('dragend',function(){row.style.opacity='1';renumberTerceiros();updateProgress();});
-    row.addEventListener('dragover',function(e){e.preventDefault();});
-    row.addEventListener('dragenter',function(){if(row!==dragSrc)row.style.background='rgba(255,223,0,0.07)';});
-    row.addEventListener('dragleave',function(){row.style.background='';});
-    row.addEventListener('drop',function(e){
-      e.preventDefault();row.style.background='';
-      if(dragSrc&&row!==dragSrc){
-        var list=row.parentNode,all=Array.from(list.querySelectorAll('.terceiro-row'));
-        if(all.indexOf(dragSrc)<all.indexOf(row))list.insertBefore(dragSrc,row.nextSibling);
-        else list.insertBefore(dragSrc,row);
+function refreshTerceiros(savedOrder) {
+  var thirds = getThirds();
+  var selected = {};
+  for (var ti = 1; ti <= 8; ti++) {
+    var s = document.getElementById('t'+ti);
+    if (s && s.value) selected[ti] = s.value;
+  }
+  for (var ti = 1; ti <= 8; ti++) {
+    var sel = document.getElementById('t'+ti);
+    if (!sel) continue;
+    var cur = sel.value || (savedOrder && savedOrder[ti-1] ? savedOrder[ti-1] : '');
+    sel.innerHTML = '<option value="">Selecione...</option>';
+    thirds.forEach(function(item) {
+      var usadaEmOutro = false;
+      for (var other = 1; other <= 8; other++) {
+        if (other !== ti && selected[other] === item.team) { usadaEmOutro = true; break; }
+      }
+      if (!usadaEmOutro) {
+        var label = 'Grp '+item.group+' - '+item.team;
+        sel.innerHTML += '<option value="'+item.team+'"'+(cur===item.team?' selected':'')+'>'+label+'</option>';
       }
     });
-  });
+    (function(idx){ sel.onchange = function(){ refreshTerceiros(); updateProgress(); }; })(ti);
+  }
 }
 
-function getTerceiroOrder(){return Array.from(document.querySelectorAll('#sortableList .terceiro-row')).map(function(r){return r.dataset.team;});}
+function getTerceiroOrder() {
+  var order = [];
+  for (var ti = 1; ti <= 8; ti++) {
+    var s = document.getElementById('t'+ti);
+    order.push(s && s.value ? s.value : '');
+  }
+  return order;
+}
 
 // ── ZEBRAS ────────────────────────────────────────────────
 function buildZebras(saved) {
