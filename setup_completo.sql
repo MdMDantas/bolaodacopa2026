@@ -146,3 +146,22 @@ create policy "usuarios_insert" on usuarios for insert with check (true);
 -- =============================================
 alter table boloes add column if not exists criador_apelido text;
 alter table boloes add column if not exists criador_telefone text;
+
+-- =============================================
+-- TABELA: ranking_historico (Corrida do Bolão)
+-- Registra um snapshot do ranking a cada dia
+-- =============================================
+CREATE TABLE IF NOT EXISTS ranking_historico (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  criado_em timestamptz DEFAULT now(),
+  bolao_id uuid REFERENCES boloes(id),
+  apelido text NOT NULL,
+  total int NOT NULL DEFAULT 0,
+  dia date NOT NULL DEFAULT CURRENT_DATE,
+  CONSTRAINT ranking_historico_unique UNIQUE (bolao_id, apelido, dia)
+);
+
+CREATE INDEX IF NOT EXISTS idx_rh_bolao_dia ON ranking_historico(bolao_id, dia);
+
+GRANT ALL ON ranking_historico TO anon;
+ALTER TABLE ranking_historico DISABLE ROW LEVEL SECURITY;

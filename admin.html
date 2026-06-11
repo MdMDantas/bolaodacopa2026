@@ -64,7 +64,40 @@
   <div id="mainArea"><div class="loading">Verificando acesso...</div></div>
 </div>
 
-<script src="db.js"></script>
+<script src="db.js">
+async function tirarFotoDoDia() {
+  if (!dadosAdmin || !dadosAdmin.bolao) { alert('Carregue um bolão primeiro.'); return; }
+  var bolaoId = dadosAdmin.bolao.id;
+  var bolaoNome = dadosAdmin.bolao.nome;
+  var hoje = new Date().toISOString().slice(0, 10);
+
+  var resp = await fetch(SUPABASE_URL + '/rest/v1/pontuacoes?bolao_id=eq.' + bolaoId + '&select=apelido,total', { headers: DB.h() });
+  if (!resp.ok) { alert('Erro ao buscar pontuações.'); return; }
+  var rows = await resp.json();
+  if (!rows.length) { alert('Nenhuma pontuação encontrada para este bolão.'); return; }
+
+  if (!confirm('Tirar foto do ranking de hoje (' + hoje + ') para o bolão "' + bolaoNome + '"?\n\nIsso vai salvar ' + rows.length + ' registros no histórico.')) return;
+
+  var erros = 0;
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    var body = JSON.stringify({ bolao_id: bolaoId, apelido: r.apelido, total: r.total, dia: hoje });
+    var ins = await fetch(SUPABASE_URL + '/rest/v1/ranking_historico', {
+      method: 'POST',
+      headers: Object.assign({}, DB.h(), { 'Prefer': 'resolution=merge-duplicates,return=minimal', 'on_conflict': 'bolao_id,apelido,dia' }),
+      body: body
+    });
+    if (!ins.ok) erros++;
+  }
+
+  if (erros === 0) {
+    alert('✅ Foto do dia ' + hoje + ' salva! ' + rows.length + ' participantes registrados.\nAcesse "Corrida do Bolão" no menu para ver o gráfico.');
+  } else {
+    alert('⚠️ ' + erros + ' erro(s) ao salvar. Verifique o console.');
+  }
+}
+
+</script>
 <script src="auth.js"></script>
 <script>
 var SU = 'https://myytheficqokbjbkmeiv.supabase.co';
@@ -203,6 +236,7 @@ async function carregarAdmin() {
   // Tabela de participantes
   html += '<div class="card"><div class="card-header"><span class="card-title">👥 PARTICIPANTES — '+_bolaoAtual.nome+'</span>';
   html += '<button class="btn" onclick="exportarPDF()" style="background:#003087;color:#ffdf00;border:1px solid #ffdf00;">📄 PDF POR JOGADOR</button>';
+  html += '<button class="btn" onclick="tirarFotoDoDia()" style="background:#009c3b;color:#fff;margin-left:8px;">📸 FOTO DO DIA</button>';
   html += '</div>';
   html += '<div class="tabela-participantes">';
   html += '<div class="participante-row header"><div>Apelido</div><div>Grupos</div><div>Rod.1</div><div>Rod.2</div><div>Rod.3</div><div>Mata-Mata</div><div>16 Avos</div><div>Oitavas</div><div>Quartas</div><div>Semi</div><div>Final</div><div>Total</div></div>';

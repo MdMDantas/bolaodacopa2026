@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corrida do Bolão — Copa 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#ffdf00;--green:#009c3b;--green-light:#00c44f;--blue:#003087;--bg:#001a4a;--bg2:#002266;--bg3:#002d80;--card:#00194a;--border:#1a3d7a;--text:#e8f0ff;--muted:#7a9fd4;--white:#fff;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;
+    background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(0,48,135,0.5) 0%,transparent 60%);
+    padding-bottom:60px;}
+  .wrapper{max-width:1100px;margin:0 auto;padding:0 20px;}
+
+  /* HEADER */
+  .back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;text-decoration:none;
+    margin:20px 0 16px;padding:8px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;}
+  .back:hover{color:var(--gold);border-color:var(--gold);}
+
+  /* SELETOR */
+  .select-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:20px;
+    display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;}
+  .select-wrap label{display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+  .sel-group{flex:1;min-width:200px;}
+  .sel-wrap{position:relative;}
+  .sel-wrap select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;
+    padding:12px 36px 12px 14px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;
+    outline:none;appearance:none;cursor:pointer;}
+  .sel-wrap select:focus{border-color:var(--gold);}
+  .sel-wrap select option{background:#002266;}
+  .sel-wrap::after{content:'▾';position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+  .btn-buscar{background:var(--gold);color:var(--blue);border:none;border-radius:10px;padding:12px 22px;
+    font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;font-weight:900;white-space:nowrap;align-self:flex-end;}
+  .btn-buscar:hover{opacity:0.9;}
+
+  /* BADGE HOJE */
+  .hoje-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,223,0,0.08);
+    border:1px solid rgba(255,223,0,0.3);border-radius:20px;padding:5px 14px;
+    font-size:11px;font-weight:700;color:var(--gold);letter-spacing:1px;margin-bottom:16px;}
+  .hoje-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);
+    box-shadow:0 0 6px var(--gold);animation:pulse 1.5s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+  /* CARD GRÁFICO */
+  .chart-card{background:var(--card);border:1px solid var(--border);border-radius:16px;
+    padding:24px 20px 16px;position:relative;overflow:hidden;margin-bottom:20px;}
+  .chart-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--blue),var(--green),var(--gold));}
+  .chart-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--gold);margin-bottom:16px;}
+
+  /* LEGENDA */
+  .legenda{display:flex;flex-wrap:wrap;gap:8px 18px;margin-bottom:18px;}
+  .legenda-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text);font-weight:500;cursor:pointer;}
+  .legenda-item.dim{opacity:0.3;}
+  .leg-linha-wrap{position:relative;display:inline-flex;align-items:center;width:28px;}
+  .leg-linha{width:28px;height:3px;border-radius:2px;display:block;}
+  .leg-dot{width:8px;height:8px;border-radius:50%;border:2px solid var(--bg);
+    position:absolute;left:50%;transform:translateX(-50%);}
+
+  /* SVG */
+  #chart-svg{width:100%;display:block;overflow:visible;}
+
+  /* TABELA */
+  .pos-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+  .pos-header{background:var(--bg3);padding:12px 20px;font-family:'Bebas Neue',sans-serif;
+    font-size:16px;letter-spacing:2px;color:var(--gold);}
+  .pos-row{display:grid;align-items:center;padding:10px 20px;
+    border-bottom:1px solid rgba(26,61,122,0.4);font-size:13px;gap:4px;}
+  .pos-row:last-child{border-bottom:none;}
+  .pos-row.head{background:rgba(0,45,128,0.5);font-size:9px;font-weight:700;
+    letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:7px 20px;}
+  .pos-num{font-family:'Bebas Neue',sans-serif;font-size:16px;text-align:center;}
+  .pos-nome{font-weight:600;}
+  .pos-pts{text-align:center;font-size:12px;color:var(--muted);}
+  .pos-pts.hoje{color:var(--gold);font-weight:700;font-size:14px;}
+  .trend{text-align:center;font-size:13px;}
+
+  /* LOADING / EMPTY */
+  .loading{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;}
+  .loading strong{display:block;font-size:20px;margin-bottom:8px;color:var(--gold);font-family:'Bebas Neue',sans-serif;letter-spacing:2px;}
+  .empty{text-align:center;padding:50px 20px;color:var(--muted);font-size:14px;}
+  .empty strong{color:var(--gold);display:block;font-size:18px;margin-bottom:8px;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;}
+
+  /* NOTA */
+  .nota{margin-top:14px;padding:10px 14px;background:rgba(122,159,212,0.07);
+    border:1px solid rgba(122,159,212,0.15);border-radius:10px;font-size:11px;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <svg width="100%" viewBox="0 0 680 160" style="display:block;border-radius:16px;overflow:hidden;margin:20px 0 0;">
+    <rect x="0" y="0" width="340" height="80" fill="#003087"/>
+    <rect x="340" y="0" width="340" height="80" fill="#009c3b"/>
+    <rect x="0" y="80" width="340" height="80" fill="#ffdf00"/>
+    <rect x="340" y="80" width="340" height="80" fill="#ffffff"/>
+    <path d="M-10 80 Q60 80 60 30 Q60 -10 110 -10 L-10 -10 Z" fill="#ffdf00"/>
+    <path d="M690 80 Q620 80 620 30 Q620 -10 570 -10 L690 -10 Z" fill="#003087"/>
+    <path d="M-10 80 Q60 80 60 130 Q60 170 110 170 L-10 170 Z" fill="#003087"/>
+    <path d="M690 80 Q620 80 620 130 Q620 170 570 170 L690 170 Z" fill="#009c3b"/>
+    <rect x="100" y="28" width="480" height="104" rx="10" fill="#003087" opacity="0.93"/>
+    <rect x="100" y="28" width="480" height="104" rx="10" fill="none" stroke="#ffdf00" stroke-width="1.5"/>
+    <text x="340" y="52" text-anchor="middle" font-size="8" fill="#ffdf00">* * * * *</text>
+    <text x="340" y="88" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="2">CORRIDA DO BOLÃO</text>
+    <text x="340" y="108" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="700" fill="#ffdf00" letter-spacing="4">Copa do Mundo 2026</text>
+  </svg>
+
+  <a href="index.html" class="back">← Voltar ao Início</a>
+
+  <!-- SELETOR DE BOLÃO -->
+  <div class="select-wrap">
+    <div class="sel-group">
+      <label>Código do Bolão</label>
+      <div style="display:flex;gap:10px;">
+        <input type="text" id="codigoInput" placeholder="Ex: AMIGOS2026"
+          style="flex:1;background:#001a4a;border:1px solid #1a3d7a;border-radius:10px;
+          padding:12px 14px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;
+          outline:none;text-transform:uppercase;"
+          onkeydown="if(event.key==='Enter')buscar()">
+        <button class="btn-buscar" onclick="buscar()">BUSCAR</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="area"><div class="loading"><strong>📈 CORRIDA DO BOLÃO</strong>Digite o código do bolão para ver a evolução de pontos dia a dia.</div></div>
+
+</div>
+
+<script src="db.js"></script>
+<script src="auth.js"></script>
+<script>
+var SU = SUPABASE_URL;
+var SK = SUPABASE_KEY;
+var H  = { 'apikey': SK, 'Authorization': 'Bearer ' + SK };
+
+// Paleta de cores para as linhas
+var CORES = [
+  '#ffdf00','#00c44f','#ff6b6b','#7eb8ff','#cc88ff',
+  '#ffaa44','#44ddcc','#ff88cc','#aaddff','#ffcc88',
+  '#88ffaa','#ff8866'
+];
+
+// Pre-preenche código se usuário estiver logado
+window.onload = function() {
+  var u = (typeof AUTH !== 'undefined') ? AUTH.get() : null;
+  if (u && u.bolao_codigo) {
+    document.getElementById('codigoInput').value = u.bolao_codigo;
+    buscar();
+  }
+};
+
+async function buscar() {
+  var codigo = document.getElementById('codigoInput').value.trim().toUpperCase();
+  if (!codigo) return;
+
+  document.getElementById('area').innerHTML = '<div class="loading"><strong>⏳ CARREGANDO...</strong>Buscando histórico do bolão.</div>';
+
+  // 1. Buscar bolão pelo código
+  var rb = await fetch(SU + '/rest/v1/boloes?codigo=eq.' + encodeURIComponent(codigo) + '&select=id,nome', { headers: H });
+  if (!rb.ok) { showErro('Erro ao conectar ao servidor.'); return; }
+  var boloes = await rb.json();
+  if (!boloes.length) { showErro('Bolão não encontrado. Verifique o código.'); return; }
+  var bolao = boloes[0];
+
+  // 2. Buscar histórico de pontuações
+  var rh = await fetch(SU + '/rest/v1/ranking_historico?bolao_id=eq.' + bolao.id + '&select=apelido,total,dia&order=dia.asc', { headers: H });
+  if (!rh.ok) { showErro('Tabela de histórico não encontrada. Peça ao administrador para registrar o primeiro snapshot.'); return; }
+  var historico = await rh.json();
+
+  if (!historico.length) {
+    showErro('Nenhum dado de histórico ainda. O administrador precisa registrar o snapshot do dia na página Admin.');
+    return;
+  }
+
+  renderGrafico(bolao, historico);
+}
+
+function showErro(msg) {
+  document.getElementById('area').innerHTML = '<div class="empty"><strong>⚠️ ATENÇÃO</strong>' + msg + '</div>';
+}
+
+function renderGrafico(bolao, historico) {
+  // Organizar dados: { apelido -> [pts por dia] }
+  var diasSet = [], participantesMap = {};
+  historico.forEach(function(r) {
+    if (diasSet.indexOf(r.dia) === -1) diasSet.push(r.dia);
+    if (!participantesMap[r.apelido]) participantesMap[r.apelido] = {};
+    participantesMap[r.apelido][r.dia] = r.total;
+  });
+  diasSet.sort();
+
+  var nomes = Object.keys(participantesMap);
+  var HOJE_IDX = diasSet.length - 1;
+
+  // Montar séries: array de {nome, pts[]}
+  var series = nomes.map(function(nome, ci) {
+    var pts = diasSet.map(function(d) { return participantesMap[nome][d] || 0; });
+    return { nome: nome, pts: pts, cor: CORES[ci % CORES.length] };
+  });
+
+  // Ordenar por pontuação atual
+  var ordenado = series.slice().sort(function(a,b) { return b.pts[HOJE_IDX] - a.pts[HOJE_IDX]; });
+
+  // Dia atual formatado
+  var diaAtual = diasSet[HOJE_IDX];
+  var diaLabel = 'Dia ' + (HOJE_IDX + 1);
+
+  // Máximo de pontos para escala Y
+  var maxPts = 0;
+  series.forEach(function(s) { s.pts.forEach(function(v) { if(v>maxPts) maxPts=v; }); });
+  maxPts = Math.ceil(maxPts / 10) * 10 + 10;
+
+  // ── MONTAR HTML ──────────────────────────────────────────────────────
+  var html = '';
+
+  // Badge hoje
+  html += '<div class="hoje-badge"><div class="hoje-dot"></div>' + diaLabel.toUpperCase() + ' — ' + formatarData(diaAtual) + '</div>';
+
+  // Card do gráfico
+  html += '<div class="chart-card">';
+  html += '<div class="chart-title">📈 ' + bolao.nome + '</div>';
+
+  // Legenda
+  html += '<div class="legenda" id="legenda-items">';
+  series.forEach(function(s) {
+    html += '<div class="legenda-item" onclick="toggleLinha(this,\'' + s.nome + '\')" data-nome="' + s.nome + '">'
+      + '<span class="leg-linha-wrap"><span class="leg-linha" style="background:' + s.cor + '"></span>'
+      + '<span class="leg-dot" style="background:' + s.cor + '"></span></span>'
+      + s.nome + '</div>';
+  });
+  html += '</div>';
+
+  // SVG
+  html += buildSVG(series, diasSet, HOJE_IDX, maxPts);
+
+  html += '<div class="nota">💡 Clique em um nome na legenda para destacar/ocultar a linha.</div>';
+  html += '</div>'; // fim chart-card
+
+  // Tabela de posições
+  html += '<div class="pos-card">';
+  html += '<div class="pos-header">🏆 Classificação Atual — ' + formatarData(diaAtual) + '</div>';
+
+  // Header da tabela
+  var colsTemplate = '50px 1fr ' + diasSet.map(function() { return '56px'; }).join(' ') + ' 52px';
+  html += '<div class="pos-row head" style="grid-template-columns:' + colsTemplate + '">';
+  html += '<div>POS</div><div>PARTICIPANTE</div>';
+  diasSet.forEach(function(d, i) {
+    html += '<div style="text-align:center">' + (i === HOJE_IDX ? '★ ' : '') + 'D' + (i+1) + '</div>';
+  });
+  html += '<div style="text-align:center">TEND.</div>';
+  html += '</div>';
+
+  ordenado.forEach(function(s, idx) {
+    var numColor = idx===0?'#ffdf00':idx===1?'#aaa':idx===2?'#cd7f32':'#7a9fd4';
+    var medal = idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':'';
+    var diff = s.pts[HOJE_IDX] - (s.pts[HOJE_IDX-1]||0);
+    var trend = diff > 0
+      ? '<span style="color:#00c44f;font-size:12px;">▲' + diff + '</span>'
+      : diff < 0
+        ? '<span style="color:#ff6b6b;font-size:12px;">▼' + Math.abs(diff) + '</span>'
+        : '<span style="color:#7a9fd4;font-size:12px;">—</span>';
+
+    html += '<div class="pos-row" style="grid-template-columns:' + colsTemplate + '">';
+    html += '<div class="pos-num" style="color:' + numColor + '">' + (medal || (idx+1)+'º') + '</div>';
+    html += '<div class="pos-nome" style="color:' + s.cor + '">' + s.nome + '</div>';
+    s.pts.forEach(function(v, i) {
+      html += '<div class="pos-pts' + (i===HOJE_IDX?' hoje':'') + '">' + v + '</div>';
+    });
+    html += '<div class="trend">' + trend + '</div>';
+    html += '</div>';
+  });
+
+  html += '</div>'; // fim pos-card
+
+  document.getElementById('area').innerHTML = html;
+}
+
+// ── BUILDER DO SVG ──────────────────────────────────────────────────────
+function buildSVG(series, dias, hojeIdx, maxPts) {
+  var PAD = { top: 30, right: 150, bottom: 38, left: 52 };
+  var W = 1000, H = 420;
+  var PW = W - PAD.left - PAD.right;
+  var PH = H - PAD.top - PAD.bottom;
+  var N = dias.length;
+
+  function xOf(i) { return N === 1 ? PAD.left + PW/2 : PAD.left + (i / (N-1)) * PW; }
+  function yOf(v) { return PAD.top + PH - (v / maxPts) * PH; }
+
+  var s = '<svg id="chart-svg" viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;overflow:visible;">';
+
+  // Grid Y
+  var step = maxPts <= 30 ? 5 : maxPts <= 60 ? 10 : maxPts <= 120 ? 20 : 30;
+  for (var v = 0; v <= maxPts; v += step) {
+    var y = yOf(v);
+    s += '<line x1="' + PAD.left + '" y1="' + y + '" x2="' + (PAD.left+PW) + '" y2="' + y
+      + '" stroke="#1a3d7a" stroke-width="' + (v===0?1.5:0.7) + '" stroke-dasharray="' + (v===0?'none':'4,5') + '"/>';
+    s += '<text x="' + (PAD.left-10) + '" y="' + (y+4) + '" text-anchor="end" fill="#7a9fd4" font-size="11" font-family="DM Sans,sans-serif">' + v + '</text>';
+  }
+
+  // Grid X + labels
+  dias.forEach(function(d, i) {
+    var x = xOf(i);
+    s += '<line x1="' + x + '" y1="' + PAD.top + '" x2="' + x + '" y2="' + (PAD.top+PH)
+      + '" stroke="#1a3d7a" stroke-width="0.5" stroke-dasharray="2,6"/>';
+    s += '<text x="' + x + '" y="' + (PAD.top+PH+18) + '" text-anchor="middle"'
+      + ' fill="' + (i===hojeIdx?'#ffdf00':'#7a9fd4') + '"'
+      + ' font-size="11" font-family="DM Sans,sans-serif"'
+      + ' font-weight="' + (i===hojeIdx?700:400) + '">Dia ' + (i+1) + '</text>';
+  });
+
+  // Marcador HOJE
+  var xH = xOf(hojeIdx);
+  s += '<line x1="' + xH + '" y1="' + PAD.top + '" x2="' + xH + '" y2="' + (PAD.top+PH)
+    + '" stroke="#ffdf00" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.45"/>';
+  s += '<rect x="' + (xH-22) + '" y="' + (PAD.top-20) + '" width="44" height="16" rx="4"'
+    + ' fill="rgba(255,223,0,0.12)" stroke="rgba(255,223,0,0.35)" stroke-width="0.8"/>';
+  s += '<text x="' + xH + '" y="' + (PAD.top-8) + '" text-anchor="middle" fill="#ffdf00"'
+    + ' font-size="9" font-weight="700" font-family="DM Sans,sans-serif" letter-spacing="1">HOJE</text>';
+
+  // Linhas e pontos (da pior pra melhor para ordem z correta)
+  var ordenadoZ = series.slice().sort(function(a,b){ return a.pts[hojeIdx]-b.pts[hojeIdx]; });
+  ordenadoZ.forEach(function(p) {
+    var pts = p.pts.slice(0, hojeIdx+1);
+    var pontos = pts.map(function(v,i){ return xOf(i)+','+yOf(v); }).join(' ');
+
+    s += '<polyline class="linha-' + sanitize(p.nome) + '" points="' + pontos + '"'
+      + ' fill="none" stroke="' + p.cor + '" stroke-width="2.5"'
+      + ' stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>';
+
+    pts.forEach(function(v, i) {
+      var isHoje = i === hojeIdx;
+      s += '<circle class="ponto-' + sanitize(p.nome) + '"'
+        + ' cx="' + xOf(i) + '" cy="' + yOf(v) + '"'
+        + ' r="' + (isHoje?6:3.5) + '"'
+        + ' fill="' + p.cor + '" stroke="#001a4a" stroke-width="' + (isHoje?2:1.5) + '"/>';
+    });
+
+    // Label final
+    var lx = xOf(hojeIdx);
+    var ly = yOf(pts[hojeIdx]);
+    var pos = series.slice().sort(function(a,b){return b.pts[hojeIdx]-a.pts[hojeIdx];}).findIndex(function(x){return x.nome===p.nome;}) + 1;
+    var medal = pos===1?'🥇 ':pos===2?'🥈 ':pos===3?'🥉 ':'';
+    s += '<text class="label-' + sanitize(p.nome) + '"'
+      + ' x="' + (lx+14) + '" y="' + (ly+4) + '"'
+      + ' fill="' + p.cor + '" font-size="12" font-weight="700" font-family="DM Sans,sans-serif">'
+      + medal + p.nome + '  ' + pts[hojeIdx] + 'pts</text>';
+  });
+
+  s += '</svg>';
+  return s;
+}
+
+function sanitize(str) { return str.replace(/[^a-zA-Z0-9]/g,'_'); }
+
+function formatarData(dataStr) {
+  if (!dataStr) return '';
+  // Formato esperado: YYYY-MM-DD
+  var p = dataStr.split('-');
+  if (p.length === 3) return p[2]+'/'+p[1]+'/'+p[0];
+  return dataStr;
+}
+
+function toggleLinha(el, nome) {
+  var key = sanitize(nome);
+  el.classList.toggle('dim');
+  var op = el.classList.contains('dim') ? '0' : '0.9';
+  var opPt = el.classList.contains('dim') ? '0' : '1';
+  document.querySelectorAll('.linha-'+key).forEach(function(e){ e.style.opacity = op; });
+  document.querySelectorAll('.ponto-'+key).forEach(function(e){ e.style.opacity = opPt; });
+  document.querySelectorAll('.label-'+key).forEach(function(e){ e.style.opacity = opPt; });
+}
+</script>
+</body>
+</html>
