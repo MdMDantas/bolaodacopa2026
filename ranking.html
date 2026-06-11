@@ -376,6 +376,11 @@ async function carregarRanking(bolaoId, bolaoNome) {
     var r1 = await fetch(SU+'/rest/v1/pontuacoes?bolao_id=eq.'+bolaoId+'&select=*&order=total.desc',{headers:H});
     if (r1.ok) ranking = await r1.json();
 
+    // Filtrar apenas quem enviou pelo menos um palpite
+    ranking = ranking.filter(function(r) {
+      return fase1Grupos[r.apelido] || fase1Placares[r.apelido] || fase2Chaveamento[r.apelido];
+    });
+
     // Se não tem pontuações, monta lista de quem enviou palpites
     if (!ranking.length) {
       var todosApelidos = {};
