@@ -390,7 +390,11 @@ function exportarPDF() {
       var hora = dt.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
       dataRegistro = dia + ' às ' + hora;
     }
-    html += '<div class="header-jogador"><h2>⚽ ' + ap + '</h2><div style="text-align:right;"><div>' + d.bolao.nome + '</div><div style="font-size:10px;color:#888;margin-top:2px;">Registrado em: ' + dataRegistro + '</div></div></div>';
+    var agora = new Date();
+    var diaGer = agora.toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric'});
+    var horaGer = agora.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+    var geradoEm = diaGer + ' às ' + horaGer;
+    html += '<div class="header-jogador"><h2>⚽ ' + ap + '</h2><div style="text-align:right;"><div>' + d.bolao.nome + '</div><div style="font-size:10px;color:#aac;margin-top:2px;">Registrado em: ' + dataRegistro + '</div><div style="font-size:10px;color:#ffdf00;margin-top:2px;">Documento gerado em: ' + geradoEm + '</div></div></div>';
 
     // Classificação dos grupos
     if (d.p1Map[ap]) {
