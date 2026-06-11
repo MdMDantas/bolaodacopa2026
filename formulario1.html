@@ -777,6 +777,12 @@ document.addEventListener('DOMContentLoaded', function() {
   renderTodosBotoes();
   setInterval(renderTodosBotoes, 60000);
   document.addEventListener('change',function(){markFilled();updateProgress();});
+
+  // Se veio de "Editar Palpites" em meus-palpites, recuperar automaticamente
+  if (sessionStorage.getItem('autoRecuperar') === '1') {
+    sessionStorage.removeItem('autoRecuperar');
+    setTimeout(function(){ recuperarUltimoPalpite(); }, 500);
+  }
 });
 </script>
 </html>
@@ -830,11 +836,14 @@ async function recuperarUltimoPalpite() {
 
   if (!participante) {
     var usuario = (typeof AUTH !== 'undefined') ? AUTH.get() : null;
-    var ultimoCodigo = (typeof AUTH !== 'undefined') ? AUTH.getUltimoBolao() : '';
     if (!usuario) { alert('Faça login primeiro para recuperar seu palpite.'); return; }
-    if (!ultimoCodigo) { alert('Envie um palpite pelo menos uma vez para poder recuperar.'); return; }
-    var bolao = await DB.buscarBolao(ultimoCodigo);
-    if (!bolao) { alert('Bolão não encontrado. Envie um palpite primeiro.'); return; }
+    var ultimoCodigo = (typeof AUTH !== 'undefined') ? AUTH.getUltimoBolao() : '';
+    if (!ultimoCodigo) {
+      ultimoCodigo = prompt('Digite o código do bolão:');
+      if (!ultimoCodigo) return;
+    }
+    var bolao = await DB.buscarBolao(ultimoCodigo.trim().toUpperCase());
+    if (!bolao) { alert('Bolão "'+ultimoCodigo+'" não encontrado.'); return; }
     participante = { apelido: usuario.apelido, nome: usuario.apelido, telefone: usuario.telefone, bolao: bolao };
   }
 

@@ -161,6 +161,7 @@
       <div class="bolao-tag" id="headerBolao"></div>
     </div>
     <div style="display:flex;flex-direction:row;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+      <button onclick="editarPalpites()" style="background:rgba(0,196,79,0.1);border:1px solid rgba(0,196,79,0.3);color:#00c44f;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;white-space:nowrap;">✏️ EDITAR PALPITES</button>
       <button onclick="exportarPalpitesPDF()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.4);color:#ffdf00;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;white-space:nowrap;">📄 EXPORTAR PDF</button>
       <button class="btn-sair" onclick="trocarBolao()" style="white-space:nowrap;">Trocar bolão</button>
     </div>
@@ -305,6 +306,16 @@ window.onload = function() {
   var ultimo = AUTH.getUltimoBolao();
   if (ultimo) document.getElementById('codigoBolao').value = ultimo;
 };
+
+function editarPalpites() {
+  // Salvar o código do bolão atual para o formulário recuperar automaticamente
+  if (_bolaoAtual && _bolaoAtual.codigo) {
+    if (typeof AUTH !== 'undefined') AUTH.salvarUltimoBolao(_bolaoAtual.codigo);
+  }
+  // Sinalizar para o formulário que deve recuperar automaticamente
+  sessionStorage.setItem('autoRecuperar', '1');
+  window.location.href = 'formulario1.html';
+}
 
 function trocarBolao() {
   document.getElementById('pageHeader').style.display = 'none';
