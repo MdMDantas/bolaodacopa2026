@@ -138,8 +138,6 @@ var H = { 'apikey': SK, 'Authorization': 'Bearer ' + SK };
 var bolaoAtual = null;
 var participantes = [];
 var usuarioAtual = null;
-var feedInterval = null;
-var jogosHoje = [];
 
 window.onload = function() {
   usuarioAtual = (typeof AUTH !== 'undefined') ? AUTH.get() : null;
@@ -153,8 +151,6 @@ async function buscar() {
   var codigo = document.getElementById('codigoInput').value.trim().toUpperCase();
   if (!codigo) return;
   document.getElementById('area').innerHTML = '<div class="msg"><strong>⏳</strong>Carregando...</div>';
-  if (feedInterval) clearInterval(feedInterval);
-
   // Buscar bolão
   var rb = await fetch(SU + '/rest/v1/boloes?codigo=eq.' + encodeURIComponent(codigo) + '&select=id,nome', { headers: H });
   var boloes = await rb.json();
@@ -166,15 +162,8 @@ async function buscar() {
   var pp = await rp.json();
   participantes = pp.map(function(x){ return x.apelido; });
 
-  // Buscar jogos de hoje
-  var hojeStr = new Date().toISOString().slice(0,10);
-  try {
-    var rj = await fetch(SU + '/rest/v1/jogos_calendario?data_jogo=eq.' + hojeStr + '&select=api_id,time_a,time_b,horario_brasilia&order=horario_brasilia.asc', { headers: H });
-    jogosHoje = rj.ok ? await rj.json() : [];
-  } catch(e) { jogosHoje = []; }
 
   await renderPage();
-  feedInterval = setInterval(atualizarFeed, 15000);
 }
 
 async function renderPage() {
@@ -401,8 +390,9 @@ function formatarDataHora(iso) {
 
 function formatarJogoId(jid) {
   if (!jid) return '';
-  // Tentar encontrar nos jogos de hoje
-  var j = jogosHoje.find(function(x){ return x.api_id === jid; });
+  // Tentar encontrar nos jogos de hoje (jogosHoje pode não estar disponível)
+  var _jogos = typeof jogosHoje !== 'undefined' ? jogosHoje : [];
+  var j = _jogos.find(function(x){ return x.api_id === jid; });
   if (j) return j.time_a + ' × ' + j.time_b + ' (' + j.horario_brasilia + ')';
   // Fallback: decodificar o id
   var m = jid.match(/^(R\d+)_([A-Z]+)_\d+$/);

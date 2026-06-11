@@ -194,8 +194,9 @@ async function gerarResumo(apelido, bolaoId) {
       var tp=p1['g'+g.toLowerCase()+'_'+pos]||p1['g'+g+'_'+pos]||'—';
       var tr=tabelaReal[pos-1]?tabelaReal[pos-1].t:'—';
       var posReal=tabelaReal.findIndex(function(t){return t.t===tp;});
-      var acertouPos=(posReal!==-1&&posReal+1===pos&&tp!=='—');
-      var acertouClass=(posReal!==-1&&posReal<2&&pos<=2&&tp!=='—');
+      var grupoTemJogos=tabelaReal.some(function(t){return t.j>0;});
+      var acertouPos=(grupoTemJogos&&posReal!==-1&&posReal+1===pos&&tp!=='—');
+      var acertouClass=(grupoTemJogos&&posReal!==-1&&posReal<2&&pos<=2&&tp!=='—');
       if(acertouPos) pts_grupos+=1;
       if(acertouClass){ pts_grupos+=1; bonusClassif.push(tp); }
       html += '<div class="grupo-cols">';
@@ -217,7 +218,7 @@ async function gerarResumo(apelido, bolaoId) {
     var posZ=-1,grupoZ=null;
     if(zebra!=='—'){
       Object.keys(GRUPOS_DISPLAY_R).forEach(function(g){if(GRUPOS_DISPLAY_R[g].indexOf(zebra)>=0)grupoZ=g;});
-      if(grupoZ){var tabZ=calcTabelaR(grupoZ,resultados);posZ=tabZ.findIndex(function(t){return t.t===zebra;});}
+      if(grupoZ){var tabZ=calcTabelaR(grupoZ,resultados);posZ=tabZ.findIndex(function(t){return t.t===zebra;});var grupoZTemJogos=tabZ.some(function(t){return t.j>0;});if(!grupoZTemJogos)posZ=-1;}
     }
     var zPts=0,zDesc='Aguardando';
     if(posZ===0){zPts=6;zDesc='1º lugar +6pts';}
