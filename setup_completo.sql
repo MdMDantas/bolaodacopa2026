@@ -165,3 +165,21 @@ CREATE INDEX IF NOT EXISTS idx_rh_bolao_dia ON ranking_historico(bolao_id, dia);
 
 GRANT ALL ON ranking_historico TO anon;
 ALTER TABLE ranking_historico DISABLE ROW LEVEL SECURITY;
+
+-- =============================================
+-- TABELA: mural_posts (Mural da Zoeira)
+-- =============================================
+CREATE TABLE IF NOT EXISTS mural_posts (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  criado_em timestamptz DEFAULT now(),
+  bolao_id uuid REFERENCES boloes(id),
+  apelido text NOT NULL,
+  alvo text,               -- quem está sendo zoado (opcional)
+  texto text NOT NULL,
+  likes int DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_mural_bolao ON mural_posts(bolao_id, criado_em DESC);
+
+GRANT ALL ON mural_posts TO anon;
+ALTER TABLE mural_posts DISABLE ROW LEVEL SECURITY;

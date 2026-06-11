@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mural da Zoeira — Bolão Copa 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#ffdf00;--green:#009c3b;--green-light:#00c44f;--blue:#003087;--bg:#001a4a;--bg2:#002266;--bg3:#002d80;--card:#00194a;--border:#1a3d7a;--text:#e8f0ff;--muted:#7a9fd4;--white:#fff;--orange:#ff8c00;--red:#ff4444;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;
+    background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(0,48,135,0.5) 0%,transparent 60%);
+    padding-bottom:60px;}
+  .wrapper{max-width:800px;margin:0 auto;padding:0 20px;}
+  .back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;
+    text-decoration:none;margin:20px 0 16px;padding:8px 14px;background:var(--card);
+    border:1px solid var(--border);border-radius:8px;}
+  .back:hover{color:var(--gold);border-color:var(--gold);}
+
+  /* SELETOR */
+  .select-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:20px;}
+  .select-wrap label{display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+  .input-row{display:flex;gap:10px;}
+  .input-row input{flex:1;background:#001a4a;border:1px solid #1a3d7a;border-radius:10px;
+    padding:12px 14px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;text-transform:uppercase;}
+  .input-row input:focus{border-color:var(--gold);}
+  .btn-buscar{background:var(--gold);color:var(--blue);border:none;border-radius:10px;
+    padding:12px 22px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;font-weight:900;}
+
+  /* TROFÉUS */
+  .trofeus-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+  @media(max-width:600px){.trofeus-grid{grid-template-columns:1fr;}}
+  .trofeu-card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:16px;text-align:center;position:relative;overflow:hidden;}
+  .trofeu-card.destaque{border-color:rgba(255,223,0,0.4);background:linear-gradient(135deg,#00194a,#001a30);}
+  .trofeu-emoji{font-size:32px;margin-bottom:8px;display:block;}
+  .trofeu-titulo{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+    color:var(--muted);margin-bottom:6px;}
+  .trofeu-nome{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--gold);}
+  .trofeu-desc{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4;}
+  .trofeu-vazio{font-size:12px;color:var(--muted);font-style:italic;}
+
+  /* SEÇÃO TÍTULO */
+  .secao{margin-bottom:20px;}
+  .secao-titulo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;
+    color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+
+  /* COMPOSE */
+  .compose-card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:18px 20px;margin-bottom:20px;}
+  .compose-top{display:flex;gap:12px;align-items:flex-start;}
+  .compose-avatar{width:38px;height:38px;border-radius:50%;background:var(--bg3);
+    border:2px solid var(--border);display:flex;align-items:center;justify-content:center;
+    font-size:16px;flex-shrink:0;}
+  .compose-right{flex:1;}
+  .compose-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+  .compose-usuario{font-size:12px;font-weight:700;color:var(--gold);}
+  .compose-alvo-wrap{display:flex;align-items:center;gap:6px;}
+  .compose-alvo-label{font-size:11px;color:var(--muted);}
+  .compose-select{background:var(--bg);border:1px solid var(--border);border-radius:6px;
+    padding:4px 8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;}
+  .compose-select:focus{border-color:var(--gold);}
+  textarea{width:100%;background:transparent;border:none;color:var(--text);
+    font-family:'DM Sans',sans-serif;font-size:14px;resize:none;outline:none;line-height:1.5;
+    min-height:60px;}
+  textarea::placeholder{color:var(--muted);}
+  .compose-footer{display:flex;align-items:center;justify-content:space-between;
+    margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+  .compose-chars{font-size:11px;color:var(--muted);}
+  .compose-chars.aviso{color:var(--orange);}
+  .compose-chars.limite{color:var(--red);}
+  .btn-postar{background:var(--gold);color:var(--blue);border:none;border-radius:8px;
+    padding:8px 20px;font-family:'Bebas Neue',sans-serif;font-size:14px;
+    letter-spacing:1px;cursor:pointer;font-weight:900;}
+  .btn-postar:hover{opacity:0.9;}
+  .btn-postar:disabled{opacity:0.4;cursor:not-allowed;}
+  .login-aviso{font-size:12px;color:var(--muted);font-style:italic;}
+
+  /* FEED */
+  .post-item{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:16px 18px;margin-bottom:10px;transition:border-color 0.2s;}
+  .post-item:hover{border-color:rgba(255,223,0,0.2);}
+  .post-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .post-avatar{width:34px;height:34px;border-radius:50%;background:var(--bg3);
+    border:2px solid var(--border);display:flex;align-items:center;justify-content:center;
+    font-size:14px;flex-shrink:0;}
+  .post-meta{flex:1;}
+  .post-autor{font-weight:700;font-size:13px;color:var(--gold);}
+  .post-alvo{font-size:12px;color:var(--orange);margin-left:4px;}
+  .post-tempo{font-size:11px;color:var(--muted);}
+  .post-texto{font-size:14px;line-height:1.6;color:var(--text);word-break:break-word;}
+  .post-mention{color:var(--gold);font-weight:700;}
+  .post-actions{display:flex;align-items:center;gap:16px;margin-top:10px;}
+  .post-like{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;
+    display:flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;padding:0;}
+  .post-like:hover{color:#ff6b6b;}
+  .post-like.liked{color:#ff6b6b;}
+  .post-delete{background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;
+    margin-left:auto;font-family:'DM Sans',sans-serif;padding:0;}
+  .post-delete:hover{color:var(--red);}
+
+  /* EMPTY / LOADING */
+  .msg{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;}
+  .msg strong{display:block;font-size:18px;margin-bottom:6px;color:var(--gold);
+    font-family:'Bebas Neue',sans-serif;letter-spacing:2px;}
+
+  /* TOAST */
+  #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:#002266;border:1px solid var(--green-light);border-radius:12px;
+    padding:12px 22px;font-size:13px;color:#fff;font-weight:600;
+    opacity:0;transition:all 0.3s;pointer-events:none;z-index:999;white-space:nowrap;}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <svg width="100%" viewBox="0 0 680 160" style="display:block;border-radius:16px;overflow:hidden;margin:20px 0 0;">
+    <rect x="0" y="0" width="340" height="80" fill="#003087"/>
+    <rect x="340" y="0" width="340" height="80" fill="#009c3b"/>
+    <rect x="0" y="80" width="340" height="80" fill="#ffdf00"/>
+    <rect x="340" y="80" width="340" height="80" fill="#ffffff"/>
+    <path d="M-10 80 Q60 80 60 30 Q60 -10 110 -10 L-10 -10 Z" fill="#ffdf00"/>
+    <path d="M690 80 Q620 80 620 30 Q620 -10 570 -10 L690 -10 Z" fill="#003087"/>
+    <path d="M-10 80 Q60 80 60 130 Q60 170 110 170 L-10 170 Z" fill="#003087"/>
+    <path d="M690 80 Q620 80 620 130 Q620 170 570 170 L690 170 Z" fill="#009c3b"/>
+    <rect x="100" y="28" width="480" height="104" rx="10" fill="#1a0800" opacity="0.95"/>
+    <rect x="100" y="28" width="480" height="104" rx="10" fill="none" stroke="#ff8c00" stroke-width="1.5"/>
+    <text x="340" y="52" text-anchor="middle" font-size="12" fill="#ff8c00">😂 🔥 😂 🔥 😂</text>
+    <text x="340" y="88" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="24" font-weight="900" fill="#fff" letter-spacing="2">MURAL DA ZOEIRA</text>
+    <text x="340" y="108" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="700" fill="#ff8c00" letter-spacing="4">Copa do Mundo 2026</text>
+  </svg>
+
+  <a href="index.html" class="back">← Voltar ao Início</a>
+
+  <!-- SELETOR -->
+  <div class="select-wrap">
+    <label>Código do Bolão</label>
+    <div class="input-row">
+      <input type="text" id="codigoInput" placeholder="Ex: TETEU1234" onkeydown="if(event.key==='Enter')buscar()">
+      <button class="btn-buscar" onclick="buscar()">BUSCAR</button>
+    </div>
+  </div>
+
+  <div id="area">
+    <div class="msg"><strong>😂 MURAL DA ZOEIRA</strong>Digite o código do bolão para ver as zoações do dia!</div>
+  </div>
+
+</div>
+<div id="toast"></div>
+
+<script src="db.js"></script>
+<script src="auth.js"></script>
+<script>
+var SU = SUPABASE_URL, SK = SUPABASE_KEY;
+var H = { 'apikey': SK, 'Authorization': 'Bearer ' + SK };
+var bolaoAtual = null;
+var participantes = [];
+var usuarioAtual = null;
+var feedInterval = null;
+
+window.onload = function() {
+  usuarioAtual = (typeof AUTH !== 'undefined') ? AUTH.get() : null;
+  if (usuarioAtual && usuarioAtual.bolao_codigo) {
+    document.getElementById('codigoInput').value = usuarioAtual.bolao_codigo;
+    buscar();
+  }
+};
+
+async function buscar() {
+  var codigo = document.getElementById('codigoInput').value.trim().toUpperCase();
+  if (!codigo) return;
+  document.getElementById('area').innerHTML = '<div class="msg"><strong>⏳</strong>Carregando...</div>';
+  if (feedInterval) clearInterval(feedInterval);
+
+  var rb = await fetch(SU + '/rest/v1/boloes?codigo=eq.' + encodeURIComponent(codigo) + '&select=id,nome', { headers: H });
+  var boloes = await rb.json();
+  if (!boloes.length) { document.getElementById('area').innerHTML = '<div class="msg"><strong>⚠️</strong>Bolão não encontrado.</div>'; return; }
+  bolaoAtual = boloes[0];
+
+  // Buscar participantes
+  var rp = await fetch(SU + '/rest/v1/palpites_fase1?bolao_id=eq.' + bolaoAtual.id + '&select=apelido', { headers: H });
+  var pp = await rp.json();
+  participantes = pp.map(function(x){ return x.apelido; }).filter(function(a){ return !usuarioAtual || a !== usuarioAtual.apelido; });
+
+  await renderPage();
+  // Auto-refresh do feed a cada 15s
+  feedInterval = setInterval(atualizarFeed, 15000);
+}
+
+async function renderPage() {
+  var hoje = new Date().toISOString().slice(0, 10);
+
+  // Buscar troféus
+  var trofeus = await calcTrofeus(hoje);
+
+  // Buscar posts
+  var posts = await fetchPosts();
+
+  var html = '';
+
+  // TROFÉUS DO DIA
+  html += '<div class="secao">';
+  html += '<div class="secao-titulo">🏆 Troféus de Hoje — ' + formatarData(hoje) + '</div>';
+  html += '<div class="trofeus-grid">';
+
+  // 1. Maior Queda
+  html += '<div class="trofeu-card">';
+  html += '<span class="trofeu-emoji">📉</span>';
+  html += '<div class="trofeu-titulo">Maior Queda</div>';
+  if (trofeus.queda) {
+    html += '<div class="trofeu-nome">' + trofeus.queda.apelido + '</div>';
+    html += '<div class="trofeu-desc">Caiu ' + trofeus.queda.diff + ' posição(ões) hoje</div>';
+  } else {
+    html += '<div class="trofeu-vazio">Aguardando dados</div>';
+  }
+  html += '</div>';
+
+  // 2. Pior Palpite da Rodada
+  html += '<div class="trofeu-card destaque">';
+  html += '<span class="trofeu-emoji">🤡</span>';
+  html += '<div class="trofeu-titulo">Pior Palpite da Rodada</div>';
+  if (trofeus.piorPalpite) {
+    html += '<div class="trofeu-nome">' + trofeus.piorPalpite.apelido + '</div>';
+    html += '<div class="trofeu-desc">Apostou ' + trofeus.piorPalpite.placar + ' em ' + trofeus.piorPalpite.jogo + '</div>';
+  } else {
+    html += '<div class="trofeu-vazio">Aguardando resultados</div>';
+  }
+  html += '</div>';
+
+  // 3. Apostou no Perdedor
+  html += '<div class="trofeu-card">';
+  html += '<span class="trofeu-emoji">🙈</span>';
+  html += '<div class="trofeu-titulo">Apostou no Perdedor</div>';
+  if (trofeus.perdedor) {
+    html += '<div class="trofeu-nome">' + trofeus.perdedor.apelido + '</div>';
+    html += '<div class="trofeu-desc">Foi contra ' + trofeus.perdedor.pct + '% do bolão e errou</div>';
+  } else {
+    html += '<div class="trofeu-vazio">Aguardando resultados</div>';
+  }
+  html += '</div>';
+
+  html += '</div></div>'; // fim trofeus-grid e secao
+
+  // COMPOSE
+  html += '<div class="secao">';
+  html += '<div class="secao-titulo">💬 Mural ao Vivo</div>';
+  html += '<div class="compose-card">';
+
+  if (usuarioAtual) {
+    html += '<div class="compose-top">';
+    html += '<div class="compose-avatar">😎</div>';
+    html += '<div class="compose-right">';
+    html += '<div class="compose-header">';
+    html += '<span class="compose-usuario">' + usuarioAtual.apelido + '</span>';
+    html += '<div class="compose-alvo-wrap">';
+    html += '<span class="compose-alvo-label">zoando</span>';
+    html += '<select class="compose-select" id="selectAlvo">';
+    html += '<option value="">geral</option>';
+    participantes.forEach(function(ap){ html += '<option value="' + ap + '">' + ap + '</option>'; });
+    html += '</select></div></div>';
+    html += '<textarea id="textoPost" placeholder="Manda a zoação... 😂" maxlength="280" oninput="contarChars()"></textarea>';
+    html += '</div></div>';
+    html += '<div class="compose-footer">';
+    html += '<span class="compose-chars" id="charCount">280 caracteres restantes</span>';
+    html += '<button class="btn-postar" onclick="postar()">POSTAR 🔥</button>';
+    html += '</div>';
+  } else {
+    html += '<div class="login-aviso">🔐 <a href="login.html" style="color:var(--gold);">Entre no bolão</a> para mandar sua zoação!</div>';
+  }
+  html += '</div>';
+
+  // FEED
+  html += '<div id="feed">';
+  html += renderFeed(posts);
+  html += '</div>';
+  html += '</div>';
+
+  document.getElementById('area').innerHTML = html;
+}
+
+function renderFeed(posts) {
+  if (!posts.length) return '<div class="msg"><strong>😶 SILÊNCIO TOTAL</strong>Ninguém zoou ninguém ainda. Seja o primeiro!</div>';
+
+  var html = '';
+  posts.forEach(function(p) {
+    var tempo = tempoRelativo(p.criado_em);
+    var avatarEmojis = ['😎','🤠','🤡','😈','🦁','🐯','🦊','🐸','🐧','🦄'];
+    var avatar = avatarEmojis[Math.abs(hashStr(p.apelido)) % avatarEmojis.length];
+    var texto = escapeHtml(p.texto);
+    if (p.alvo) texto = '<span class="post-mention">@' + escapeHtml(p.alvo) + '</span> ' + texto;
+
+    var ehMeu = usuarioAtual && usuarioAtual.apelido === p.apelido;
+    var likes = p.likes || 0;
+
+    html += '<div class="post-item" id="post-' + p.id + '">';
+    html += '<div class="post-header">';
+    html += '<div class="post-avatar">' + avatar + '</div>';
+    html += '<div class="post-meta">';
+    html += '<div><span class="post-autor">' + escapeHtml(p.apelido) + '</span>';
+    if (p.alvo) html += '<span class="post-alvo">→ @' + escapeHtml(p.alvo) + '</span>';
+    html += '</div>';
+    html += '<div class="post-tempo">' + tempo + '</div>';
+    html += '</div></div>';
+    html += '<div class="post-texto">' + texto + '</div>';
+    html += '<div class="post-actions">';
+    html += '<button class="post-like" onclick="curtir(\'' + p.id + '\')">';
+    html += '❤️ ' + likes;
+    html += '</button>';
+    if (ehMeu) html += '<button class="post-delete" onclick="deletar(\'' + p.id + '\')">🗑️ apagar</button>';
+    html += '</div>';
+    html += '</div>';
+  });
+  return html;
+}
+
+async function fetchPosts() {
+  if (!bolaoAtual) return [];
+  var r = await fetch(SU + '/rest/v1/mural_posts?bolao_id=eq.' + bolaoAtual.id + '&select=*&order=criado_em.desc&limit=50', { headers: H });
+  return r.ok ? await r.json() : [];
+}
+
+async function atualizarFeed() {
+  var posts = await fetchPosts();
+  var feed = document.getElementById('feed');
+  if (feed) feed.innerHTML = renderFeed(posts);
+}
+
+function contarChars() {
+  var txt = document.getElementById('textoPost');
+  var cnt = document.getElementById('charCount');
+  if (!txt || !cnt) return;
+  var restam = 280 - txt.value.length;
+  cnt.textContent = restam + ' caracteres restantes';
+  cnt.className = 'compose-chars' + (restam < 50 ? ' aviso' : '') + (restam < 10 ? ' limite' : '');
+}
+
+async function postar() {
+  if (!usuarioAtual || !bolaoAtual) return;
+  var texto = (document.getElementById('textoPost') || {}).value || '';
+  var alvo = (document.getElementById('selectAlvo') || {}).value || '';
+  texto = texto.trim();
+  if (!texto) { toast('✍️ Escreva algo antes de postar!', '#ffaa44'); return; }
+
+  var btn = document.querySelector('.btn-postar');
+  if (btn) btn.disabled = true;
+
+  var body = { bolao_id: bolaoAtual.id, apelido: usuarioAtual.apelido, texto: texto, alvo: alvo || null, likes: 0 };
+  var r = await fetch(SU + '/rest/v1/mural_posts', {
+    method: 'POST',
+    headers: Object.assign({}, H, { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+    body: JSON.stringify(body)
+  });
+
+  if (btn) btn.disabled = false;
+
+  if (r.ok || r.status === 201) {
+    document.getElementById('textoPost').value = '';
+    contarChars();
+    toast('🔥 Zoação enviada!');
+    await atualizarFeed();
+  } else {
+    toast('❌ Erro ao postar.', '#ff4444');
+  }
+}
+
+async function curtir(postId) {
+  if (!bolaoAtual) return;
+  // Buscar likes atual e incrementar
+  var r = await fetch(SU + '/rest/v1/mural_posts?id=eq.' + postId + '&select=likes', { headers: H });
+  var data = await r.json();
+  if (!data.length) return;
+  var novosLikes = (data[0].likes || 0) + 1;
+  await fetch(SU + '/rest/v1/mural_posts?id=eq.' + postId, {
+    method: 'PATCH',
+    headers: Object.assign({}, H, { 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ likes: novosLikes })
+  });
+  await atualizarFeed();
+}
+
+async function deletar(postId) {
+  if (!usuarioAtual || !confirm('Apagar este post?')) return;
+  await fetch(SU + '/rest/v1/mural_posts?id=eq.' + postId + '&apelido=eq.' + encodeURIComponent(usuarioAtual.apelido), {
+    method: 'DELETE', headers: H
+  });
+  toast('🗑️ Post apagado.');
+  await atualizarFeed();
+}
+
+async function calcTrofeus(hoje) {
+  var trofeus = { queda: null, piorPalpite: null, perdedor: null };
+  if (!bolaoAtual) return trofeus;
+
+  // 1. MAIOR QUEDA — comparar ranking_historico de hoje vs ontem
+  try {
+    var ontem = new Date(hoje); ontem.setDate(ontem.getDate() - 1);
+    var ontemStr = ontem.toISOString().slice(0, 10);
+    var rh = await fetch(SU + '/rest/v1/ranking_historico?bolao_id=eq.' + bolaoAtual.id + '&dia=in.(' + hoje + ',' + ontemStr + ')&select=apelido,total,dia', { headers: H });
+    var hist = await rh.json();
+    var porDia = {};
+    hist.forEach(function(r) {
+      if (!porDia[r.dia]) porDia[r.dia] = {};
+      porDia[r.dia][r.apelido] = r.total;
+    });
+    var hoje_data = porDia[hoje] || {}, ontem_data = porDia[ontemStr] || {};
+    // Calcular posições
+    function getRanking(data) {
+      return Object.keys(data).sort(function(a,b){ return data[b]-data[a]; });
+    }
+    var rankHoje = getRanking(hoje_data);
+    var rankOntem = getRanking(ontem_data);
+    var maiorQueda = null, maiorDiff = 0;
+    rankHoje.forEach(function(ap, posHoje) {
+      var posOntem = rankOntem.indexOf(ap);
+      if (posOntem === -1) return;
+      var diff = posHoje - posOntem; // positivo = caiu
+      if (diff > maiorDiff) { maiorDiff = diff; maiorQueda = ap; }
+    });
+    if (maiorQueda) trofeus.queda = { apelido: maiorQueda, diff: maiorDiff };
+  } catch(e) {}
+
+  // 2. PIOR PALPITE DA RODADA + 3. APOSTOU NO PERDEDOR
+  try {
+    var rp = await fetch(SU + '/rest/v1/palpites_fase1?bolao_id=eq.' + bolaoAtual.id + '&select=apelido,placares', { headers: H });
+    var palpites = await rp.json();
+    var rr = await fetch(SU + '/rest/v1/resultados?select=*&finalizado=eq.true', { headers: H });
+    var resultados = await rr.json();
+
+    if (!resultados.length) return trofeus;
+
+    // Montar mapa de palpites
+    var mapaJogos = {};
+    palpites.forEach(function(p) {
+      var pl = p.placares || {};
+      if (typeof pl === 'string') { try { pl = JSON.parse(pl); } catch(e) { pl = {}; } }
+      Object.keys(pl).forEach(function(k) {
+        var m = k.match(/^placar_(R\d+_[A-Z]+_\d+)_([ab])$/);
+        if (!m) return;
+        var jid = m[1], lado = m[2];
+        if (!mapaJogos[jid]) mapaJogos[jid] = {};
+        if (!mapaJogos[jid][p.apelido]) mapaJogos[jid][p.apelido] = { a: null, b: null };
+        mapaJogos[jid][p.apelido][lado] = parseInt(pl[k]);
+      });
+    });
+
+    var piorScore = 99, piorApelido = null, piorJogo = null, piorPlacar = null;
+    var perdedorApelido = null, perdedorPct = 0, perdedorJogo = null;
+
+    resultados.forEach(function(res) {
+      var jid = res.api_id;
+      if (!jid || !mapaJogos[jid]) return;
+      var ga = res.gols_a, gb = res.gols_b;
+      if (ga === null || ga === undefined) return;
+      var apelidos = Object.keys(mapaJogos[jid]).filter(function(ap){
+        var pp = mapaJogos[jid][ap]; return pp.a !== null && pp.b !== null;
+      });
+      var total = apelidos.length;
+      if (!total) return;
+
+      // Vencedor real
+      var vencReal = ga > gb ? 'A' : gb > ga ? 'B' : 'E';
+      var vencVotos = { A: 0, B: 0, E: 0 };
+      apelidos.forEach(function(ap) {
+        var pp = mapaJogos[jid][ap];
+        if (pp.a > pp.b) vencVotos.A++; else if (pp.b > pp.a) vencVotos.B++; else vencVotos.E++;
+      });
+      var maioriaPct = Math.max(vencVotos.A, vencVotos.B, vencVotos.E) / total;
+      var vencMaioria = vencVotos.A >= vencVotos.B && vencVotos.A >= vencVotos.E ? 'A'
+        : vencVotos.B > vencVotos.A && vencVotos.B >= vencVotos.E ? 'B' : 'E';
+
+      apelidos.forEach(function(ap) {
+        var pp = mapaJogos[jid][ap];
+        // Calcular pontos deste palpite
+        var pts = calcPts(pp.a, pp.b, ga, gb);
+
+        // Pior palpite (0 pts, maior distância)
+        if (pts === 0) {
+          var dist = Math.abs(pp.a - ga) + Math.abs(pp.b - gb);
+          if (dist > (piorScore === 99 ? -1 : piorScore)) {
+            piorScore = dist;
+            piorApelido = ap;
+            piorJogo = res.time_a + ' × ' + res.time_b;
+            piorPlacar = pp.a + '×' + pp.b;
+          }
+        }
+
+        // Apostou no perdedor — foi contra maioria e errou
+        var meuVenc = pp.a > pp.b ? 'A' : pp.b > pp.a ? 'B' : 'E';
+        if (meuVenc !== vencMaioria && meuVenc !== vencReal && maioriaPct >= 0.6) {
+          var pctMaioria = Math.round(maioriaPct * 100);
+          if (pctMaioria > perdedorPct) {
+            perdedorPct = pctMaioria;
+            perdedorApelido = ap;
+            perdedorJogo = res.time_a + ' × ' + res.time_b;
+          }
+        }
+      });
+    });
+
+    if (piorApelido) trofeus.piorPalpite = { apelido: piorApelido, jogo: piorJogo, placar: piorPlacar };
+    if (perdedorApelido) trofeus.perdedor = { apelido: perdedorApelido, pct: perdedorPct, jogo: perdedorJogo };
+  } catch(e) {}
+
+  return trofeus;
+}
+
+function calcPts(pa, pb, ra, rb) {
+  if (pa === null || pb === null) return 0;
+  if (pa === ra && pb === rb) return 3;
+  var pe = pa === pb, re = ra === rb;
+  if (pe && re) return 2;
+  if (!pe && !re) {
+    var pv = pa > pb ? 'A' : 'B', rv = ra > rb ? 'A' : 'B';
+    if (pv === rv) return Math.abs(pa-pb) === Math.abs(ra-rb) ? 2 : 1;
+  }
+  return 0;
+}
+
+function hashStr(s) {
+  var h = 0;
+  for (var i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+  return h;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function tempoRelativo(iso) {
+  var diff = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (diff < 60) return 'agora';
+  if (diff < 3600) return Math.floor(diff/60) + 'min atrás';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h atrás';
+  return Math.floor(diff/86400) + 'd atrás';
+}
+
+function formatarData(d) {
+  if (!d) return '';
+  var p = d.split('-');
+  return p.length === 3 ? p[2]+'/'+p[1]+'/'+p[0] : d;
+}
+
+function toast(msg, cor) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.style.borderColor = cor || 'var(--green-light)';
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+</script>
+</body>
+</html>
