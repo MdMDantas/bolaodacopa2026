@@ -230,12 +230,16 @@ async function tirarFotoDoDia() {
   var erros = 0;
   for (var i = 0; i < rows.length; i++) {
     var r = rows[i];
+    // Tenta deletar o registro do dia antes de inserir (evita conflito de constraint)
+    await fetch(SU + '/rest/v1/ranking_historico?bolao_id=eq.' + bolaoAtual.id + '&apelido=eq.' + encodeURIComponent(r.apelido) + '&dia=eq.' + hoje, {
+      method: 'DELETE',
+      headers: Object.assign({}, H, { 'Content-Type': 'application/json' })
+    });
     var ins = await fetch(SU + '/rest/v1/ranking_historico', {
       method: 'POST',
       headers: Object.assign({}, H, {
         'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates,return=minimal',
-        'on_conflict': 'bolao_id,apelido,dia'
+        'Prefer': 'return=minimal'
       }),
       body: JSON.stringify({ bolao_id: bolaoAtual.id, apelido: r.apelido, total: r.total, dia: hoje })
     });
@@ -365,9 +369,12 @@ function buildSVG(series, dias, hojeIdx, maxPts) {
       s+='<circle class="ponto-'+key+'" cx="'+xOf(pt.i)+'" cy="'+yOf(pt.v)+'" r="'+(isHoje?6:3.5)+'" fill="'+p.cor+'" stroke="#001a4a" stroke-width="'+(isHoje?2:1.5)+'"/>';
     });
     var lastV=p.pts[hojeIdx]||0;
-    var pos=series.slice().sort(function(a,b){return (b.pts[hojeIdx]||0)-(a.pts[hojeIdx]||0);}).findIndex(function(x){return x.nome===p.nome;})+1;
+    var sortedByPts=series.slice().sort(function(a,b){return (b.pts[hojeIdx]||0)-(a.pts[hojeIdx]||0);});
+    var pos=sortedByPts.findIndex(function(x){return x.nome===p.nome;})+1;
     var medal=pos===1?'🥇 ':pos===2?'🥈 ':pos===3?'🥉 ':'';
-    s+='<text class="label-'+key+'" x="'+(xH+14)+'" y="'+(yOf(lastV)+4)+'" fill="'+p.cor+'" font-size="12" font-weight="700" font-family="DM Sans,sans-serif">'+medal+p.nome+'  '+lastV+'pts</text>';
+    // Quando há só 1 dia, distribuir labels verticalmente por ranking (evita sobreposição)
+    var labelY = N===1 ? (PAD.top + 20 + (pos-1)*18) : (yOf(lastV)+4);
+    s+='<text class="label-'+key+'" x="'+(xH+14)+'" y="'+labelY+'" fill="'+p.cor+'" font-size="12" font-weight="700" font-family="DM Sans,sans-serif">'+medal+p.nome+'  '+lastV+'pts</text>';
   });
 
   s+='</svg>';

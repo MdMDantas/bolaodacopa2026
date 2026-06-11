@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lugar da Zoeira — Bolão Copa 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#ffdf00;--green:#009c3b;--green-light:#00c44f;--blue:#003087;--bg:#001a4a;--bg2:#002266;--bg3:#002d80;--card:#00194a;--border:#1a3d7a;--text:#e8f0ff;--muted:#7a9fd4;--white:#fff;--red:#ff4444;--orange:#ff8c00;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;
+    background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(0,48,135,0.5) 0%,transparent 60%);
+    padding-bottom:60px;}
+  .wrapper{max-width:800px;margin:0 auto;padding:0 20px;}
+  .back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;text-decoration:none;
+    margin:20px 0 16px;padding:8px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;}
+  .back:hover{color:var(--gold);border-color:var(--gold);}
+
+  /* SELETOR */
+  .select-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:24px;}
+  .select-wrap label{display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+  .input-row{display:flex;gap:10px;}
+  .input-row input{flex:1;background:#001a4a;border:1px solid #1a3d7a;border-radius:10px;
+    padding:12px 14px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;text-transform:uppercase;}
+  .input-row input:focus{border-color:var(--gold);}
+  .btn-buscar{background:var(--gold);color:var(--blue);border:none;border-radius:10px;padding:12px 22px;
+    font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;font-weight:900;}
+
+  /* REI DA ZOEIRA */
+  .rei-card{background:linear-gradient(135deg,#1a0a00,#2d1500);border:2px solid var(--orange);
+    border-radius:16px;padding:20px 24px;margin-bottom:24px;text-align:center;position:relative;overflow:hidden;}
+  .rei-card::before{content:'👑';position:absolute;font-size:80px;opacity:0.06;top:-10px;right:-10px;}
+  .rei-titulo{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;color:var(--orange);margin-bottom:6px;}
+  .rei-nome{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;color:var(--gold);}
+  .rei-sub{font-size:12px;color:#cc8844;margin-top:4px;}
+  .rei-votos{font-size:11px;color:var(--muted);margin-top:8px;}
+
+  /* SEÇÃO HOJE */
+  .secao-titulo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--gold);
+    margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+  .badge-hoje{background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);
+    border-radius:20px;padding:3px 12px;font-size:11px;font-family:'DM Sans',sans-serif;
+    font-weight:700;letter-spacing:1px;}
+
+  /* CARD DE JOGO */
+  .jogo-card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    margin-bottom:14px;overflow:hidden;}
+  .jogo-header{background:var(--bg3);padding:10px 18px;display:flex;align-items:center;
+    justify-content:space-between;gap:8px;}
+  .jogo-nome{font-size:14px;font-weight:700;color:var(--white);}
+  .jogo-resultado{font-size:12px;color:var(--muted);}
+  .jogo-resultado.definido{color:var(--green-light);font-weight:700;}
+  .jogo-body{padding:14px 18px;}
+
+  /* PALPITE BIZARRO */
+  .palpite-item{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:10px 14px;background:rgba(255,140,0,0.06);border:1px solid rgba(255,140,0,0.2);
+    border-radius:10px;margin-bottom:8px;flex-wrap:wrap;}
+  .palpite-item:last-child{margin-bottom:0;}
+  .palpite-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+  .palpite-emoji{font-size:22px;flex-shrink:0;}
+  .palpite-info{flex:1;min-width:0;}
+  .palpite-apelido{font-weight:700;font-size:14px;color:var(--orange);}
+  .palpite-placar{font-size:20px;font-weight:900;font-family:'Bebas Neue',sans-serif;
+    letter-spacing:2px;color:var(--white);}
+  .palpite-motivo{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  /* BOTÃO VOTAR */
+  .btn-voto{display:flex;align-items:center;gap:6px;background:rgba(255,68,68,0.1);
+    border:1px solid rgba(255,68,68,0.3);border-radius:8px;padding:8px 14px;
+    color:#ff8888;font-size:12px;font-weight:700;cursor:pointer;
+    transition:all 0.2s;white-space:nowrap;font-family:'DM Sans',sans-serif;}
+  .btn-voto:hover{background:rgba(255,68,68,0.2);border-color:#ff4444;color:#fff;}
+  .btn-voto.votado{background:rgba(255,68,68,0.25);border-color:#ff4444;color:#fff;cursor:default;}
+  .btn-voto .voto-count{font-size:16px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;}
+
+  /* MÉDIA */
+  .media-box{background:rgba(122,159,212,0.06);border:1px solid rgba(122,159,212,0.15);
+    border-radius:8px;padding:8px 14px;font-size:11px;color:var(--muted);margin-bottom:12px;}
+  .media-box strong{color:var(--text);}
+
+  /* EMPTY / LOADING */
+  .msg{text-align:center;padding:50px 20px;color:var(--muted);font-size:14px;}
+  .msg strong{display:block;font-size:22px;margin-bottom:8px;color:var(--gold);
+    font-family:'Bebas Neue',sans-serif;letter-spacing:2px;}
+
+  /* SEM ZOEIRA */
+  .sem-zoeira{text-align:center;padding:28px 20px;color:var(--muted);font-size:13px;}
+
+  /* TOAST */
+  #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:#002266;border:1px solid var(--green-light);border-radius:12px;
+    padding:12px 22px;font-size:13px;color:#fff;font-weight:600;
+    opacity:0;transition:all 0.3s;pointer-events:none;z-index:999;white-space:nowrap;}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <svg width="100%" viewBox="0 0 680 160" style="display:block;border-radius:16px;overflow:hidden;margin:20px 0 0;">
+    <rect x="0" y="0" width="340" height="80" fill="#003087"/>
+    <rect x="340" y="0" width="340" height="80" fill="#009c3b"/>
+    <rect x="0" y="80" width="340" height="80" fill="#ffdf00"/>
+    <rect x="340" y="80" width="340" height="80" fill="#ffffff"/>
+    <path d="M-10 80 Q60 80 60 30 Q60 -10 110 -10 L-10 -10 Z" fill="#ffdf00"/>
+    <path d="M690 80 Q620 80 620 30 Q620 -10 570 -10 L690 -10 Z" fill="#003087"/>
+    <path d="M-10 80 Q60 80 60 130 Q60 170 110 170 L-10 170 Z" fill="#003087"/>
+    <path d="M690 80 Q620 80 620 130 Q620 170 570 170 L690 170 Z" fill="#009c3b"/>
+    <rect x="100" y="28" width="480" height="104" rx="10" fill="#1a0500" opacity="0.95"/>
+    <rect x="100" y="28" width="480" height="104" rx="10" fill="none" stroke="#ff8c00" stroke-width="1.5"/>
+    <text x="340" y="52" text-anchor="middle" font-size="12" fill="#ff8c00">🤡 😂 🤡 😂 🤡</text>
+    <text x="340" y="88" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="24" font-weight="900" fill="#fff" letter-spacing="2">LUGAR DA ZOEIRA</text>
+    <text x="340" y="108" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="700" fill="#ff8c00" letter-spacing="4">PALPITES SEM NOÇÃO — COPA 2026</text>
+  </svg>
+
+  <a href="index.html" class="back">← Voltar ao Início</a>
+
+  <!-- SELETOR -->
+  <div class="select-wrap">
+    <label>Código do Bolão</label>
+    <div class="input-row">
+      <input type="text" id="codigoInput" placeholder="Ex: TETEU1234" onkeydown="if(event.key==='Enter')buscar()">
+      <button class="btn-buscar" onclick="buscar()">BUSCAR</button>
+    </div>
+  </div>
+
+  <div id="area">
+    <div class="msg"><strong>🤡 LUGAR DA ZOEIRA</strong>Digite o código do bolão para ver os palpites mais sem noção do dia!</div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script src="db.js"></script>
+<script src="auth.js"></script>
+<script>
+var SU = SUPABASE_URL;
+var SK = SUPABASE_KEY;
+var H  = { 'apikey': SK, 'Authorization': 'Bearer ' + SK };
+
+var JOGOS_R = {
+  R1:{A:[['México','África do Sul'],['Coreia do Sul','República Tcheca']],B:[['Canadá','Bósnia e Herzegovina'],['Catar','Suíça']],C:[['Brasil','Marrocos'],['Haiti','Escócia']],D:[['Estados Unidos','Paraguai'],['Austrália','Turquia']],E:[['Alemanha','Curaçao'],['Costa do Marfim','Equador']],F:[['Holanda','Japão'],['Suécia','Tunísia']],G:[['Bélgica','Egito'],['Irã','Nova Zelândia']],H:[['Espanha','Cabo Verde'],['Arábia Saudita','Uruguai']],I:[['França','Senegal'],['Noruega','Iraque']],J:[['Argentina','Argélia'],['Áustria','Jordânia']],K:[['Portugal','RD Congo'],['Uzbequistão','Colômbia']],L:[['Inglaterra','Croácia'],['Gana','Panamá']]},
+  R2:{A:[['México','Coreia do Sul'],['África do Sul','República Tcheca']],B:[['Canadá','Catar'],['Bósnia e Herzegovina','Suíça']],C:[['Brasil','Haiti'],['Marrocos','Escócia']],D:[['Estados Unidos','Austrália'],['Turquia','Paraguai']],E:[['Alemanha','Costa do Marfim'],['Curaçao','Equador']],F:[['Holanda','Suécia'],['Japão','Tunísia']],G:[['Bélgica','Irã'],['Egito','Nova Zelândia']],H:[['Espanha','Arábia Saudita'],['Cabo Verde','Uruguai']],I:[['França','Iraque'],['Noruega','Senegal']],J:[['Argentina','Áustria'],['Argélia','Jordânia']],K:[['Portugal','Uzbequistão'],['Colômbia','RD Congo']],L:[['Inglaterra','Gana'],['Croácia','Panamá']]},
+  R3:{A:[['México','República Tcheca'],['África do Sul','Coreia do Sul']],B:[['Canadá','Suíça'],['Bósnia e Herzegovina','Catar']],C:[['Brasil','Escócia'],['Marrocos','Haiti']],D:[['Estados Unidos','Turquia'],['Paraguai','Austrália']],E:[['Alemanha','Equador'],['Curaçao','Costa do Marfim']],F:[['Holanda','Tunísia'],['Japão','Suécia']],G:[['Bélgica','Nova Zelândia'],['Egito','Irã']],H:[['Espanha','Uruguai'],['Cabo Verde','Arábia Saudita']],I:[['França','Noruega'],['Senegal','Iraque']],J:[['Argentina','Jordânia'],['Argélia','Áustria']],K:[['Portugal','Colômbia'],['RD Congo','Uzbequistão']],L:[['Inglaterra','Panamá'],['Croácia','Gana']]}
+};
+
+var bolaoAtual = null;
+var votosFeitos = JSON.parse(localStorage.getItem('zoeira_votos') || '{}'); // {jogo_id: apelido_votado}
+
+window.onload = function() {
+  var u = (typeof AUTH !== 'undefined') ? AUTH.get() : null;
+  if (u && u.bolao_codigo) {
+    document.getElementById('codigoInput').value = u.bolao_codigo;
+    buscar();
+  }
+};
+
+async function buscar() {
+  var codigo = document.getElementById('codigoInput').value.trim().toUpperCase();
+  if (!codigo) return;
+  document.getElementById('area').innerHTML = '<div class="msg"><strong>⏳ CARREGANDO...</strong>Analisando os palpites mais sem noção...</div>';
+
+  // Buscar bolão
+  var rb = await fetch(SU + '/rest/v1/boloes?codigo=eq.' + encodeURIComponent(codigo) + '&select=id,nome', { headers: H });
+  var boloes = await rb.json();
+  if (!boloes.length) { document.getElementById('area').innerHTML = '<div class="msg"><strong>⚠️</strong>Bolão não encontrado.</div>'; return; }
+  bolaoAtual = boloes[0];
+
+  // Buscar todos os palpites de placares (fase1)
+  var rp = await fetch(SU + '/rest/v1/palpites_fase1?bolao_id=eq.' + bolaoAtual.id + '&select=apelido,placares', { headers: H });
+  var palpites = await rp.json();
+
+  // Buscar resultados
+  var rr = await fetch(SU + '/rest/v1/resultados?select=*', { headers: H });
+  var resultados = await rr.json();
+
+  // Buscar votos de zoeira
+  var rv = await fetch(SU + '/rest/v1/zoeira_votos?bolao_id=eq.' + bolaoAtual.id + '&select=jogo_id,apelido_zoado,voter_ip', { headers: H });
+  var votosDB = await rv.json();
+
+  renderZoeira(palpites, resultados, votosDB);
+}
+
+function renderZoeira(palpites, resultados, votosDB) {
+  var hoje = new Date().toISOString().slice(0, 10);
+
+  // Montar mapa de palpites: {api_id -> [{apelido, ga, gb}]}
+  var mapaJogos = {};
+  palpites.forEach(function(p) {
+    var pl = p.placares || {};
+    if (typeof pl === 'string') { try { pl = JSON.parse(pl); } catch(e) { pl = {}; } }
+    Object.keys(pl).forEach(function(k) {
+      // k = placar_R1_C_0_a ou placar_R1_C_0_b
+      var m = k.match(/^placar_(R\d+_[A-Z]+_\d+)_([ab])$/);
+      if (!m) return;
+      var jid = m[1], lado = m[2];
+      if (!mapaJogos[jid]) mapaJogos[jid] = {};
+      if (!mapaJogos[jid][p.apelido]) mapaJogos[jid][p.apelido] = { a: null, b: null };
+      mapaJogos[jid][p.apelido][lado] = parseInt(pl[k]);
+    });
+  });
+
+  // Mapa de resultados reais: {api_id -> resultado}
+  var mapaResultados = {};
+  resultados.forEach(function(r) { if (r.api_id) mapaResultados[r.api_id] = r; });
+
+  // Mapa de votos: {jogo_id -> {apelido -> count}}
+  var mapaVotos = {};
+  votosDB.forEach(function(v) {
+    if (!mapaVotos[v.jogo_id]) mapaVotos[v.jogo_id] = {};
+    mapaVotos[v.jogo_id][v.apelido_zoado] = (mapaVotos[v.jogo_id][v.apelido_zoado] || 0) + 1;
+  });
+
+  // Rei da zoeira (total de votos por apelido)
+  var totalVotos = {};
+  votosDB.forEach(function(v) {
+    totalVotos[v.apelido_zoado] = (totalVotos[v.apelido_zoado] || 0) + 1;
+  });
+  var rei = Object.keys(totalVotos).sort(function(a,b){ return totalVotos[b]-totalVotos[a]; })[0];
+
+  // Analisar cada jogo com resultado disponível → achar palpites bizarros
+  var jogosBizarros = [];
+
+  ['R1','R2','R3'].forEach(function(rodada) {
+    Object.keys(JOGOS_R[rodada]).forEach(function(grupo) {
+      JOGOS_R[rodada][grupo].forEach(function(jogo, i) {
+        var jid = rodada + '_' + grupo + '_' + i;
+        var res = mapaResultados[jid];
+        var jogoPalpites = mapaJogos[jid] || {};
+        var apelidos = Object.keys(jogoPalpites);
+        if (apelidos.length < 2) return; // precisa de ao menos 2 palpites
+
+        // Calcular médias
+        var somaA = 0, somaB = 0, count = 0;
+        var vencedorVotos = { A: 0, B: 0, E: 0 }; // A=time_a ganha, B=time_b ganha, E=empate
+        apelidos.forEach(function(ap) {
+          var pp = jogoPalpites[ap];
+          if (pp.a === null || pp.b === null) return;
+          somaA += pp.a; somaB += pp.b; count++;
+          if (pp.a > pp.b) vencedorVotos.A++;
+          else if (pp.b > pp.a) vencedorVotos.B++;
+          else vencedorVotos.E++;
+        });
+        if (count < 2) return;
+        var mediaA = somaA / count, mediaB = somaB / count;
+        var vencedorMaioria = vencedorVotos.A >= vencedorVotos.B && vencedorVotos.A >= vencedorVotos.E ? 'A'
+          : vencedorVotos.B >= vencedorVotos.A && vencedorVotos.B >= vencedorVotos.E ? 'B' : 'E';
+
+        // Encontrar palpites bizarros
+        var bizarros = [];
+        apelidos.forEach(function(ap) {
+          var pp = jogoPalpites[ap];
+          if (pp.a === null || pp.b === null) return;
+          var motivos = [];
+
+          // Critério 1: placar muito fora da média (2+ gols de diferença total)
+          var distA = Math.abs(pp.a - mediaA);
+          var distB = Math.abs(pp.b - mediaB);
+          if (distA + distB >= 2) {
+            motivos.push('Placar ' + pp.a + '×' + pp.b + ' (média do grupo: ' + mediaA.toFixed(1) + '×' + mediaB.toFixed(1) + ')');
+          }
+
+          // Critério 2: apostou no vencedor diferente da maioria (e maioria não estava dividida)
+          var meuVencedor = pp.a > pp.b ? 'A' : pp.b > pp.a ? 'B' : 'E';
+          var maioriaPct = Math.max(vencedorVotos.A, vencedorVotos.B, vencedorVotos.E) / count;
+          if (meuVencedor !== vencedorMaioria && maioriaPct >= 0.6) {
+            var nomeVenc = meuVencedor === 'A' ? jogo[0] : meuVencedor === 'B' ? jogo[1] : 'empate';
+            var nomeMaior = vencedorMaioria === 'A' ? jogo[0] : vencedorMaioria === 'B' ? jogo[1] : 'empate';
+            motivos.push('Apostou em ' + nomeVenc + ' enquanto ' + Math.round(maioriaPct*100) + '% apostou em ' + nomeMaior);
+          }
+
+          if (motivos.length > 0) {
+            bizarros.push({ apelido: ap, ga: pp.a, gb: pp.b, motivos: motivos });
+          }
+        });
+
+        if (bizarros.length > 0) {
+          jogosBizarros.push({
+            jid: jid,
+            jogo: jogo,
+            rodada: rodada,
+            res: res,
+            bizarros: bizarros,
+            mediaA: mediaA,
+            mediaB: mediaB,
+            votos: mapaVotos[jid] || {}
+          });
+        }
+      });
+    });
+  });
+
+  // ── RENDER ──────────────────────────────────────────────────────────
+  var html = '';
+
+  // Rei da zoeira
+  if (rei) {
+    html += '<div class="rei-card">';
+    html += '<div class="rei-titulo">👑 REI/RAINHA DA ZOEIRA DA RODADA</div>';
+    html += '<div class="rei-nome">' + rei + '</div>';
+    html += '<div class="rei-sub">O palpiteiro mais sem noção do torneio</div>';
+    html += '<div class="rei-votos">' + totalVotos[rei] + ' voto(s) de zoeira acumulados</div>';
+    html += '</div>';
+  }
+
+  // Título
+  html += '<div class="secao-titulo">😂 Palpites Bizarros <span class="badge-hoje">HOJE — ' + formatarData(hoje) + '</span></div>';
+
+  if (jogosBizarros.length === 0) {
+    html += '<div class="sem-zoeira">😐 Nenhum palpite bizarro encontrado ainda.<br><span style="font-size:12px;color:#5a7fb4;margin-top:6px;display:block;">Os palpites são analisados conforme os resultados vão sendo registrados.</span></div>';
+  } else {
+    jogosBizarros.forEach(function(jg) {
+      var resStr = jg.res && jg.res.gols_a !== null
+        ? '<span class="jogo-resultado definido">Resultado: ' + jg.res.gols_a + ' × ' + jg.res.gols_b + ' ✓</span>'
+        : '<span class="jogo-resultado">Aguardando resultado</span>';
+      var rodadaLabel = jg.rodada === 'R1' ? 'Rodada 1' : jg.rodada === 'R2' ? 'Rodada 2' : 'Rodada 3';
+
+      html += '<div class="jogo-card">';
+      html += '<div class="jogo-header">';
+      html += '<div><div class="jogo-nome">⚽ ' + jg.jogo[0] + ' × ' + jg.jogo[1] + '</div>';
+      html += '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + rodadaLabel + '</div></div>';
+      html += resStr + '</div>';
+      html += '<div class="jogo-body">';
+      html += '<div class="media-box">📊 Média dos palpites: <strong>' + jg.mediaA.toFixed(1) + ' × ' + jg.mediaB.toFixed(1) + '</strong></div>';
+
+      jg.bizarros.forEach(function(biz) {
+        var totalVotosJogo = Object.values(jg.votos).reduce(function(s,v){return s+v;},0);
+        var votosNesse = jg.votos[biz.apelido] || 0;
+        var jaMinhosVoto = votosFeitos[jg.jid] !== undefined;
+        var euVoteiNesse = votosFeitos[jg.jid] === biz.apelido;
+
+        var emojis = ['🤡','😱','💀','🤪','😂','🙈'];
+        var emoji = emojis[Math.floor((biz.ga + biz.gb) % emojis.length)];
+
+        html += '<div class="palpite-item">';
+        html += '<div class="palpite-left">';
+        html += '<div class="palpite-emoji">' + emoji + '</div>';
+        html += '<div class="palpite-info">';
+        html += '<div class="palpite-apelido">' + biz.apelido + '</div>';
+        html += '<div class="palpite-placar">' + biz.ga + ' × ' + biz.gb + '</div>';
+        biz.motivos.forEach(function(m){ html += '<div class="palpite-motivo">⚠️ ' + m + '</div>'; });
+        html += '</div></div>';
+
+        // Botão de voto
+        var btnClass = 'btn-voto' + (euVoteiNesse ? ' votado' : '');
+        var btnLabel = euVoteiNesse ? '✅ Você votou' : jaMinhosVoto ? '😂 ' + votosNesse + ' voto(s)' : '😂 Sem noção!';
+        var btnDisabled = jaMinhosVoto ? 'disabled' : '';
+        var btnOnclick = jaMinhosVoto ? '' : 'onclick="votar(\'' + jg.jid + '\',\'' + escapeAttr(biz.apelido) + '\')"';
+        html += '<button class="' + btnClass + '" ' + btnOnclick + ' ' + btnDisabled + '>';
+        html += '<span class="voto-count">' + votosNesse + '</span> ' + (euVoteiNesse ? '✅ você votou' : jaMinhosVoto ? '😂 votos' : '😂 sem noção!');
+        html += '</button>';
+        html += '</div>';
+      });
+
+      html += '</div></div>';
+    });
+  }
+
+  document.getElementById('area').innerHTML = html;
+}
+
+async function votar(jogoId, apelido) {
+  if (!bolaoAtual) return;
+
+  // Registrar voto no banco
+  var voter_ip = await getIP();
+  var body = JSON.stringify({
+    bolao_id: bolaoAtual.id,
+    jogo_id: jogoId,
+    apelido_zoado: apelido,
+    voter_ip: voter_ip,
+    dia: new Date().toISOString().slice(0, 10)
+  });
+
+  var resp = await fetch(SU + '/rest/v1/zoeira_votos', {
+    method: 'POST',
+    headers: Object.assign({}, H, {
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    }),
+    body: body
+  });
+
+  if (resp.status === 409 || resp.status === 201 || resp.ok) {
+    // Salvar voto localmente
+    votosFeitos[jogoId] = apelido;
+    localStorage.setItem('zoeira_votos', JSON.stringify(votosFeitos));
+    toast('😂 Voto registrado! ' + apelido + ' agradece... não!');
+    buscar(); // recarregar para atualizar contagem
+  } else {
+    toast('⚠️ Você já votou neste jogo hoje!', '#ffaa44');
+  }
+}
+
+var _ip = null;
+async function getIP() {
+  if (_ip) return _ip;
+  try {
+    var r = await fetch('https://api.ipify.org?format=json');
+    var d = await r.json();
+    _ip = d.ip;
+  } catch(e) {
+    _ip = 'anon_' + Math.random().toString(36).slice(2);
+  }
+  return _ip;
+}
+
+function escapeAttr(s) { return s.replace(/'/g,"\\'"); }
+function formatarData(d){ if(!d) return ''; var p=d.split('-'); return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:d; }
+
+function toast(msg, cor) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = cor || 'var(--green-light)';
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3500);
+}
+</script>
+</body>
+</html>
