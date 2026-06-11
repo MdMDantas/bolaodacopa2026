@@ -41,14 +41,8 @@
     color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
 
   /* COMPOSE */
-  .compose-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:20px;}
-  .compose-top{display:flex;gap:12px;align-items:flex-start;}
   .compose-avatar{width:38px;height:38px;border-radius:50%;background:var(--bg3);
     border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-  .compose-right{flex:1;}
-  .compose-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px;}
-  .compose-usuario{font-size:13px;font-weight:700;color:var(--gold);}
-  .compose-label{font-size:11px;color:var(--muted);}
   .compose-select{background:var(--bg);border:1px solid var(--border);border-radius:6px;
     padding:4px 8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;cursor:pointer;}
   .compose-select:focus{border-color:var(--gold);}
@@ -57,36 +51,18 @@
   textarea::placeholder{color:var(--muted);}
   .compose-footer{display:flex;align-items:center;justify-content:space-between;
     margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
-  .compose-chars{font-size:11px;color:var(--muted);}
-  .compose-chars.aviso{color:var(--orange);}
-  .compose-chars.limite{color:var(--red);}
   .btn-postar{background:var(--gold);color:var(--blue);border:none;border-radius:8px;
     padding:8px 20px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;cursor:pointer;font-weight:900;}
-  .btn-postar:hover{opacity:0.9;}
-  .btn-postar:disabled{opacity:0.4;cursor:not-allowed;}
-  .login-aviso{font-size:12px;color:var(--muted);font-style:italic;padding:8px 0;}
 
   /* FEED */
   .post-item{background:var(--card);border:1px solid var(--border);border-radius:14px;
     padding:16px 18px;margin-bottom:10px;}
-  .post-item:hover{border-color:rgba(255,223,0,0.2);}
-  .post-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
   .post-avatar{width:34px;height:34px;border-radius:50%;background:var(--bg3);
     border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
-  .post-meta{flex:1;}
-  .post-autor{font-weight:700;font-size:13px;color:var(--gold);}
-  .post-alvo{font-size:12px;color:var(--orange);margin-left:4px;}
-  .post-tempo{font-size:11px;color:var(--muted);}
-  .post-jogo-badge{font-size:10px;color:var(--muted);margin-bottom:5px;}
-  .post-texto{font-size:14px;line-height:1.6;color:var(--text);word-break:break-word;}
-  .post-mention{color:var(--gold);font-weight:700;}
-  .post-actions{display:flex;align-items:center;gap:16px;margin-top:10px;}
   .post-like{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;
     display:flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;padding:0;}
-  .post-like:hover{color:#ff6b6b;}
   .post-delete{background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;
     margin-left:auto;font-family:'DM Sans',sans-serif;padding:0;}
-  .post-delete:hover{color:var(--red);}
 
   .msg{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;}
   .msg strong{display:block;font-size:18px;margin-bottom:6px;color:var(--gold);
@@ -185,8 +161,6 @@ async function buscar() {
 async function renderPage() {
   var hoje = new Date().toISOString().slice(0, 10);
   var trofeus = await calcTrofeus(hoje);
-  var posts = await fetchPosts();
-
   var html = '';
 
   // TROFÉUS
@@ -228,81 +202,9 @@ async function renderPage() {
 
   html += '</div></div>';
 
-  // COMPOSE
-  html += '<div class="secao-titulo">💬 Mural ao Vivo</div>';
-  html += '<div class="compose-card">';
-
-  if (usuarioAtual) {
-    var outrosParticipantes = participantes.filter(function(a){ return a !== usuarioAtual.apelido; });
-
-    html += '<div class="compose-top">';
-    html += '<div class="compose-avatar">😎</div>';
-    html += '<div class="compose-right">';
-
-    // Linha 1: quem é + zoando quem
-    html += '<div class="compose-meta">';
-    html += '<span class="compose-usuario">' + usuarioAtual.apelido + '</span>';
-    html += '<span class="compose-label">zoando</span>';
-    html += '<select class="compose-select" id="selectAlvo">';
-    html += '<option value="">geral</option>';
-    outrosParticipantes.forEach(function(ap){ html += '<option value="' + ap + '">' + ap + '</option>'; });
-    html += '</select>';
-
-    // Linha 2: sobre qual jogo
-    if (jogosHoje.length > 0) {
-      html += '<span class="compose-label">sobre</span>';
-      html += '<select class="compose-select" id="selectJogo">';
-      html += '<option value="">nenhum jogo</option>';
-      jogosHoje.forEach(function(j){
-        html += '<option value="' + j.api_id + '">⚽ ' + j.time_a + ' × ' + j.time_b + ' (' + j.horario_brasilia + ')</option>';
-      });
-      html += '</select>';
-    }
-    html += '</div>';
-
-    html += '<textarea id="textoPost" placeholder="Manda a zoação... 😂" maxlength="280" oninput="contarChars()"></textarea>';
-    html += '</div></div>';
-    html += '<div class="compose-footer">';
-    html += '<span class="compose-chars" id="charCount">280 caracteres restantes</span>';
-    html += '<button class="btn-postar" onclick="postar()">POSTAR 🔥</button>';
-    html += '</div>';
-  } else {
-    html += '<div class="login-aviso">🔐 <a href="login.html" style="color:var(--gold);">Entre no bolão</a> para mandar sua zoação!</div>';
-  }
-  html += '</div>';
-
-  // FEED
-  html += '<div id="feed">' + renderFeed(posts) + '</div>';
 
   document.getElementById('area').innerHTML = html;
 }
-
-function renderFeed(posts) {
-  if (!posts.length) return '<div class="msg"><strong>😶 SILÊNCIO TOTAL</strong>Ninguém zoou ninguém ainda. Seja o primeiro!</div>';
-
-  var avatarEmojis = ['😎','🤠','🤡','😈','🦁','🐯','🦊','🐸','🐧','🦄'];
-  var html = '';
-  posts.forEach(function(p) {
-    var avatar = avatarEmojis[Math.abs(hashStr(p.apelido)) % avatarEmojis.length];
-    var texto = escapeHtml(p.texto);
-    if (p.alvo) texto = '<span class="post-mention">@' + escapeHtml(p.alvo) + '</span> ' + texto;
-    var ehMeu = usuarioAtual && usuarioAtual.apelido === p.apelido;
-    var dataHora = formatarDataHora(p.criado_em);
-
-    html += '<div class="post-item">';
-    html += '<div class="post-header">';
-    html += '<div class="post-avatar">' + avatar + '</div>';
-    html += '<div class="post-meta">';
-    html += '<div><span class="post-autor">' + escapeHtml(p.apelido) + '</span>';
-    if (p.alvo) html += '<span class="post-alvo">→ @' + escapeHtml(p.alvo) + '</span>';
-    html += '</div>';
-    html += '<div class="post-tempo">' + dataHora + '</div>';
-    html += '</div></div>';
-
-    // Badge do jogo
-    if (p.jogo_id) {
-      html += '<div class="post-jogo-badge">⚽ ' + formatarJogoId(p.jogo_id) + '</div>';
-    }
 
     html += '<div class="post-texto">' + texto + '</div>';
     html += '<div class="post-actions">';
@@ -312,34 +214,6 @@ function renderFeed(posts) {
   });
   return html;
 }
-
-async function fetchPosts() {
-  if (!bolaoAtual) return [];
-  var r = await fetch(SU + '/rest/v1/mural_posts?bolao_id=eq.' + bolaoAtual.id + '&select=*&order=criado_em.desc&limit=50', { headers: H });
-  return r.ok ? await r.json() : [];
-}
-
-async function atualizarFeed() {
-  var posts = await fetchPosts();
-  var feed = document.getElementById('feed');
-  if (feed) feed.innerHTML = renderFeed(posts);
-}
-
-function contarChars() {
-  var txt = document.getElementById('textoPost');
-  var cnt = document.getElementById('charCount');
-  if (!txt || !cnt) return;
-  var restam = 280 - txt.value.length;
-  cnt.textContent = restam + ' caracteres restantes';
-  cnt.className = 'compose-chars' + (restam < 50 ? ' aviso' : '') + (restam < 10 ? ' limite' : '');
-}
-
-async function postar() {
-  if (!usuarioAtual || !bolaoAtual) return;
-  var texto = (document.getElementById('textoPost').value || '').trim();
-  var alvo = (document.getElementById('selectAlvo') || {}).value || '';
-  var jogo_id = (document.getElementById('selectJogo') || {}).value || '';
-  if (!texto) { toast('✍️ Escreva algo antes de postar!', '#ffaa44'); return; }
 
   var btn = document.querySelector('.btn-postar');
   if (btn) btn.disabled = true;
@@ -369,28 +243,6 @@ async function postar() {
   } else {
     toast('❌ Erro ao postar.', '#ff4444');
   }
-}
-
-async function curtir(postId) {
-  var r = await fetch(SU + '/rest/v1/mural_posts?id=eq.' + postId + '&select=likes', { headers: H });
-  var data = await r.json();
-  if (!data.length) return;
-  var novosLikes = (data[0].likes || 0) + 1;
-  await fetch(SU + '/rest/v1/mural_posts?id=eq.' + postId, {
-    method: 'PATCH',
-    headers: Object.assign({}, H, { 'Content-Type': 'application/json' }),
-    body: JSON.stringify({ likes: novosLikes })
-  });
-  await atualizarFeed();
-}
-
-async function deletar(postId) {
-  if (!usuarioAtual || !confirm('Apagar este post?')) return;
-  await fetch(SU + '/rest/v1/mural_posts?id=eq.' + postId + '&apelido=eq.' + encodeURIComponent(usuarioAtual.apelido), {
-    method: 'DELETE', headers: H
-  });
-  toast('🗑️ Post apagado.');
-  await atualizarFeed();
 }
 
 async function calcTrofeus(hoje) {
@@ -443,8 +295,8 @@ async function calcTrofeus(hoje) {
       });
     });
 
-    var piorDist = -1, piorAp = null, piorJogo = null, piorPlacar = null;
-    var perdedorAp = null, perdedorPct = 0;
+    var piorDist = -1, piorAps = [], piorJogo = null, piorPlacar = null;
+    var perdedorAps = [], perdedorPct = 0;
 
     resultados.forEach(function(res) {
       var jid = res.api_id;
@@ -473,21 +325,21 @@ async function calcTrofeus(hoje) {
         if (pts === 0) {
           var dist = Math.abs(pp.a - ga) + Math.abs(pp.b - gb);
           if (dist > piorDist) {
-            piorDist = dist; piorAp = ap;
+            piorDist = dist; piorAps = [ap];
             piorJogo = res.time_a + ' × ' + res.time_b;
             piorPlacar = pp.a + '×' + pp.b;
-          }
+          } else if (dist === piorDist) { piorAps.push(ap); }
         }
         var meuVenc = pp.a > pp.b ? 'A' : pp.b > pp.a ? 'B' : 'E';
         if (meuVenc !== vencMaioria && meuVenc !== vencReal && maioriaPct >= 0.6) {
           var pct = Math.round(maioriaPct * 100);
-          if (pct > perdedorPct) { perdedorPct = pct; perdedorAp = ap; }
+          if (pct > perdedorPct) { perdedorPct = pct; perdedorAps = [ap]; } else if (pct === perdedorPct) { perdedorAps.push(ap); }
         }
       });
     });
 
-    if (piorAp) trofeus.piorPalpite = { apelido: piorAp, jogo: piorJogo, placar: piorPlacar };
-    if (perdedorAp) trofeus.perdedor = { apelido: perdedorAp, pct: perdedorPct };
+    if (piorAps.length) trofeus.piorPalpite = { apelido: piorAps.join(", "), jogo: piorJogo, placar: piorPlacar };
+    if (perdedorAps.length) trofeus.perdedor = { apelido: perdedorAps.join(", "), pct: perdedorPct };
   } catch(e) {}
 
   // Acertou o placar exato
