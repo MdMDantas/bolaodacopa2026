@@ -27,8 +27,8 @@
     padding:12px 22px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;font-weight:900;}
 
   /* TROFÉUS */
-  .trofeus-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
-  @media(max-width:600px){.trofeus-grid{grid-template-columns:1fr;}}
+  .trofeus-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+  @media(max-width:700px){.trofeus-grid{grid-template-columns:repeat(2,1fr);}} @media(max-width:400px){.trofeus-grid{grid-template-columns:1fr;}}
   .trofeu-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;}
   .trofeu-card.destaque{border-color:rgba(255,223,0,0.4);}
   .trofeu-emoji{font-size:32px;margin-bottom:8px;display:block;}
@@ -216,6 +216,14 @@ async function renderPage() {
     html += '<div class="trofeu-nome">' + trofeus.perdedor.apelido + '</div>';
     html += '<div class="trofeu-desc">Foi contra ' + trofeus.perdedor.pct + '% do bolão e errou</div>';
   } else { html += '<div class="trofeu-vazio">Aguardando resultados</div>'; }
+  html += '</div>';
+
+  html += '<div class="trofeu-card destaque"><span class="trofeu-emoji">🎯</span>';
+  html += '<div class="trofeu-titulo">Acertou o Placar!</div>';
+  if (trofeus.acertaram && trofeus.acertaram.length > 0) {
+    html += '<div class="trofeu-nome" style="font-size:14px;line-height:1.3;">' + trofeus.acertaram.join(', ') + '</div>';
+    html += '<div class="trofeu-desc">Placar exato hoje 🎉</div>';
+  } else { html += '<div class="trofeu-vazio">Ninguém acertou ainda</div>'; }
   html += '</div>';
 
   html += '</div></div>';
@@ -480,6 +488,54 @@ async function calcTrofeus(hoje) {
 
     if (piorAp) trofeus.piorPalpite = { apelido: piorAp, jogo: piorJogo, placar: piorPlacar };
     if (perdedorAp) trofeus.perdedor = { apelido: perdedorAp, pct: perdedorPct };
+  } catch(e) {}
+
+  // Acertou o placar exato
+  try {
+    var rp2 = await fetch(SU + '/rest/v1/palpites_fase1?bolao_id=eq.' + bolaoAtual.id + '&select=apelido,placares', { headers: H });
+    var palpites2 = await rp2.json();
+    var rr2 = await fetch(SU + '/rest/v1/resultados?select=*&finalizado=eq.true', { headers: H });
+    var resultados2 = await rr2.json();
+
+    // Buscar jogos de hoje para filtrar só os jogos do dia
+    var hojeStr2 = hoje;
+    var jogosHojeIds = [];
+    try {
+      var rj2 = await fetch(SU + '/rest/v1/jogos_calendario?data_jogo=eq.' + hojeStr2 + '&select=api_id', { headers: H });
+      var jj2 = rj2.ok ? await rj2.json() : [];
+      jogosHojeIds = jj2.map(function(x){ return x.api_id; });
+    } catch(e) {}
+
+    // Montar mapa de palpites
+    var mapaP = {};
+    palpites2.forEach(function(p) {
+      var pl = p.placares || {};
+      if (typeof pl === 'string') { try { pl = JSON.parse(pl); } catch(e) { pl = {}; } }
+      Object.keys(pl).forEach(function(k) {
+        var m = k.match(/placar_(R\d+_[A-Z]+_\d+)_([ab])/);
+        if (!m) return;
+        var jid = m[1], lado = m[2];
+        if (!mapaP[jid]) mapaP[jid] = {};
+        if (!mapaP[jid][p.apelido]) mapaP[jid][p.apelido] = { a: null, b: null };
+        mapaP[jid][p.apelido][lado] = parseInt(pl[k]);
+      });
+    });
+
+    var acertaram = {};
+    resultados2.forEach(function(res) {
+      var jid = res.api_id;
+      // Filtrar só jogos de hoje se tivermos o calendário
+      if (jogosHojeIds.length > 0 && jogosHojeIds.indexOf(jid) === -1) return;
+      if (!jid || !mapaP[jid]) return;
+      if (res.gols_a === null || res.gols_a === undefined) return;
+      Object.keys(mapaP[jid]).forEach(function(ap) {
+        var pp = mapaP[jid][ap];
+        if (pp.a === res.gols_a && pp.b === res.gols_b) {
+          acertaram[ap] = true;
+        }
+      });
+    });
+    trofeus.acertaram = Object.keys(acertaram);
   } catch(e) {}
 
   return trofeus;
