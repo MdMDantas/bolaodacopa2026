@@ -86,6 +86,7 @@
 
 <script src="db.js"></script>
 <script src="auth.js"></script>
+<script src="regras-admin.js"></script>
 <script>
 var SU = 'https://myytheficqokbjbkmeiv.supabase.co';
 var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15eXRoZWZpY3Fva2JqYmttZWl2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDM1NTMwNCwiZXhwIjoyMDk1OTMxMzA0fQ.-KV4Iaz-hSxdXyhJGYBXo0W9VTmwZctk0kWvZWqIDaE';
@@ -397,6 +398,7 @@ async function carregarRanking(bolaoId, bolaoNome) {
       return;
     }
 
+    var isAdmin = (typeof AUTH !== 'undefined' && AUTH.get() && AUTH.get().apelido === 'MDANTAS');
     var posClasses = ['gold','silver','bronze'];
     var html = '<div class="ranking-card" style="overflow-x:visible;width:100%;">';
     html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO — '+(bolaoNome||'')+'</span><span class="ranking-update">Ao vivo</span></div>';
@@ -495,6 +497,172 @@ async function carregarRanking(bolaoId, bolaoNome) {
 }
 
 init();
+
+// ── MOTOR DE CÁLCULO DE RANKING ──────────────────────────────────────
+var _resultadosDB = [];
+
+var GRUPOS_DISPLAY = {
+  A:['México','África do Sul','Coreia do Sul','República Tcheca'],
+  B:['Canadá','Bósnia e Herzegovina','Catar','Suíça'],
+  C:['Brasil','Marrocos','Haiti','Escócia'],
+  D:['Estados Unidos','Turquia','Paraguai','Austrália'],
+  E:['Alemanha','Curaçao','Costa do Marfim','Equador'],
+  F:['Holanda','Japão','Suécia','Tunísia'],
+  G:['Bélgica','Egito','Irã','Nova Zelândia'],
+  H:['Espanha','Cabo Verde','Arábia Saudita','Uruguai'],
+  I:['França','Senegal','Noruega','Iraque'],
+  J:['Argentina','Argélia','Áustria','Jordânia'],
+  K:['Portugal','RD Congo','Uzbequistão','Colômbia'],
+  L:['Inglaterra','Croácia','Gana','Panamá']
+};
+var JOGOS_R1={A:[['México','África do Sul'],['Coreia do Sul','República Tcheca']],B:[['Canadá','Bósnia e Herzegovina'],['Catar','Suíça']],C:[['Brasil','Marrocos'],['Haiti','Escócia']],D:[['Estados Unidos','Paraguai'],['Austrália','Turquia']],E:[['Alemanha','Curaçao'],['Costa do Marfim','Equador']],F:[['Holanda','Japão'],['Suécia','Tunísia']],G:[['Bélgica','Egito'],['Irã','Nova Zelândia']],H:[['Espanha','Cabo Verde'],['Arábia Saudita','Uruguai']],I:[['França','Senegal'],['Noruega','Iraque']],J:[['Argentina','Argélia'],['Áustria','Jordânia']],K:[['Portugal','RD Congo'],['Uzbequistão','Colômbia']],L:[['Inglaterra','Croácia'],['Gana','Panamá']]};
+var JOGOS_R2={A:[['México','Coreia do Sul'],['África do Sul','República Tcheca']],B:[['Canadá','Catar'],['Bósnia e Herzegovina','Suíça']],C:[['Brasil','Haiti'],['Marrocos','Escócia']],D:[['Estados Unidos','Austrália'],['Turquia','Paraguai']],E:[['Alemanha','Costa do Marfim'],['Curaçao','Equador']],F:[['Holanda','Suécia'],['Japão','Tunísia']],G:[['Bélgica','Irã'],['Egito','Nova Zelândia']],H:[['Espanha','Arábia Saudita'],['Cabo Verde','Uruguai']],I:[['França','Iraque'],['Noruega','Senegal']],J:[['Argentina','Áustria'],['Argélia','Jordânia']],K:[['Portugal','Uzbequistão'],['Colômbia','RD Congo']],L:[['Inglaterra','Gana'],['Croácia','Panamá']]};
+var JOGOS_R3={A:[['México','República Tcheca'],['África do Sul','Coreia do Sul']],B:[['Canadá','Suíça'],['Bósnia e Herzegovina','Catar']],C:[['Brasil','Escócia'],['Marrocos','Haiti']],D:[['Estados Unidos','Turquia'],['Paraguai','Austrália']],E:[['Alemanha','Equador'],['Curaçao','Costa do Marfim']],F:[['Holanda','Tunísia'],['Japão','Suécia']],G:[['Bélgica','Nova Zelândia'],['Egito','Irã']],H:[['Espanha','Uruguai'],['Cabo Verde','Arábia Saudita']],I:[['França','Noruega'],['Senegal','Iraque']],J:[['Argentina','Jordânia'],['Argélia','Áustria']],K:[['Portugal','Colômbia'],['RD Congo','Uzbequistão']],L:[['Inglaterra','Panamá'],['Croácia','Gana']]};
+var JOGOS_RANK=[];
+[['R1',JOGOS_R1],['R2',JOGOS_R2],['R3',JOGOS_R3]].forEach(function(rd){var r=rd[0],obj=rd[1];Object.keys(obj).forEach(function(g){obj[g].forEach(function(jogo,i){JOGOS_RANK.push({r:r,g:g,i:i,a:jogo[0],b:jogo[1]});});});});
+
+function jogoKeyR(j){return j.r+'_'+j.g+'_'+j.i;}
+function getResultadoR(jogo){var k=jogoKeyR(jogo);return _resultadosDB.find(function(x){return x.api_id===k;})||null;}
+
+function calcularTabelaR(g){
+  var times=GRUPOS_DISPLAY[g],tab={};
+  times.forEach(function(t){tab[t]={t:t,p:0,j:0,v:0,e:0,d:0,gf:0,gc:0,sg:0};});
+  JOGOS_RANK.filter(function(j){return j.g===g;}).forEach(function(jogo){
+    var res=getResultadoR(jogo);
+    if(!res||res.gols_a===null||res.gols_b===null) return;
+    var ga=parseInt(res.gols_a),gb=parseInt(res.gols_b);
+    var ta=tab[jogo.a],tb=tab[jogo.b];
+    if(!ta||!tb) return;
+    ta.j++;tb.j++;ta.gf+=ga;ta.gc+=gb;ta.sg+=ga-gb;tb.gf+=gb;tb.gc+=ga;tb.sg+=gb-ga;
+    if(ga>gb){ta.v++;ta.p+=3;tb.d++;}else if(ga<gb){tb.v++;tb.p+=3;ta.d++;}else{ta.e++;ta.p++;tb.e++;tb.p++;}
+  });
+  return Object.values(tab).sort(function(a,b){if(b.p!==a.p)return b.p-a.p;if(b.sg!==a.sg)return b.sg-a.sg;return b.gf-a.gf;});
+}
+
+async function publicarRanking(bolaoId) {
+  if(!confirm('Recalcular e publicar o ranking?')) return;
+  var btnEl = event.target;
+  btnEl.disabled = true; btnEl.textContent = '⏳ Calculando...';
+
+  var H = {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+
+  // Carregar resultados do banco
+  try {
+    var r = await fetch(SUPABASE_URL+'/rest/v1/resultados?select=*',{headers:H});
+    _resultadosDB = r.ok ? await r.json() : [];
+  } catch(e){ _resultadosDB = []; }
+
+  // Buscar palpites (paginado)
+  var todosPalpites1=[],pageSize=1000,offset=0;
+  while(true){
+    var H3=Object.assign({},H,{'Range':offset+'-'+(offset+pageSize-1),'Prefer':'count=none'});
+    var rp1=await fetch(SUPABASE_URL+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&select=*&order=criado_em.asc&limit='+pageSize+'&offset='+offset,{headers:H3});
+    if(!rp1.ok) break;
+    var batch=await rp1.json();
+    todosPalpites1=todosPalpites1.concat(batch);
+    if(batch.length<pageSize) break;
+    offset+=pageSize;
+  }
+
+  // Mesclar por apelido
+  var palpitesMap={};
+  todosPalpites1.forEach(function(x){
+    var chave=x.bolao_id+'|'+x.apelido;
+    if(!palpitesMap[chave]) palpitesMap[chave]={};
+    Object.keys(x).forEach(function(k){
+      if(k==='placares'){
+        var pl=x[k];if(pl){if(typeof pl==='string'){try{pl=JSON.parse(pl);}catch(e){pl={};}}
+        if(!palpitesMap[chave].placares)palpitesMap[chave].placares={};Object.assign(palpitesMap[chave].placares,pl);}
+      } else if(x[k]!==null&&x[k]!==undefined&&x[k]!==''){palpitesMap[chave][k]=x[k];}
+    });
+  });
+
+  var pontuacoes=[];
+  Object.keys(palpitesMap).forEach(function(chave){
+    var p1=palpitesMap[chave];
+    var pts_grupos=0,pts_placares=0,pts_zebras=0,pts_terceiros=0;
+
+    // Grupos
+    Object.keys(GRUPOS_DISPLAY).forEach(function(g){
+      var tab=calcularTabelaR(g);
+      if(!tab.some(function(t){return t.j>0;})) return;
+      for(var pos=1;pos<=4;pos++){
+        var tp=p1['g'+g.toLowerCase()+'_'+pos]||p1['g'+g+'_'+pos]||'';
+        if(!tp) continue;
+        var posReal=tab.findIndex(function(t){return t.t===tp;});
+        if(posReal===-1) continue;
+        if(posReal+1===pos) pts_grupos+=REGRAS.grupos.posicao_exata;
+        if(posReal<2&&pos<=2) pts_grupos+=REGRAS.grupos.classificado_direto;
+      }
+    });
+
+    // Placares
+    var placares=p1.placares||{};
+    if(typeof placares==='string'){try{placares=JSON.parse(placares);}catch(e){placares={};}}
+    if(typeof placares!=='object'||placares===null) placares={};
+    var ptsR1=[],ptsR2=[],ptsR3=[];
+    JOGOS_RANK.forEach(function(jogo){
+      var res=getResultadoR(jogo);
+      if(!res||res.gols_a===null||res.gols_b===null) return;
+      var key=jogoKeyR(jogo);
+      var pa=placares['placar_'+key+'_a'],pb=placares['placar_'+key+'_b'];
+      if(pa===undefined||pa===null||pb===undefined||pb===null) return;
+      var pts=REGRAS.calcularPlacar(pa,pb,res.gols_a,res.gols_b);
+      if(jogo.r==='R1') ptsR1.push(pts);
+      else if(jogo.r==='R2') ptsR2.push(pts);
+      else ptsR3.push(pts);
+    });
+    var todosP=ptsR1.concat(ptsR2).concat(ptsR3);todosP.sort(function(a,b){return b-a;});
+    pts_placares=todosP.slice(0,24).reduce(function(s,v){return s+v;},0);
+    var pR1=ptsR1.reduce(function(s,v){return s+v;},0);
+    var pR2=ptsR2.reduce(function(s,v){return s+v;},0);
+    var pR3=ptsR3.reduce(function(s,v){return s+v;},0);
+
+    // Zebras
+    for(var zi=1;zi<=4;zi++){
+      var zebra=p1['zebra'+zi];if(!zebra) continue;
+      var grupoZ=null;
+      Object.keys(GRUPOS_DISPLAY).forEach(function(g){if(GRUPOS_DISPLAY[g].indexOf(zebra)>=0)grupoZ=g;});
+      if(!grupoZ) continue;
+      var tabZ=calcularTabelaR(grupoZ);
+      if(!tabZ.some(function(t){return t.j>0;})) continue;
+      var posZ=tabZ.findIndex(function(t){return t.t===zebra;});
+      if(posZ===0) pts_zebras+=REGRAS.zebras.primeiro_lugar;
+      else if(posZ===1) pts_zebras+=REGRAS.zebras.segundo_lugar;
+      else if(posZ===2) pts_zebras+=REGRAS.zebras.melhor_terceiro;
+    }
+
+    // Terceiros
+    var todosTerceiros=[];
+    Object.keys(GRUPOS_DISPLAY).forEach(function(g){
+      var tab=calcularTabelaR(g);
+      if(tab[2]&&tab[2].j>0) todosTerceiros.push({t:tab[2].t,p:tab[2].p,sg:tab[2].sg,gf:tab[2].gf});
+    });
+    todosTerceiros.sort(function(a,b){if(b.p!==a.p)return b.p-a.p;if(b.sg!==a.sg)return b.sg-a.sg;return b.gf-a.gf;});
+    var oitoMelhores=todosTerceiros.slice(0,8).map(function(x){return x.t;});
+    for(var ti=1;ti<=8;ti++){
+      var tPalpite=p1['t'+ti];if(!tPalpite) continue;
+      var posRealT=oitoMelhores.indexOf(tPalpite);if(posRealT===-1) continue;
+      if(posRealT+1===ti) pts_terceiros+=REGRAS.terceiros.avancou_posicao_certa;
+      else pts_terceiros+=REGRAS.terceiros.avancou_posicao_errada;
+    }
+
+    pontuacoes.push({bolao_id:p1.bolao_id,apelido:p1.apelido,pts_grupos:pts_grupos,pts_placares:pts_placares,pts_placares_r1:pR1,pts_placares_r2:pR2,pts_placares_r3:pR3,pts_zebras:pts_zebras,pts_terceiros:pts_terceiros,total:pts_grupos+pts_placares+pts_zebras+pts_terceiros,atualizado_em:new Date().toISOString()});
+  });
+
+  // Deletar e reinserir
+  await fetch(SUPABASE_URL+'/rest/v1/pontuacoes?bolao_id=eq.'+bolaoId,{method:'DELETE',headers:H});
+  if(pontuacoes.length){
+    var H2=Object.assign({},H,{'Prefer':'resolution=merge-duplicates,return=minimal'});
+    var resp=await fetch(SUPABASE_URL+'/rest/v1/pontuacoes',{method:'POST',headers:H2,body:JSON.stringify(pontuacoes)});
+    if(!resp.ok){ alert('Erro ao publicar: '+(await resp.text())); btnEl.disabled=false; btnEl.textContent='🏆 ATUALIZAR RANKING'; return; }
+  }
+
+  btnEl.disabled=false; btnEl.textContent='🏆 ATUALIZAR RANKING';
+  alert('✅ Ranking atualizado para '+pontuacoes.length+' participante(s)!');
+  carregarRanking(bolaoId, null);
+}
+
 </script>
 </body>
 </html>

@@ -40,48 +40,8 @@
   .secao-titulo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;
     color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
 
-  /* COMPOSE */
-  .compose-top{display:flex;gap:12px;align-items:flex-start;}
-  .compose-avatar{width:38px;height:38px;border-radius:50%;background:var(--bg3);
     border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-  .compose-right{flex:1;}
-  .compose-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px;}
-  .compose-usuario{font-size:13px;font-weight:700;color:var(--gold);}
-  .compose-label{font-size:11px;color:var(--muted);}
-  .compose-select{background:var(--bg);border:1px solid var(--border);border-radius:6px;
-    padding:4px 8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;cursor:pointer;}
-  .compose-select:focus{border-color:var(--gold);}
-  textarea{width:100%;background:transparent;border:none;color:var(--text);
-    font-family:'DM Sans',sans-serif;font-size:14px;resize:none;outline:none;line-height:1.5;min-height:60px;}
-  textarea::placeholder{color:var(--muted);}
-  .compose-footer{display:flex;align-items:center;justify-content:space-between;
-    margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
-  .compose-chars{font-size:11px;color:var(--muted);}
-  .compose-chars.aviso{color:var(--orange);}
-  .compose-chars.limite{color:var(--red);}
-  .login-aviso{font-size:12px;color:var(--muted);font-style:italic;padding:8px 0;}
 
-  /* FEED */
-  .post-item{background:var(--card);border:1px solid var(--border);border-radius:14px;
-    padding:16px 18px;margin-bottom:10px;}
-  .post-item:hover{border-color:rgba(255,223,0,0.2);}
-  .post-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-  .post-avatar{width:34px;height:34px;border-radius:50%;background:var(--bg3);
-    border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
-  .post-meta{flex:1;}
-  .post-autor{font-weight:700;font-size:13px;color:var(--gold);}
-  .post-alvo{font-size:12px;color:var(--orange);margin-left:4px;}
-  .post-tempo{font-size:11px;color:var(--muted);}
-  .post-jogo-badge{font-size:10px;color:var(--muted);margin-bottom:5px;}
-  .post-texto{font-size:14px;line-height:1.6;color:var(--text);word-break:break-word;}
-  .post-mention{color:var(--gold);font-weight:700;}
-  .post-actions{display:flex;align-items:center;gap:16px;margin-top:10px;}
-  .post-like{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;
-    display:flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;padding:0;}
-  .post-like:hover{color:#ff6b6b;}
-  .post-delete{background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;
-    margin-left:auto;font-family:'DM Sans',sans-serif;padding:0;}
-  .post-delete:hover{color:var(--red);}
 
   .msg{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;}
   .msg strong{display:block;font-size:18px;margin-bottom:6px;color:var(--gold);
@@ -163,7 +123,12 @@ async function buscar() {
   participantes = pp.map(function(x){ return x.apelido; });
 
 
-  await renderPage();
+  try {
+    await renderPage();
+  } catch(e) {
+    document.getElementById('area').innerHTML = '<div class="msg"><strong>❌ Erro:</strong> ' + e.message + '<br><small>' + (e.stack||'').replace(/\n/g,'<br>') + '</small></div>';
+    console.error(e);
+  }
 }
 
 async function renderPage() {
@@ -211,14 +176,8 @@ async function renderPage() {
 
   html += '</div></div>';
 
+  document.getElementById('area').innerHTML = html;
 }
-
-
-
-
-
-
-
 
 async function calcTrofeus(hoje) {
   var trofeus = { queda: null, piorPalpite: null, perdedor: null };
@@ -380,36 +339,9 @@ function calcPts(pa, pb, ra, rb) {
   return 0;
 }
 
-function formatarDataHora(iso) {
-  if (!iso) return '';
-  var d = new Date(iso);
-  var dia = d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
-  var hora = d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
-  return dia + ' às ' + hora;
-}
 
-function formatarJogoId(jid) {
-  if (!jid) return '';
-  // Tentar encontrar nos jogos de hoje (jogosHoje pode não estar disponível)
-  var _jogos = typeof jogosHoje !== 'undefined' ? jogosHoje : [];
-  var j = _jogos.find(function(x){ return x.api_id === jid; });
-  if (j) return j.time_a + ' × ' + j.time_b + ' (' + j.horario_brasilia + ')';
-  // Fallback: decodificar o id
-  var m = jid.match(/^(R\d+)_([A-Z]+)_\d+$/);
-  if (!m) return jid;
-  var r = m[1]==='R1'?'1ª Rodada':m[1]==='R2'?'2ª Rodada':'3ª Rodada';
-  return 'Grupo ' + m[2] + ' · ' + r;
-}
 
-function hashStr(s) {
-  var h = 0;
-  for (var i = 0; i < s.length; i++) h = (Math.imul(31,h) + s.charCodeAt(i)) | 0;
-  return h;
-}
 
-function escapeHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
 
 function toast(msg, cor) {
   var t = document.getElementById('toast');
