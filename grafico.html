@@ -358,6 +358,22 @@ function renderGrafico(bolao, historico) {
   var ordenado = series.slice().sort(function(a,b){ return b.pts[HOJE_IDX] - a.pts[HOJE_IDX]; });
   var diaAtual = diasSet[HOJE_IDX];
 
+  // Posição de cada participante no ranking de um determinado dia
+  // (desempate: mais pontos primeiro, depois ordem alfabética para estabilidade)
+  function posicoesNoDia(diaIdx) {
+    var validos = series.filter(function(s){ return s.pts[diaIdx] !== null && s.pts[diaIdx] !== undefined; });
+    validos.sort(function(a,b){
+      var diff = b.pts[diaIdx] - a.pts[diaIdx];
+      if (diff !== 0) return diff;
+      return a.nome.localeCompare(b.nome);
+    });
+    var mapa = {};
+    validos.forEach(function(s, i){ mapa[s.nome] = i+1; });
+    return mapa;
+  }
+  var posAtualMap = posicoesNoDia(HOJE_IDX);
+  var posAnteriorMap = HOJE_IDX > 0 ? posicoesNoDia(HOJE_IDX-1) : {};
+
   var maxPts = 0;
   series.forEach(function(s){ s.pts.forEach(function(v){ if(v && v > maxPts) maxPts = v; }); });
   maxPts = Math.ceil(maxPts / 10) * 10 + 10;
@@ -383,12 +399,12 @@ function renderGrafico(bolao, historico) {
   html += '</div>';
 
   // Tabela
-  var colsTemplate = '50px 1fr ' + diasSet.map(function(){ return '56px'; }).join(' ') + ' 52px';
+  var colsTemplate = '50px 1fr ' + diasSet.map(function(){ return '56px'; }).join(' ') + ' 52px 64px';
   html += '<div class="pos-card"><div class="pos-header">🏆 Classificação Atual — ' + formatarData(diaAtual) + '</div>';
   html += '<div class="pos-row head" style="grid-template-columns:' + colsTemplate + '">';
   html += '<div>POS</div><div>PARTICIPANTE</div>';
   diasSet.forEach(function(d, i){ html += '<div style="text-align:center">' + (i===HOJE_IDX?'★ ':'') + 'D'+(i+1)+'</div>'; });
-  html += '<div style="text-align:center">TEND.</div></div>';
+  html += '<div style="text-align:center">TEND.</div><div style="text-align:center">VAR. POS.</div></div>';
 
   ordenado.forEach(function(s, idx) {
     var numColor = idx===0?'#ffdf00':idx===1?'#aaa':idx===2?'#cd7f32':'#7a9fd4';
@@ -399,11 +415,25 @@ function renderGrafico(bolao, historico) {
     var trend = diff>0?'<span style="color:#00c44f;font-size:12px;">▲'+diff+'</span>'
               : diff<0?'<span style="color:#ff6b6b;font-size:12px;">▼'+Math.abs(diff)+'</span>'
               : '<span style="color:#7a9fd4;font-size:12px;">—</span>';
+
+    // Variação de posição no ranking em relação ao dia anterior
+    var posAtual = posAtualMap[s.nome];
+    var posAnterior = posAnteriorMap[s.nome];
+    var varPos;
+    if (HOJE_IDX === 0 || posAnterior === undefined || posAtual === undefined) {
+      varPos = '<span style="color:#7a9fd4;font-size:12px;">—</span>';
+    } else {
+      var deltaPos = posAnterior - posAtual; // positivo = subiu posições
+      varPos = deltaPos > 0 ? '<span style="color:#00c44f;font-size:12px;">▲'+deltaPos+'</span>'
+             : deltaPos < 0 ? '<span style="color:#ff6b6b;font-size:12px;">▼'+Math.abs(deltaPos)+'</span>'
+             : '<span style="color:#7a9fd4;font-size:12px;">—</span>';
+    }
+
     html += '<div class="pos-row" style="grid-template-columns:' + colsTemplate + '">';
     html += '<div class="pos-num" style="color:' + numColor + '">' + (medal||(idx+1)+'º') + '</div>';
     html += '<div class="pos-nome" style="color:' + s.cor + '">' + s.nome + '</div>';
     s.pts.forEach(function(v,i){ html += '<div class="pos-pts'+(i===HOJE_IDX?' hoje':'')+'">'+( v!==null?v:'—')+'</div>'; });
-    html += '<div class="trend">'+trend+'</div></div>';
+    html += '<div class="trend">'+trend+'</div><div class="trend">'+varPos+'</div></div>';
   });
   html += '</div>';
 
