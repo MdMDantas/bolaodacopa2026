@@ -88,6 +88,7 @@
 <script src="auth.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="regras-admin.js"></script>
 <script>
 var SU = 'https://myytheficqokbjbkmeiv.supabase.co';
@@ -149,6 +150,8 @@ function calcTabelaR(g, resultadosArr){
   return Object.values(tab).sort(function(a,b){if(b.p!==a.p)return b.p-a.p;if(b.sg!==a.sg)return b.sg-a.sg;return b.gf-a.gf;});
 }
 
+var RESUMO_CSS = '<style>body{font-family:Arial,sans-serif;color:#111;margin:0;padding:0;font-size:11px;}.page{max-width:900px;margin:0 auto;padding:20px;}.topo{background:#003087;color:#fff;padding:16px 20px;border-radius:8px 8px 0 0;display:flex;justify-content:space-between;align-items:center;}.topo-nome{font-size:22px;font-weight:900;letter-spacing:2px;color:#ffdf00;}.topo-sub{font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;}.topo-bolao{text-align:right;font-size:11px;color:rgba(255,255,255,0.8);}.secao{margin-top:16px;}.secao-titulo{background:#003087;color:#ffdf00;font-weight:700;font-size:10px;letter-spacing:2px;padding:6px 10px;text-transform:uppercase;border-radius:4px;margin-bottom:8px;}.grid2{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}.grupo-box{border:1px solid #ddd;border-radius:6px;overflow:hidden;}.grupo-label{background:#003087;color:#ffdf00;font-size:9px;font-weight:700;letter-spacing:1px;padding:4px 8px;text-transform:uppercase;}.grupo-cols{display:grid;grid-template-columns:1fr 1fr;}.col-label{background:#f0f4ff;font-size:8px;font-weight:700;color:#003087;padding:3px 6px;text-align:center;letter-spacing:1px;border-top:1px solid #e0e8ff;}.col-item{padding:3px 6px;font-size:9px;display:flex;align-items:center;gap:3px;border-top:1px solid #eee;}.pos{font-weight:700;color:#003087;min-width:14px;font-size:8px;}.pts-badge{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:auto;}.pts-ok{background:#e6f9ee;color:#00a050;}.pts-zero{background:#fee;color:#cc0000;}table.placares{width:100%;border-collapse:collapse;}table.placares th{background:#f0f4ff;color:#003087;font-size:9px;font-weight:700;padding:4px 6px;text-align:left;letter-spacing:1px;}table.placares td{padding:4px 6px;border-bottom:1px solid #eee;font-size:10px;}table.placares tr:last-child td{border-bottom:none;}.pts-cell{font-weight:700;text-align:center;}.pts3{color:#00a050;}.pts2{color:#2266cc;}.pts1{color:#cc8800;}.pts0{color:#cc0000;}.zebra-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}.zebra-item{border:1px solid #ddd;border-radius:6px;padding:6px 10px;}.zebra-nome{font-weight:700;font-size:11px;}.zebra-pos{font-size:10px;color:#666;margin-top:2px;}.resumo-total{background:#003087;color:#fff;border-radius:6px;padding:12px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px;text-align:center;}.total-item-label{font-size:9px;color:rgba(255,255,255,0.6);letter-spacing:1px;text-transform:uppercase;}.total-item-val{font-size:18px;font-weight:900;color:#ffdf00;margin-top:2px;}.rodada-titulo{font-size:9px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin:8px 0 4px;padding:3px 6px;background:#f8f8f8;border-left:3px solid #003087;}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}</style>';
+
 async function gerarResumo(apelido, bolaoId) {
   var u = (typeof AUTH!=='undefined') ? AUTH.get() : null;
   var isAdmin = u && u.apelido === 'MDANTAS';
@@ -157,6 +160,25 @@ async function gerarResumo(apelido, bolaoId) {
     return;
   }
 
+  var p1 = await carregarP1(apelido, bolaoId);
+  var H2 = {'apikey':SK,'Authorization':'Bearer '+SK};
+  var rr = await fetch(SU+'/rest/v1/resultados?select=*',{headers:H2});
+  var resultados = rr.ok ? await rr.json() : [];
+  var rb = await fetch(SU+'/rest/v1/boloes?id=eq.'+bolaoId+'&select=nome',{headers:H2});
+  var bolaoNome = rb.ok ? ((await rb.json())[0]||{}).nome||'' : '';
+  var now = new Date();
+  var dataGeracao = now.toLocaleDateString('pt-BR')+' às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+
+  var body = montarResumoBody(apelido, p1, resultados, bolaoNome, dataGeracao);
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resumo — '+apelido+'</title>'+RESUMO_CSS+'</head><body>'+body+'</body></html>';
+
+  var win=window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+  setTimeout(function(){win.print();},800);
+}
+
+async function carregarP1(apelido, bolaoId) {
   var H2 = {'apikey':SK,'Authorization':'Bearer '+SK};
   var rp = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&apelido=eq.'+encodeURIComponent(apelido)+'&select=*&order=criado_em.asc',{headers:H2});
   var palpites = rp.ok ? await rp.json() : [];
@@ -170,19 +192,15 @@ async function gerarResumo(apelido, bolaoId) {
       } else if(x[k]!==null&&x[k]!==undefined&&x[k]!==''){p1[k]=x[k];}
     });
   });
+  return p1;
+}
+
+function montarResumoBody(apelido, p1, resultados, bolaoNome, dataGeracao) {
   var placares=p1.placares||{};
   if(typeof placares==='string'){try{placares=JSON.parse(placares);}catch(e){placares={};}}
 
-  var rr = await fetch(SU+'/rest/v1/resultados?select=*',{headers:H2});
-  var resultados = rr.ok ? await rr.json() : [];
-  var rb = await fetch(SU+'/rest/v1/boloes?id=eq.'+bolaoId+'&select=nome',{headers:H2});
-  var bolaoNome = rb.ok ? ((await rb.json())[0]||{}).nome||'' : '';
-  var now = new Date();
-  var dataGeracao = now.toLocaleDateString('pt-BR')+' às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 
-  var css = '<style>body{font-family:Arial,sans-serif;color:#111;margin:0;padding:0;font-size:11px;}.page{max-width:900px;margin:0 auto;padding:20px;}.topo{background:#003087;color:#fff;padding:16px 20px;border-radius:8px 8px 0 0;display:flex;justify-content:space-between;align-items:center;}.topo-nome{font-size:22px;font-weight:900;letter-spacing:2px;color:#ffdf00;}.topo-sub{font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;}.topo-bolao{text-align:right;font-size:11px;color:rgba(255,255,255,0.8);}.secao{margin-top:16px;}.secao-titulo{background:#003087;color:#ffdf00;font-weight:700;font-size:10px;letter-spacing:2px;padding:6px 10px;text-transform:uppercase;border-radius:4px;margin-bottom:8px;}.grid2{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}.grupo-box{border:1px solid #ddd;border-radius:6px;overflow:hidden;}.grupo-label{background:#003087;color:#ffdf00;font-size:9px;font-weight:700;letter-spacing:1px;padding:4px 8px;text-transform:uppercase;}.grupo-cols{display:grid;grid-template-columns:1fr 1fr;}.col-label{background:#f0f4ff;font-size:8px;font-weight:700;color:#003087;padding:3px 6px;text-align:center;letter-spacing:1px;border-top:1px solid #e0e8ff;}.col-item{padding:3px 6px;font-size:9px;display:flex;align-items:center;gap:3px;border-top:1px solid #eee;}.pos{font-weight:700;color:#003087;min-width:14px;font-size:8px;}.pts-badge{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:auto;}.pts-ok{background:#e6f9ee;color:#00a050;}.pts-zero{background:#fee;color:#cc0000;}table.placares{width:100%;border-collapse:collapse;}table.placares th{background:#f0f4ff;color:#003087;font-size:9px;font-weight:700;padding:4px 6px;text-align:left;letter-spacing:1px;}table.placares td{padding:4px 6px;border-bottom:1px solid #eee;font-size:10px;}table.placares tr:last-child td{border-bottom:none;}.pts-cell{font-weight:700;text-align:center;}.pts3{color:#00a050;}.pts2{color:#2266cc;}.pts1{color:#cc8800;}.pts0{color:#cc0000;}.zebra-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}.zebra-item{border:1px solid #ddd;border-radius:6px;padding:6px 10px;}.zebra-nome{font-weight:700;font-size:11px;}.zebra-pos{font-size:10px;color:#666;margin-top:2px;}.resumo-total{background:#003087;color:#fff;border-radius:6px;padding:12px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px;text-align:center;}.total-item-label{font-size:9px;color:rgba(255,255,255,0.6);letter-spacing:1px;text-transform:uppercase;}.total-item-val{font-size:18px;font-weight:900;color:#ffdf00;margin-top:2px;}.rodada-titulo{font-size:9px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin:8px 0 4px;padding:3px 6px;background:#f8f8f8;border-left:3px solid #003087;}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}</style>';
-
-  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resumo — '+apelido+'</title>'+css+'</head><body><div class="page">';
+  var html = '<div class="page">';
   html += '<div class="topo"><div><div class="topo-nome">'+apelido+'</div><div class="topo-sub">Resumo de palpites — Copa do Mundo 2026</div></div><div class="topo-bolao"><div>'+bolaoNome+'</div><div style="margin-top:4px;color:rgba(255,255,255,0.5);">Gerado em '+dataGeracao+'</div></div></div>';
 
   // Grupos
@@ -299,12 +317,8 @@ async function gerarResumo(apelido, bolaoId) {
   html += '<div><div class="total-item-label">Placares</div><div class="total-item-val">'+pts_placares+'</div></div>';
   html += '<div><div class="total-item-label" style="color:#ffdf00;">Total Fase Grupos</div><div class="total-item-val" style="font-size:22px;">'+(pts_grupos+pts_zebras+pts_terceiros+pts_placares)+'</div></div>';
   html += '</div>';
-  html += '</div></body></html>';
-
-  var win=window.open('','_blank');
-  win.document.write(html);
-  win.document.close();
-  setTimeout(function(){win.print();},800);
+  html += '</div>';
+  return html;
 }
 
 
@@ -403,7 +417,7 @@ async function carregarRanking(bolaoId, bolaoNome) {
     var isAdmin = (typeof AUTH !== 'undefined' && AUTH.get() && AUTH.get().apelido === 'MDANTAS');
     var posClasses = ['gold','silver','bronze'];
     var html = '<div class="ranking-card" style="overflow-x:visible;width:100%;">';
-    html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO — '+(bolaoNome||'')+'</span><div style="display:flex;align-items:center;gap:10px;"><span class="ranking-update">Ao vivo</span><button onclick="exportarRanking()" style="background:rgba(122,159,212,0.12);border:1px solid rgba(122,159,212,0.35);color:var(--muted);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">📊 EXPORTAR RANKING</button>' + (isAdmin ? '<button onclick="publicarRanking(\''+ bolaoId +'\')" style="background:rgba(0,196,79,0.15);border:1px solid rgba(0,196,79,0.4);color:#00c44f;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">🏆 ATUALIZAR RANKING</button>' : '') + '</div></div>';
+    html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO — '+(bolaoNome||'')+'</span><div style="display:flex;align-items:center;gap:10px;"><span class="ranking-update">Ao vivo</span><button onclick="exportarRanking()" style="background:rgba(122,159,212,0.12);border:1px solid rgba(122,159,212,0.35);color:var(--muted);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">📑 EXPORTAR RESUMOS (PDF)</button>' + (isAdmin ? '<button onclick="publicarRanking(\''+ bolaoId +'\')" style="background:rgba(0,196,79,0.15);border:1px solid rgba(0,196,79,0.4);color:#00c44f;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">🏆 ATUALIZAR RANKING</button>' : '') + '</div></div>';
 
     // HEADER — duas seções de colunas
     // Grid: Posição | Apelido | Grupos | R1 | R2 | R3 | MM | 16Avos | Oitavas | Quartas | Semi | Final | Total
@@ -435,7 +449,7 @@ async function carregarRanking(bolaoId, bolaoNome) {
     html += '</div></div>';
 
     var _prevNum = null;
-    window._rankingExport = { bolaoNome: bolaoNome||'', linhas: [] };
+    window._rankingExport = { bolaoNome: bolaoNome||'', bolaoId: bolaoId, linhas: [] };
     ranking.forEach(function(r,i){
       var num = (i > 0 && r.total === ranking[i-1].total) ? _prevNum : (i+1);
       _prevNum = num;
@@ -678,7 +692,7 @@ async function publicarRanking(bolaoId) {
 }
 
 
-function exportarRanking() {
+async function exportarRanking() {
   var data = window._rankingExport;
   if (!data || !data.linhas.length) { alert('Nenhum ranking carregado para exportar.'); return; }
 
@@ -686,51 +700,74 @@ function exportarRanking() {
     alert('Não foi possível carregar o gerador de PDF. Verifique sua conexão e tente novamente.');
     return;
   }
+  if (typeof html2canvas === 'undefined') {
+    alert('Não foi possível carregar o renderizador de PDF. Verifique sua conexão e tente novamente.');
+    return;
+  }
 
-  var hojeStr = new Date().toLocaleDateString('pt-BR');
-  var { jsPDF } = window.jspdf;
-  var doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+  var btn = event.target;
+  var btnTextoOriginal = btn.textContent;
+  btn.disabled = true;
 
-  var azul = [0, 48, 135];
-  var dourado = [255, 223, 0];
+  try {
+    var { jsPDF } = window.jspdf;
+    var H2 = {'apikey':SK,'Authorization':'Bearer '+SK};
 
-  // Cabeçalho
-  doc.setFillColor(azul[0], azul[1], azul[2]);
-  doc.rect(0, 0, doc.internal.pageSize.getWidth(), 50, 'F');
-  doc.setTextColor(dourado[0], dourado[1], dourado[2]);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
-  doc.text('CLASSIFICAÇÃO — ' + (data.bolaoNome || 'BOLÃO'), 20, 22);
-  doc.setTextColor(255,255,255);
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Bolão da Copa do Mundo 2026', 20, 36);
-  doc.text('Gerado em ' + hojeStr, doc.internal.pageSize.getWidth() - 20, 22, { align: 'right' });
+    // Dados compartilhados por todos os resumos
+    var rr = await fetch(SU+'/rest/v1/resultados?select=*',{headers:H2});
+    var resultados = rr.ok ? await rr.json() : [];
+    var now = new Date();
+    var dataGeracao = now.toLocaleDateString('pt-BR')+' às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 
-  var head = [
-    ['Pos.', 'Apelido', 'Grupos', 'Zebras', 'Terceiros', 'Rod.1', 'Rod.2', 'Rod.3', 'Tot. Grupos', 'MM', '16 Avos', 'Oitavas', 'Quartas', 'Semi', 'Final', 'Tot. MM', 'Total']
-  ];
+    // CSS escopado (substitui o seletor "body" por um container próprio,
+    // evitando que o estilo do resumo afete a página do ranking)
+    var cssEscopado = RESUMO_CSS.replace('<style>body{', '<style>.resumo-export-root{');
 
-  var body = data.linhas.map(function(r){
-    return [r.pos+'º', r.apelido, r.grupos, r.zebras, r.terceiros, r.rod1, r.rod2, r.rod3, r.totalGrupos, r.mm, r.avos16, r.oitavas, r.quartas, r.semi, r.final, r.totalMM, r.totalGeral];
-  });
+    var doc = null;
+    var PAGE_W = 595.28; // largura A4 em pt
 
-  doc.autoTable({
-    head: head,
-    body: body,
-    startY: 60,
-    theme: 'grid',
-    styles: { fontSize: 8, halign: 'center', cellPadding: 3 },
-    headStyles: { fillColor: azul, textColor: dourado, fontStyle: 'bold', fontSize: 7.5 },
-    columnStyles: {
-      1: { halign: 'left', fontStyle: 'bold', textColor: azul },
-      16: { fontStyle: 'bold', fillColor: [255,248,216], textColor: azul }
-    },
-    alternateRowStyles: { fillColor: [250, 251, 255] }
-  });
+    for (var i = 0; i < data.linhas.length; i++) {
+      var apelido = data.linhas[i].apelido;
+      btn.textContent = '⏳ Gerando ' + (i+1) + '/' + data.linhas.length + '...';
 
-  var nomeArquivo = 'ranking_' + (data.bolaoNome||'bolao').replace(/[^a-zA-Z0-9]/g,'_') + '_' + new Date().toISOString().slice(0,10) + '.pdf';
-  doc.save(nomeArquivo);
+      var p1 = await carregarP1(apelido, data.bolaoId);
+      var bodyHtml = montarResumoBody(apelido, p1, resultados, data.bolaoNome, dataGeracao);
+
+      var container = document.createElement('div');
+      container.style.position = 'fixed';
+      container.style.left = '-99999px';
+      container.style.top = '0';
+      container.style.width = '900px';
+      container.className = 'resumo-export-root';
+      container.innerHTML = cssEscopado + bodyHtml;
+      document.body.appendChild(container);
+
+      // Pequeno delay para garantir que o layout (grids) foi calculado
+      await new Promise(function(res){ setTimeout(res, 60); });
+
+      var canvas = await html2canvas(container, { scale: 2, width: 900, windowWidth: 900, backgroundColor: '#ffffff' });
+      document.body.removeChild(container);
+
+      var imgData = canvas.toDataURL('image/jpeg', 0.92);
+      var imgH = canvas.height * PAGE_W / canvas.width;
+
+      if (!doc) {
+        doc = new jsPDF({ unit: 'pt', format: [PAGE_W, imgH] });
+      } else {
+        doc.addPage([PAGE_W, imgH]);
+      }
+      doc.addImage(imgData, 'JPEG', 0, 0, PAGE_W, imgH);
+    }
+
+    var nomeArquivo = 'resumos_' + (data.bolaoNome||'bolao').replace(/[^a-zA-Z0-9]/g,'_') + '_' + new Date().toISOString().slice(0,10) + '.pdf';
+    doc.save(nomeArquivo);
+  } catch(e) {
+    console.error(e);
+    alert('Erro ao gerar PDF: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = btnTextoOriginal;
+  }
 }
 
 </script>
