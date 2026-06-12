@@ -401,7 +401,7 @@ async function carregarRanking(bolaoId, bolaoNome) {
     var isAdmin = (typeof AUTH !== 'undefined' && AUTH.get() && AUTH.get().apelido === 'MDANTAS');
     var posClasses = ['gold','silver','bronze'];
     var html = '<div class="ranking-card" style="overflow-x:visible;width:100%;">';
-    html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO — '+(bolaoNome||'')+'</span><span class="ranking-update">Ao vivo</span></div>';
+    html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO — '+(bolaoNome||'')+'</span><div style="display:flex;align-items:center;gap:10px;"><span class="ranking-update">Ao vivo</span><button onclick="exportarRanking()" style="background:rgba(122,159,212,0.12);border:1px solid rgba(122,159,212,0.35);color:var(--muted);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">📊 EXPORTAR RANKING</button>' + (isAdmin ? '<button onclick="publicarRanking(\''+ bolaoId +'\')" style="background:rgba(0,196,79,0.15);border:1px solid rgba(0,196,79,0.4);color:#00c44f;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">🏆 ATUALIZAR RANKING</button>' : '') + '</div></div>';
 
     // HEADER — duas seções de colunas
     // Grid: Posição | Apelido | Grupos | R1 | R2 | R3 | MM | 16Avos | Oitavas | Quartas | Semi | Final | Total
@@ -432,9 +432,12 @@ async function carregarRanking(bolaoId, bolaoNome) {
     html += '<div style="text-align:center;color:var(--muted);font-weight:700;">Total MM</div>';
     html += '</div></div>';
 
+    var _prevNum = null;
+    window._rankingExport = { bolaoNome: bolaoNome||'', linhas: [] };
     ranking.forEach(function(r,i){
-      var num = i+1;
-      var cls = i<3 ? posClasses[i] : 'other';
+      var num = (i > 0 && r.total === ranking[i-1].total) ? _prevNum : (i+1);
+      _prevNum = num;
+      var cls = num<=3 ? posClasses[num-1] : 'other';
 
       var temGrupos     = fase1Grupos[r.apelido]      ? '✅' : '❌';
       var temPlacares   = fase1Placares[r.apelido]    ? '✅' : '❌';
@@ -467,6 +470,15 @@ async function carregarRanking(bolaoId, bolaoNome) {
 
       var totalGrp = pGrupos + pZebras + pTerceiros + pR1 + pR2 + pR3;
       var totalMM  = pChaveamento + p16avos + pOitavas + pQuartas + pSemi + pFinal;
+
+      window._rankingExport.linhas.push({
+        pos: num, apelido: r.apelido,
+        grupos: pGrupos, zebras: pZebras, terceiros: pTerceiros,
+        rod1: pR1, rod2: pR2, rod3: pR3, totalGrupos: totalGrp,
+        mm: pChaveamento, avos16: p16avos, oitavas: pOitavas,
+        quartas: pQuartas, semi: pSemi, final: pFinal, totalMM: totalMM,
+        totalGeral: (r.total !== undefined ? r.total : (totalGrp+totalMM))
+      });
       html += '<div style="display:grid;grid-template-columns:40px 1fr 60px 50px 50px 60px 60px 50px 50px 50px 58px 64px 60px 50px 52px 52px 52px;align-items:center;padding:8px 12px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;">';
       html += '<div class="ranking-pos '+cls+'">'+num+'<sup>º</sup></div>';
       html += '<div class="ranking-apelido" style="display:flex;align-items:center;gap:8px;">'+r.apelido+'<button onclick="gerarResumo(\''+r.apelido+'\',\''+bolaoId+'\')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.25);color:#ffdf00;border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:0.5px;white-space:nowrap;">📄 RESUMO</button></div>';
@@ -661,6 +673,34 @@ async function publicarRanking(bolaoId) {
   btnEl.disabled=false; btnEl.textContent='🏆 ATUALIZAR RANKING';
   alert('✅ Ranking atualizado para '+pontuacoes.length+' participante(s)!');
   carregarRanking(bolaoId, null);
+}
+
+
+function exportarRanking() {
+  var data = window._rankingExport;
+  if (!data || !data.linhas.length) { alert('Nenhum ranking carregado para exportar.'); return; }
+
+  var headers = ['Posição','Apelido','Grupos','Zebras','Terceiros','Rod.1','Rod.2','Rod.3','Total Grupos','MM','16 Avos','Oitavas','Quartas','Semi','Final','Total MM','Total Geral'];
+  var linhas = [headers.join(';')];
+
+  data.linhas.forEach(function(r){
+    linhas.push([
+      r.pos, r.apelido, r.grupos, r.zebras, r.terceiros,
+      r.rod1, r.rod2, r.rod3, r.totalGrupos,
+      r.mm, r.avos16, r.oitavas, r.quartas, r.semi, r.final, r.totalMM,
+      r.totalGeral
+    ].join(';'));
+  });
+
+  var csv = '\uFEFF' + linhas.join('\n'); // BOM para acentuação correta no Excel
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  var hoje = new Date().toISOString().slice(0,10);
+  var nomeArquivo = 'ranking_' + (data.bolaoNome||'bolao').replace(/[^a-zA-Z0-9]/g,'_') + '_' + hoje + '.csv';
+  a.href = url; a.download = nomeArquivo;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 </script>
