@@ -38,6 +38,30 @@
   .trofeu-desc{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4;}
   .trofeu-vazio{font-size:12px;color:var(--muted);font-style:italic;}
 
+  /* CARDS DOS JOGOS (acordeão) */
+  .jogo-card{background:var(--card);border:1px solid var(--border);border-radius:12px;
+    padding:12px 16px;margin-bottom:0;cursor:pointer;display:flex;justify-content:space-between;
+    align-items:center;gap:10px;transition:border-color 0.15s;}
+  .jogo-card:hover{border-color:rgba(255,223,0,0.4);}
+  .jogo-card.aberto{border-radius:12px 12px 0 0;border-color:rgba(255,223,0,0.4);}
+  .jogo-card-nome{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:#fff;flex:1;}
+  .jogo-card-placar{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--gold);}
+  .jogo-card-seta{font-size:11px;color:var(--muted);transition:transform 0.2s;}
+  .jogo-card.aberto .jogo-card-seta{transform:rotate(180deg);}
+  .jogo-detalhe{display:none;grid-template-columns:repeat(3,1fr);gap:10px;
+    padding:12px;margin-bottom:10px;background:rgba(0,0,0,0.18);
+    border:1px solid rgba(255,223,0,0.4);border-top:none;border-radius:0 0 12px 12px;}
+  .jogo-detalhe.aberto{display:grid;}
+  @media(max-width:700px){.jogo-detalhe.aberto{grid-template-columns:1fr;}}
+  .jogo-subcard{background:var(--card);border:1px solid var(--border);border-radius:10px;
+    padding:12px;text-align:center;}
+  .jogo-subcard-titulo{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--muted);margin-bottom:6px;}
+  .jogo-subcard-nome{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;
+    color:var(--gold);line-height:1.3;}
+  .jogo-subcard-desc{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4;}
+  .jogo-subcard-vazio{font-size:11px;color:var(--muted);font-style:italic;}
+
   .secao-titulo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;
     color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
 
@@ -139,31 +163,9 @@ async function renderPage() {
   // TROFÉUS
   html += '<div style="margin-bottom:20px;">';
   html += '<div class="secao-titulo">🏆 Troféus de Hoje</div>';
-  html += '<div class="trofeus-grid">';
 
-  // Linha 1: Pior Palpite + Apostou no Perdedor
-  html += '<div class="trofeu-card destaque"><span class="trofeu-emoji">🤡</span>';
-  html += '<div class="trofeu-titulo">Pior Palpite da Rodada</div>';
-  html += '<div class="trofeu-criterio">Maior erro de placar entre quem zerou pontos em um jogo</div>';
-  if (trofeus.piorPalpite) {
-    html += '<div class="trofeu-nome" style="font-size:14px;line-height:1.3;">' + trofeus.piorPalpite.apelido + '</div>';
-    html += '<div class="trofeu-desc">em ' + trofeus.piorPalpite.jogo + '</div>';
-  } else { html += '<div class="trofeu-vazio">Aguardando resultados</div>'; }
-  html += '</div>';
-
-  html += '<div class="trofeu-card"><span class="trofeu-emoji">🙈</span>';
-  html += '<div class="trofeu-titulo">Apostou no Perdedor</div>';
-  html += '<div class="trofeu-criterio">Foi contra a maioria do bolão (60%+) e também errou o resultado</div>';
-  if (trofeus.perdedores) {
-    var perdedorHtml = trofeus.perdedores.map(function(p){
-      return '<div style="margin-bottom:6px;"><span class="trofeu-nome" style="font-size:14px;">' + p.apelidos.join(', ') + '</span><div class="trofeu-desc">Foi contra ' + p.pct + '% do bolão em ' + p.jogo + '</div></div>';
-    }).join('');
-    html += '<div style="text-align:center;">' + perdedorHtml + '</div>';
-  } else { html += '<div class="trofeu-vazio">Aguardando resultados</div>'; }
-  html += '</div>';
-
-  // Linha 2: Maior Queda + Acertou o Placar
-  html += '<div class="trofeu-card"><span class="trofeu-emoji">📉</span>';
+  // Maior Queda — card diário, largura cheia
+  html += '<div class="trofeu-card" style="margin-bottom:14px;"><span class="trofeu-emoji">📉</span>';
   html += '<div class="trofeu-titulo">Maior Queda</div>';
   html += '<div class="trofeu-criterio">Quem mais caiu de posição no ranking de ontem para hoje</div>';
   if (trofeus.queda) {
@@ -172,22 +174,56 @@ async function renderPage() {
   } else { html += '<div class="trofeu-vazio">Aguardando dados</div>'; }
   html += '</div>';
 
-  html += '<div class="trofeu-card destaque"><span class="trofeu-emoji">🎯</span>';
-  html += '<div class="trofeu-titulo">Acertou o Placar!</div>';
-  html += '<div class="trofeu-criterio">Cravou o placar exato de algum jogo</div>';
-  if (trofeus.acertaram && trofeus.acertaram.length > 0) {
-    html += '<div class="trofeu-nome" style="font-size:14px;line-height:1.3;">' + trofeus.acertaram.join(', ') + '</div>';
-    html += '<div class="trofeu-desc">Placar exato 🎉</div>';
-  } else { html += '<div class="trofeu-vazio">Ninguém acertou ainda</div>'; }
-  html += '</div>';
+  // Cards dos jogos — clique para abrir os troféus daquele jogo
+  if (trofeus.jogos && trofeus.jogos.length) {
+    trofeus.jogos.forEach(function(j){
+      html += '<div class="jogo-card" id="jogo-card-' + j.jid + '" onclick="toggleJogo(\'' + j.jid + '\')">';
+      html += '<span class="jogo-card-nome">' + j.jogo + '</span>';
+      html += '<span class="jogo-card-placar">' + j.placar + '</span>';
+      html += '<span class="jogo-card-seta">▾</span>';
+      html += '</div>';
 
-  html += '</div></div>';
+      html += '<div class="jogo-detalhe" id="jogo-det-' + j.jid + '">';
+
+      // Acertou o Placar
+      html += '<div class="jogo-subcard"><span class="trofeu-emoji" style="font-size:24px;">🎯</span>';
+      html += '<div class="jogo-subcard-titulo">Acertou o Placar</div>';
+      if (j.acertaram.length) {
+        html += '<div class="jogo-subcard-nome">' + j.acertaram.join(', ') + '</div>';
+      } else { html += '<div class="jogo-subcard-vazio">Ninguém acertou</div>'; }
+      html += '</div>';
+
+      // Palpite Errado (apostou no perdedor)
+      html += '<div class="jogo-subcard"><span class="trofeu-emoji" style="font-size:24px;">🙈</span>';
+      html += '<div class="jogo-subcard-titulo">Palpite Errado</div>';
+      if (j.perdedores) {
+        html += '<div class="jogo-subcard-nome">' + j.perdedores.apelidos.join(', ') + '</div>';
+        html += '<div class="jogo-subcard-desc">Foi contra ' + j.perdedores.pct + '% do bolão e errou</div>';
+      } else { html += '<div class="jogo-subcard-vazio">Ninguém</div>'; }
+      html += '</div>';
+
+      // Pior Palpite da Rodada (deste jogo)
+      html += '<div class="jogo-subcard"><span class="trofeu-emoji" style="font-size:24px;">🤡</span>';
+      html += '<div class="jogo-subcard-titulo">Pior Palpite</div>';
+      if (j.piorPalpite) {
+        var nomesPior = j.piorPalpite.apelidos.map(function(ap,i){ return ap + ' (' + j.piorPalpite.placares[i] + ')'; });
+        html += '<div class="jogo-subcard-nome" style="font-size:13px;">' + nomesPior.join(', ') + '</div>';
+      } else { html += '<div class="jogo-subcard-vazio">Ninguém zerou</div>'; }
+      html += '</div>';
+
+      html += '</div>'; // jogo-detalhe
+    });
+  } else {
+    html += '<div class="trofeu-vazio" style="text-align:center;padding:16px;">Aguardando resultados dos jogos</div>';
+  }
+
+  html += '</div>';
 
   document.getElementById('area').innerHTML = html;
 }
 
 async function calcTrofeus(hoje) {
-  var trofeus = { queda: null, piorPalpite: null, perdedores: null };
+  var trofeus = { queda: null, jogos: [] };
   if (!bolaoAtual) return trofeus;
 
   // Maior Queda
@@ -214,13 +250,12 @@ async function calcTrofeus(hoje) {
     if (melhor) trofeus.queda = { apelido: melhor, diff: melhorDiff };
   } catch(e) {}
 
-  // Pior Palpite + Apostou no Perdedor
+  // Calcula trofeus por jogo: acertos, palpite errado (apostou no perdedor), pior palpite
   try {
     var rp = await fetch(SU + '/rest/v1/palpites_fase1?bolao_id=eq.' + bolaoAtual.id + '&select=apelido,placares', { headers: H });
     var palpites = await rp.json();
     var rr = await fetch(SU + '/rest/v1/resultados?select=*&finalizado=eq.true', { headers: H });
     var resultados = await rr.json();
-    if (!resultados.length) return trofeus;
 
     var mapaJogos = {};
     palpites.forEach(function(p) {
@@ -236,8 +271,7 @@ async function calcTrofeus(hoje) {
       });
     });
 
-    var piorDist = -1, piorAps = [], piorJogo = null, piorPlacares = [];
-    var perdedorPorJogo = [];
+    var jogos = [];
 
     resultados.forEach(function(res) {
       var jid = res.api_id;
@@ -260,79 +294,51 @@ async function calcTrofeus(hoje) {
       var vencMaioria = vencVotos.A >= vencVotos.B && vencVotos.A >= vencVotos.E ? 'A'
         : vencVotos.B > vencVotos.A && vencVotos.B >= vencVotos.E ? 'B' : 'E';
 
+      var acertaram = [];
       var perdedoresJogo = [];
+      var piorDistJogo = -1, piorApsJogo = [], piorPlacaresJogo = [];
 
       apelidos.forEach(function(ap) {
         var pp = mapaJogos[jid][ap];
+
+        if (pp.a === ga && pp.b === gb) acertaram.push(ap);
+
         var pts = calcPts(pp.a, pp.b, ga, gb);
         if (pts === 0) {
           var dist = Math.abs(pp.a - ga) + Math.abs(pp.b - gb);
-          if (dist > piorDist) {
-            piorDist = dist; piorAps = [ap];
-            piorJogo = res.time_a + ' × ' + res.time_b;
-            piorPlacares = [pp.a + '×' + pp.b];
-          } else if (dist === piorDist) { piorAps.push(ap); piorPlacares.push(pp.a + '×' + pp.b); }
+          if (dist > piorDistJogo) {
+            piorDistJogo = dist; piorApsJogo = [ap]; piorPlacaresJogo = [pp.a + '×' + pp.b];
+          } else if (dist === piorDistJogo) { piorApsJogo.push(ap); piorPlacaresJogo.push(pp.a + '×' + pp.b); }
         }
+
         var meuVenc = pp.a > pp.b ? 'A' : pp.b > pp.a ? 'B' : 'E';
         if (meuVenc !== vencMaioria && meuVenc !== vencReal && maioriaPct >= 0.6) {
           perdedoresJogo.push(ap);
         }
       });
 
-      if (perdedoresJogo.length) {
-        perdedorPorJogo.push({
-          apelidos: perdedoresJogo,
-          pct: Math.round(maioriaPct * 100),
-          jogo: res.time_a + ' × ' + res.time_b
-        });
-      }
-    });
-
-    if (piorAps.length) {
-      var piorNomes = piorAps.map(function(ap, i){ return ap + ' (' + piorPlacares[i] + ')'; });
-      trofeus.piorPalpite = { apelido: piorNomes.join(", "), jogo: piorJogo };
-    }
-    if (perdedorPorJogo.length) trofeus.perdedores = perdedorPorJogo;
-  } catch(e) {}
-
-  // Acertou o placar exato
-  try {
-    var rp2 = await fetch(SU + '/rest/v1/palpites_fase1?bolao_id=eq.' + bolaoAtual.id + '&select=apelido,placares', { headers: H });
-    var palpites2 = await rp2.json();
-    var rr2 = await fetch(SU + '/rest/v1/resultados?select=*&finalizado=eq.true', { headers: H });
-    var resultados2 = await rr2.json();
-
-    // Montar mapa de palpites
-    var mapaP = {};
-    palpites2.forEach(function(p) {
-      var pl = p.placares || {};
-      if (typeof pl === 'string') { try { pl = JSON.parse(pl); } catch(e) { pl = {}; } }
-      Object.keys(pl).forEach(function(k) {
-        var m = k.match(/placar_(R\d+_[A-Z]+_\d+)_([ab])/);
-        if (!m) return;
-        var jid = m[1], lado = m[2];
-        if (!mapaP[jid]) mapaP[jid] = {};
-        if (!mapaP[jid][p.apelido]) mapaP[jid][p.apelido] = { a: null, b: null };
-        mapaP[jid][p.apelido][lado] = parseInt(pl[k]);
+      jogos.push({
+        jid: jid,
+        jogo: res.time_a + ' × ' + res.time_b,
+        placar: ga + '×' + gb,
+        acertaram: acertaram,
+        perdedores: perdedoresJogo.length ? { apelidos: perdedoresJogo, pct: Math.round(maioriaPct * 100) } : null,
+        piorPalpite: piorApsJogo.length ? { apelidos: piorApsJogo, placares: piorPlacaresJogo } : null
       });
     });
 
-    var acertaram = {};
-    resultados2.forEach(function(res) {
-      var jid = res.api_id;
-      if (!jid || !mapaP[jid]) return;
-      if (res.gols_a === null || res.gols_a === undefined) return;
-      Object.keys(mapaP[jid]).forEach(function(ap) {
-        var pp = mapaP[jid][ap];
-        if (pp.a === res.gols_a && pp.b === res.gols_b) {
-          acertaram[ap] = true;
-        }
-      });
-    });
-    trofeus.acertaram = Object.keys(acertaram);
+    trofeus.jogos = jogos;
   } catch(e) {}
 
   return trofeus;
+}
+
+function toggleJogo(jid) {
+  var card = document.getElementById('jogo-card-' + jid);
+  var det = document.getElementById('jogo-det-' + jid);
+  if (!card || !det) return;
+  var aberto = det.classList.toggle('aberto');
+  card.classList.toggle('aberto', aberto);
 }
 
 function calcPts(pa, pb, ra, rb) {
