@@ -232,7 +232,7 @@ async function calcTrofeus(hoje) {
       porDia[r.dia][r.apelido] = r.total;
     });
     var dHoje = porDia[hoje] || {}, dOntem = porDia[ontemStr] || {};
-    function getRanking(d) { return Object.keys(d).sort(function(a,b){ return d[b]-d[a]; }); }
+    function getRanking(d) { return Object.keys(d).sort(function(a,b){ var diff = d[b]-d[a]; if (diff !== 0) return diff; return a.localeCompare(b); }); }
     var rHoje = getRanking(dHoje), rOntem = getRanking(dOntem);
     var melhor = null, melhorDiff = 0;
     rHoje.forEach(function(ap, pos) {
