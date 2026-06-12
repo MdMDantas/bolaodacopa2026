@@ -158,6 +158,8 @@
 
 <script src="db.js"></script>
 <script src="auth.js"></script>
+<script src="regras-admin.js"></script>
+<script src="scoring-engine.js"></script>
 <script>
 var SU = SUPABASE_URL;
 var SK = SUPABASE_KEY;
@@ -234,43 +236,76 @@ async function tirarFotoDoDia() {
   var labelDia = sel && sel.options.length ? sel.options[sel.selectedIndex].textContent : diaEscolhido;
   var btn = document.getElementById('btnFoto');
 
-  var resp = await fetch(SU + '/rest/v1/pontuacoes?bolao_id=eq.' + bolaoAtual.id + '&select=apelido,total', { headers: H });
-  if (!resp.ok) { toast('❌ Erro ao buscar pontuações.', '#ff6b6b'); return; }
-  var rows = await resp.json();
-  if (!rows.length) { toast('⚠️ Nenhuma pontuação encontrada.', '#ffaa44'); return; }
-
-  if (!confirm('Registrar o ranking atual como o snapshot do ' + labelDia + ' (' + formatarData(diaEscolhido) + ') para "' + bolaoAtual.nome + '"?\n\n' + rows.length + ' participantes serão salvos.\n\nSe já existir uma foto para esse dia, ela será substituída.')) return;
-
   btn.disabled = true;
-  btn.textContent = '⏳ Salvando...';
+  btn.textContent = '⏳ Calculando...';
 
-  var erros = 0;
-  for (var i = 0; i < rows.length; i++) {
-    var r = rows[i];
-    // Tenta deletar o registro do dia antes de inserir (evita conflito de constraint)
-    await fetch(SU + '/rest/v1/ranking_historico?bolao_id=eq.' + bolaoAtual.id + '&apelido=eq.' + encodeURIComponent(r.apelido) + '&dia=eq.' + diaEscolhido, {
-      method: 'DELETE',
-      headers: Object.assign({}, H, { 'Content-Type': 'application/json' })
+  try {
+    // 1) Calendário de jogos: api_id -> data_jogo
+    var rc = await fetch(SU + '/rest/v1/jogos_calendario?select=api_id,data_jogo', { headers: H });
+    if (!rc.ok) { toast('❌ Erro ao buscar calendário de jogos.', '#ff6b6b'); return; }
+    var calendario = await rc.json();
+    var dataPorJogo = {};
+    calendario.forEach(function(c) { dataPorJogo[c.api_id] = c.data_jogo; });
+
+    // 2) Resultados, filtrados: só jogos com data <= dia escolhido
+    var rr = await fetch(SU + '/rest/v1/resultados?select=*', { headers: H });
+    if (!rr.ok) { toast('❌ Erro ao buscar resultados.', '#ff6b6b'); return; }
+    var resultadosTodos = await rr.json();
+    var resultadosFiltrados = resultadosTodos.filter(function(res) {
+      var d = dataPorJogo[res.api_id];
+      return d && d <= diaEscolhido;
     });
-    var ins = await fetch(SU + '/rest/v1/ranking_historico', {
-      method: 'POST',
-      headers: Object.assign({}, H, {
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      }),
-      body: JSON.stringify({ bolao_id: bolaoAtual.id, apelido: r.apelido, total: r.total, dia: diaEscolhido })
-    });
-    if (!ins.ok) erros++;
-  }
 
-  btn.disabled = false;
-  btn.innerHTML = '📸 SALVAR FOTO';
+    // 3) Palpites de fase 1 do bolão (paginado)
+    var palpitesArr = [], pageSize = 1000, offset = 0;
+    while (true) {
+      var Hp = Object.assign({}, H, { 'Range': offset + '-' + (offset + pageSize - 1), 'Prefer': 'count=none' });
+      var rp = await fetch(SU + '/rest/v1/palpites_fase1?bolao_id=eq.' + bolaoAtual.id + '&select=*&order=criado_em.asc&limit=' + pageSize + '&offset=' + offset, { headers: Hp });
+      if (!rp.ok) break;
+      var batch = await rp.json();
+      palpitesArr = palpitesArr.concat(batch);
+      if (batch.length < pageSize) break;
+      offset += pageSize;
+    }
 
-  if (erros === 0) {
-    toast('✅ ' + labelDia + ' (' + formatarData(diaEscolhido) + ') salvo! (' + rows.length + ' participantes)');
-    buscar(); // atualiza o gráfico
-  } else {
-    toast('⚠️ ' + erros + ' erro(s) ao salvar.', '#ff6b6b');
+    if (!palpitesArr.length) { toast('⚠️ Nenhum palpite encontrado para este bolão.', '#ffaa44'); return; }
+
+    // 4) Recalcula o total de cada participante considerando só os jogos até o dia escolhido
+    var recalculado = SCORING.calcular(resultadosFiltrados, palpitesArr);
+    if (!recalculado.length) { toast('⚠️ Nada para salvar.', '#ffaa44'); return; }
+
+    if (!confirm('Recalcular e salvar o snapshot do ' + labelDia + ' (' + formatarData(diaEscolhido) + ') para "' + bolaoAtual.nome + '"?\n\nConsiderando apenas os jogos até essa data, ' + recalculado.length + ' participante(s) serão salvos.\n\nSe já existir uma foto para esse dia, ela será substituída.')) return;
+
+    btn.textContent = '⏳ Salvando...';
+
+    var erros = 0;
+    for (var i = 0; i < recalculado.length; i++) {
+      var p = recalculado[i];
+      // Tenta deletar o registro do dia antes de inserir (evita conflito de constraint)
+      await fetch(SU + '/rest/v1/ranking_historico?bolao_id=eq.' + bolaoAtual.id + '&apelido=eq.' + encodeURIComponent(p.apelido) + '&dia=eq.' + diaEscolhido, {
+        method: 'DELETE',
+        headers: Object.assign({}, H, { 'Content-Type': 'application/json' })
+      });
+      var ins = await fetch(SU + '/rest/v1/ranking_historico', {
+        method: 'POST',
+        headers: Object.assign({}, H, {
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        }),
+        body: JSON.stringify({ bolao_id: bolaoAtual.id, apelido: p.apelido, total: p.total, dia: diaEscolhido })
+      });
+      if (!ins.ok) erros++;
+    }
+
+    if (erros === 0) {
+      toast('✅ ' + labelDia + ' (' + formatarData(diaEscolhido) + ') recalculado e salvo! (' + recalculado.length + ' participantes)');
+      buscar(); // atualiza o gráfico
+    } else {
+      toast('⚠️ ' + erros + ' erro(s) ao salvar.', '#ff6b6b');
+    }
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '📸 SALVAR FOTO';
   }
 }
 
