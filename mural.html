@@ -153,8 +153,8 @@ async function renderPage() {
   html += '<div class="trofeu-card destaque"><span class="trofeu-emoji">🤡</span>';
   html += '<div class="trofeu-titulo">Pior Palpite da Rodada</div>';
   if (trofeus.piorPalpite) {
-    html += '<div class="trofeu-nome">' + trofeus.piorPalpite.apelido + '</div>';
-    html += '<div class="trofeu-desc">Apostou ' + trofeus.piorPalpite.placar + ' em ' + trofeus.piorPalpite.jogo + '</div>';
+    html += '<div class="trofeu-nome" style="font-size:14px;line-height:1.3;">' + trofeus.piorPalpite.apelido + '</div>';
+    html += '<div class="trofeu-desc">em ' + trofeus.piorPalpite.jogo + '</div>';
   } else { html += '<div class="trofeu-vazio">Aguardando resultados</div>'; }
   html += '</div>';
 
@@ -229,7 +229,7 @@ async function calcTrofeus(hoje) {
       });
     });
 
-    var piorDist = -1, piorAps = [], piorJogo = null, piorPlacar = null;
+    var piorDist = -1, piorAps = [], piorJogo = null, piorPlacares = [];
     var perdedorAps = [], perdedorPct = 0;
 
     resultados.forEach(function(res) {
@@ -261,8 +261,8 @@ async function calcTrofeus(hoje) {
           if (dist > piorDist) {
             piorDist = dist; piorAps = [ap];
             piorJogo = res.time_a + ' × ' + res.time_b;
-            piorPlacar = pp.a + '×' + pp.b;
-          } else if (dist === piorDist) { piorAps.push(ap); }
+            piorPlacares = [pp.a + '×' + pp.b];
+          } else if (dist === piorDist) { piorAps.push(ap); piorPlacares.push(pp.a + '×' + pp.b); }
         }
         var meuVenc = pp.a > pp.b ? 'A' : pp.b > pp.a ? 'B' : 'E';
         if (meuVenc !== vencMaioria && meuVenc !== vencReal && maioriaPct >= 0.6) {
@@ -272,7 +272,10 @@ async function calcTrofeus(hoje) {
       });
     });
 
-    if (piorAps.length) trofeus.piorPalpite = { apelido: piorAps.join(", "), jogo: piorJogo, placar: piorPlacar };
+    if (piorAps.length) {
+      var piorNomes = piorAps.map(function(ap, i){ return ap + ' (' + piorPlacares[i] + ')'; });
+      trofeus.piorPalpite = { apelido: piorNomes.join(", "), jogo: piorJogo };
+    }
     if (perdedorAps.length) trofeus.perdedor = { apelido: perdedorAps.join(", "), pct: perdedorPct };
   } catch(e) {}
 
@@ -282,15 +285,6 @@ async function calcTrofeus(hoje) {
     var palpites2 = await rp2.json();
     var rr2 = await fetch(SU + '/rest/v1/resultados?select=*&finalizado=eq.true', { headers: H });
     var resultados2 = await rr2.json();
-
-    // Buscar jogos de hoje para filtrar só os jogos do dia
-    var hojeStr2 = hoje;
-    var jogosHojeIds = [];
-    try {
-      var rj2 = await fetch(SU + '/rest/v1/jogos_calendario?data_jogo=eq.' + hojeStr2 + '&select=api_id', { headers: H });
-      var jj2 = rj2.ok ? await rj2.json() : [];
-      jogosHojeIds = jj2.map(function(x){ return x.api_id; });
-    } catch(e) {}
 
     // Montar mapa de palpites
     var mapaP = {};
@@ -310,8 +304,9 @@ async function calcTrofeus(hoje) {
     var acertaram = {};
     resultados2.forEach(function(res) {
       var jid = res.api_id;
-      // Filtrar só jogos de hoje se tivermos o calendário
-      if (jogosHojeIds.length > 0 && jogosHojeIds.indexOf(jid) === -1) return;
+      // Considerar apenas resultados publicados hoje
+      var atualEm = res.atualizado_em ? String(res.atualizado_em).slice(0,10) : null;
+      if (atualEm !== hoje) return;
       if (!jid || !mapaP[jid]) return;
       if (res.gols_a === null || res.gols_a === undefined) return;
       Object.keys(mapaP[jid]).forEach(function(ap) {

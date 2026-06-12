@@ -331,7 +331,11 @@ function renderGrafico(bolao, historico) {
 
 function buildSVG(series, dias, hojeIdx, maxPts) {
   var PAD = { top:30, right:155, bottom:38, left:52 };
-  var W=1000, H=420, PW=W-PAD.left-PAD.right, PH=H-PAD.top-PAD.bottom, N=dias.length;
+  var W=1000, N=dias.length;
+  var rowH = 22;
+  // No "Dia 1" (corrida ainda sem histórico), aumenta a altura para caber todos os participantes
+  var H = N===1 ? Math.max(420, PAD.top + PAD.bottom + series.length*rowH + 16) : 420;
+  var PW=W-PAD.left-PAD.right, PH=H-PAD.top-PAD.bottom;
 
   function xOf(i){ return N===1 ? PAD.left+PW/2 : PAD.left+(i/(N-1))*PW; }
   function yOf(v){ return PAD.top+PH-(v/maxPts)*PH; }
@@ -356,26 +360,40 @@ function buildSVG(series, dias, hojeIdx, maxPts) {
   s+='<rect x="'+(xH-22)+'" y="'+(PAD.top-20)+'" width="44" height="16" rx="4" fill="rgba(255,223,0,0.12)" stroke="rgba(255,223,0,0.35)" stroke-width="0.8"/>';
   s+='<text x="'+xH+'" y="'+(PAD.top-8)+'" text-anchor="middle" fill="#ffdf00" font-size="9" font-weight="700" font-family="DM Sans,sans-serif" letter-spacing="1">HOJE</text>';
 
-  var ordenadoZ=series.slice().sort(function(a,b){ return (a.pts[hojeIdx]||0)-(b.pts[hojeIdx]||0); });
-  ordenadoZ.forEach(function(p){
-    var validPts=[];
-    p.pts.forEach(function(v,i){ if(v!==null && i<=hojeIdx) validPts.push({i:i,v:v}); });
-    if(!validPts.length) return;
-    var pontos=validPts.map(function(pt){ return xOf(pt.i)+','+yOf(pt.v); }).join(' ');
-    var key=sanitize(p.nome);
-    s+='<polyline class="linha-'+key+'" points="'+pontos+'" fill="none" stroke="'+p.cor+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>';
-    validPts.forEach(function(pt){
-      var isHoje=pt.i===hojeIdx;
-      s+='<circle class="ponto-'+key+'" cx="'+xOf(pt.i)+'" cy="'+yOf(pt.v)+'" r="'+(isHoje?6:3.5)+'" fill="'+p.cor+'" stroke="#001a4a" stroke-width="'+(isHoje?2:1.5)+'"/>';
+  if (N === 1) {
+    // Sem histórico ainda: lista vertical com uma bola colorida por participante
+    var ordenadoLista=series.slice().sort(function(a,b){ return (b.pts[hojeIdx]||0)-(a.pts[hojeIdx]||0); });
+    ordenadoLista.forEach(function(p, idx){
+      var v=p.pts[hojeIdx];
+      if(v===null||v===undefined) return;
+      var labelY = PAD.top + 14 + idx*rowH;
+      var medal=idx===0?'🥇 ':idx===1?'🥈 ':idx===2?'🥉 ':'';
+      var key=sanitize(p.nome);
+      s+='<circle class="ponto-'+key+'" cx="'+xH+'" cy="'+labelY+'" r="6" fill="'+p.cor+'" stroke="#001a4a" stroke-width="1.5"/>';
+      s+='<text class="label-'+key+'" x="'+(xH+14)+'" y="'+(labelY+4)+'" fill="'+p.cor+'" font-size="12" font-weight="700" font-family="DM Sans,sans-serif">'+medal+p.nome+'  '+v+'pts</text>';
     });
-    var lastV=p.pts[hojeIdx]||0;
-    var sortedByPts=series.slice().sort(function(a,b){return (b.pts[hojeIdx]||0)-(a.pts[hojeIdx]||0);});
-    var pos=sortedByPts.findIndex(function(x){return x.nome===p.nome;})+1;
-    var medal=pos===1?'🥇 ':pos===2?'🥈 ':pos===3?'🥉 ':'';
-    // Quando há só 1 dia, distribuir labels verticalmente por ranking (evita sobreposição)
-    var labelY = N===1 ? (PAD.top + 20 + (pos-1)*18) : (yOf(lastV)+4);
-    s+='<text class="label-'+key+'" x="'+(xH+14)+'" y="'+labelY+'" fill="'+p.cor+'" font-size="12" font-weight="700" font-family="DM Sans,sans-serif">'+medal+p.nome+'  '+lastV+'pts</text>';
-  });
+  } else {
+    var ordenadoZ=series.slice().sort(function(a,b){ return (a.pts[hojeIdx]||0)-(b.pts[hojeIdx]||0); });
+    ordenadoZ.forEach(function(p){
+      var validPts=[];
+      p.pts.forEach(function(v,i){ if(v!==null && i<=hojeIdx) validPts.push({i:i,v:v}); });
+      if(!validPts.length) return;
+      var pontos=validPts.map(function(pt){ return xOf(pt.i)+','+yOf(pt.v); }).join(' ');
+      var key=sanitize(p.nome);
+      s+='<polyline class="linha-'+key+'" points="'+pontos+'" fill="none" stroke="'+p.cor+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>';
+      validPts.forEach(function(pt){
+        var isHoje=pt.i===hojeIdx;
+        s+='<circle class="ponto-'+key+'" cx="'+xOf(pt.i)+'" cy="'+yOf(pt.v)+'" r="'+(isHoje?6:3.5)+'" fill="'+p.cor+'" stroke="#001a4a" stroke-width="'+(isHoje?2:1.5)+'"/>';
+      });
+      var lastV=p.pts[hojeIdx]||0;
+      var medal=null;
+      var sortedByPts=series.slice().sort(function(a,b){return (b.pts[hojeIdx]||0)-(a.pts[hojeIdx]||0);});
+      var pos=sortedByPts.findIndex(function(x){return x.nome===p.nome;})+1;
+      medal=pos===1?'🥇 ':pos===2?'🥈 ':pos===3?'🥉 ':'';
+      var labelY = yOf(lastV)+4;
+      s+='<text class="label-'+key+'" x="'+(xH+14)+'" y="'+labelY+'" fill="'+p.cor+'" font-size="12" font-weight="700" font-family="DM Sans,sans-serif">'+medal+p.nome+'  '+lastV+'pts</text>';
+    });
+  }
 
   s+='</svg>';
   return s;
