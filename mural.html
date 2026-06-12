@@ -48,15 +48,16 @@
   .jogo-card-placar{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--gold);}
   .jogo-card-seta{font-size:11px;color:var(--muted);transition:transform 0.2s;}
   .jogo-card.aberto .jogo-card-seta{transform:rotate(180deg);}
-  .jogo-detalhe{display:none;grid-template-columns:repeat(3,1fr);gap:10px;
+  .jogo-detalhe{display:none;grid-template-columns:repeat(2,1fr);gap:10px;
     padding:12px;margin-bottom:10px;background:rgba(0,0,0,0.18);
     border:1px solid rgba(255,223,0,0.4);border-top:none;border-radius:0 0 12px 12px;}
   .jogo-detalhe.aberto{display:grid;}
-  @media(max-width:700px){.jogo-detalhe.aberto{grid-template-columns:1fr;}}
+  @media(max-width:500px){.jogo-detalhe.aberto{grid-template-columns:1fr;}}
   .jogo-subcard{background:var(--card);border:1px solid var(--border);border-radius:10px;
     padding:12px;text-align:center;}
   .jogo-subcard-titulo{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
     color:var(--muted);margin-bottom:6px;}
+  .jogo-subcard-criterio{font-size:9px;color:var(--muted);opacity:0.75;margin-bottom:8px;line-height:1.4;}
   .jogo-subcard-nome{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;
     color:var(--gold);line-height:1.3;}
   .jogo-subcard-desc{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4;}
@@ -188,32 +189,16 @@ async function renderPage() {
       // Acertou o Placar
       html += '<div class="jogo-subcard"><span class="trofeu-emoji" style="font-size:24px;">🎯</span>';
       html += '<div class="jogo-subcard-titulo">Acertou o Placar</div>';
+      html += '<div class="jogo-subcard-criterio">Quem cravou o placar exato deste jogo</div>';
       if (j.acertaram.length) {
         html += '<div class="jogo-subcard-nome">' + j.acertaram.join(', ') + '</div>';
       } else { html += '<div class="jogo-subcard-vazio">Ninguém acertou</div>'; }
       html += '</div>';
 
-      // Palpite Errado (apostou no perdedor)
-      html += '<div class="jogo-subcard"><span class="trofeu-emoji" style="font-size:24px;">🙈</span>';
-      html += '<div class="jogo-subcard-titulo">Palpite Errado</div>';
-      if (j.perdedores) {
-        html += '<div class="jogo-subcard-nome">' + j.perdedores.apelidos.join(', ') + '</div>';
-        html += '<div class="jogo-subcard-desc">Foi contra ' + j.perdedores.pct + '% do bolão e errou</div>';
-      } else {
-        html += '<div class="jogo-subcard-vazio">Ninguém</div>';
-        if (j._debug) {
-          var d = j._debug;
-          html += '<div style="font-size:9px;color:var(--muted);margin-top:6px;text-align:left;line-height:1.5;">';
-          html += 'DEBUG — Votos: A=' + d.vencVotos.A + ' B=' + d.vencVotos.B + ' E=' + d.vencVotos.E + ' (total ' + d.total + ')<br>';
-          html += 'Maioria: ' + d.vencMaioria + ' (' + d.maioriaPct + '%) | Real: ' + d.vencReal;
-          html += '</div>';
-        }
-      }
-      html += '</div>';
-
       // Pior Palpite da Rodada (deste jogo)
       html += '<div class="jogo-subcard"><span class="trofeu-emoji" style="font-size:24px;">🤡</span>';
       html += '<div class="jogo-subcard-titulo">Pior Palpite</div>';
+      html += '<div class="jogo-subcard-criterio">Maior erro de placar entre quem zerou pontos neste jogo</div>';
       if (j.piorPalpite) {
         var nomesPior = j.piorPalpite.apelidos.map(function(ap,i){ return ap + ' (' + j.piorPalpite.placares[i] + ')'; });
         html += '<div class="jogo-subcard-nome" style="font-size:13px;">' + nomesPior.join(', ') + '</div>';
@@ -293,18 +278,7 @@ async function calcTrofeus(hoje) {
       var total = apelidos.length;
       if (!total) return;
 
-      var vencReal = ga > gb ? 'A' : gb > ga ? 'B' : 'E';
-      var vencVotos = { A:0, B:0, E:0 };
-      apelidos.forEach(function(ap) {
-        var pp = mapaJogos[jid][ap];
-        if (pp.a > pp.b) vencVotos.A++; else if (pp.b > pp.a) vencVotos.B++; else vencVotos.E++;
-      });
-      var maioriaPct = Math.max(vencVotos.A, vencVotos.B, vencVotos.E) / total;
-      var vencMaioria = vencVotos.A >= vencVotos.B && vencVotos.A >= vencVotos.E ? 'A'
-        : vencVotos.B > vencVotos.A && vencVotos.B >= vencVotos.E ? 'B' : 'E';
-
       var acertaram = [];
-      var perdedoresJogo = [];
       var piorDistJogo = -1, piorApsJogo = [], piorPlacaresJogo = [];
 
       apelidos.forEach(function(ap) {
@@ -319,11 +293,6 @@ async function calcTrofeus(hoje) {
             piorDistJogo = dist; piorApsJogo = [ap]; piorPlacaresJogo = [pp.a + '×' + pp.b];
           } else if (dist === piorDistJogo) { piorApsJogo.push(ap); piorPlacaresJogo.push(pp.a + '×' + pp.b); }
         }
-
-        var meuVenc = pp.a > pp.b ? 'A' : pp.b > pp.a ? 'B' : 'E';
-        if (meuVenc !== vencMaioria && meuVenc !== vencReal && maioriaPct >= 0.6) {
-          perdedoresJogo.push(ap);
-        }
       });
 
       jogos.push({
@@ -331,9 +300,7 @@ async function calcTrofeus(hoje) {
         jogo: res.time_a + ' × ' + res.time_b,
         placar: ga + '×' + gb,
         acertaram: acertaram,
-        perdedores: perdedoresJogo.length ? { apelidos: perdedoresJogo, pct: Math.round(maioriaPct * 100) } : null,
-        piorPalpite: piorApsJogo.length ? { apelidos: piorApsJogo, placares: piorPlacaresJogo } : null,
-        _debug: { vencVotos: vencVotos, total: total, maioriaPct: Math.round(maioriaPct*100), vencMaioria: vencMaioria, vencReal: vencReal }
+        piorPalpite: piorApsJogo.length ? { apelidos: piorApsJogo, placares: piorPlacaresJogo } : null
       });
     });
 
