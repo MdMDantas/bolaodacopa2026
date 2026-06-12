@@ -686,6 +686,16 @@ async function publicarRanking(bolaoId) {
     if(!resp.ok){ alert('Erro ao publicar: '+(await resp.text())); btnEl.disabled=false; btnEl.textContent='🏆 ATUALIZAR RANKING'; return; }
   }
 
+  // Snapshot diário do ranking (para o troféu "Maior Queda" comparar dia a dia)
+  if(pontuacoes.length){
+    var hojeSnap = new Date().toISOString().slice(0,10);
+    var snapshot = pontuacoes.map(function(p){
+      return { bolao_id: p.bolao_id, apelido: p.apelido, total: p.total, dia: hojeSnap };
+    });
+    var H3=Object.assign({},H,{'Prefer':'resolution=merge-duplicates,return=minimal'});
+    await fetch(SUPABASE_URL+'/rest/v1/ranking_historico?on_conflict=bolao_id,apelido,dia',{method:'POST',headers:H3,body:JSON.stringify(snapshot)});
+  }
+
   btnEl.disabled=false; btnEl.textContent='🏆 ATUALIZAR RANKING';
   alert('✅ Ranking atualizado para '+pontuacoes.length+' participante(s)!');
   carregarRanking(bolaoId, null);

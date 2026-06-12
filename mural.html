@@ -154,9 +154,11 @@ async function renderPage() {
   html += '<div class="trofeu-card"><span class="trofeu-emoji">🙈</span>';
   html += '<div class="trofeu-titulo">Apostou no Perdedor</div>';
   html += '<div class="trofeu-criterio">Foi contra a maioria do bolão (60%+) e também errou o resultado</div>';
-  if (trofeus.perdedor) {
-    html += '<div class="trofeu-nome">' + trofeus.perdedor.apelido + '</div>';
-    html += '<div class="trofeu-desc">Foi contra ' + trofeus.perdedor.pct + '% do bolão e errou</div>';
+  if (trofeus.perdedores) {
+    var perdedorHtml = trofeus.perdedores.map(function(p){
+      return '<div style="margin-bottom:6px;"><span class="trofeu-nome" style="font-size:14px;">' + p.apelidos.join(', ') + '</span><div class="trofeu-desc">Foi contra ' + p.pct + '% do bolão em ' + p.jogo + '</div></div>';
+    }).join('');
+    html += '<div style="text-align:center;">' + perdedorHtml + '</div>';
   } else { html += '<div class="trofeu-vazio">Aguardando resultados</div>'; }
   html += '</div>';
 
@@ -185,7 +187,7 @@ async function renderPage() {
 }
 
 async function calcTrofeus(hoje) {
-  var trofeus = { queda: null, piorPalpite: null, perdedor: null };
+  var trofeus = { queda: null, piorPalpite: null, perdedores: null };
   if (!bolaoAtual) return trofeus;
 
   // Maior Queda
@@ -235,7 +237,7 @@ async function calcTrofeus(hoje) {
     });
 
     var piorDist = -1, piorAps = [], piorJogo = null, piorPlacares = [];
-    var perdedorAps = [], perdedorPct = 0;
+    var perdedorPorJogo = [];
 
     resultados.forEach(function(res) {
       var jid = res.api_id;
@@ -258,6 +260,8 @@ async function calcTrofeus(hoje) {
       var vencMaioria = vencVotos.A >= vencVotos.B && vencVotos.A >= vencVotos.E ? 'A'
         : vencVotos.B > vencVotos.A && vencVotos.B >= vencVotos.E ? 'B' : 'E';
 
+      var perdedoresJogo = [];
+
       apelidos.forEach(function(ap) {
         var pp = mapaJogos[jid][ap];
         var pts = calcPts(pp.a, pp.b, ga, gb);
@@ -271,17 +275,24 @@ async function calcTrofeus(hoje) {
         }
         var meuVenc = pp.a > pp.b ? 'A' : pp.b > pp.a ? 'B' : 'E';
         if (meuVenc !== vencMaioria && meuVenc !== vencReal && maioriaPct >= 0.6) {
-          var pct = Math.round(maioriaPct * 100);
-          if (pct > perdedorPct) { perdedorPct = pct; perdedorAps = [ap]; } else if (pct === perdedorPct) { perdedorAps.push(ap); }
+          perdedoresJogo.push(ap);
         }
       });
+
+      if (perdedoresJogo.length) {
+        perdedorPorJogo.push({
+          apelidos: perdedoresJogo,
+          pct: Math.round(maioriaPct * 100),
+          jogo: res.time_a + ' × ' + res.time_b
+        });
+      }
     });
 
     if (piorAps.length) {
       var piorNomes = piorAps.map(function(ap, i){ return ap + ' (' + piorPlacares[i] + ')'; });
       trofeus.piorPalpite = { apelido: piorNomes.join(", "), jogo: piorJogo };
     }
-    if (perdedorAps.length) trofeus.perdedor = { apelido: perdedorAps.join(", "), pct: perdedorPct };
+    if (perdedorPorJogo.length) trofeus.perdedores = perdedorPorJogo;
   } catch(e) {}
 
   // Acertou o placar exato
