@@ -417,7 +417,7 @@ async function carregarRanking(bolaoId, bolaoNome) {
     var isAdmin = (typeof AUTH !== 'undefined' && AUTH.get() && AUTH.get().apelido === 'MDANTAS');
     var posClasses = ['gold','silver','bronze'];
     var html = '<div class="ranking-card" style="overflow-x:visible;width:100%;">';
-    html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO — '+(bolaoNome||'')+'</span><div style="display:flex;align-items:center;gap:10px;"><span class="ranking-update">Ao vivo</span><button onclick="exportarRanking()" style="background:rgba(122,159,212,0.12);border:1px solid rgba(122,159,212,0.35);color:var(--muted);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">📑 EXPORTAR RESUMOS (PDF)</button>' + (isAdmin ? '<button onclick="publicarRanking(\''+ bolaoId +'\')" style="background:rgba(0,196,79,0.15);border:1px solid rgba(0,196,79,0.4);color:#00c44f;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">🏆 ATUALIZAR RANKING</button>' : '') + '</div></div>';
+    html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO — '+(bolaoNome||'')+'</span><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><span class="ranking-update">Ao vivo</span><button onclick="exportarRanking()" style="background:rgba(122,159,212,0.12);border:1px solid rgba(122,159,212,0.35);color:var(--muted);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">📑 EXPORTAR RESUMOS (PDF)</button>' + (isAdmin ? '<select id="diaSnapshotSelect" title="Dia dos jogos para o snapshot do histórico (Corrida do Bolão)" style="background:#001a4a;border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:#fff;font-family:\'DM Sans\',sans-serif;font-size:11px;font-weight:600;outline:none;cursor:pointer;"></select><button onclick="publicarRanking(\''+ bolaoId +'\')" style="background:rgba(0,196,79,0.15);border:1px solid rgba(0,196,79,0.4);color:#00c44f;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">🏆 ATUALIZAR RANKING</button>' : '') + '</div></div>';
 
     // HEADER — duas seções de colunas
     // Grid: Posição | Apelido | Grupos | R1 | R2 | R3 | MM | 16Avos | Oitavas | Quartas | Semi | Final | Total
@@ -518,6 +518,7 @@ async function carregarRanking(bolaoId, bolaoNome) {
     html += '<div class="legend"><span>✅ Palpite enviado</span><span>❌ Palpite não enviado</span></div>';
     html += '</div>';
     area.innerHTML = html;
+    if (isAdmin) DB.popularSeletorDias('diaSnapshotSelect');
   } catch(e) {
     console.error(e);
     area.innerHTML = '<div class="ranking-card"><div class="empty"><strong>Erro ao carregar</strong></div></div>';
@@ -568,7 +569,11 @@ function calcularTabelaR(g){
 }
 
 async function publicarRanking(bolaoId) {
-  if(!confirm('Recalcular e publicar o ranking?')) return;
+  var selDiaConfirm = document.getElementById('diaSnapshotSelect');
+  var diaTxt = (selDiaConfirm && selDiaConfirm.options.length)
+    ? '\n\nO snapshot do histórico (Corrida do Bolão) será salvo como: ' + selDiaConfirm.options[selDiaConfirm.selectedIndex].textContent + ' (' + selDiaConfirm.value + ').'
+    : '';
+  if(!confirm('Recalcular e publicar o ranking?' + diaTxt)) return;
   var btnEl = event.target;
   btnEl.disabled = true; btnEl.textContent = '⏳ Calculando...';
 
@@ -688,7 +693,8 @@ async function publicarRanking(bolaoId) {
 
   // Snapshot diário do ranking (para o troféu "Maior Queda" comparar dia a dia)
   if(pontuacoes.length){
-    var hojeSnap = new Date().toISOString().slice(0,10);
+    var selDia = document.getElementById('diaSnapshotSelect');
+    var hojeSnap = (selDia && selDia.value) ? selDia.value : new Date().toISOString().slice(0,10);
     var snapshot = pontuacoes.map(function(p){
       return { bolao_id: p.bolao_id, apelido: p.apelido, total: p.total, dia: hojeSnap };
     });

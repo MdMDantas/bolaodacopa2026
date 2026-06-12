@@ -40,6 +40,14 @@
     display:flex;align-items:center;gap:8px;}
   .btn-foto:hover{background:var(--green-light);}
   .btn-foto:disabled{opacity:0.5;cursor:not-allowed;}
+  .dia-select{background:#001a4a;border:1px solid var(--border);border-radius:10px;padding:11px 14px;
+    color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;outline:none;cursor:pointer;}
+  .dia-select:focus{border-color:var(--gold);}
+  .btn-excluir{background:rgba(255,107,107,0.12);color:#ff8888;border:1px solid rgba(255,107,107,0.35);
+    border-radius:10px;padding:11px 18px;font-family:'Bebas Neue',sans-serif;font-size:15px;
+    letter-spacing:1px;cursor:pointer;font-weight:900;white-space:nowrap;}
+  .btn-excluir:hover{background:rgba(255,107,107,0.22);}
+  .btn-excluir:disabled{opacity:0.5;cursor:not-allowed;}
 
   /* BADGE HOJE */
   .hoje-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,223,0,0.08);
@@ -116,11 +124,17 @@
     <div class="admin-strip">
       <div class="admin-strip-info">
         <strong>⚙️ Painel do Administrador</strong>
-        Registra o ranking de hoje no histórico. Faça isso após atualizar os resultados do dia.
+        Selecione o dia dos jogos correspondente à apuração e registre (ou corrija) o snapshot no histórico.
       </div>
-      <button class="btn-foto" id="btnFoto" onclick="tirarFotoDoDia()">
-        📸 FOTO DO DIA
-      </button>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <select class="dia-select" id="diaFotoSelect"></select>
+        <button class="btn-foto" id="btnFoto" onclick="tirarFotoDoDia()">
+          📸 SALVAR FOTO
+        </button>
+        <button class="btn-excluir" id="btnExcluir" onclick="excluirFotoDoDia()">
+          🗑️ EXCLUIR FOTO
+        </button>
+      </div>
     </div>
   </div>
 
@@ -163,6 +177,7 @@ window.onload = function() {
   var u = (typeof AUTH !== 'undefined') ? AUTH.get() : null;
   if (u && u.apelido === ADMIN_APELIDO) {
     document.getElementById('admin-bar').style.display = 'block';
+    DB.popularSeletorDias('diaFotoSelect');
   }
   // Auto-buscar se tiver código salvo
   if (u && u.bolao_codigo) {
@@ -214,7 +229,9 @@ function toast(msg, cor) {
 async function tirarFotoDoDia() {
   if (!bolaoAtual) { toast('⚠️ Busque um bolão primeiro.', '#ffaa44'); return; }
 
-  var hoje = new Date().toISOString().slice(0, 10);
+  var sel = document.getElementById('diaFotoSelect');
+  var diaEscolhido = sel && sel.value ? sel.value : new Date().toISOString().slice(0, 10);
+  var labelDia = sel && sel.options.length ? sel.options[sel.selectedIndex].textContent : diaEscolhido;
   var btn = document.getElementById('btnFoto');
 
   var resp = await fetch(SU + '/rest/v1/pontuacoes?bolao_id=eq.' + bolaoAtual.id + '&select=apelido,total', { headers: H });
@@ -222,7 +239,7 @@ async function tirarFotoDoDia() {
   var rows = await resp.json();
   if (!rows.length) { toast('⚠️ Nenhuma pontuação encontrada.', '#ffaa44'); return; }
 
-  if (!confirm('Registrar foto do ranking de hoje (' + hoje + ') para "' + bolaoAtual.nome + '"?\n\n' + rows.length + ' participantes serão salvos.')) return;
+  if (!confirm('Registrar o ranking atual como o snapshot do ' + labelDia + ' (' + formatarData(diaEscolhido) + ') para "' + bolaoAtual.nome + '"?\n\n' + rows.length + ' participantes serão salvos.\n\nSe já existir uma foto para esse dia, ela será substituída.')) return;
 
   btn.disabled = true;
   btn.textContent = '⏳ Salvando...';
@@ -231,7 +248,7 @@ async function tirarFotoDoDia() {
   for (var i = 0; i < rows.length; i++) {
     var r = rows[i];
     // Tenta deletar o registro do dia antes de inserir (evita conflito de constraint)
-    await fetch(SU + '/rest/v1/ranking_historico?bolao_id=eq.' + bolaoAtual.id + '&apelido=eq.' + encodeURIComponent(r.apelido) + '&dia=eq.' + hoje, {
+    await fetch(SU + '/rest/v1/ranking_historico?bolao_id=eq.' + bolaoAtual.id + '&apelido=eq.' + encodeURIComponent(r.apelido) + '&dia=eq.' + diaEscolhido, {
       method: 'DELETE',
       headers: Object.assign({}, H, { 'Content-Type': 'application/json' })
     });
@@ -241,19 +258,48 @@ async function tirarFotoDoDia() {
         'Content-Type': 'application/json',
         'Prefer': 'return=minimal'
       }),
-      body: JSON.stringify({ bolao_id: bolaoAtual.id, apelido: r.apelido, total: r.total, dia: hoje })
+      body: JSON.stringify({ bolao_id: bolaoAtual.id, apelido: r.apelido, total: r.total, dia: diaEscolhido })
     });
     if (!ins.ok) erros++;
   }
 
   btn.disabled = false;
-  btn.innerHTML = '📸 FOTO DO DIA';
+  btn.innerHTML = '📸 SALVAR FOTO';
 
   if (erros === 0) {
-    toast('✅ Foto do dia ' + hoje + ' salva! (' + rows.length + ' participantes)');
+    toast('✅ ' + labelDia + ' (' + formatarData(diaEscolhido) + ') salvo! (' + rows.length + ' participantes)');
     buscar(); // atualiza o gráfico
   } else {
     toast('⚠️ ' + erros + ' erro(s) ao salvar.', '#ff6b6b');
+  }
+}
+
+async function excluirFotoDoDia() {
+  if (!bolaoAtual) { toast('⚠️ Busque um bolão primeiro.', '#ffaa44'); return; }
+
+  var sel = document.getElementById('diaFotoSelect');
+  var diaEscolhido = sel && sel.value ? sel.value : new Date().toISOString().slice(0, 10);
+  var labelDia = sel && sel.options.length ? sel.options[sel.selectedIndex].textContent : diaEscolhido;
+  var btn = document.getElementById('btnExcluir');
+
+  if (!confirm('Excluir o snapshot do ' + labelDia + ' (' + formatarData(diaEscolhido) + ') do histórico de "' + bolaoAtual.nome + '"?\n\nEssa ação não pode ser desfeita.')) return;
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Excluindo...';
+
+  var del = await fetch(SU + '/rest/v1/ranking_historico?bolao_id=eq.' + bolaoAtual.id + '&dia=eq.' + diaEscolhido, {
+    method: 'DELETE',
+    headers: Object.assign({}, H, { 'Content-Type': 'application/json' })
+  });
+
+  btn.disabled = false;
+  btn.innerHTML = '🗑️ EXCLUIR FOTO';
+
+  if (del.ok) {
+    toast('✅ Snapshot do ' + labelDia + ' (' + formatarData(diaEscolhido) + ') excluído.');
+    buscar();
+  } else {
+    toast('❌ Erro ao excluir o snapshot.', '#ff6b6b');
   }
 }
 

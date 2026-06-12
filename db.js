@@ -110,6 +110,48 @@ var DB = {
     if (!resp.ok) return null;
     var data = await resp.json();
     return data.length ? data[0] : null;
+  },
+
+  // Lista as datas distintas dos jogos (jogos_calendario), em ordem cronológica
+  listarDiasJogos: async function() {
+    var resp = await fetch(SUPABASE_URL + '/rest/v1/jogos_calendario?select=data_jogo&order=data_jogo.asc', {
+      headers: DB.h()
+    });
+    if (!resp.ok) return [];
+    var rows = await resp.json();
+    var dias = [];
+    rows.forEach(function(r) { if (dias.indexOf(r.data_jogo) === -1) dias.push(r.data_jogo); });
+    return dias;
+  },
+
+  // Preenche um <select> com "Dia N — DD/MM" baseado nas datas dos jogos.
+  // Seleciona por padrão o dia de ontem (caso exista no calendário), pois
+  // normalmente a apuração de um dia é feita na manhã seguinte.
+  popularSeletorDias: async function(selectId) {
+    var sel = document.getElementById(selectId);
+    if (!sel) return [];
+    var dias = await DB.listarDiasJogos();
+    if (!dias.length) return [];
+
+    var hoje = new Date().toISOString().slice(0, 10);
+    var ontemD = new Date(); ontemD.setDate(ontemD.getDate() - 1);
+    var ontem = ontemD.toISOString().slice(0, 10);
+
+    var defaultIdx = 0;
+    var temOntem = dias.indexOf(ontem) !== -1;
+
+    sel.innerHTML = '';
+    dias.forEach(function(d, i) {
+      var opt = document.createElement('option');
+      opt.value = d;
+      var p = d.split('-');
+      opt.textContent = 'Dia ' + (i + 1) + ' — ' + p[2] + '/' + p[1];
+      sel.appendChild(opt);
+      if (temOntem && d === ontem) defaultIdx = i;
+      else if (!temOntem && d === hoje) defaultIdx = i;
+    });
+    sel.selectedIndex = defaultIdx;
+    return dias;
   }
 };
 
