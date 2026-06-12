@@ -176,7 +176,29 @@ async function renderPage() {
   if (trofeus.acertaram && trofeus.acertaram.length > 0) {
     html += '<div class="trofeu-nome" style="font-size:14px;line-height:1.3;">' + trofeus.acertaram.join(', ') + '</div>';
     html += '<div class="trofeu-desc">Placar exato 🎉</div>';
-  } else { html += '<div class="trofeu-vazio">Ninguém acertou ainda</div>'; }
+  } else {
+    html += '<div class="trofeu-vazio">Ninguém acertou ainda</div>';
+    if (trofeus._debugErro) {
+      html += '<div style="font-size:10px;color:#ff6b6b;margin-top:8px;text-align:left;">DEBUG ERRO: ' + trofeus._debugErro + '</div>';
+    } else if (trofeus._debug) {
+      var d = trofeus._debug;
+      html += '<div style="font-size:10px;color:var(--muted);margin-top:8px;text-align:left;line-height:1.6;">';
+      html += '<strong style="color:var(--gold);">DEBUG:</strong><br>';
+      html += 'Resultados (finalizado=true): ' + d.totalResultados + '<br>';
+      html += 'Com placar definido: ' + d.finalizados + '<br>';
+      html += 'Jogos com palpites de placar: ' + d.jogosComPalpites + '<br>';
+      html += 'jogos_calendario hoje: ' + d.jogosHojeIds.length + ' (' + d.jogosHojeIds.join(',') + ')<br>';
+      html += '<br>Detalhe por resultado:<br>';
+      d.matches.forEach(function(m){
+        html += '• ' + m.jid + ' [' + m.gols + '] fin=' + m.finalizado + ' temPalpites=' + m.temPalpites;
+        if (m.motivo) html += ' → ' + m.motivo;
+        if (m.exemploAposta) html += ' | ex: ' + m.exemploAposta.join(', ');
+        if (m.acertaram && m.acertaram.length) html += ' | ACERTARAM: ' + m.acertaram.join(',');
+        html += '<br>';
+      });
+      html += '</div>';
+    }
+  }
   html += '</div>';
 
   html += '</div></div>';
@@ -315,21 +337,36 @@ async function calcTrofeus(hoje) {
     });
 
     var acertaram = {};
+    var debugInfo = {
+      totalResultados: resultados2.length,
+      finalizados: resultados2.filter(function(r){return r.gols_a!==null && r.gols_a!==undefined;}).length,
+      jogosComPalpites: Object.keys(mapaP).length,
+      jogosHojeIds: jogosHojeIds,
+      matches: []
+    };
     resultados2.forEach(function(res) {
       var jid = res.api_id;
+      var entry = { jid: jid, gols: res.gols_a + 'x' + res.gols_b, finalizado: res.finalizado, temPalpites: !!mapaP[jid] };
       // Filtrar só jogos de hoje se tivermos o calendário (se vazio, considera todos)
-      if (jogosHojeIds.length > 0 && jogosHojeIds.indexOf(jid) === -1) return;
-      if (!jid || !mapaP[jid]) return;
-      if (res.gols_a === null || res.gols_a === undefined) return;
+      if (jogosHojeIds.length > 0 && jogosHojeIds.indexOf(jid) === -1) { entry.motivo='fora do filtro de hoje'; debugInfo.matches.push(entry); return; }
+      if (!jid || !mapaP[jid]) { entry.motivo='sem palpites para este jogo'; debugInfo.matches.push(entry); return; }
+      if (res.gols_a === null || res.gols_a === undefined) { entry.motivo='sem resultado'; debugInfo.matches.push(entry); return; }
+      var acertosNesseJogo = [];
       Object.keys(mapaP[jid]).forEach(function(ap) {
         var pp = mapaP[jid][ap];
+        entry.exemploAposta = (entry.exemploAposta||[]);
+        if (entry.exemploAposta.length < 3) entry.exemploAposta.push(ap+':'+pp.a+'x'+pp.b);
         if (pp.a === res.gols_a && pp.b === res.gols_b) {
           acertaram[ap] = true;
+          acertosNesseJogo.push(ap);
         }
       });
+      entry.acertaram = acertosNesseJogo;
+      debugInfo.matches.push(entry);
     });
     trofeus.acertaram = Object.keys(acertaram);
-  } catch(e) {}
+    trofeus._debug = debugInfo;
+  } catch(e) { trofeus._debugErro = e.message; }
 
   return trofeus;
 }
