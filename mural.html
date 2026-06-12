@@ -199,7 +199,16 @@ async function renderPage() {
       if (j.perdedores) {
         html += '<div class="jogo-subcard-nome">' + j.perdedores.apelidos.join(', ') + '</div>';
         html += '<div class="jogo-subcard-desc">Foi contra ' + j.perdedores.pct + '% do bolão e errou</div>';
-      } else { html += '<div class="jogo-subcard-vazio">Ninguém</div>'; }
+      } else {
+        html += '<div class="jogo-subcard-vazio">Ninguém</div>';
+        if (j._debug) {
+          var d = j._debug;
+          html += '<div style="font-size:9px;color:var(--muted);margin-top:6px;text-align:left;line-height:1.5;">';
+          html += 'DEBUG — Votos: A=' + d.vencVotos.A + ' B=' + d.vencVotos.B + ' E=' + d.vencVotos.E + ' (total ' + d.total + ')<br>';
+          html += 'Maioria: ' + d.vencMaioria + ' (' + d.maioriaPct + '%) | Real: ' + d.vencReal;
+          html += '</div>';
+        }
+      }
       html += '</div>';
 
       // Pior Palpite da Rodada (deste jogo)
@@ -323,7 +332,8 @@ async function calcTrofeus(hoje) {
         placar: ga + '×' + gb,
         acertaram: acertaram,
         perdedores: perdedoresJogo.length ? { apelidos: perdedoresJogo, pct: Math.round(maioriaPct * 100) } : null,
-        piorPalpite: piorApsJogo.length ? { apelidos: piorApsJogo, placares: piorPlacaresJogo } : null
+        piorPalpite: piorApsJogo.length ? { apelidos: piorApsJogo, placares: piorPlacaresJogo } : null,
+        _debug: { vencVotos: vencVotos, total: total, maioriaPct: Math.round(maioriaPct*100), vencMaioria: vencMaioria, vencReal: vencReal }
       });
     });
 

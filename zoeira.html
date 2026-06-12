@@ -64,6 +64,7 @@
   .odds-bar{height:100%;border-radius:4px;transition:width 0.6s ease;}
   .odds-pct{font-size:13px;font-weight:700;width:38px;text-align:right;flex-shrink:0;}
   .odds-count{font-size:10px;color:var(--muted);flex-shrink:0;width:52px;text-align:right;}
+  .odds-apelidos{font-size:10px;color:var(--muted);margin:-2px 0 8px 32px;line-height:1.4;}
   .acertou-badge{background:rgba(0,196,79,0.2);border:1px solid #00c44f;border-radius:4px;
     font-size:9px;padding:1px 5px;color:#00c44f;font-family:'DM Sans',sans-serif;
     font-weight:700;margin-left:6px;vertical-align:middle;}
@@ -216,6 +217,7 @@ function renderAglutinador(bolao, palpites, resultados) {
           // Calcular consenso de vencedor
           var venc = { A: 0, B: 0, E: 0 };
           var contagem = {};
+          var apelidosPorPlacar = {};
           apelidos.forEach(function(ap) {
             var pp = jogoPalpites[ap];
             if (pp.a > pp.b) venc.A++;
@@ -223,6 +225,8 @@ function renderAglutinador(bolao, palpites, resultados) {
             else venc.E++;
             var key = pp.a + '×' + pp.b;
             contagem[key] = (contagem[key] || 0) + 1;
+            if (!apelidosPorPlacar[key]) apelidosPorPlacar[key] = [];
+            apelidosPorPlacar[key].push(ap);
           });
 
           var pctA = Math.round(venc.A / total * 100);
@@ -252,17 +256,16 @@ function renderAglutinador(bolao, palpites, resultados) {
 
           // ── TOP 3 ODDS ──
           var placares = Object.keys(contagem)
-            .sort(function(a, b) { return contagem[b] - contagem[a]; })
-            .slice(0, 3);
+            .sort(function(a, b) { return contagem[b] - contagem[a]; });
           var maxCount = contagem[placares[0]];
 
-          html += '<div class="odds-titulo">🎯 Placares mais apostados</div>';
+          html += '<div class="odds-titulo">🎯 Todos os palpites (' + placares.length + ' placar(es) diferente(s))</div>';
           placares.forEach(function(placar, idx) {
             var cnt = contagem[placar];
             var pct = Math.round(cnt / total * 100);
             var barW = Math.round(cnt / maxCount * 100);
-            var cor = CORES[idx];
-            var medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉';
+            var cor = CORES[idx] || '#7a9fd4';
+            var medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '·';
             var acertou = res && res.gols_a !== null && placar === res.gols_a + '×' + res.gols_b;
 
             html += '<div class="odds-item">';
@@ -273,6 +276,7 @@ function renderAglutinador(bolao, palpites, resultados) {
             html += '<div class="odds-pct" style="color:' + cor + '">' + pct + '%</div>';
             html += '<div class="odds-count">(' + cnt + ' pes.)</div>';
             html += '</div>';
+            html += '<div class="odds-apelidos">' + apelidosPorPlacar[placar].join(', ') + '</div>';
           });
         }
 
