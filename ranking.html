@@ -86,6 +86,8 @@
 
 <script src="db.js"></script>
 <script src="auth.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="regras-admin.js"></script>
 <script>
 var SU = 'https://myytheficqokbjbkmeiv.supabase.co';
@@ -680,27 +682,55 @@ function exportarRanking() {
   var data = window._rankingExport;
   if (!data || !data.linhas.length) { alert('Nenhum ranking carregado para exportar.'); return; }
 
-  var headers = ['Posição','Apelido','Grupos','Zebras','Terceiros','Rod.1','Rod.2','Rod.3','Total Grupos','MM','16 Avos','Oitavas','Quartas','Semi','Final','Total MM','Total Geral'];
-  var linhas = [headers.join(';')];
+  if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
+    alert('Não foi possível carregar o gerador de PDF. Verifique sua conexão e tente novamente.');
+    return;
+  }
 
-  data.linhas.forEach(function(r){
-    linhas.push([
-      r.pos, r.apelido, r.grupos, r.zebras, r.terceiros,
-      r.rod1, r.rod2, r.rod3, r.totalGrupos,
-      r.mm, r.avos16, r.oitavas, r.quartas, r.semi, r.final, r.totalMM,
-      r.totalGeral
-    ].join(';'));
+  var hojeStr = new Date().toLocaleDateString('pt-BR');
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+
+  var azul = [0, 48, 135];
+  var dourado = [255, 223, 0];
+
+  // Cabeçalho
+  doc.setFillColor(azul[0], azul[1], azul[2]);
+  doc.rect(0, 0, doc.internal.pageSize.getWidth(), 50, 'F');
+  doc.setTextColor(dourado[0], dourado[1], dourado[2]);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  doc.text('CLASSIFICAÇÃO — ' + (data.bolaoNome || 'BOLÃO'), 20, 22);
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Bolão da Copa do Mundo 2026', 20, 36);
+  doc.text('Gerado em ' + hojeStr, doc.internal.pageSize.getWidth() - 20, 22, { align: 'right' });
+
+  var head = [
+    ['Pos.', 'Apelido', 'Grupos', 'Zebras', 'Terceiros', 'Rod.1', 'Rod.2', 'Rod.3', 'Tot. Grupos', 'MM', '16 Avos', 'Oitavas', 'Quartas', 'Semi', 'Final', 'Tot. MM', 'Total']
+  ];
+
+  var body = data.linhas.map(function(r){
+    return [r.pos+'º', r.apelido, r.grupos, r.zebras, r.terceiros, r.rod1, r.rod2, r.rod3, r.totalGrupos, r.mm, r.avos16, r.oitavas, r.quartas, r.semi, r.final, r.totalMM, r.totalGeral];
   });
 
-  var csv = '\uFEFF' + linhas.join('\n'); // BOM para acentuação correta no Excel
-  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  var hoje = new Date().toISOString().slice(0,10);
-  var nomeArquivo = 'ranking_' + (data.bolaoNome||'bolao').replace(/[^a-zA-Z0-9]/g,'_') + '_' + hoje + '.csv';
-  a.href = url; a.download = nomeArquivo;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  doc.autoTable({
+    head: head,
+    body: body,
+    startY: 60,
+    theme: 'grid',
+    styles: { fontSize: 8, halign: 'center', cellPadding: 3 },
+    headStyles: { fillColor: azul, textColor: dourado, fontStyle: 'bold', fontSize: 7.5 },
+    columnStyles: {
+      1: { halign: 'left', fontStyle: 'bold', textColor: azul },
+      16: { fontStyle: 'bold', fillColor: [255,248,216], textColor: azul }
+    },
+    alternateRowStyles: { fillColor: [250, 251, 255] }
+  });
+
+  var nomeArquivo = 'ranking_' + (data.bolaoNome||'bolao').replace(/[^a-zA-Z0-9]/g,'_') + '_' + new Date().toISOString().slice(0,10) + '.pdf';
+  doc.save(nomeArquivo);
 }
 
 </script>
