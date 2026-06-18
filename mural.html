@@ -27,45 +27,66 @@
     padding:12px 22px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;font-weight:900;}
 
   /* TROFÉUS */
-  .trofeus-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px;}
-  @media(max-width:500px){.trofeus-grid{grid-template-columns:1fr;}}
+  .trofeus-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+  @media(max-width:700px){.trofeus-grid{grid-template-columns:repeat(2,1fr);}} @media(max-width:400px){.trofeus-grid{grid-template-columns:1fr;}}
   .trofeu-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;}
   .trofeu-card.destaque{border-color:rgba(255,223,0,0.4);}
   .trofeu-emoji{font-size:32px;margin-bottom:8px;display:block;}
   .trofeu-titulo{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
-  .trofeu-criterio{font-size:10px;color:var(--muted);opacity:0.75;margin-bottom:8px;line-height:1.4;}
   .trofeu-nome{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--gold);}
   .trofeu-desc{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4;}
   .trofeu-vazio{font-size:12px;color:var(--muted);font-style:italic;}
 
-  /* CARDS DOS JOGOS (acordeão) */
-  .jogo-card{background:var(--card);border:1px solid var(--border);border-radius:12px;
-    padding:12px 16px;margin-bottom:0;cursor:pointer;display:flex;justify-content:space-between;
-    align-items:center;gap:10px;transition:border-color 0.15s;}
-  .jogo-card:hover{border-color:rgba(255,223,0,0.4);}
-  .jogo-card.aberto{border-radius:12px 12px 0 0;border-color:rgba(255,223,0,0.4);}
-  .jogo-card-nome{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:#fff;flex:1;}
-  .jogo-card-placar{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--gold);}
-  .jogo-card-seta{font-size:11px;color:var(--muted);transition:transform 0.2s;}
-  .jogo-card.aberto .jogo-card-seta{transform:rotate(180deg);}
-  .jogo-detalhe{display:none;grid-template-columns:repeat(2,1fr);gap:10px;
-    padding:12px;margin-bottom:10px;background:rgba(0,0,0,0.18);
-    border:1px solid rgba(255,223,0,0.4);border-top:none;border-radius:0 0 12px 12px;}
-  .jogo-detalhe.aberto{display:grid;}
-  @media(max-width:500px){.jogo-detalhe.aberto{grid-template-columns:1fr;}}
-  .jogo-subcard{background:var(--card);border:1px solid var(--border);border-radius:10px;
-    padding:12px;text-align:center;}
-  .jogo-subcard-titulo{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
-    color:var(--muted);margin-bottom:6px;}
-  .jogo-subcard-criterio{font-size:9px;color:var(--muted);opacity:0.75;margin-bottom:8px;line-height:1.4;}
-  .jogo-subcard-nome{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;
-    color:var(--gold);line-height:1.3;}
-  .jogo-subcard-desc{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4;}
-  .jogo-subcard-vazio{font-size:11px;color:var(--muted);font-style:italic;}
-
   .secao-titulo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;
     color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
 
+  /* COMPOSE */
+  .compose-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:20px;}
+  .compose-top{display:flex;gap:12px;align-items:flex-start;}
+  .compose-avatar{width:38px;height:38px;border-radius:50%;background:var(--bg3);
+    border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+  .compose-right{flex:1;}
+  .compose-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px;}
+  .compose-usuario{font-size:13px;font-weight:700;color:var(--gold);}
+  .compose-label{font-size:11px;color:var(--muted);}
+  .compose-select{background:var(--bg);border:1px solid var(--border);border-radius:6px;
+    padding:4px 8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;cursor:pointer;}
+  .compose-select:focus{border-color:var(--gold);}
+  textarea{width:100%;background:transparent;border:none;color:var(--text);
+    font-family:'DM Sans',sans-serif;font-size:14px;resize:none;outline:none;line-height:1.5;min-height:60px;}
+  textarea::placeholder{color:var(--muted);}
+  .compose-footer{display:flex;align-items:center;justify-content:space-between;
+    margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+  .compose-chars{font-size:11px;color:var(--muted);}
+  .compose-chars.aviso{color:var(--orange);}
+  .compose-chars.limite{color:var(--red);}
+  .btn-postar{background:var(--gold);color:var(--blue);border:none;border-radius:8px;
+    padding:8px 20px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;cursor:pointer;font-weight:900;}
+  .btn-postar:hover{opacity:0.9;}
+  .btn-postar:disabled{opacity:0.4;cursor:not-allowed;}
+  .login-aviso{font-size:12px;color:var(--muted);font-style:italic;padding:8px 0;}
+
+  /* FEED */
+  .post-item{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:16px 18px;margin-bottom:10px;}
+  .post-item:hover{border-color:rgba(255,223,0,0.2);}
+  .post-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .post-avatar{width:34px;height:34px;border-radius:50%;background:var(--bg3);
+    border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+  .post-meta{flex:1;}
+  .post-autor{font-weight:700;font-size:13px;color:var(--gold);}
+  .post-alvo{font-size:12px;color:var(--orange);margin-left:4px;}
+  .post-tempo{font-size:11px;color:var(--muted);}
+  .post-jogo-badge{font-size:10px;color:var(--muted);margin-bottom:5px;}
+  .post-texto{font-size:14px;line-height:1.6;color:var(--text);word-break:break-word;}
+  .post-mention{color:var(--gold);font-weight:700;}
+  .post-actions{display:flex;align-items:center;gap:16px;margin-top:10px;}
+  .post-like{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;
+    display:flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;padding:0;}
+  .post-like:hover{color:#ff6b6b;}
+  .post-delete{background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;
+    margin-left:auto;font-family:'DM Sans',sans-serif;padding:0;}
+  .post-delete:hover{color:var(--red);}
 
   .msg{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;}
   .msg strong{display:block;font-size:18px;margin-bottom:6px;color:var(--gold);
@@ -122,6 +143,8 @@ var H = { 'apikey': SK, 'Authorization': 'Bearer ' + SK };
 var bolaoAtual = null;
 var participantes = [];
 var usuarioAtual = null;
+var feedInterval = null;
+var jogosHoje = [];
 
 window.onload = function() {
   usuarioAtual = (typeof AUTH !== 'undefined') ? AUTH.get() : null;
@@ -135,6 +158,8 @@ async function buscar() {
   var codigo = document.getElementById('codigoInput').value.trim().toUpperCase();
   if (!codigo) return;
   document.getElementById('area').innerHTML = '<div class="msg"><strong>⏳</strong>Carregando...</div>';
+  if (feedInterval) clearInterval(feedInterval);
+
   // Buscar bolão
   var rb = await fetch(SU + '/rest/v1/boloes?codigo=eq.' + encodeURIComponent(codigo) + '&select=id,nome', { headers: H });
   var boloes = await rb.json();
@@ -146,78 +171,230 @@ async function buscar() {
   var pp = await rp.json();
   participantes = pp.map(function(x){ return x.apelido; });
 
-
+  // Buscar jogos de hoje
+  var hojeStr = new Date().toISOString().slice(0,10);
   try {
-    await renderPage();
-  } catch(e) {
-    document.getElementById('area').innerHTML = '<div class="msg"><strong>❌ Erro:</strong> ' + e.message + '<br><small>' + (e.stack||'').replace(/\n/g,'<br>') + '</small></div>';
-    console.error(e);
-  }
+    var rj = await fetch(SU + '/rest/v1/jogos_calendario?data_jogo=eq.' + hojeStr + '&select=api_id,time_a,time_b,horario_brasilia&order=horario_brasilia.asc', { headers: H });
+    jogosHoje = rj.ok ? await rj.json() : [];
+  } catch(e) { jogosHoje = []; }
+
+  await renderPage();
+  feedInterval = setInterval(atualizarFeed, 15000);
 }
 
 async function renderPage() {
   var hoje = new Date().toISOString().slice(0, 10);
   var trofeus = await calcTrofeus(hoje);
+  var posts = await fetchPosts();
 
   var html = '';
 
   // TROFÉUS
   html += '<div style="margin-bottom:20px;">';
   html += '<div class="secao-titulo">🏆 Troféus de Hoje</div>';
+  html += '<div class="trofeus-grid">';
 
-  // Maior Queda — card diário, largura cheia
-  html += '<div class="trofeu-card" style="margin-bottom:14px;"><span class="trofeu-emoji">📉</span>';
+  html += '<div class="trofeu-card"><span class="trofeu-emoji">📉</span>';
   html += '<div class="trofeu-titulo">Maior Queda</div>';
-  html += '<div class="trofeu-criterio">Quem mais caiu de posição no ranking de ontem para hoje</div>';
   if (trofeus.queda) {
     html += '<div class="trofeu-nome">' + trofeus.queda.apelido + '</div>';
     html += '<div class="trofeu-desc">Caiu ' + trofeus.queda.diff + ' posição(ões) hoje</div>';
   } else { html += '<div class="trofeu-vazio">Aguardando dados</div>'; }
   html += '</div>';
 
-  // Cards dos jogos — clique para abrir os troféus daquele jogo
-  if (trofeus.jogos && trofeus.jogos.length) {
-    trofeus.jogos.forEach(function(j){
-      html += '<div class="jogo-card" id="jogo-card-' + j.jid + '" onclick="toggleJogo(\'' + j.jid + '\')">';
-      html += '<span class="jogo-card-nome">' + j.jogo + '</span>';
-      html += '<span class="jogo-card-placar">' + j.placar + '</span>';
-      html += '<span class="jogo-card-seta">▾</span>';
-      html += '</div>';
-
-      html += '<div class="jogo-detalhe" id="jogo-det-' + j.jid + '">';
-
-      // Acertou o Placar
-      html += '<div class="jogo-subcard"><span class="trofeu-emoji" style="font-size:24px;">🎯</span>';
-      html += '<div class="jogo-subcard-titulo">Acertou o Placar</div>';
-      html += '<div class="jogo-subcard-criterio">Quem cravou o placar exato deste jogo</div>';
-      if (j.acertaram.length) {
-        html += '<div class="jogo-subcard-nome">' + j.acertaram.join(', ') + '</div>';
-      } else { html += '<div class="jogo-subcard-vazio">Ninguém acertou</div>'; }
-      html += '</div>';
-
-      // Pior Palpite da Rodada (deste jogo)
-      html += '<div class="jogo-subcard"><span class="trofeu-emoji" style="font-size:24px;">🤡</span>';
-      html += '<div class="jogo-subcard-titulo">Pior Palpite</div>';
-      html += '<div class="jogo-subcard-criterio">Maior erro de placar entre quem zerou pontos neste jogo</div>';
-      if (j.piorPalpite) {
-        var nomesPior = j.piorPalpite.apelidos.map(function(ap,i){ return ap + ' (' + j.piorPalpite.placares[i] + ')'; });
-        html += '<div class="jogo-subcard-nome" style="font-size:13px;">' + nomesPior.join(', ') + '</div>';
-      } else { html += '<div class="jogo-subcard-vazio">Ninguém zerou</div>'; }
-      html += '</div>';
-
-      html += '</div>'; // jogo-detalhe
-    });
-  } else {
-    html += '<div class="trofeu-vazio" style="text-align:center;padding:16px;">Aguardando resultados dos jogos</div>';
-  }
-
+  html += '<div class="trofeu-card destaque"><span class="trofeu-emoji">🤡</span>';
+  html += '<div class="trofeu-titulo">Pior Palpite da Rodada</div>';
+  if (trofeus.piorPalpite) {
+    html += '<div class="trofeu-nome">' + trofeus.piorPalpite.apelido + '</div>';
+    html += '<div class="trofeu-desc">Apostou ' + trofeus.piorPalpite.placar + ' em ' + trofeus.piorPalpite.jogo + '</div>';
+  } else { html += '<div class="trofeu-vazio">Aguardando resultados</div>'; }
   html += '</div>';
+
+  html += '<div class="trofeu-card"><span class="trofeu-emoji">🙈</span>';
+  html += '<div class="trofeu-titulo">Apostou no Perdedor</div>';
+  if (trofeus.perdedor) {
+    html += '<div class="trofeu-nome">' + trofeus.perdedor.apelido + '</div>';
+    html += '<div class="trofeu-desc">Foi contra ' + trofeus.perdedor.pct + '% do bolão e errou</div>';
+  } else { html += '<div class="trofeu-vazio">Aguardando resultados</div>'; }
+  html += '</div>';
+
+  html += '<div class="trofeu-card destaque"><span class="trofeu-emoji">🎯</span>';
+  html += '<div class="trofeu-titulo">Acertou o Placar!</div>';
+  if (trofeus.acertaram && trofeus.acertaram.length > 0) {
+    html += '<div class="trofeu-nome" style="font-size:14px;line-height:1.3;">' + trofeus.acertaram.join(', ') + '</div>';
+    html += '<div class="trofeu-desc">Placar exato hoje 🎉</div>';
+  } else { html += '<div class="trofeu-vazio">Ninguém acertou ainda</div>'; }
+  html += '</div>';
+
+  html += '</div></div>';
+
+  // COMPOSE
+  html += '<div class="secao-titulo">💬 Mural ao Vivo</div>';
+  html += '<div class="compose-card">';
+
+  if (usuarioAtual) {
+    var outrosParticipantes = participantes.filter(function(a){ return a !== usuarioAtual.apelido; });
+
+    html += '<div class="compose-top">';
+    html += '<div class="compose-avatar">😎</div>';
+    html += '<div class="compose-right">';
+
+    // Linha 1: quem é + zoando quem
+    html += '<div class="compose-meta">';
+    html += '<span class="compose-usuario">' + usuarioAtual.apelido + '</span>';
+    html += '<span class="compose-label">zoando</span>';
+    html += '<select class="compose-select" id="selectAlvo">';
+    html += '<option value="">geral</option>';
+    outrosParticipantes.forEach(function(ap){ html += '<option value="' + ap + '">' + ap + '</option>'; });
+    html += '</select>';
+
+    // Linha 2: sobre qual jogo
+    if (jogosHoje.length > 0) {
+      html += '<span class="compose-label">sobre</span>';
+      html += '<select class="compose-select" id="selectJogo">';
+      html += '<option value="">nenhum jogo</option>';
+      jogosHoje.forEach(function(j){
+        html += '<option value="' + j.api_id + '">⚽ ' + j.time_a + ' × ' + j.time_b + ' (' + j.horario_brasilia + ')</option>';
+      });
+      html += '</select>';
+    }
+    html += '</div>';
+
+    html += '<textarea id="textoPost" placeholder="Manda a zoação... 😂" maxlength="280" oninput="contarChars()"></textarea>';
+    html += '</div></div>';
+    html += '<div class="compose-footer">';
+    html += '<span class="compose-chars" id="charCount">280 caracteres restantes</span>';
+    html += '<button class="btn-postar" onclick="postar()">POSTAR 🔥</button>';
+    html += '</div>';
+  } else {
+    html += '<div class="login-aviso">🔐 <a href="login.html" style="color:var(--gold);">Entre no bolão</a> para mandar sua zoação!</div>';
+  }
+  html += '</div>';
+
+  // FEED
+  html += '<div id="feed">' + renderFeed(posts) + '</div>';
 
   document.getElementById('area').innerHTML = html;
 }
 
+function renderFeed(posts) {
+  if (!posts.length) return '<div class="msg"><strong>😶 SILÊNCIO TOTAL</strong>Ninguém zoou ninguém ainda. Seja o primeiro!</div>';
+
+  var avatarEmojis = ['😎','🤠','🤡','😈','🦁','🐯','🦊','🐸','🐧','🦄'];
+  var html = '';
+  posts.forEach(function(p) {
+    var avatar = avatarEmojis[Math.abs(hashStr(p.apelido)) % avatarEmojis.length];
+    var texto = escapeHtml(p.texto);
+    if (p.alvo) texto = '<span class="post-mention">@' + escapeHtml(p.alvo) + '</span> ' + texto;
+    var ehMeu = usuarioAtual && usuarioAtual.apelido === p.apelido;
+    var dataHora = formatarDataHora(p.criado_em);
+
+    html += '<div class="post-item">';
+    html += '<div class="post-header">';
+    html += '<div class="post-avatar">' + avatar + '</div>';
+    html += '<div class="post-meta">';
+    html += '<div><span class="post-autor">' + escapeHtml(p.apelido) + '</span>';
+    if (p.alvo) html += '<span class="post-alvo">→ @' + escapeHtml(p.alvo) + '</span>';
+    html += '</div>';
+    html += '<div class="post-tempo">' + dataHora + '</div>';
+    html += '</div></div>';
+
+    // Badge do jogo
+    if (p.jogo_id) {
+      html += '<div class="post-jogo-badge">⚽ ' + formatarJogoId(p.jogo_id) + '</div>';
+    }
+
+    html += '<div class="post-texto">' + texto + '</div>';
+    html += '<div class="post-actions">';
+    html += '<button class="post-like" onclick="curtir(\'' + p.id + '\')">❤️ ' + (p.likes || 0) + '</button>';
+    if (ehMeu) html += '<button class="post-delete" onclick="deletar(\'' + p.id + '\')">🗑️ apagar</button>';
+    html += '</div></div>';
+  });
+  return html;
+}
+
+async function fetchPosts() {
+  if (!bolaoAtual) return [];
+  var r = await fetch(SU + '/rest/v1/mural_posts?bolao_id=eq.' + bolaoAtual.id + '&select=*&order=criado_em.desc&limit=50', { headers: H });
+  return r.ok ? await r.json() : [];
+}
+
+async function atualizarFeed() {
+  var posts = await fetchPosts();
+  var feed = document.getElementById('feed');
+  if (feed) feed.innerHTML = renderFeed(posts);
+}
+
+function contarChars() {
+  var txt = document.getElementById('textoPost');
+  var cnt = document.getElementById('charCount');
+  if (!txt || !cnt) return;
+  var restam = 280 - txt.value.length;
+  cnt.textContent = restam + ' caracteres restantes';
+  cnt.className = 'compose-chars' + (restam < 50 ? ' aviso' : '') + (restam < 10 ? ' limite' : '');
+}
+
+async function postar() {
+  if (!usuarioAtual || !bolaoAtual) return;
+  var texto = (document.getElementById('textoPost').value || '').trim();
+  var alvo = (document.getElementById('selectAlvo') || {}).value || '';
+  var jogo_id = (document.getElementById('selectJogo') || {}).value || '';
+  if (!texto) { toast('✍️ Escreva algo antes de postar!', '#ffaa44'); return; }
+
+  var btn = document.querySelector('.btn-postar');
+  if (btn) btn.disabled = true;
+
+  var body = {
+    bolao_id: bolaoAtual.id,
+    apelido: usuarioAtual.apelido,
+    texto: texto,
+    alvo: alvo || null,
+    jogo_id: jogo_id || null,
+    likes: 0
+  };
+
+  var r = await fetch(SU + '/rest/v1/mural_posts', {
+    method: 'POST',
+    headers: Object.assign({}, H, { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+    body: JSON.stringify(body)
+  });
+
+  if (btn) btn.disabled = false;
+
+  if (r.ok || r.status === 201) {
+    document.getElementById('textoPost').value = '';
+    contarChars();
+    toast('🔥 Zoação enviada!');
+    await atualizarFeed();
+  } else {
+    toast('❌ Erro ao postar.', '#ff4444');
+  }
+}
+
+async function curtir(postId) {
+  var r = await fetch(SU + '/rest/v1/mural_posts?id=eq.' + postId + '&select=likes', { headers: H });
+  var data = await r.json();
+  if (!data.length) return;
+  var novosLikes = (data[0].likes || 0) + 1;
+  await fetch(SU + '/rest/v1/mural_posts?id=eq.' + postId, {
+    method: 'PATCH',
+    headers: Object.assign({}, H, { 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ likes: novosLikes })
+  });
+  await atualizarFeed();
+}
+
+async function deletar(postId) {
+  if (!usuarioAtual || !confirm('Apagar este post?')) return;
+  await fetch(SU + '/rest/v1/mural_posts?id=eq.' + postId + '&apelido=eq.' + encodeURIComponent(usuarioAtual.apelido), {
+    method: 'DELETE', headers: H
+  });
+  toast('🗑️ Post apagado.');
+  await atualizarFeed();
+}
+
 async function calcTrofeus(hoje) {
-  var trofeus = { queda: null, jogos: [] };
+  var trofeus = { queda: null, piorPalpite: null, perdedor: null };
   if (!bolaoAtual) return trofeus;
 
   // Maior Queda
@@ -232,7 +409,7 @@ async function calcTrofeus(hoje) {
       porDia[r.dia][r.apelido] = r.total;
     });
     var dHoje = porDia[hoje] || {}, dOntem = porDia[ontemStr] || {};
-    function getRanking(d) { return Object.keys(d).sort(function(a,b){ var diff = d[b]-d[a]; if (diff !== 0) return diff; return a.localeCompare(b); }); }
+    function getRanking(d) { return Object.keys(d).sort(function(a,b){ return d[b]-d[a]; }); }
     var rHoje = getRanking(dHoje), rOntem = getRanking(dOntem);
     var melhor = null, melhorDiff = 0;
     rHoje.forEach(function(ap, pos) {
@@ -244,12 +421,13 @@ async function calcTrofeus(hoje) {
     if (melhor) trofeus.queda = { apelido: melhor, diff: melhorDiff };
   } catch(e) {}
 
-  // Calcula trofeus por jogo: acertos, palpite errado (apostou no perdedor), pior palpite
+  // Pior Palpite + Apostou no Perdedor
   try {
     var rp = await fetch(SU + '/rest/v1/palpites_fase1?bolao_id=eq.' + bolaoAtual.id + '&select=apelido,placares', { headers: H });
     var palpites = await rp.json();
     var rr = await fetch(SU + '/rest/v1/resultados?select=*&finalizado=eq.true', { headers: H });
     var resultados = await rr.json();
+    if (!resultados.length) return trofeus;
 
     var mapaJogos = {};
     palpites.forEach(function(p) {
@@ -265,7 +443,8 @@ async function calcTrofeus(hoje) {
       });
     });
 
-    var jogos = [];
+    var piorDist = -1, piorAp = null, piorJogo = null, piorPlacar = null;
+    var perdedorAp = null, perdedorPct = 0;
 
     resultados.forEach(function(res) {
       var jid = res.api_id;
@@ -278,44 +457,88 @@ async function calcTrofeus(hoje) {
       var total = apelidos.length;
       if (!total) return;
 
-      var acertaram = [];
-      var piorDistJogo = -1, piorApsJogo = [], piorPlacaresJogo = [];
+      var vencReal = ga > gb ? 'A' : gb > ga ? 'B' : 'E';
+      var vencVotos = { A:0, B:0, E:0 };
+      apelidos.forEach(function(ap) {
+        var pp = mapaJogos[jid][ap];
+        if (pp.a > pp.b) vencVotos.A++; else if (pp.b > pp.a) vencVotos.B++; else vencVotos.E++;
+      });
+      var maioriaPct = Math.max(vencVotos.A, vencVotos.B, vencVotos.E) / total;
+      var vencMaioria = vencVotos.A >= vencVotos.B && vencVotos.A >= vencVotos.E ? 'A'
+        : vencVotos.B > vencVotos.A && vencVotos.B >= vencVotos.E ? 'B' : 'E';
 
       apelidos.forEach(function(ap) {
         var pp = mapaJogos[jid][ap];
-
-        if (pp.a === ga && pp.b === gb) acertaram.push(ap);
-
         var pts = calcPts(pp.a, pp.b, ga, gb);
         if (pts === 0) {
           var dist = Math.abs(pp.a - ga) + Math.abs(pp.b - gb);
-          if (dist > piorDistJogo) {
-            piorDistJogo = dist; piorApsJogo = [ap]; piorPlacaresJogo = [pp.a + '×' + pp.b];
-          } else if (dist === piorDistJogo) { piorApsJogo.push(ap); piorPlacaresJogo.push(pp.a + '×' + pp.b); }
+          if (dist > piorDist) {
+            piorDist = dist; piorAp = ap;
+            piorJogo = res.time_a + ' × ' + res.time_b;
+            piorPlacar = pp.a + '×' + pp.b;
+          }
         }
-      });
-
-      jogos.push({
-        jid: jid,
-        jogo: res.time_a + ' × ' + res.time_b,
-        placar: ga + '×' + gb,
-        acertaram: acertaram,
-        piorPalpite: piorApsJogo.length ? { apelidos: piorApsJogo, placares: piorPlacaresJogo } : null
+        var meuVenc = pp.a > pp.b ? 'A' : pp.b > pp.a ? 'B' : 'E';
+        if (meuVenc !== vencMaioria && meuVenc !== vencReal && maioriaPct >= 0.6) {
+          var pct = Math.round(maioriaPct * 100);
+          if (pct > perdedorPct) { perdedorPct = pct; perdedorAp = ap; }
+        }
       });
     });
 
-    trofeus.jogos = jogos;
+    if (piorAp) trofeus.piorPalpite = { apelido: piorAp, jogo: piorJogo, placar: piorPlacar };
+    if (perdedorAp) trofeus.perdedor = { apelido: perdedorAp, pct: perdedorPct };
+  } catch(e) {}
+
+  // Acertou o placar exato
+  try {
+    var rp2 = await fetch(SU + '/rest/v1/palpites_fase1?bolao_id=eq.' + bolaoAtual.id + '&select=apelido,placares', { headers: H });
+    var palpites2 = await rp2.json();
+    var rr2 = await fetch(SU + '/rest/v1/resultados?select=*&finalizado=eq.true', { headers: H });
+    var resultados2 = await rr2.json();
+
+    // Buscar jogos de hoje para filtrar só os jogos do dia
+    var hojeStr2 = hoje;
+    var jogosHojeIds = [];
+    try {
+      var rj2 = await fetch(SU + '/rest/v1/jogos_calendario?data_jogo=eq.' + hojeStr2 + '&select=api_id', { headers: H });
+      var jj2 = rj2.ok ? await rj2.json() : [];
+      jogosHojeIds = jj2.map(function(x){ return x.api_id; });
+    } catch(e) {}
+
+    // Montar mapa de palpites
+    var mapaP = {};
+    palpites2.forEach(function(p) {
+      var pl = p.placares || {};
+      if (typeof pl === 'string') { try { pl = JSON.parse(pl); } catch(e) { pl = {}; } }
+      Object.keys(pl).forEach(function(k) {
+        var m = k.match(/placar_(R\d+_[A-Z]+_\d+)_([ab])/);
+        if (!m) return;
+        var jid = m[1], lado = m[2];
+        if (!mapaP[jid]) mapaP[jid] = {};
+        if (!mapaP[jid][p.apelido]) mapaP[jid][p.apelido] = { a: null, b: null };
+        mapaP[jid][p.apelido][lado] = parseInt(pl[k]);
+      });
+    });
+
+    var acertaram = {};
+    resultados2.forEach(function(res) {
+      var jid = res.api_id;
+      // Filtrar só jogos de hoje se tivermos o calendário
+      if (jogosHojeIds.length > 0 && jogosHojeIds.indexOf(jid) === -1) return;
+      if (!jid || !mapaP[jid]) return;
+      if (res.gols_a === null || res.gols_a === undefined) return;
+      Object.keys(mapaP[jid]).forEach(function(ap) {
+        var pp = mapaP[jid][ap];
+        if (pp.a === res.gols_a && pp.b === res.gols_b) {
+          acertaram[ap] = true;
+        }
+      });
+    });
+    trofeus.acertaram = Object.keys(acertaram);
   } catch(e) {}
 
   return trofeus;
-}
-
-function toggleJogo(jid) {
-  var card = document.getElementById('jogo-card-' + jid);
-  var det = document.getElementById('jogo-det-' + jid);
-  if (!card || !det) return;
-  var aberto = det.classList.toggle('aberto');
-  card.classList.toggle('aberto', aberto);
 }
 
 function calcPts(pa, pb, ra, rb) {
@@ -330,9 +553,35 @@ function calcPts(pa, pb, ra, rb) {
   return 0;
 }
 
+function formatarDataHora(iso) {
+  if (!iso) return '';
+  var d = new Date(iso);
+  var dia = d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
+  var hora = d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+  return dia + ' às ' + hora;
+}
 
+function formatarJogoId(jid) {
+  if (!jid) return '';
+  // Tentar encontrar nos jogos de hoje
+  var j = jogosHoje.find(function(x){ return x.api_id === jid; });
+  if (j) return j.time_a + ' × ' + j.time_b + ' (' + j.horario_brasilia + ')';
+  // Fallback: decodificar o id
+  var m = jid.match(/^(R\d+)_([A-Z]+)_\d+$/);
+  if (!m) return jid;
+  var r = m[1]==='R1'?'1ª Rodada':m[1]==='R2'?'2ª Rodada':'3ª Rodada';
+  return 'Grupo ' + m[2] + ' · ' + r;
+}
 
+function hashStr(s) {
+  var h = 0;
+  for (var i = 0; i < s.length; i++) h = (Math.imul(31,h) + s.charCodeAt(i)) | 0;
+  return h;
+}
 
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 function toast(msg, cor) {
   var t = document.getElementById('toast');

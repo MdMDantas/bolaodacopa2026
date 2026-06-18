@@ -401,8 +401,6 @@ async function calcularEPublicarRanking(){
     // Grupos
     Object.keys(GRUPOS_DISPLAY).forEach(function(g){
       var tabelaReal = calcularTabela(g);
-      var grupoTemJogos = tabelaReal.some(function(t){ return t.j > 0; });
-      if(!grupoTemJogos) return;
       for(var pos=1;pos<=4;pos++){
         var tp = p1['g'+g.toLowerCase()+'_'+pos]||p1['g'+g+'_'+pos]||'';
         if(!tp) continue;
@@ -444,8 +442,6 @@ async function calcularEPublicarRanking(){
       Object.keys(GRUPOS_DISPLAY).forEach(function(g){if(GRUPOS_DISPLAY[g].indexOf(zebra)>=0)grupoZ=g;});
       if(!grupoZ) continue;
       var tabZ=calcularTabela(grupoZ);
-      var grupoZTemJogos=tabZ.some(function(t){return t.j>0;});
-      if(!grupoZTemJogos) continue;
       var posZ=tabZ.findIndex(function(t){return t.t===zebra;});
       if(posZ===0) pts_zebras+=REGRAS.zebras.primeiro_lugar;
       else if(posZ===1) pts_zebras+=REGRAS.zebras.segundo_lugar;

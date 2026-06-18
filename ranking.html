@@ -86,10 +86,6 @@
 
 <script src="db.js"></script>
 <script src="auth.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="regras-admin.js"></script>
 <script>
 var SU = 'https://myytheficqokbjbkmeiv.supabase.co';
 var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15eXRoZWZpY3Fva2JqYmttZWl2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDM1NTMwNCwiZXhwIjoyMDk1OTMxMzA0fQ.-KV4Iaz-hSxdXyhJGYBXo0W9VTmwZctk0kWvZWqIDaE';
@@ -150,8 +146,6 @@ function calcTabelaR(g, resultadosArr){
   return Object.values(tab).sort(function(a,b){if(b.p!==a.p)return b.p-a.p;if(b.sg!==a.sg)return b.sg-a.sg;return b.gf-a.gf;});
 }
 
-var RESUMO_CSS = '<style>body{font-family:Arial,sans-serif;color:#111;margin:0;padding:0;font-size:11px;}.page{max-width:900px;margin:0 auto;padding:20px;}.topo{background:#003087;color:#fff;padding:16px 20px;border-radius:8px 8px 0 0;display:flex;justify-content:space-between;align-items:center;}.topo-nome{font-size:22px;font-weight:900;letter-spacing:2px;color:#ffdf00;}.topo-sub{font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;}.topo-bolao{text-align:right;font-size:11px;color:rgba(255,255,255,0.8);}.secao{margin-top:16px;}.secao-titulo{background:#003087;color:#ffdf00;font-weight:700;font-size:10px;letter-spacing:2px;padding:6px 10px;text-transform:uppercase;border-radius:4px;margin-bottom:8px;}.grid2{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}.grupo-box{border:1px solid #ddd;border-radius:6px;overflow:hidden;}.grupo-label{background:#003087;color:#ffdf00;font-size:9px;font-weight:700;letter-spacing:1px;padding:4px 8px;text-transform:uppercase;}.grupo-cols{display:grid;grid-template-columns:1fr 1fr;}.col-label{background:#f0f4ff;font-size:8px;font-weight:700;color:#003087;padding:3px 6px;text-align:center;letter-spacing:1px;border-top:1px solid #e0e8ff;}.col-item{padding:3px 6px;font-size:9px;display:flex;align-items:center;gap:3px;border-top:1px solid #eee;}.pos{font-weight:700;color:#003087;min-width:14px;font-size:8px;}.pts-badge{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:auto;}.pts-ok{background:#e6f9ee;color:#00a050;}.pts-zero{background:#fee;color:#cc0000;}table.placares{width:100%;border-collapse:collapse;}table.placares th{background:#f0f4ff;color:#003087;font-size:9px;font-weight:700;padding:4px 6px;text-align:left;letter-spacing:1px;}table.placares td{padding:4px 6px;border-bottom:1px solid #eee;font-size:10px;}table.placares tr:last-child td{border-bottom:none;}.pts-cell{font-weight:700;text-align:center;}.pts3{color:#00a050;}.pts2{color:#2266cc;}.pts1{color:#cc8800;}.pts0{color:#cc0000;}.zebra-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}.zebra-item{border:1px solid #ddd;border-radius:6px;padding:6px 10px;}.zebra-nome{font-weight:700;font-size:11px;}.zebra-pos{font-size:10px;color:#666;margin-top:2px;}.resumo-total{background:#003087;color:#fff;border-radius:6px;padding:12px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px;text-align:center;}.total-item-label{font-size:9px;color:rgba(255,255,255,0.6);letter-spacing:1px;text-transform:uppercase;}.total-item-val{font-size:18px;font-weight:900;color:#ffdf00;margin-top:2px;}.rodada-titulo{font-size:9px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin:8px 0 4px;padding:3px 6px;background:#f8f8f8;border-left:3px solid #003087;}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}</style>';
-
 async function gerarResumo(apelido, bolaoId) {
   var u = (typeof AUTH!=='undefined') ? AUTH.get() : null;
   var isAdmin = u && u.apelido === 'MDANTAS';
@@ -160,25 +154,6 @@ async function gerarResumo(apelido, bolaoId) {
     return;
   }
 
-  var p1 = await carregarP1(apelido, bolaoId);
-  var H2 = {'apikey':SK,'Authorization':'Bearer '+SK};
-  var rr = await fetch(SU+'/rest/v1/resultados?select=*',{headers:H2});
-  var resultados = rr.ok ? await rr.json() : [];
-  var rb = await fetch(SU+'/rest/v1/boloes?id=eq.'+bolaoId+'&select=nome',{headers:H2});
-  var bolaoNome = rb.ok ? ((await rb.json())[0]||{}).nome||'' : '';
-  var now = new Date();
-  var dataGeracao = now.toLocaleDateString('pt-BR')+' às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-
-  var body = montarResumoBody(apelido, p1, resultados, bolaoNome, dataGeracao);
-  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resumo — '+apelido+'</title>'+RESUMO_CSS+'</head><body>'+body+'</body></html>';
-
-  var win=window.open('','_blank');
-  win.document.write(html);
-  win.document.close();
-  setTimeout(function(){win.print();},800);
-}
-
-async function carregarP1(apelido, bolaoId) {
   var H2 = {'apikey':SK,'Authorization':'Bearer '+SK};
   var rp = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&apelido=eq.'+encodeURIComponent(apelido)+'&select=*&order=criado_em.asc',{headers:H2});
   var palpites = rp.ok ? await rp.json() : [];
@@ -192,15 +167,19 @@ async function carregarP1(apelido, bolaoId) {
       } else if(x[k]!==null&&x[k]!==undefined&&x[k]!==''){p1[k]=x[k];}
     });
   });
-  return p1;
-}
-
-function montarResumoBody(apelido, p1, resultados, bolaoNome, dataGeracao) {
   var placares=p1.placares||{};
   if(typeof placares==='string'){try{placares=JSON.parse(placares);}catch(e){placares={};}}
 
+  var rr = await fetch(SU+'/rest/v1/resultados?select=*',{headers:H2});
+  var resultados = rr.ok ? await rr.json() : [];
+  var rb = await fetch(SU+'/rest/v1/boloes?id=eq.'+bolaoId+'&select=nome',{headers:H2});
+  var bolaoNome = rb.ok ? ((await rb.json())[0]||{}).nome||'' : '';
+  var now = new Date();
+  var dataGeracao = now.toLocaleDateString('pt-BR')+' às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 
-  var html = '<div class="page">';
+  var css = '<style>body{font-family:Arial,sans-serif;color:#111;margin:0;padding:0;font-size:11px;}.page{max-width:900px;margin:0 auto;padding:20px;}.topo{background:#003087;color:#fff;padding:16px 20px;border-radius:8px 8px 0 0;display:flex;justify-content:space-between;align-items:center;}.topo-nome{font-size:22px;font-weight:900;letter-spacing:2px;color:#ffdf00;}.topo-sub{font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;}.topo-bolao{text-align:right;font-size:11px;color:rgba(255,255,255,0.8);}.secao{margin-top:16px;}.secao-titulo{background:#003087;color:#ffdf00;font-weight:700;font-size:10px;letter-spacing:2px;padding:6px 10px;text-transform:uppercase;border-radius:4px;margin-bottom:8px;}.grid2{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}.grupo-box{border:1px solid #ddd;border-radius:6px;overflow:hidden;}.grupo-label{background:#003087;color:#ffdf00;font-size:9px;font-weight:700;letter-spacing:1px;padding:4px 8px;text-transform:uppercase;}.grupo-cols{display:grid;grid-template-columns:1fr 1fr;}.col-label{background:#f0f4ff;font-size:8px;font-weight:700;color:#003087;padding:3px 6px;text-align:center;letter-spacing:1px;border-top:1px solid #e0e8ff;}.col-item{padding:3px 6px;font-size:9px;display:flex;align-items:center;gap:3px;border-top:1px solid #eee;}.pos{font-weight:700;color:#003087;min-width:14px;font-size:8px;}.pts-badge{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:auto;}.pts-ok{background:#e6f9ee;color:#00a050;}.pts-zero{background:#fee;color:#cc0000;}table.placares{width:100%;border-collapse:collapse;}table.placares th{background:#f0f4ff;color:#003087;font-size:9px;font-weight:700;padding:4px 6px;text-align:left;letter-spacing:1px;}table.placares td{padding:4px 6px;border-bottom:1px solid #eee;font-size:10px;}table.placares tr:last-child td{border-bottom:none;}.pts-cell{font-weight:700;text-align:center;}.pts3{color:#00a050;}.pts2{color:#2266cc;}.pts1{color:#cc8800;}.pts0{color:#cc0000;}.zebra-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}.zebra-item{border:1px solid #ddd;border-radius:6px;padding:6px 10px;}.zebra-nome{font-weight:700;font-size:11px;}.zebra-pos{font-size:10px;color:#666;margin-top:2px;}.resumo-total{background:#003087;color:#fff;border-radius:6px;padding:12px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px;text-align:center;}.total-item-label{font-size:9px;color:rgba(255,255,255,0.6);letter-spacing:1px;text-transform:uppercase;}.total-item-val{font-size:18px;font-weight:900;color:#ffdf00;margin-top:2px;}.rodada-titulo{font-size:9px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin:8px 0 4px;padding:3px 6px;background:#f8f8f8;border-left:3px solid #003087;}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}</style>';
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resumo — '+apelido+'</title>'+css+'</head><body><div class="page">';
   html += '<div class="topo"><div><div class="topo-nome">'+apelido+'</div><div class="topo-sub">Resumo de palpites — Copa do Mundo 2026</div></div><div class="topo-bolao"><div>'+bolaoNome+'</div><div style="margin-top:4px;color:rgba(255,255,255,0.5);">Gerado em '+dataGeracao+'</div></div></div>';
 
   // Grupos
@@ -215,9 +194,8 @@ function montarResumoBody(apelido, p1, resultados, bolaoNome, dataGeracao) {
       var tp=p1['g'+g.toLowerCase()+'_'+pos]||p1['g'+g+'_'+pos]||'—';
       var tr=tabelaReal[pos-1]?tabelaReal[pos-1].t:'—';
       var posReal=tabelaReal.findIndex(function(t){return t.t===tp;});
-      var grupoTemJogos=tabelaReal.some(function(t){return t.j>0;});
-      var acertouPos=(grupoTemJogos&&posReal!==-1&&posReal+1===pos&&tp!=='—');
-      var acertouClass=(grupoTemJogos&&posReal!==-1&&posReal<2&&pos<=2&&tp!=='—');
+      var acertouPos=(posReal!==-1&&posReal+1===pos&&tp!=='—');
+      var acertouClass=(posReal!==-1&&posReal<2&&pos<=2&&tp!=='—');
       if(acertouPos) pts_grupos+=1;
       if(acertouClass){ pts_grupos+=1; bonusClassif.push(tp); }
       html += '<div class="grupo-cols">';
@@ -239,7 +217,7 @@ function montarResumoBody(apelido, p1, resultados, bolaoNome, dataGeracao) {
     var posZ=-1,grupoZ=null;
     if(zebra!=='—'){
       Object.keys(GRUPOS_DISPLAY_R).forEach(function(g){if(GRUPOS_DISPLAY_R[g].indexOf(zebra)>=0)grupoZ=g;});
-      if(grupoZ){var tabZ=calcTabelaR(grupoZ,resultados);posZ=tabZ.findIndex(function(t){return t.t===zebra;});var grupoZTemJogos=tabZ.some(function(t){return t.j>0;});if(!grupoZTemJogos)posZ=-1;}
+      if(grupoZ){var tabZ=calcTabelaR(grupoZ,resultados);posZ=tabZ.findIndex(function(t){return t.t===zebra;});}
     }
     var zPts=0,zDesc='Aguardando';
     if(posZ===0){zPts=6;zDesc='1º lugar +6pts';}
@@ -317,8 +295,12 @@ function montarResumoBody(apelido, p1, resultados, bolaoNome, dataGeracao) {
   html += '<div><div class="total-item-label">Placares</div><div class="total-item-val">'+pts_placares+'</div></div>';
   html += '<div><div class="total-item-label" style="color:#ffdf00;">Total Fase Grupos</div><div class="total-item-val" style="font-size:22px;">'+(pts_grupos+pts_zebras+pts_terceiros+pts_placares)+'</div></div>';
   html += '</div>';
-  html += '</div>';
-  return html;
+  html += '</div></body></html>';
+
+  var win=window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+  setTimeout(function(){win.print();},800);
 }
 
 
@@ -394,10 +376,24 @@ async function carregarRanking(bolaoId, bolaoNome) {
     var r1 = await fetch(SU+'/rest/v1/pontuacoes?bolao_id=eq.'+bolaoId+'&select=*&order=total.desc',{headers:H});
     if (r1.ok) ranking = await r1.json();
 
-    // Filtrar apenas quem enviou pelo menos um palpite
-    ranking = ranking.filter(function(r) {
-      return fase1Grupos[r.apelido] || fase1Placares[r.apelido] || fase2Chaveamento[r.apelido];
-    });
+    // Buscar histórico para tendência e variação de posição
+    var historicoMap = {}; // { apelido: [total_d1, total_d2, ...] }
+    var diasHist = [];
+    try {
+      var rHist = await fetch(SU+'/rest/v1/ranking_historico?bolao_id=eq.'+bolaoId+'&select=apelido,total,dia&order=dia.asc',{headers:H});
+      if (rHist.ok) {
+        var histRows = await rHist.json();
+        // Coletar dias únicos ordenados
+        var diasSet = {};
+        histRows.forEach(function(r){ diasSet[r.dia] = true; });
+        diasHist = Object.keys(diasSet).sort();
+        // Montar mapa
+        histRows.forEach(function(r){
+          if (!historicoMap[r.apelido]) historicoMap[r.apelido] = {};
+          historicoMap[r.apelido][r.dia] = r.total;
+        });
+      }
+    } catch(e) {}
 
     // Se não tem pontuações, monta lista de quem enviou palpites
     if (!ranking.length) {
@@ -414,14 +410,16 @@ async function carregarRanking(bolaoId, bolaoNome) {
       return;
     }
 
-    var isAdmin = (typeof AUTH !== 'undefined' && AUTH.get() && AUTH.get().apelido === 'MDANTAS');
     var posClasses = ['gold','silver','bronze'];
     var html = '<div class="ranking-card" style="overflow-x:visible;width:100%;">';
-    html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO — '+(bolaoNome||'')+'</span><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><span class="ranking-update">Ao vivo</span><button onclick="exportarRanking()" style="background:rgba(122,159,212,0.12);border:1px solid rgba(122,159,212,0.35);color:var(--muted);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">📑 EXPORTAR RESUMOS (PDF)</button>' + (isAdmin ? '<select id="diaSnapshotSelect" title="Dia dos jogos para o snapshot do histórico (Corrida do Bolão)" style="background:#001a4a;border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:#fff;font-family:\'DM Sans\',sans-serif;font-size:11px;font-weight:600;outline:none;cursor:pointer;"></select><button onclick="publicarRanking(\''+ bolaoId +'\')" style="background:rgba(0,196,79,0.15);border:1px solid rgba(0,196,79,0.4);color:#00c44f;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">🏆 ATUALIZAR RANKING</button>' : '') + '</div></div>';
+    html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO — '+(bolaoNome||'')+'</span><span class="ranking-update">Ao vivo</span></div>';
+
+    // Colunas de dias do histórico
+    var nDias = diasHist.length;
+    var colsDias = diasHist.map(function(d,i){ return '52px'; }).join(' ');
 
     // HEADER — duas seções de colunas
-    // Grid: Posição | Apelido | Grupos | R1 | R2 | R3 | MM | 16Avos | Oitavas | Quartas | Semi | Final | Total
-    var GRID = '40px 1fr 60px 50px 50px 60px 60px 50px 50px 50px 58px 64px 60px 50px 52px 52px 52px';
+    var GRID = '44px 1fr ' + (nDias > 0 ? colsDias + ' ' : '') + '60px 50px 50px 60px 60px 50px 50px 50px 58px 64px 60px 50px 52px 52px 52px 56px 60px';
     html += '<div style="background:var(--bg3);padding:6px 12px;">';
     html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:8px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:4px 0;">';
     html += '<div></div><div></div>';
@@ -448,12 +446,9 @@ async function carregarRanking(bolaoId, bolaoNome) {
     html += '<div style="text-align:center;color:var(--muted);font-weight:700;">Total MM</div>';
     html += '</div></div>';
 
-    var _prevNum = null;
-    window._rankingExport = { bolaoNome: bolaoNome||'', bolaoId: bolaoId, linhas: [] };
     ranking.forEach(function(r,i){
-      var num = (i > 0 && r.total === ranking[i-1].total) ? _prevNum : (i+1);
-      _prevNum = num;
-      var cls = num<=3 ? posClasses[num-1] : 'other';
+      var num = i+1;
+      var cls = i<3 ? posClasses[i] : 'other';
 
       var temGrupos     = fase1Grupos[r.apelido]      ? '✅' : '❌';
       var temPlacares   = fase1Placares[r.apelido]    ? '✅' : '❌';
@@ -486,18 +481,34 @@ async function carregarRanking(bolaoId, bolaoNome) {
 
       var totalGrp = pGrupos + pZebras + pTerceiros + pR1 + pR2 + pR3;
       var totalMM  = pChaveamento + p16avos + pOitavas + pQuartas + pSemi + pFinal;
+      var pos = posicoes[i];
+      var cls = pos===1?'gold':pos===2?'silver':pos===3?'bronze':'other';
 
-      window._rankingExport.linhas.push({
-        pos: num, apelido: r.apelido,
-        grupos: pGrupos, zebras: pZebras, terceiros: pTerceiros,
-        rod1: pR1, rod2: pR2, rod3: pR3, totalGrupos: totalGrp,
-        mm: pChaveamento, avos16: p16avos, oitavas: pOitavas,
-        quartas: pQuartas, semi: pSemi, final: pFinal, totalMM: totalMM,
-        totalGeral: (r.total !== undefined ? r.total : (totalGrp+totalMM))
-      });
-      html += '<div style="display:grid;grid-template-columns:40px 1fr 60px 50px 50px 60px 60px 50px 50px 50px 58px 64px 60px 50px 52px 52px 52px;align-items:center;padding:8px 12px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;">';
-      html += '<div class="ranking-pos '+cls+'">'+num+'<sup>º</sup></div>';
+      // Tendência (comparar total atual com último snapshot)
+      var tendHtml = '<span style="color:var(--muted)">—</span>';
+      if (diaAnterior && historicoMap[r.apelido] && historicoMap[r.apelido][diaAnterior] !== undefined) {
+        var diffPts = r.total - (historicoMap[r.apelido][diaAnterior]||0);
+        if (diffPts > 0) tendHtml = '<span style="color:#00c44f;font-weight:700;">▲'+diffPts+'</span>';
+        else if (diffPts < 0) tendHtml = '<span style="color:#ff6b6b;font-weight:700;">▼'+Math.abs(diffPts)+'</span>';
+      }
+
+      // Variação de posição
+      var varPosHtml = '<span style="color:var(--muted)">—</span>';
+      if (posAnteriorMap[r.apelido] !== undefined) {
+        var diffPos = posAnteriorMap[r.apelido] - pos; // positivo = subiu
+        if (diffPos > 0) varPosHtml = '<span style="color:#00c44f;font-weight:700;">▲'+diffPos+'</span>';
+        else if (diffPos < 0) varPosHtml = '<span style="color:#ff6b6b;font-weight:700;">▼'+Math.abs(diffPos)+'</span>';
+      }
+
+      html += '<div style="display:grid;grid-template-columns:'+GRID+';align-items:center;padding:8px 12px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;">';
+      html += '<div class="ranking-pos '+cls+'">'+pos+'<sup>º</sup></div>';
       html += '<div class="ranking-apelido" style="display:flex;align-items:center;gap:8px;">'+r.apelido+'<button onclick="gerarResumo(\''+r.apelido+'\',\''+bolaoId+'\')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.25);color:#ffdf00;border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:0.5px;white-space:nowrap;">📄 RESUMO</button></div>';
+      // Colunas de dias históricos
+      diasHist.forEach(function(d, di) {
+        var val = (historicoMap[r.apelido]||{})[d];
+        var isUltimo = di === nDias - 1;
+        html += '<div style="text-align:center;font-size:'+(isUltimo?'14':'12')+'px;font-weight:'+(isUltimo?'700':'400')+';color:'+(isUltimo?'var(--gold)':'var(--muted)')+'">' + (val !== undefined ? val : '—') + '</div>';
+      });
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pGrupos+' pts</div><div style="font-size:15px;">'+temGrupos+'</div></div>';
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pZebras+' pts</div></div>';
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pTerceiros+' pts</div></div>';
@@ -512,13 +523,14 @@ async function carregarRanking(bolaoId, bolaoNome) {
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pSemi+' pts</div><div style="font-size:15px;">'+temSemi+'</div></div>';
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pFinal+' pts</div><div style="font-size:15px;">'+temFinal+'</div></div>';
       html += '<div class="ranking-pts total">'+totalMM+'</div>';
+      html += '<div style="text-align:center;">'+tendHtml+'</div>';
+      html += '<div style="text-align:center;">'+varPosHtml+'</div>';
       html += '</div>';
     });
 
     html += '<div class="legend"><span>✅ Palpite enviado</span><span>❌ Palpite não enviado</span></div>';
     html += '</div>';
     area.innerHTML = html;
-    if (isAdmin) DB.popularSeletorDias('diaSnapshotSelect');
   } catch(e) {
     console.error(e);
     area.innerHTML = '<div class="ranking-card"><div class="empty"><strong>Erro ao carregar</strong></div></div>';
@@ -526,266 +538,6 @@ async function carregarRanking(bolaoId, bolaoNome) {
 }
 
 init();
-
-// ── MOTOR DE CÁLCULO DE RANKING ──────────────────────────────────────
-var _resultadosDB = [];
-
-var GRUPOS_DISPLAY = {
-  A:['México','África do Sul','Coreia do Sul','República Tcheca'],
-  B:['Canadá','Bósnia e Herzegovina','Catar','Suíça'],
-  C:['Brasil','Marrocos','Haiti','Escócia'],
-  D:['Estados Unidos','Turquia','Paraguai','Austrália'],
-  E:['Alemanha','Curaçao','Costa do Marfim','Equador'],
-  F:['Holanda','Japão','Suécia','Tunísia'],
-  G:['Bélgica','Egito','Irã','Nova Zelândia'],
-  H:['Espanha','Cabo Verde','Arábia Saudita','Uruguai'],
-  I:['França','Senegal','Noruega','Iraque'],
-  J:['Argentina','Argélia','Áustria','Jordânia'],
-  K:['Portugal','RD Congo','Uzbequistão','Colômbia'],
-  L:['Inglaterra','Croácia','Gana','Panamá']
-};
-var JOGOS_R1={A:[['México','África do Sul'],['Coreia do Sul','República Tcheca']],B:[['Canadá','Bósnia e Herzegovina'],['Catar','Suíça']],C:[['Brasil','Marrocos'],['Haiti','Escócia']],D:[['Estados Unidos','Paraguai'],['Austrália','Turquia']],E:[['Alemanha','Curaçao'],['Costa do Marfim','Equador']],F:[['Holanda','Japão'],['Suécia','Tunísia']],G:[['Bélgica','Egito'],['Irã','Nova Zelândia']],H:[['Espanha','Cabo Verde'],['Arábia Saudita','Uruguai']],I:[['França','Senegal'],['Noruega','Iraque']],J:[['Argentina','Argélia'],['Áustria','Jordânia']],K:[['Portugal','RD Congo'],['Uzbequistão','Colômbia']],L:[['Inglaterra','Croácia'],['Gana','Panamá']]};
-var JOGOS_R2={A:[['México','Coreia do Sul'],['África do Sul','República Tcheca']],B:[['Canadá','Catar'],['Bósnia e Herzegovina','Suíça']],C:[['Brasil','Haiti'],['Marrocos','Escócia']],D:[['Estados Unidos','Austrália'],['Turquia','Paraguai']],E:[['Alemanha','Costa do Marfim'],['Curaçao','Equador']],F:[['Holanda','Suécia'],['Japão','Tunísia']],G:[['Bélgica','Irã'],['Egito','Nova Zelândia']],H:[['Espanha','Arábia Saudita'],['Cabo Verde','Uruguai']],I:[['França','Iraque'],['Noruega','Senegal']],J:[['Argentina','Áustria'],['Argélia','Jordânia']],K:[['Portugal','Uzbequistão'],['Colômbia','RD Congo']],L:[['Inglaterra','Gana'],['Croácia','Panamá']]};
-var JOGOS_R3={A:[['México','República Tcheca'],['África do Sul','Coreia do Sul']],B:[['Canadá','Suíça'],['Bósnia e Herzegovina','Catar']],C:[['Brasil','Escócia'],['Marrocos','Haiti']],D:[['Estados Unidos','Turquia'],['Paraguai','Austrália']],E:[['Alemanha','Equador'],['Curaçao','Costa do Marfim']],F:[['Holanda','Tunísia'],['Japão','Suécia']],G:[['Bélgica','Nova Zelândia'],['Egito','Irã']],H:[['Espanha','Uruguai'],['Cabo Verde','Arábia Saudita']],I:[['França','Noruega'],['Senegal','Iraque']],J:[['Argentina','Jordânia'],['Argélia','Áustria']],K:[['Portugal','Colômbia'],['RD Congo','Uzbequistão']],L:[['Inglaterra','Panamá'],['Croácia','Gana']]};
-var JOGOS_RANK=[];
-[['R1',JOGOS_R1],['R2',JOGOS_R2],['R3',JOGOS_R3]].forEach(function(rd){var r=rd[0],obj=rd[1];Object.keys(obj).forEach(function(g){obj[g].forEach(function(jogo,i){JOGOS_RANK.push({r:r,g:g,i:i,a:jogo[0],b:jogo[1]});});});});
-
-function jogoKeyR(j){return j.r+'_'+j.g+'_'+j.i;}
-function getResultadoR(jogo){var k=jogoKeyR(jogo);return _resultadosDB.find(function(x){return x.api_id===k;})||null;}
-
-function calcularTabelaR(g){
-  var times=GRUPOS_DISPLAY[g],tab={};
-  times.forEach(function(t){tab[t]={t:t,p:0,j:0,v:0,e:0,d:0,gf:0,gc:0,sg:0};});
-  JOGOS_RANK.filter(function(j){return j.g===g;}).forEach(function(jogo){
-    var res=getResultadoR(jogo);
-    if(!res||res.gols_a===null||res.gols_b===null) return;
-    var ga=parseInt(res.gols_a),gb=parseInt(res.gols_b);
-    var ta=tab[jogo.a],tb=tab[jogo.b];
-    if(!ta||!tb) return;
-    ta.j++;tb.j++;ta.gf+=ga;ta.gc+=gb;ta.sg+=ga-gb;tb.gf+=gb;tb.gc+=ga;tb.sg+=gb-ga;
-    if(ga>gb){ta.v++;ta.p+=3;tb.d++;}else if(ga<gb){tb.v++;tb.p+=3;ta.d++;}else{ta.e++;ta.p++;tb.e++;tb.p++;}
-  });
-  return Object.values(tab).sort(function(a,b){if(b.p!==a.p)return b.p-a.p;if(b.sg!==a.sg)return b.sg-a.sg;return b.gf-a.gf;});
-}
-
-async function publicarRanking(bolaoId) {
-  var selDiaConfirm = document.getElementById('diaSnapshotSelect');
-  var diaTxt = (selDiaConfirm && selDiaConfirm.options.length)
-    ? '\n\nO snapshot do histórico (Corrida do Bolão) será salvo como: ' + selDiaConfirm.options[selDiaConfirm.selectedIndex].textContent + ' (' + selDiaConfirm.value + ').'
-    : '';
-  if(!confirm('Recalcular e publicar o ranking?' + diaTxt)) return;
-  var btnEl = event.target;
-  btnEl.disabled = true; btnEl.textContent = '⏳ Calculando...';
-
-  var H = {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
-
-  // Carregar resultados do banco
-  try {
-    var r = await fetch(SUPABASE_URL+'/rest/v1/resultados?select=*',{headers:H});
-    _resultadosDB = r.ok ? await r.json() : [];
-  } catch(e){ _resultadosDB = []; }
-
-  // Buscar palpites (paginado)
-  var todosPalpites1=[],pageSize=1000,offset=0;
-  while(true){
-    var H3=Object.assign({},H,{'Range':offset+'-'+(offset+pageSize-1),'Prefer':'count=none'});
-    var rp1=await fetch(SUPABASE_URL+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&select=*&order=criado_em.asc&limit='+pageSize+'&offset='+offset,{headers:H3});
-    if(!rp1.ok) break;
-    var batch=await rp1.json();
-    todosPalpites1=todosPalpites1.concat(batch);
-    if(batch.length<pageSize) break;
-    offset+=pageSize;
-  }
-
-  // Mesclar por apelido
-  var palpitesMap={};
-  todosPalpites1.forEach(function(x){
-    var chave=x.bolao_id+'|'+x.apelido;
-    if(!palpitesMap[chave]) palpitesMap[chave]={};
-    Object.keys(x).forEach(function(k){
-      if(k==='placares'){
-        var pl=x[k];if(pl){if(typeof pl==='string'){try{pl=JSON.parse(pl);}catch(e){pl={};}}
-        if(!palpitesMap[chave].placares)palpitesMap[chave].placares={};Object.assign(palpitesMap[chave].placares,pl);}
-      } else if(x[k]!==null&&x[k]!==undefined&&x[k]!==''){palpitesMap[chave][k]=x[k];}
-    });
-  });
-
-  var pontuacoes=[];
-  Object.keys(palpitesMap).forEach(function(chave){
-    var p1=palpitesMap[chave];
-    var pts_grupos=0,pts_placares=0,pts_zebras=0,pts_terceiros=0;
-
-    // Grupos
-    Object.keys(GRUPOS_DISPLAY).forEach(function(g){
-      var tab=calcularTabelaR(g);
-      if(!tab.some(function(t){return t.j>0;})) return;
-      for(var pos=1;pos<=4;pos++){
-        var tp=p1['g'+g.toLowerCase()+'_'+pos]||p1['g'+g+'_'+pos]||'';
-        if(!tp) continue;
-        var posReal=tab.findIndex(function(t){return t.t===tp;});
-        if(posReal===-1) continue;
-        if(posReal+1===pos) pts_grupos+=REGRAS.grupos.posicao_exata;
-        if(posReal<2&&pos<=2) pts_grupos+=REGRAS.grupos.classificado_direto;
-      }
-    });
-
-    // Placares
-    var placares=p1.placares||{};
-    if(typeof placares==='string'){try{placares=JSON.parse(placares);}catch(e){placares={};}}
-    if(typeof placares!=='object'||placares===null) placares={};
-    var ptsR1=[],ptsR2=[],ptsR3=[];
-    JOGOS_RANK.forEach(function(jogo){
-      var res=getResultadoR(jogo);
-      if(!res||res.gols_a===null||res.gols_b===null) return;
-      var key=jogoKeyR(jogo);
-      var pa=placares['placar_'+key+'_a'],pb=placares['placar_'+key+'_b'];
-      if(pa===undefined||pa===null||pb===undefined||pb===null) return;
-      var pts=REGRAS.calcularPlacar(pa,pb,res.gols_a,res.gols_b);
-      if(jogo.r==='R1') ptsR1.push(pts);
-      else if(jogo.r==='R2') ptsR2.push(pts);
-      else ptsR3.push(pts);
-    });
-    var todosP=ptsR1.concat(ptsR2).concat(ptsR3);todosP.sort(function(a,b){return b-a;});
-    pts_placares=todosP.slice(0,24).reduce(function(s,v){return s+v;},0);
-    var pR1=ptsR1.reduce(function(s,v){return s+v;},0);
-    var pR2=ptsR2.reduce(function(s,v){return s+v;},0);
-    var pR3=ptsR3.reduce(function(s,v){return s+v;},0);
-
-    // Zebras
-    for(var zi=1;zi<=4;zi++){
-      var zebra=p1['zebra'+zi];if(!zebra) continue;
-      var grupoZ=null;
-      Object.keys(GRUPOS_DISPLAY).forEach(function(g){if(GRUPOS_DISPLAY[g].indexOf(zebra)>=0)grupoZ=g;});
-      if(!grupoZ) continue;
-      var tabZ=calcularTabelaR(grupoZ);
-      if(!tabZ.some(function(t){return t.j>0;})) continue;
-      var posZ=tabZ.findIndex(function(t){return t.t===zebra;});
-      if(posZ===0) pts_zebras+=REGRAS.zebras.primeiro_lugar;
-      else if(posZ===1) pts_zebras+=REGRAS.zebras.segundo_lugar;
-      else if(posZ===2) pts_zebras+=REGRAS.zebras.melhor_terceiro;
-    }
-
-    // Terceiros
-    var todosTerceiros=[];
-    Object.keys(GRUPOS_DISPLAY).forEach(function(g){
-      var tab=calcularTabelaR(g);
-      if(tab[2]&&tab[2].j>0) todosTerceiros.push({t:tab[2].t,p:tab[2].p,sg:tab[2].sg,gf:tab[2].gf});
-    });
-    todosTerceiros.sort(function(a,b){if(b.p!==a.p)return b.p-a.p;if(b.sg!==a.sg)return b.sg-a.sg;return b.gf-a.gf;});
-    var oitoMelhores=todosTerceiros.slice(0,8).map(function(x){return x.t;});
-    for(var ti=1;ti<=8;ti++){
-      var tPalpite=p1['t'+ti];if(!tPalpite) continue;
-      var posRealT=oitoMelhores.indexOf(tPalpite);if(posRealT===-1) continue;
-      if(posRealT+1===ti) pts_terceiros+=REGRAS.terceiros.avancou_posicao_certa;
-      else pts_terceiros+=REGRAS.terceiros.avancou_posicao_errada;
-    }
-
-    pontuacoes.push({bolao_id:p1.bolao_id,apelido:p1.apelido,pts_grupos:pts_grupos,pts_placares:pts_placares,pts_placares_r1:pR1,pts_placares_r2:pR2,pts_placares_r3:pR3,pts_zebras:pts_zebras,pts_terceiros:pts_terceiros,total:pts_grupos+pts_placares+pts_zebras+pts_terceiros,atualizado_em:new Date().toISOString()});
-  });
-
-  // Deletar e reinserir
-  await fetch(SUPABASE_URL+'/rest/v1/pontuacoes?bolao_id=eq.'+bolaoId,{method:'DELETE',headers:H});
-  if(pontuacoes.length){
-    var H2=Object.assign({},H,{'Prefer':'resolution=merge-duplicates,return=minimal'});
-    var resp=await fetch(SUPABASE_URL+'/rest/v1/pontuacoes',{method:'POST',headers:H2,body:JSON.stringify(pontuacoes)});
-    if(!resp.ok){ alert('Erro ao publicar: '+(await resp.text())); btnEl.disabled=false; btnEl.textContent='🏆 ATUALIZAR RANKING'; return; }
-  }
-
-  // Snapshot diário do ranking (para o troféu "Maior Queda" comparar dia a dia)
-  if(pontuacoes.length){
-    var selDia = document.getElementById('diaSnapshotSelect');
-    var hojeSnap = (selDia && selDia.value) ? selDia.value : new Date().toISOString().slice(0,10);
-    var snapshot = pontuacoes.map(function(p){
-      return { bolao_id: p.bolao_id, apelido: p.apelido, total: p.total, dia: hojeSnap };
-    });
-    var H3=Object.assign({},H,{'Prefer':'resolution=merge-duplicates,return=minimal'});
-    await fetch(SUPABASE_URL+'/rest/v1/ranking_historico?on_conflict=bolao_id,apelido,dia',{method:'POST',headers:H3,body:JSON.stringify(snapshot)});
-  }
-
-  btnEl.disabled=false; btnEl.textContent='🏆 ATUALIZAR RANKING';
-  alert('✅ Ranking atualizado para '+pontuacoes.length+' participante(s)!');
-  carregarRanking(bolaoId, null);
-}
-
-
-async function exportarRanking() {
-  var data = window._rankingExport;
-  if (!data || !data.linhas.length) { alert('Nenhum ranking carregado para exportar.'); return; }
-
-  if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
-    alert('Não foi possível carregar o gerador de PDF. Verifique sua conexão e tente novamente.');
-    return;
-  }
-  if (typeof html2canvas === 'undefined') {
-    alert('Não foi possível carregar o renderizador de PDF. Verifique sua conexão e tente novamente.');
-    return;
-  }
-
-  var btn = event.target;
-  var btnTextoOriginal = btn.textContent;
-  btn.disabled = true;
-
-  try {
-    var { jsPDF } = window.jspdf;
-    var H2 = {'apikey':SK,'Authorization':'Bearer '+SK};
-
-    // Dados compartilhados por todos os resumos
-    var rr = await fetch(SU+'/rest/v1/resultados?select=*',{headers:H2});
-    var resultados = rr.ok ? await rr.json() : [];
-    var now = new Date();
-    var dataGeracao = now.toLocaleDateString('pt-BR')+' às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-
-    // CSS escopado (substitui o seletor "body" por um container próprio,
-    // evitando que o estilo do resumo afete a página do ranking)
-    var cssEscopado = RESUMO_CSS.replace('<style>body{', '<style>.resumo-export-root{');
-
-    var doc = null;
-    var PAGE_W = 595.28; // largura A4 em pt
-
-    for (var i = 0; i < data.linhas.length; i++) {
-      var apelido = data.linhas[i].apelido;
-      btn.textContent = '⏳ Gerando ' + (i+1) + '/' + data.linhas.length + '...';
-
-      var p1 = await carregarP1(apelido, data.bolaoId);
-      var bodyHtml = montarResumoBody(apelido, p1, resultados, data.bolaoNome, dataGeracao);
-
-      var container = document.createElement('div');
-      container.style.position = 'fixed';
-      container.style.left = '-99999px';
-      container.style.top = '0';
-      container.style.width = '900px';
-      container.className = 'resumo-export-root';
-      container.innerHTML = cssEscopado + bodyHtml;
-      document.body.appendChild(container);
-
-      // Pequeno delay para garantir que o layout (grids) foi calculado
-      await new Promise(function(res){ setTimeout(res, 60); });
-
-      var canvas = await html2canvas(container, { scale: 2, width: 900, windowWidth: 900, backgroundColor: '#ffffff' });
-      document.body.removeChild(container);
-
-      var imgData = canvas.toDataURL('image/jpeg', 0.92);
-      var imgH = canvas.height * PAGE_W / canvas.width;
-
-      if (!doc) {
-        doc = new jsPDF({ unit: 'pt', format: [PAGE_W, imgH] });
-      } else {
-        doc.addPage([PAGE_W, imgH]);
-      }
-      doc.addImage(imgData, 'JPEG', 0, 0, PAGE_W, imgH);
-    }
-
-    var nomeArquivo = 'resumos_' + (data.bolaoNome||'bolao').replace(/[^a-zA-Z0-9]/g,'_') + '_' + new Date().toISOString().slice(0,10) + '.pdf';
-    doc.save(nomeArquivo);
-  } catch(e) {
-    console.error(e);
-    alert('Erro ao gerar PDF: ' + e.message);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = btnTextoOriginal;
-  }
-}
-
 </script>
 </body>
 </html>

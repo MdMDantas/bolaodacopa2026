@@ -263,8 +263,10 @@
         <div class="sel-wrap"><select id="decepcao2" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
       </div>
     </div>
-    <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioF2()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
-    <div class="save-section" id="btnMataMata"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px;gap:12px;">
+      <button onclick="preencherAleatorioF2()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
+      <div class="save-section" id="btnMataMata" style="text-align:right;"></div>
+    </div>
   </div>
 
   <!-- ══ CARD 2: 16 AVOS ══ -->
@@ -279,8 +281,10 @@
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
     <div class="jogos-grid" id="jogos-r16avos"></div>
-    <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioMM('r16avos')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
-    <div class="save-section" id="btn16avos"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px;gap:12px;">
+      <button onclick="preencherAleatorioMM('r16avos')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
+      <div class="save-section" id="btn16avos" style="text-align:right;"></div>
+    </div>
   </div>
 
   <!-- ══ CARD 3: OITAVAS ══ -->
@@ -295,8 +299,10 @@
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
     <div class="jogos-grid" id="jogos-roitavas"></div>
-    <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioMM('roitavas')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
-    <div class="save-section" id="btnOitavas"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px;gap:12px;">
+      <button onclick="preencherAleatorioMM('roitavas')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
+      <div class="save-section" id="btnOitavas" style="text-align:right;"></div>
+    </div>
   </div>
 
   <!-- ══ CARD 4: QUARTAS ══ -->
@@ -311,8 +317,10 @@
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
     <div class="jogos-grid" id="jogos-rquartas"></div>
-    <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioMM('rquartas')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
-    <div class="save-section" id="btnQuartas"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px;gap:12px;">
+      <button onclick="preencherAleatorioMM('rquartas')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
+      <div class="save-section" id="btnQuartas" style="text-align:right;"></div>
+    </div>
   </div>
 
   <!-- ══ CARD 5: SEMIFINAL ══ -->
@@ -327,8 +335,10 @@
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
     <div class="jogos-grid" id="jogos-rsemi"></div>
-    <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioMM('rsemi')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
-    <div class="save-section" id="btnSemi"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px;gap:12px;">
+      <button onclick="preencherAleatorioMM('rsemi')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
+      <div class="save-section" id="btnSemi" style="text-align:right;"></div>
+    </div>
   </div>
 
   <!-- ══ CARD 6: FINAL ══ -->
@@ -343,8 +353,10 @@
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
     <div class="jogos-grid" id="jogos-rfinal"></div>
-    <div style="text-align:right;margin:16px 0 8px;"><button onclick="preencherAleatorioMM('rfinal')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
-    <div class="save-section" id="btnFinal"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px;gap:12px;">
+      <button onclick="preencherAleatorioMM('rfinal')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
+      <div class="save-section" id="btnFinal" style="text-align:right;"></div>
+    </div>
   </div>
 </div>
 
@@ -671,8 +683,8 @@ function renderBtnFase(elId, prazo, onClickFn) {
     var horas = Math.floor((diff%86400000)/3600000);
     var mins = Math.floor((diff%3600000)/60000);
     var countdown = dias > 0 ? 'Faltam '+dias+'d '+horas+'h '+mins+'min' : 'Faltam '+horas+'h '+mins+'min';
-    el.innerHTML = '<div style="font-size:11px;color:#7a9fd4;text-align:center;margin-bottom:8px;">⏱️ '+countdown+'</div>'
-      + '<button class="btn-export" onclick="'+onClickFn+'">Enviar Palpites!</button>';
+    el.innerHTML = '<button class="btn-export" onclick="'+onClickFn+'">Enviar Palpites!</button>'
+      + '<div style="font-size:11px;color:#7a9fd4;text-align:center;margin-top:8px;">⏱️ '+countdown+'</div>';
   }
 }
 
@@ -778,6 +790,10 @@ function switchMMTab(id, btn) {
   btn.classList.add('active');
 }
 </script>
+<script src="config.js"></script>
+<script src="db.js"></script>
+<script src="auth.js"></script>
+<script src="bolao-modal.js"></script>
 
 </body>
 </html>
