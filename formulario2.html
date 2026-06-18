@@ -201,6 +201,9 @@
   </header>
   <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:#7a9fd4;font-size:13px;text-decoration:none;margin:12px 0 16px;padding:8px 14px;background:#00194a;border:1px solid rgba(255,223,0,0.3);border-radius:8px;" onmouseover="this.style.borderColor='#ffdf00'" onmouseout="this.style.borderColor='rgba(255,223,0,0.3)'">&#8592; Voltar ao Início</a>
 
+  <div style="text-align:right;margin-bottom:12px;">
+    <button onclick="preencherAleatorioF2()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
+  </div>
 
   <!-- 6 CARDS DE NAVEGAÇÃO -->
   <div class="mm-cards-nav">
@@ -212,7 +215,7 @@
     <button class="mm-card-btn" onclick="switchMMTab('mm-final',this)">Final</button>
   </div>
 
-  <!-- ══ CARD 1: MATA-MATA (Chaveamento + Top 4 + Decepções) ══ -->
+  <!-- ══ CARD 1: MATA-MATA (Chaveamento + Top 4 + Zebras + Azarões) ══ -->
   <div class="mm-tab-panel active" id="mm-matamata">
     <div class="prazo-badge-mm">📅 Prazo: até 28/06 às 16h (horário de Brasília)</div>
 
@@ -237,7 +240,6 @@
       <div class="regra-item">🥇 <strong>Posição exata:</strong> <span class="pts">+2 pontos</span> &nbsp;·&nbsp; <strong>No Top 4, posição errada:</strong> <span class="pts">+1 ponto</span> &nbsp;·&nbsp; <strong>Fora do Top 4:</strong> <span class="pts">0 pts</span></div>
       <div class="regra-item pontos-max">🏆 Máximo: 4 × 2 pts = <strong>8 pontos</strong></div>
     </div>
-    <div style="text-align:right;margin-bottom:10px;"><button onclick="preencherAleatorioF2()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="top4-grid">
       <div class="top4-card"><div class="t4-pos">🥇 1º LUGAR — CAMPEÃO</div><div class="sel-wrap"><select id="top4_1" onchange="updateProgress();markFilled(this);syncTop4()"><option value="">Selecione...</option></select></div></div>
       <div class="top4-card"><div class="t4-pos">🥈 2º LUGAR — VICE</div><div class="sel-wrap"><select id="top4_2" onchange="updateProgress();markFilled(this);syncTop4()"><option value="">Selecione...</option></select></div></div>
@@ -247,20 +249,35 @@
 
     <div class="divider"></div>
 
-    <div class="phase-header"><div class="phase-badge"></div><h2>3. DECEPÇÕES</h2></div>
+    <div class="phase-header"><div class="phase-badge"></div><h2>3. ZEBRAS DO MATA-MATA</h2></div>
     <div class="regras-box">
-      <div class="regra-item">💣 <strong>Caiu no R32:</strong> <span class="pts">+8 pts</span> &nbsp;·&nbsp; <strong>Oitavas:</strong> <span class="pts">+6 pts</span> &nbsp;·&nbsp; <strong>Quartas:</strong> <span class="pts">+4 pts</span> &nbsp;·&nbsp; <strong>Semi ou além:</strong> <span class="pts">0 pts</span></div>
+      <div class="regra-item">🦓 Selecione <strong>4 times zebra</strong> que vão surpreender no mata-mata — times que eliminam um favorito.</div>
+      <div class="regra-item">🎯 <strong>Zebra passou de fase:</strong> <span class="pts">+3 pts</span> &nbsp;·&nbsp; <strong>Zebra chegou às Quartas:</strong> <span class="pts">+5 pts</span> &nbsp;·&nbsp; <strong>Zebra nas Semis ou além:</strong> <span class="pts">+8 pts</span></div>
+      <div class="regra-item pontos-max">🏆 Máximo: 4 × 8 pts = <strong>32 pontos</strong></div>
+    </div>
+    <div class="top4-grid">
+      <div class="top4-card"><div class="t4-pos">🦓 ZEBRA 1</div><div class="sel-wrap"><select id="zebra_mm_1" onchange="updateProgress();markFilled(this);syncZebraMM()"><option value="">Selecione...</option></select></div></div>
+      <div class="top4-card"><div class="t4-pos">🦓 ZEBRA 2</div><div class="sel-wrap"><select id="zebra_mm_2" onchange="updateProgress();markFilled(this);syncZebraMM()"><option value="">Selecione...</option></select></div></div>
+      <div class="top4-card"><div class="t4-pos">🦓 ZEBRA 3</div><div class="sel-wrap"><select id="zebra_mm_3" onchange="updateProgress();markFilled(this);syncZebraMM()"><option value="">Selecione...</option></select></div></div>
+      <div class="top4-card"><div class="t4-pos">🦓 ZEBRA 4</div><div class="sel-wrap"><select id="zebra_mm_4" onchange="updateProgress();markFilled(this);syncZebraMM()"><option value="">Selecione...</option></select></div></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="phase-header"><div class="phase-badge"></div><h2>4. AZARÕES</h2></div>
+    <div class="regras-box">
+      <div class="regra-item">⭐ <strong>Caiu no R32:</strong> <span class="pts">+8 pts</span> &nbsp;·&nbsp; <strong>Oitavas:</strong> <span class="pts">+6 pts</span> &nbsp;·&nbsp; <strong>Quartas:</strong> <span class="pts">+4 pts</span> &nbsp;·&nbsp; <strong>Semi ou além:</strong> <span class="pts">0 pts</span></div>
       <div class="regra-item pontos-max">🏆 Máximo: 2 × 8 pts = <strong>16 pontos</strong></div>
     </div>
     <div class="decep-grid">
       <div class="especial-card decep">
-        <div class="card-icon">💣</div><div class="card-title">Decepção 1</div>
-        <div class="card-desc">Favorito que cairá antes do esperado.</div>
+        <div class="card-icon">⭐</div><div class="card-title">Azarão 1</div>
+        <div class="card-desc">Time que vai surpreender no mata-mata.</div>
         <div class="sel-wrap"><select id="decepcao1" onchange="updateProgress();markFilled(this);syncDecep()"><option value="">Selecione...</option></select></div>
       </div>
       <div class="especial-card decep">
-        <div class="card-icon">💣</div><div class="card-title">Decepção 2</div>
-        <div class="card-desc">Favorito que cairá antes do esperado.</div>
+        <div class="card-icon">⭐</div><div class="card-title">Azarão 2</div>
+        <div class="card-desc">Time que vai surpreender no mata-mata.</div>
         <div class="sel-wrap"><select id="decepcao2" onchange="updateProgress();markFilled(this);syncDecep()"><option value="">Selecione...</option></select></div>
       </div>
     </div>
@@ -270,6 +287,7 @@
   <!-- ══ CARD 2: 16 AVOS ══ -->
   <div class="mm-tab-panel" id="mm-16avos">
     <div class="prazo-badge-mm" >📅 Prazo: até 28/06 às 16h (horário de Brasília)</div>
+    <div style="text-align:right;margin-bottom:12px;"><button onclick="preencherAleatorioMM('r16avos')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="phase-header"><div class="phase-badge"></div><h2>PLACARES — 16 AVOS DE FINAL</h2></div>
     <div class="regras-box">
       <div class="regra-item"><strong>Placar exato</strong> (inclusive empate certo, ex: disse 1×1, foi 1×1): <span class="pts">+3 pts</span></div>
@@ -279,15 +297,13 @@
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
     <div class="jogos-grid" id="jogos-r16avos"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px;gap:12px;">
-      <button onclick="preencherAleatorioMM('r16avos')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
-      <div class="save-section" id="btn16avos" style="text-align:right;"></div>
-    </div>
+    <div class="save-section" id="btn16avos" style="text-align:right;margin-top:16px;"></div>
   </div>
 
   <!-- ══ CARD 3: OITAVAS ══ -->
   <div class="mm-tab-panel" id="mm-oitavas">
     <div class="prazo-badge-mm" >📅 Prazo: até 04/07 às 14h (horário de Brasília)</div>
+    <div style="text-align:right;margin-bottom:12px;"><button onclick="preencherAleatorioMM('roitavas')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="phase-header"><div class="phase-badge"></div><h2>PLACARES — OITAVAS DE FINAL</h2></div>
     <div class="regras-box">
       <div class="regra-item"><strong>Placar exato</strong> (inclusive empate certo, ex: disse 1×1, foi 1×1): <span class="pts">+3 pts</span></div>
@@ -297,15 +313,13 @@
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
     <div class="jogos-grid" id="jogos-roitavas"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px;gap:12px;">
-      <button onclick="preencherAleatorioMM('roitavas')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
-      <div class="save-section" id="btnOitavas" style="text-align:right;"></div>
-    </div>
+    <div class="save-section" id="btnOitavas" style="text-align:right;margin-top:16px;"></div>
   </div>
 
   <!-- ══ CARD 4: QUARTAS ══ -->
   <div class="mm-tab-panel" id="mm-quartas">
     <div class="prazo-badge-mm" >📅 Prazo: até 09/07 às 17h (horário de Brasília)</div>
+    <div style="text-align:right;margin-bottom:12px;"><button onclick="preencherAleatorioMM('rquartas')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="phase-header"><div class="phase-badge"></div><h2>PLACARES — QUARTAS DE FINAL</h2></div>
     <div class="regras-box">
       <div class="regra-item"><strong>Placar exato</strong> (inclusive empate certo, ex: disse 1×1, foi 1×1): <span class="pts">+3 pts</span></div>
@@ -315,15 +329,13 @@
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
     <div class="jogos-grid" id="jogos-rquartas"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px;gap:12px;">
-      <button onclick="preencherAleatorioMM('rquartas')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
-      <div class="save-section" id="btnQuartas" style="text-align:right;"></div>
-    </div>
+    <div class="save-section" id="btnQuartas" style="text-align:right;margin-top:16px;"></div>
   </div>
 
   <!-- ══ CARD 5: SEMIFINAL ══ -->
   <div class="mm-tab-panel" id="mm-semi">
     <div class="prazo-badge-mm" >📅 Prazo: até 14/07 às 16h (horário de Brasília)</div>
+    <div style="text-align:right;margin-bottom:12px;"><button onclick="preencherAleatorioMM('rsemi')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="phase-header"><div class="phase-badge"></div><h2>PLACARES — SEMIFINAL</h2></div>
     <div class="regras-box">
       <div class="regra-item"><strong>Placar exato</strong> (inclusive empate certo, ex: disse 1×1, foi 1×1): <span class="pts">+3 pts</span></div>
@@ -333,15 +345,13 @@
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
     <div class="jogos-grid" id="jogos-rsemi"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px;gap:12px;">
-      <button onclick="preencherAleatorioMM('rsemi')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
-      <div class="save-section" id="btnSemi" style="text-align:right;"></div>
-    </div>
+    <div class="save-section" id="btnSemi" style="text-align:right;margin-top:16px;"></div>
   </div>
 
   <!-- ══ CARD 6: FINAL ══ -->
   <div class="mm-tab-panel" id="mm-final">
     <div class="prazo-badge-mm" >📅 Prazo: até 18/07 às 18h (horário de Brasília)</div>
+    <div style="text-align:right;margin-bottom:12px;"><button onclick="preencherAleatorioMM('rfinal')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="phase-header"><div class="phase-badge"></div><h2>PLACARES — FINAL</h2></div>
     <div class="regras-box">
       <div class="regra-item"><strong>Placar exato</strong> (inclusive empate certo, ex: disse 1×1, foi 1×1): <span class="pts">+3 pts</span></div>
@@ -351,10 +361,7 @@
       <div class="regra-item pontos-max">🏆 Contam os 16 melhores palpites de todo o mata-mata · Máx. <strong>48 pts</strong> · ⚠️ Placar = tempo normal apenas</div>
     </div>
     <div class="jogos-grid" id="jogos-rfinal"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px;gap:12px;">
-      <button onclick="preencherAleatorioMM('rfinal')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
-      <div class="save-section" id="btnFinal" style="text-align:right;"></div>
-    </div>
+    <div class="save-section" id="btnFinal" style="text-align:right;margin-top:16px;"></div>
   </div>
 </div>
 
@@ -410,8 +417,8 @@ var SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 
 const ALL_TEAMS = ['África do Sul','Alemanha','Arábia Saudita','Argentina','Argélia','Austrália','Áustria','Bélgica','Bósnia e Herzegovina','Brasil','Cabo Verde','Canadá','Catar','Colômbia','Coreia do Sul','Costa do Marfim','Croácia','Curaçao','Egito','Equador','Escócia','Espanha','Estados Unidos','França','Gana','Haiti','Holanda','Inglaterra','Iraque','Irã','Japão','Jordânia','México','Marrocos','Nova Zelândia','Noruega','Panamá','Paraguai','Portugal','RD Congo','República Tcheca','Senegal','Suécia','Suíça','Tunísia','Turquia','Uruguai','Uzbequistão'];
 
-// Favoritas para decepção — ordem alfabética
-const DECEPCAO_TEAMS = ['Alemanha','Argentina','Brasil','Espanha','França','Holanda','Inglaterra','Portugal'];
+// Times para azarões — ordem alfabética
+const AZARAO_TEAMS = ['Alemanha','Argentina','Brasil','Espanha','França','Holanda','Inglaterra','Portugal'];
 
 const SEEDS_LEFT = [
   ['1ºE','3ºs'], ['1ºI','3ºs'],
@@ -559,13 +566,24 @@ function buildBracket(saved) {
     el.classList.toggle('filled', !!cur);
   });
 
-  // Decepções
+  // Zebras MM
+  ['zebra_mm_1','zebra_mm_2','zebra_mm_3','zebra_mm_4'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var cur = saved[id] || '';
+    el.innerHTML = '<option value="">Selecione...</option>' +
+      ALL_TEAMS.map(t => `<option value="${t}"${cur===t?' selected':''}>${t}</option>`).join('');
+    el.classList.toggle('filled', !!cur);
+  });
+  syncZebraMM();
+
+  // Azarões
   ['decepcao1','decepcao2'].forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
     var cur = saved[id] || '';
     el.innerHTML = '<option value="">Selecione...</option>' +
-      DECEPCAO_TEAMS.map(t => `<option value="${t}"${cur===t?' selected':''}>${t}</option>`).join('');
+      AZARAO_TEAMS.map(t => `<option value="${t}"${cur===t?' selected':''}>${t}</option>`).join('');
     el.classList.toggle('filled', !!cur);
   });
 }
@@ -580,6 +598,21 @@ function syncTop4() {
     var opts = el.querySelectorAll('option');
     opts.forEach(function(opt) {
       if (!opt.value) return; // manter "Selecione..."
+      opt.disabled = (escolhidos[opt.value] && escolhidos[opt.value] !== id);
+    });
+  });
+}
+
+function syncZebraMM() {
+  var ids = ['zebra_mm_1','zebra_mm_2','zebra_mm_3','zebra_mm_4'];
+  var escolhidos = {};
+  ids.forEach(function(id){ var v = document.getElementById(id); if(v && v.value) escolhidos[v.value]=id; });
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var opts = el.querySelectorAll('option');
+    opts.forEach(function(opt) {
+      if (!opt.value) return;
       opt.disabled = (escolhidos[opt.value] && escolhidos[opt.value] !== id);
     });
   });
@@ -621,7 +654,20 @@ function preencherAleatorioF2() {
     var el=document.getElementById(id);
     if(el){el.value=rnd();el.classList.add('filled');}
   });
-  var decTeams = DECEPCAO_TEAMS.slice();
+  // Zebras MM aleatório
+  var allTeamsCopy = ALL_TEAMS.slice();
+  ['zebra_mm_1','zebra_mm_2','zebra_mm_3','zebra_mm_4'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){
+      var idx=Math.floor(Math.random()*allTeamsCopy.length);
+      el.value=allTeamsCopy[idx];
+      allTeamsCopy.splice(idx,1);
+      el.classList.add('filled');
+    }
+  });
+  syncZebraMM();
+
+  var decTeams = AZARAO_TEAMS.slice();
   ['decepcao1','decepcao2'].forEach(function(id){
     var el=document.getElementById(id);
     if(el){
@@ -659,7 +705,7 @@ var PRAZOS_MM = {
 function exportarComModal() {
   abrirBolaoModal(async function(participante) {
     var dados = {};
-    document.querySelectorAll('#mm-matamata select').forEach(function(s){ dados[s.id] = s.value; });
+    document.querySelectorAll('#mm-matamata select').forEach(function(s){ if(s.value) dados[s.id] = s.value; });
     var row = {
       bolao_id: participante.bolao.id,
       apelido: participante.apelido,

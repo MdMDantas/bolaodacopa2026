@@ -119,7 +119,7 @@
         Registra o ranking de hoje no histórico. Faça isso após atualizar os resultados do dia.
       </div>
       <button class="btn-foto" id="btnFoto" onclick="tirarFotoDoDia()">
-        📸 FOTO DO DIA
+        📸 FOTO DO DIA — <span id="dataFotoSpan"></span>
       </button>
     </div>
   </div>
@@ -163,6 +163,13 @@ window.onload = function() {
   var u = (typeof AUTH !== 'undefined') ? AUTH.get() : null;
   if (u && u.apelido === ADMIN_APELIDO) {
     document.getElementById('admin-bar').style.display = 'block';
+    // Mostrar data de hoje no botão
+    var hoje = new Date();
+    var d = hoje.getDate().toString().padStart(2,'0');
+    var m = (hoje.getMonth()+1).toString().padStart(2,'0');
+    var y = hoje.getFullYear();
+    var span = document.getElementById('dataFotoSpan');
+    if (span) span.textContent = d+'/'+m+'/'+y;
   }
   // Auto-buscar se tiver código salvo
   if (u && u.bolao_codigo) {
@@ -222,7 +229,8 @@ async function tirarFotoDoDia() {
   var rows = await resp.json();
   if (!rows.length) { toast('⚠️ Nenhuma pontuação encontrada.', '#ffaa44'); return; }
 
-  if (!confirm('Registrar foto do ranking de hoje (' + hoje + ') para "' + bolaoAtual.nome + '"?\n\n' + rows.length + ' participantes serão salvos.')) return;
+  var hojeFormatado = hoje.split('-').reverse().join('/');
+  if (!confirm('📸 FOTO DO DIA — ' + hojeFormatado + '\n\nBolão: ' + bolaoAtual.nome + '\nParticipantes: ' + rows.length + '\n\nIsso vai salvar o ranking de hoje no histórico.\nConfirmar?')) return;
 
   btn.disabled = true;
   btn.textContent = '⏳ Salvando...';
@@ -250,7 +258,8 @@ async function tirarFotoDoDia() {
   btn.innerHTML = '📸 FOTO DO DIA';
 
   if (erros === 0) {
-    toast('✅ Foto do dia ' + hoje + ' salva! (' + rows.length + ' participantes)');
+    var hojeF = hoje.split('-').reverse().join('/');
+    toast('✅ Foto do dia ' + hojeF + ' salva! (' + rows.length + ' participantes)');
     buscar(); // atualiza o gráfico
   } else {
     toast('⚠️ ' + erros + ' erro(s) ao salvar.', '#ff6b6b');
