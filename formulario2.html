@@ -237,11 +237,12 @@
       <div class="regra-item">🥇 <strong>Posição exata:</strong> <span class="pts">+2 pontos</span> &nbsp;·&nbsp; <strong>No Top 4, posição errada:</strong> <span class="pts">+1 ponto</span> &nbsp;·&nbsp; <strong>Fora do Top 4:</strong> <span class="pts">0 pts</span></div>
       <div class="regra-item pontos-max">🏆 Máximo: 4 × 2 pts = <strong>8 pontos</strong></div>
     </div>
+    <div style="text-align:right;margin-bottom:10px;"><button onclick="preencherAleatorioF2()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button></div>
     <div class="top4-grid">
-      <div class="top4-card"><div class="t4-pos">🥇 1º LUGAR — CAMPEÃO</div><div class="sel-wrap"><select id="top4_1" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div></div>
-      <div class="top4-card"><div class="t4-pos">🥈 2º LUGAR — VICE</div><div class="sel-wrap"><select id="top4_2" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div></div>
-      <div class="top4-card"><div class="t4-pos">🥉 3º LUGAR</div><div class="sel-wrap"><select id="top4_3" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div></div>
-      <div class="top4-card"><div class="t4-pos">4️⃣ 4º LUGAR</div><div class="sel-wrap"><select id="top4_4" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div></div>
+      <div class="top4-card"><div class="t4-pos">🥇 1º LUGAR — CAMPEÃO</div><div class="sel-wrap"><select id="top4_1" onchange="updateProgress();markFilled(this);syncTop4()"><option value="">Selecione...</option></select></div></div>
+      <div class="top4-card"><div class="t4-pos">🥈 2º LUGAR — VICE</div><div class="sel-wrap"><select id="top4_2" onchange="updateProgress();markFilled(this);syncTop4()"><option value="">Selecione...</option></select></div></div>
+      <div class="top4-card"><div class="t4-pos">🥉 3º LUGAR</div><div class="sel-wrap"><select id="top4_3" onchange="updateProgress();markFilled(this);syncTop4()"><option value="">Selecione...</option></select></div></div>
+      <div class="top4-card"><div class="t4-pos">4️⃣ 4º LUGAR</div><div class="sel-wrap"><select id="top4_4" onchange="updateProgress();markFilled(this);syncTop4()"><option value="">Selecione...</option></select></div></div>
     </div>
 
     <div class="divider"></div>
@@ -255,18 +256,15 @@
       <div class="especial-card decep">
         <div class="card-icon">💣</div><div class="card-title">Decepção 1</div>
         <div class="card-desc">Favorito que cairá antes do esperado.</div>
-        <div class="sel-wrap"><select id="decepcao1" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
+        <div class="sel-wrap"><select id="decepcao1" onchange="updateProgress();markFilled(this);syncDecep()"><option value="">Selecione...</option></select></div>
       </div>
       <div class="especial-card decep">
         <div class="card-icon">💣</div><div class="card-title">Decepção 2</div>
         <div class="card-desc">Favorito que cairá antes do esperado.</div>
-        <div class="sel-wrap"><select id="decepcao2" onchange="updateProgress();markFilled(this)"><option value="">Selecione...</option></select></div>
+        <div class="sel-wrap"><select id="decepcao2" onchange="updateProgress();markFilled(this);syncDecep()"><option value="">Selecione...</option></select></div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px;gap:12px;">
-      <button onclick="preencherAleatorioF2()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
-      <div class="save-section" id="btnMataMata" style="text-align:right;"></div>
-    </div>
+    <div class="save-section" id="btnMataMata" style="text-align:right;margin-top:16px;"></div>
   </div>
 
   <!-- ══ CARD 2: 16 AVOS ══ -->
@@ -569,6 +567,35 @@ function buildBracket(saved) {
     el.innerHTML = '<option value="">Selecione...</option>' +
       DECEPCAO_TEAMS.map(t => `<option value="${t}"${cur===t?' selected':''}>${t}</option>`).join('');
     el.classList.toggle('filled', !!cur);
+  });
+}
+
+function syncTop4() {
+  var ids = ['top4_1','top4_2','top4_3','top4_4'];
+  var escolhidos = {};
+  ids.forEach(function(id){ var v = document.getElementById(id).value; if(v) escolhidos[v]=id; });
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    var cur = el.value;
+    var opts = el.querySelectorAll('option');
+    opts.forEach(function(opt) {
+      if (!opt.value) return; // manter "Selecione..."
+      opt.disabled = (escolhidos[opt.value] && escolhidos[opt.value] !== id);
+    });
+  });
+}
+
+function syncDecep() {
+  var ids = ['decepcao1','decepcao2'];
+  var escolhidos = {};
+  ids.forEach(function(id){ var v = document.getElementById(id).value; if(v) escolhidos[v]=id; });
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    var opts = el.querySelectorAll('option');
+    opts.forEach(function(opt) {
+      if (!opt.value) return;
+      opt.disabled = (escolhidos[opt.value] && escolhidos[opt.value] !== id);
+    });
   });
 }
 

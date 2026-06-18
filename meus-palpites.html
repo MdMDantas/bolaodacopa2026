@@ -567,7 +567,9 @@ function renderMataMata() {
     return;
   }
 
-  var d = _palpite2;
+  // dados_mm contém champion, top4_1..4, decepcao1..2, bracket selects
+  var raw = _palpite2;
+  var d = (raw.dados_mm && typeof raw.dados_mm === 'object') ? raw.dados_mm : raw;
   var html = '';
 
   // Campeão
@@ -612,6 +614,28 @@ function renderMataMata() {
   if (d.decepcaoMata) {
     html += '<div class="section-card"><div class="section-card-header"><span class="section-card-title">😬 Decepção do Mata-mata</span></div>';
     html += '<div class="section-card-body"><div class="mata-jogo"><div class="mata-time">'+d.decepcaoMata+'</div></div></div></div>';
+  }
+
+  // Top 4
+  var top4Labels = ['🥇 Campeão','🥈 Vice','🥉 3º Lugar','4️⃣ 4º Lugar'];
+  var top4Ids = ['top4_1','top4_2','top4_3','top4_4'];
+  var top4Vals = top4Ids.map(function(id){ return d[id]||''; });
+  if (top4Vals.some(function(v){ return v; })) {
+    html += '<div class="section-card"><div class="section-card-header"><span class="section-card-title">🏅 Top 4 Final</span></div><div class="section-card-body">';
+    top4Ids.forEach(function(id, i) {
+      var val = d[id]||'';
+      html += '<div class="mata-jogo"><div class="mata-time'+(val?'':' empty')+'">'+top4Labels[i]+': '+(val||'Não escolhido')+'</div></div>';
+    });
+    html += '</div></div>';
+  }
+
+  // Decepções
+  var decep1 = d['decepcao1']||'', decep2 = d['decepcao2']||'';
+  if (decep1 || decep2) {
+    html += '<div class="section-card"><div class="section-card-header"><span class="section-card-title">💣 Decepções</span></div><div class="section-card-body">';
+    if (decep1) html += '<div class="mata-jogo"><div class="mata-time">💣 Decepção 1: '+decep1+'</div></div>';
+    if (decep2) html += '<div class="mata-jogo"><div class="mata-time">💣 Decepção 2: '+decep2+'</div></div>';
+    html += '</div></div>';
   }
 
   el.innerHTML = html;
