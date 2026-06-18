@@ -665,13 +665,19 @@ function syncDecep() {
 function markFilled(sel) { sel.classList.toggle('filled', !!sel.value); }
 
 function updateProgress() {
-  var sels = Array.from(document.querySelectorAll('select'));
-  var inputs = Array.from(document.querySelectorAll('input[type="number"]'));
+  // Descobrir aba ativa
+  var activePanel = document.querySelector('.mm-tab-panel.active');
+  if (!activePanel) return;
+
+  var sels = Array.from(activePanel.querySelectorAll('select'));
+  var inputs = Array.from(activePanel.querySelectorAll('input[type="number"]'));
   var total = sels.length + inputs.length;
   if (!total) return;
+
   var filledSels = sels.filter(function(s){ return !!s.value; }).length;
   var filledInps = inputs.filter(function(i){ return i.value !== ''; }).length;
   var pct = Math.round(((filledSels + filledInps) / total) * 100);
+
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('progressPct').textContent = pct + '%';
 }
@@ -948,6 +954,8 @@ function switchMMTab(id, btn) {
   // Mostrar barra de recuperar/aleatório só na aba mata-mata
   var barra = document.getElementById('btnBarraMM');
   if (barra) barra.style.display = (id === 'mm-matamata') ? 'flex' : 'none';
+  // Atualizar barra de progresso para a aba ativa
+  updateProgress();
 }
 </script>
 <script src="config.js"></script>
