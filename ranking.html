@@ -410,26 +410,23 @@ async function carregarRanking(bolaoId, bolaoNome) {
       return;
     }
 
-    var posClasses = ['gold','silver','bronze'];
+    // ── RENDER ──────────────────────────────────────────────────────
+    var GRID = '44px 1fr 60px 50px 50px 60px 60px 50px 50px 50px 58px 64px 60px 50px 52px 52px 52px';
     var html = '<div class="ranking-card" style="overflow-x:visible;width:100%;">';
-    // Colunas de dias do histórico
-    var nDias = diasHist.length;
-    var colsDias = diasHist.map(function(d,i){ return '52px'; }).join(' ');
+    var dataHoje = new Date().toISOString().slice(0,10).split('-').reverse().join('/');
+    html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO ATUAL — '+dataHoje+'</span><span class="ranking-update" style="color:#00c44f;">🟢 Ao vivo</span></div>';
 
-    // HEADER — duas seções de colunas
-    var GRID = '44px 1fr ' + (nDias > 0 ? colsDias + ' ' : '') + '60px 50px 50px 60px 60px 50px 50px 50px 58px 64px 60px 50px 52px 52px 52px 56px 60px';
+    // Header colunas
     html += '<div style="background:var(--bg3);padding:6px 12px;">';
     html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:8px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:4px 0;">';
     html += '<div></div><div></div>';
-    if (nDias > 0) html += '<div style="grid-column:span '+nDias+';text-align:center;color:#7a9fd4;border-bottom:2px solid rgba(122,159,212,0.3);padding-bottom:3px;">HISTÓRICO</div>';
-    html += '<div style="grid-column:span 7;text-align:center;color:var(--gold);border-bottom:2px solid rgba(255,223,0,0.4);padding-bottom:3px;font-size:8px;">FASE DE GRUPOS</div>';
+    html += '<div style="grid-column:span 7;text-align:center;color:var(--gold);border-bottom:2px solid rgba(255,223,0,0.4);padding-bottom:3px;">FASE DE GRUPOS</div>';
     html += '<div></div>';
     html += '<div style="grid-column:span 6;text-align:center;color:var(--muted);border-bottom:2px solid rgba(122,159,212,0.3);padding-bottom:3px;">MATA-MATA</div>';
-    html += '<div></div><div></div>';
+    html += '<div></div>';
     html += '</div>';
     html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:8px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted);padding:4px 0 6px;">';
     html += '<div>Pos.</div><div>Participante</div>';
-    diasHist.forEach(function(d,i){ html += '<div style="text-align:center;color:'+(i===nDias-1?'var(--gold)':'var(--muted)')+'">★ D'+(i+1)+'</div>'; });
     html += '<div style="text-align:center">Grupos</div>';
     html += '<div style="text-align:center">Zebras</div>';
     html += '<div style="text-align:center">Terceiros</div>';
@@ -448,98 +445,49 @@ async function carregarRanking(bolaoId, bolaoNome) {
 
     // Calcular posições com empate
     var posicoes = [];
-    var posAtual2 = 1;
+    var posAtual = 1;
     for (var ii = 0; ii < ranking.length; ii++) {
       if (ii > 0 && ranking[ii].total === ranking[ii-1].total) {
         posicoes.push(posicoes[ii-1]);
       } else {
-        posAtual2 = ii + 1;
-        posicoes.push(posAtual2);
+        posAtual = ii + 1;
+        posicoes.push(posAtual);
       }
     }
 
-    // Posições anteriores para VAR POS
-    var hoje2 = new Date().toISOString().slice(0,10);
-    var diasAnt = diasHist.filter(function(d){ return d < hoje2; });
-    var diaAnt = diasAnt.length ? diasAnt[diasAnt.length-1] : null;
-    var posAntMap = {};
-    if (diaAnt) {
-      var snapAnt = ranking.map(function(r){
-        return { apelido: r.apelido, total: (historicoMap[r.apelido]||{})[diaAnt]||0 };
-      }).sort(function(a,b){ return b.total-a.total; });
-      var posA = 1;
-      snapAnt.forEach(function(r,i){
-        if (i>0 && r.total===snapAnt[i-1].total) posAntMap[r.apelido]=posAntMap[snapAnt[i-1].apelido];
-        else { posA=i+1; posAntMap[r.apelido]=posA; }
-      });
-    }
-
-    var dataHoje2 = hoje2.split('-').reverse().join('/');
-    html = html.replace('CLASSIFICAÇÃO — '+(bolaoNome||''), 'CLASSIFICAÇÃO ATUAL — '+dataHoje2);
-
-    ranking.forEach(function(r,i){
+    ranking.forEach(function(r, i) {
       var pos = posicoes[i];
-      var cls = pos===1?'gold':pos===2?'silver':pos===3?'bronze':'other';
+      var numColor = pos===1?'var(--gold)':pos===2?'#aaaaaa':pos===3?'#cd7f32':'var(--muted)';
 
       var temGrupos     = fase1Grupos[r.apelido]      ? '✅' : '❌';
-      var temPlacares   = fase1Placares[r.apelido]    ? '✅' : '❌';
       var temChaveamento= fase2Chaveamento[r.apelido] ? '✅' : '❌';
-      var temPlacaresMM = fase2Chaveamento[r.apelido] ? '✅' : '❌';
-
-      var pGrupos     = r.pts_grupos      !== undefined ? r.pts_grupos      : 0;
-      var pZebras     = r.pts_zebras      !== undefined ? r.pts_zebras      : 0;
-      var pTerceiros  = r.pts_terceiros   !== undefined ? r.pts_terceiros   : 0;
-      var pPlacares   = r.pts_placares    !== undefined ? r.pts_placares    : 0;
-      var pChaveamento= r.pts_chaveamento !== undefined ? r.pts_chaveamento : 0;
-      var pPlacaresMM = r.pts_placares_mata!== undefined? r.pts_placares_mata: 0;
-
-      var temR1  = fase1PlacR1[r.apelido] ? '✅' : '❌';
-      var temR2  = fase1PlacR2[r.apelido] ? '✅' : '❌';
-      var temR3  = fase1PlacR3[r.apelido] ? '✅' : '❌';
+      var temR1  = fase1PlacR1[r.apelido]   ? '✅' : '❌';
+      var temR2  = fase1PlacR2[r.apelido]   ? '✅' : '❌';
+      var temR3  = fase1PlacR3[r.apelido]   ? '✅' : '❌';
       var tem16avos  = fase2R16[r.apelido]      ? '✅' : '❌';
       var temOitavas = fase2Oitavas[r.apelido]  ? '✅' : '❌';
       var temQuartas = fase2Quartas[r.apelido]  ? '✅' : '❌';
       var temSemi    = fase2Semi[r.apelido]      ? '✅' : '❌';
       var temFinal   = fase2Final[r.apelido]     ? '✅' : '❌';
-      var pR1  = r.pts_placares_r1   !== undefined ? r.pts_placares_r1   : 0;
-      var pR2  = r.pts_placares_r2   !== undefined ? r.pts_placares_r2   : 0;
-      var pR3  = r.pts_placares_r3   !== undefined ? r.pts_placares_r3   : 0;
-      var p16avos  = r.pts_16avos    !== undefined ? r.pts_16avos    : 0;
-      var pOitavas = r.pts_oitavas   !== undefined ? r.pts_oitavas   : 0;
-      var pQuartas = r.pts_quartas   !== undefined ? r.pts_quartas   : 0;
-      var pSemi    = r.pts_semi      !== undefined ? r.pts_semi      : 0;
-      var pFinal   = r.pts_final     !== undefined ? r.pts_final     : 0;
 
-      var totalGrp = pGrupos + pZebras + pTerceiros + pR1 + pR2 + pR3;
-      var totalMM  = pChaveamento + p16avos + pOitavas + pQuartas + pSemi + pFinal;
-      var pos = posicoes[i];
-      var cls = pos===1?'gold':pos===2?'silver':pos===3?'bronze':'other';
-
-      // Tendência
-      var tendHtml = '<span style="color:var(--muted)">—</span>';
-      if (diaAnt && historicoMap[r.apelido] && historicoMap[r.apelido][diaAnt] !== undefined) {
-        var diffPts = r.total - (historicoMap[r.apelido][diaAnt]||0);
-        if (diffPts > 0) tendHtml = '<span style="color:#00c44f;font-weight:700;">▲'+diffPts+'</span>';
-        else if (diffPts < 0) tendHtml = '<span style="color:#ff6b6b;font-weight:700;">▼'+Math.abs(diffPts)+'</span>';
-      }
-
-      // Variação de posição
-      var varPosHtml = '<span style="color:var(--muted)">—</span>';
-      if (posAntMap[r.apelido] !== undefined) {
-        var diffPos = posAntMap[r.apelido] - pos;
-        if (diffPos > 0) varPosHtml = '<span style="color:#00c44f;font-weight:700;">▲'+diffPos+'</span>';
-        else if (diffPos < 0) varPosHtml = '<span style="color:#ff6b6b;font-weight:700;">▼'+Math.abs(diffPos)+'</span>';
-      }
+      var pGrupos    = r.pts_grupos      || 0;
+      var pZebras    = r.pts_zebras      || 0;
+      var pTerceiros = r.pts_terceiros   || 0;
+      var pR1        = r.pts_placares_r1 || 0;
+      var pR2        = r.pts_placares_r2 || 0;
+      var pR3        = r.pts_placares_r3 || 0;
+      var pChaveamento = r.pts_chaveamento || 0;
+      var p16avos    = r.pts_16avos    || 0;
+      var pOitavas   = r.pts_oitavas   || 0;
+      var pQuartas   = r.pts_quartas   || 0;
+      var pSemi      = r.pts_semi      || 0;
+      var pFinal     = r.pts_final     || 0;
+      var totalGrp   = pGrupos + pZebras + pTerceiros + pR1 + pR2 + pR3;
+      var totalMM    = pChaveamento + p16avos + pOitavas + pQuartas + pSemi + pFinal;
 
       html += '<div style="display:grid;grid-template-columns:'+GRID+';align-items:center;padding:8px 12px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;">';
-      html += '<div class="ranking-pos '+cls+'">'+pos+'<sup>º</sup></div>';
+      html += '<div class="ranking-pos" style="color:'+numColor+'">'+pos+'<sup>º</sup></div>';
       html += '<div class="ranking-apelido" style="display:flex;align-items:center;gap:8px;">'+r.apelido+'<button onclick="gerarResumo(\''+r.apelido+'\',\''+bolaoId+'\')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.25);color:#ffdf00;border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:0.5px;white-space:nowrap;">📄 RESUMO</button></div>';
-      // Colunas de dias históricos
-      diasHist.forEach(function(d, di) {
-        var val = (historicoMap[r.apelido]||{})[d];
-        var isUltimo = di === nDias - 1;
-        html += '<div style="text-align:center;font-size:'+(isUltimo?'14':'12')+'px;font-weight:'+(isUltimo?'700':'400')+';color:'+(isUltimo?'var(--gold)':'var(--muted)')+'">' + (val !== undefined ? val : '—') + '</div>';
-      });
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pGrupos+' pts</div><div style="font-size:15px;">'+temGrupos+'</div></div>';
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pZebras+' pts</div></div>';
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pTerceiros+' pts</div></div>';
@@ -554,8 +502,6 @@ async function carregarRanking(bolaoId, bolaoNome) {
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pSemi+' pts</div><div style="font-size:15px;">'+temSemi+'</div></div>';
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pFinal+' pts</div><div style="font-size:15px;">'+temFinal+'</div></div>';
       html += '<div class="ranking-pts total">'+totalMM+'</div>';
-      html += '<div style="text-align:center;">'+tendHtml+'</div>';
-      html += '<div style="text-align:center;">'+varPosHtml+'</div>';
       html += '</div>';
     });
 

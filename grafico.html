@@ -335,9 +335,22 @@ function renderGrafico(bolao, historico) {
   diasSet.forEach(function(d, i){ html += '<div style="text-align:center">' + (i===HOJE_IDX?'★ ':'') + 'D'+(i+1)+'</div>'; });
   html += '<div style="text-align:center">TEND.</div></div>';
 
+  // Calcular posições com empate
+  var posicoesGraf = [];
+  var posAtualGraf = 1;
+  for (var gi = 0; gi < ordenado.length; gi++) {
+    if (gi > 0 && ordenado[gi].pts[HOJE_IDX] === ordenado[gi-1].pts[HOJE_IDX]) {
+      posicoesGraf.push(posicoesGraf[gi-1]);
+    } else {
+      posAtualGraf = gi + 1;
+      posicoesGraf.push(posAtualGraf);
+    }
+  }
+
   ordenado.forEach(function(s, idx) {
-    var numColor = idx===0?'#ffdf00':idx===1?'#aaa':idx===2?'#cd7f32':'#7a9fd4';
-    var medal = idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':'';
+    var pos = posicoesGraf[idx];
+    var numColor = pos===1?'#ffdf00':pos===2?'#aaa':pos===3?'#cd7f32':'#7a9fd4';
+    var medal = '';
     var curr = s.pts[HOJE_IDX] || 0;
     var prev = s.pts[HOJE_IDX-1] || 0;
     var diff = curr - prev;
@@ -345,7 +358,7 @@ function renderGrafico(bolao, historico) {
               : diff<0?'<span style="color:#ff6b6b;font-size:12px;">▼'+Math.abs(diff)+'</span>'
               : '<span style="color:#7a9fd4;font-size:12px;">—</span>';
     html += '<div class="pos-row" style="grid-template-columns:' + colsTemplate + '">';
-    html += '<div class="pos-num" style="color:' + numColor + '">' + (medal||(idx+1)+'º') + '</div>';
+    html += '<div class="pos-num" style="color:' + numColor + '">' + pos + '<sup>º</sup></div>';
     html += '<div class="pos-nome" style="color:' + s.cor + '">' + s.nome + '</div>';
     s.pts.forEach(function(v,i){ html += '<div class="pos-pts'+(i===HOJE_IDX?' hoje':'')+'">'+( v!==null?v:'—')+'</div>'; });
     html += '<div class="trend">'+trend+'</div></div>';
