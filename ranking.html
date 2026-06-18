@@ -521,6 +521,404 @@ async function exportarTodosPDF(bolaoId) {
   try {
     var H2 = {'apikey':SK,'Authorization':'Bearer '+SK};
 
+    // Buscar tudo de uma vez
+    var rb = await fetch(SU+'/rest/v1/boloes?id=eq.'+bolaoId+'&select=nome',{headers:H2});
+    var bolaoNome = rb.ok ? ((await rb.json())[0]||{}).nome||'' : '';
+
+    var rrank = await fetch(SU+'/rest/v1/pontuacoes?bolao_id=eq.'+bolaoId+'&select=apelido,total&order=total.desc',{headers:H2});
+    var ranking = rrank.ok ? await rrank.json() : [];
+    if (!ranking.length) { alert('Nenhum participante encontrado.'); return; }
+
+    var rp = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&select=*&order=criado_em.asc',{headers:H2});
+    var todosPalpites = rp.ok ? await rp.json() : [];
+
+    var rr = await fetch(SU+'/rest/v1/resultados?select=*',{headers:H2});
+    var resultados = rr.ok ? await rr.json() : [];
+
+    // Montar mapa por apelido — mesmo merge do gerarResumo
+    var p1Map = {};
+    todosPalpites.forEach(function(x) {
+      if (!x.apelido) return;
+      if (!p1Map[x.apelido]) p1Map[x.apelido] = { placares: {} };
+      var p = p1Map[x.apelido];
+      Object.keys(x).forEach(function(k) {
+        if (k === 'placares') {
+          var pl = x[k];
+          if (pl) {
+            if (typeof pl==='string'){try{pl=JSON.parse(pl);}catch(e){pl={};}}
+            if (!p.placares) p.placares = {};
+            Object.assign(p.placares, pl);
+          }
+        } else if (x[k]!==null && x[k]!==undefined && x[k]!=='') {
+          p[k] = x[k];
+        }
+      });
+    });
+
+    var now = new Date();
+    var dataGeracao = now.toLocaleDateString('pt-BR')+' às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+
+    // CSS idêntico ao gerarResumo + page-break entre jogadores
+    var css = '<style>body{font-family:Arial,sans-serif;color:#111;margin:0;padding:0;font-size:11px;}.page{max-width:900px;margin:0 auto;padding:20px;}.jogador{page-break-after:always;}.jogador:last-child{page-break-after:auto;}.topo{background:#003087;color:#fff;padding:16px 20px;border-radius:8px 8px 0 0;display:flex;justify-content:space-between;align-items:center;}.topo-nome{font-size:22px;font-weight:900;letter-spacing:2px;color:#ffdf00;}.topo-sub{font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;}.topo-bolao{text-align:right;font-size:11px;color:rgba(255,255,255,0.8);}.secao{margin-top:16px;}.secao-titulo{background:#003087;color:#ffdf00;font-weight:700;font-size:10px;letter-spacing:2px;padding:6px 10px;text-transform:uppercase;border-radius:4px;margin-bottom:8px;}.grid2{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}.grupo-box{border:1px solid #ddd;border-radius:6px;overflow:hidden;}.grupo-label{background:#003087;color:#ffdf00;font-size:9px;font-weight:700;letter-spacing:1px;padding:4px 8px;text-transform:uppercase;}.grupo-cols{display:grid;grid-template-columns:1fr 1fr;}.col-label{background:#f0f4ff;font-size:8px;font-weight:700;color:#003087;padding:3px 6px;text-align:center;letter-spacing:1px;border-top:1px solid #e0e8ff;}.col-item{padding:3px 6px;font-size:9px;display:flex;align-items:center;gap:3px;border-top:1px solid #eee;}.pos{font-weight:700;color:#003087;min-width:14px;font-size:8px;}.pts-badge{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:auto;}.pts-ok{background:#e6f9ee;color:#00a050;}.pts-zero{background:#fee;color:#cc0000;}table.placares{width:100%;border-collapse:collapse;}table.placares th{background:#f0f4ff;color:#003087;font-size:9px;font-weight:700;padding:4px 6px;text-align:left;letter-spacing:1px;}table.placares td{padding:4px 6px;border-bottom:1px solid #eee;font-size:10px;}table.placares tr:last-child td{border-bottom:none;}.pts-cell{font-weight:700;text-align:center;}.pts3{color:#00a050;}.pts2{color:#2266cc;}.pts1{color:#cc8800;}.pts0{color:#cc0000;}.zebra-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}.zebra-item{border:1px solid #ddd;border-radius:6px;padding:6px 10px;}.zebra-nome{font-weight:700;font-size:11px;}.zebra-pos{font-size:10px;color:#666;margin-top:2px;}.resumo-total{background:#003087;color:#fff;border-radius:6px;padding:12px 16px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:16px;text-align:center;}.total-item-label{font-size:9px;color:rgba(255,255,255,0.6);letter-spacing:1px;text-transform:uppercase;}.total-item-val{font-size:18px;font-weight:900;color:#ffdf00;margin-top:2px;}.rodada-titulo{font-size:9px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin:8px 0 4px;padding:3px 6px;background:#f8f8f8;border-left:3px solid #003087;}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}</style>';
+
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Palpites — '+bolaoNome+'</title>'+css+'</head><body><div class="page">';
+
+    ranking.forEach(function(r) {
+      var apelido = r.apelido;
+      var p1 = p1Map[apelido] || {};
+      var placares = p1.placares || {};
+      if (typeof placares==='string'){try{placares=JSON.parse(placares);}catch(e){placares={};}}
+
+      html += '<div class="jogador">';
+
+      // ── Cabeçalho ── (idêntico ao gerarResumo)
+      html += '<div class="topo"><div><div class="topo-nome">'+apelido+'</div><div class="topo-sub">Resumo de palpites — Copa do Mundo 2026</div></div><div class="topo-bolao"><div>'+bolaoNome+'</div><div style="margin-top:4px;color:rgba(255,255,255,0.5);">Gerado em '+dataGeracao+'</div></div></div>';
+
+      // ── Grupos ── (idêntico ao gerarResumo)
+      var pts_grupos=0;
+      html += '<div class="secao"><div class="secao-titulo">Classificação dos Grupos</div><div class="grid2">';
+      Object.keys(GRUPOS_DISPLAY_R).forEach(function(g){
+        var tabelaReal=calcTabelaR(g,resultados);
+        html += '<div class="grupo-box"><div class="grupo-label">Grupo '+g+'</div>';
+        html += '<div class="grupo-cols"><div class="col-label">Palpite</div><div class="col-label">Hoje</div></div>';
+        for(var pos=1;pos<=4;pos++){
+          var tp=p1['g'+g.toLowerCase()+'_'+pos]||p1['g'+g+'_'+pos]||'—';
+          var tr=tabelaReal[pos-1]?tabelaReal[pos-1].t:'—';
+          var posReal=tabelaReal.findIndex(function(t){return t.t===tp;});
+          var acertouPos=(posReal!==-1&&posReal+1===pos&&tp!=='—');
+          var acertouClass=(posReal!==-1&&posReal<2&&pos<=2&&tp!=='—');
+          if(acertouPos) pts_grupos+=1;
+          if(acertouClass) pts_grupos+=1;
+          html += '<div class="grupo-cols">';
+          html += '<div class="col-item"><span class="pos">'+pos+'</span>'+tp+'</div>';
+          var badges=acertouPos?'<span class="pts-badge pts-ok">+1 pos</span>':'';
+          if(acertouClass) badges+='<span class="pts-badge pts-ok">+1 class</span>';
+          html += '<div class="col-item"><span class="pos">'+pos+'</span>'+tr+badges+'</div>';
+          html += '</div>';
+        }
+        html += '</div></div>';
+      });
+      html += '</div></div>';
+
+      // ── Zebras ── (idêntico ao gerarResumo)
+      var pts_zebras=0;
+      html += '<div class="secao"><div class="secao-titulo">Zebras</div><div class="zebra-row">';
+      for(var zi=1;zi<=4;zi++){
+        var zebra=p1['zebra'+zi]||'—';
+        var posZ=-1,grupoZ=null;
+        if(zebra!=='—'){
+          Object.keys(GRUPOS_DISPLAY_R).forEach(function(g){if(GRUPOS_DISPLAY_R[g].indexOf(zebra)>=0)grupoZ=g;});
+          if(grupoZ){var tabZ=calcTabelaR(grupoZ,resultados);posZ=tabZ.findIndex(function(t){return t.t===zebra;});}
+        }
+        var zPts=0,zDesc='Aguardando';
+        if(posZ===0){zPts=6;zDesc='1º lugar +6pts';}
+        else if(posZ===1){zPts=4;zDesc='2º lugar +4pts';}
+        else if(posZ===2){zPts=2;zDesc='3º lugar +2pts';}
+        else if(posZ>=3){zPts=0;zDesc='Eliminada +0pts';}
+        pts_zebras+=zPts;
+        html += '<div class="zebra-item"><div class="zebra-nome">'+zebra+'</div><div class="zebra-pos">'+zDesc+'</div></div>';
+      }
+      html += '</div></div>';
+
+      // ── Melhores Terceiros ── (idêntico ao gerarResumo)
+      var pts_terceiros=0;
+      html += '<div class="secao"><div class="secao-titulo">Melhores Terceiros</div>';
+      var todosTerceirosR=[];
+      Object.keys(GRUPOS_DISPLAY_R).forEach(function(g){
+        var tab=calcTabelaR(g,resultados);
+        if(tab[2]&&tab[2].j>0) todosTerceirosR.push({t:tab[2].t,p:tab[2].p,sg:tab[2].sg,gf:tab[2].gf});
+      });
+      todosTerceirosR.sort(function(a,b){if(b.p!==a.p)return b.p-a.p;if(b.sg!==a.sg)return b.sg-a.sg;return b.gf-a.gf;});
+      var oitoMelhoresR=todosTerceirosR.slice(0,8).map(function(x){return x.t;});
+      if(oitoMelhoresR.length===0){
+        html += '<div style="color:#888;font-size:11px;padding:8px;">Aguardando fase de grupos terminar.</div>';
+      } else {
+        html += '<table class="placares"><thead><tr><th>Posição</th><th>Seu palpite</th><th>Melhor terceiro real</th><th>Resultado</th><th>Pts</th></tr></thead><tbody>';
+        for(var ti=1;ti<=8;ti++){
+          var tPalpite=p1['t'+ti]||'—';
+          var tReal=oitoMelhoresR[ti-1]||'—';
+          var posRealT=oitoMelhoresR.indexOf(tPalpite);
+          var tPts=0,tDesc='Não avançou';
+          if(posRealT!==-1){if(posRealT+1===ti){tPts=2;tDesc='Posição exata ✓';}else{tPts=1;tDesc='Avançou (posição errada)';}}
+          pts_terceiros+=tPts;
+          var cls=tPts===2?'pts3':tPts===1?'pts2':'pts0';
+          html += '<tr><td style="text-align:center;font-weight:700;">'+ti+'º</td><td style="font-weight:700;">'+tPalpite+'</td><td>'+tReal+'</td><td>'+tDesc+'</td><td class="pts-cell '+cls+'">'+tPts+'</td></tr>';
+        }
+        html += '</tbody></table>';
+      }
+      html += '</div>';
+
+      // ── Placares ── (idêntico ao gerarResumo)
+      var pts_placares=0,ptsLista=[];
+      html += '<div class="secao"><div class="secao-titulo">Placares (top 24 contam)</div><table class="placares"><thead><tr><th>Jogo</th><th>Palpite</th><th>Resultado</th><th>Descrição</th><th>Pts</th></tr></thead><tbody>';
+      ['R1','R2','R3'].forEach(function(rod){
+        var rLabel=rod==='R1'?'Rodada 1':rod==='R2'?'Rodada 2':'Rodada 3';
+        html += '<tr><td colspan="5" class="rodada-titulo">'+rLabel+'</td></tr>';
+        Object.keys(JOGOS_R[rod]).forEach(function(g){
+          JOGOS_R[rod][g].forEach(function(jogo,i){
+            var key=rod+'_'+g+'_'+i;
+            var res=resultados.find(function(x){return x.api_id===key;});
+            var pa=placares['placar_'+key+'_a'],pb=placares['placar_'+key+'_b'];
+            var palpiteStr=(pa!==undefined&&pa!==null)?pa+' × '+pb:'—';
+            var realStr=res&&res.gols_a!==null?res.gols_a+' × '+res.gols_b:'Aguardando';
+            var calc={pts:0,desc:'Aguardando resultado'};
+            if(res&&res.gols_a!==null&&pa!==undefined&&pa!==null) calc=calcPlacarDesc(pa,pb,res.gols_a,res.gols_b);
+            else if(pa===undefined||pa===null) calc={pts:0,desc:'Não apostado'};
+            ptsLista.push(calc.pts);
+            var cls=calc.pts===3?'pts3':calc.pts===2?'pts2':calc.pts===1?'pts1':'pts0';
+            html += '<tr><td>'+jogo[0]+' × '+jogo[1]+'</td><td style="text-align:center;font-weight:700;">'+palpiteStr+'</td><td style="text-align:center;font-weight:700;">'+realStr+'</td><td>'+calc.desc+'</td><td class="pts-cell '+cls+'">'+calc.pts+'</td></tr>';
+          });
+        });
+      });
+      ptsLista.sort(function(a,b){return b-a;});
+      pts_placares=ptsLista.slice(0,24).reduce(function(s,v){return s+v;},0);
+      html += '</tbody></table></div>';
+
+      // ── Total ── (idêntico ao gerarResumo)
+      html += '<div class="resumo-total" style="grid-template-columns:repeat(5,1fr);">';
+      html += '<div><div class="total-item-label">Grupos</div><div class="total-item-val">'+pts_grupos+'</div></div>';
+      html += '<div><div class="total-item-label">Zebras</div><div class="total-item-val">'+pts_zebras+'</div></div>';
+      html += '<div><div class="total-item-label">Terceiros</div><div class="total-item-val">'+pts_terceiros+'</div></div>';
+      html += '<div><div class="total-item-label">Placares</div><div class="total-item-val">'+pts_placares+'</div></div>';
+      html += '<div><div class="total-item-label" style="color:#ffdf00;">Total Fase Grupos</div><div class="total-item-val" style="font-size:22px;">'+(pts_grupos+pts_zebras+pts_terceiros+pts_placares)+'</div></div>';
+      html += '</div>';
+
+      html += '</div>'; // fim .jogador
+    });
+
+    html += '</div></body></html>';
+
+    var win = window.open('','_blank');
+    win.document.write(html);
+    win.document.close();
+    setTimeout(function(){ win.print(); }, 800);
+
+  } catch(e) {
+    console.error(e);
+    alert('Erro ao gerar PDF: ' + e.message);
+  }
+
+  if (btn) { btn.textContent = '📄 EXPORTAR PDF'; btn.disabled = false; }
+}
+
+
+async function init() {
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('bolao')) {
+    document.getElementById('codigoRanking').value = params.get('bolao');
+    buscarBolaoRanking();
+  }
+}
+
+async function buscarBolaoRanking() {
+  var codigo = document.getElementById('codigoRanking').value.trim().toUpperCase();
+  if (!codigo) return;
+  var resp = await fetch(SU+'/rest/v1/boloes?codigo=eq.'+encodeURIComponent(codigo)+'&select=id,nome',{headers:H});
+  if (!resp.ok) { document.getElementById('rankingArea').innerHTML='<div class="ranking-card"><div class="empty"><strong>Bolão não encontrado</strong>Verifique o código e tente novamente.</div></div>'; return; }
+  var boloes = await resp.json();
+  if (!boloes.length) { document.getElementById('rankingArea').innerHTML='<div class="ranking-card"><div class="empty"><strong>Bolão não encontrado</strong>Verifique o código e tente novamente.</div></div>'; return; }
+  carregarRanking(boloes[0].id, boloes[0].nome);
+}
+
+async function carregarRanking(bolaoId, bolaoNome) {
+  if (!bolaoId) return;
+  var area = document.getElementById('rankingArea');
+  area.innerHTML = '<div class="loading">Carregando...</div>';
+  try {
+    // Buscar palpites fase 1 — verificar grupos E placares separadamente
+    var r2 = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&select=apelido,ga_1,placares&order=criado_em.asc',{headers:H});
+    var fase1Grupos = {};
+    var fase1Placares = {};
+    var fase1PlacR1 = {};
+    var fase1PlacR2 = {};
+    var fase1PlacR3 = {};
+    if (r2.ok) {
+      var p1 = await r2.json();
+      p1.forEach(function(x){
+        if (!x.apelido) return;
+        // Grupos: só marca se ga_1 tem valor
+        if (x['ga_1']) fase1Grupos[x.apelido] = true;
+        // Placares: checar cada rodada separadamente
+        var pl = x.placares;
+        if (pl) {
+          if (typeof pl === 'string') { try { pl = JSON.parse(pl); } catch(e){ pl = {}; } }
+          if (typeof pl === 'object') {
+            var keys = Object.keys(pl);
+            if (keys.some(function(k){ return k.indexOf('placar_') === 0; }))    fase1Placares[x.apelido] = true;
+            if (keys.some(function(k){ return k.indexOf('placar_R1_') === 0; })) fase1PlacR1[x.apelido] = true;
+            if (keys.some(function(k){ return k.indexOf('placar_R2_') === 0; })) fase1PlacR2[x.apelido] = true;
+            if (keys.some(function(k){ return k.indexOf('placar_R3_') === 0; })) fase1PlacR3[x.apelido] = true;
+          }
+        }
+      });
+    }
+
+    // Buscar palpites fase 2 (chaveamento mata-mata)
+    var r3 = await fetch(SU+'/rest/v1/palpites_fase2?bolao_id=eq.'+bolaoId+'&select=apelido,fase&order=criado_em.asc',{headers:H});
+    var fase2Chaveamento = {}, fase2R16 = {}, fase2Oitavas = {}, fase2Quartas = {}, fase2Semi = {}, fase2Final = {};
+    if (r3.ok) {
+      var p2 = await r3.json();
+      p2.forEach(function(x){
+        if (!x.apelido) return;
+        if (x.fase === 'matamata')  fase2Chaveamento[x.apelido] = true;
+        if (x.fase === 'r16avos')   fase2R16[x.apelido] = true;
+        if (x.fase === 'roitavas')  fase2Oitavas[x.apelido] = true;
+        if (x.fase === 'rquartas')  fase2Quartas[x.apelido] = true;
+        if (x.fase === 'rsemi')     fase2Semi[x.apelido] = true;
+        if (x.fase === 'rfinal')    fase2Final[x.apelido] = true;
+      });
+    }
+
+    // Buscar pontuações
+    var ranking = [];
+    var r1 = await fetch(SU+'/rest/v1/pontuacoes?bolao_id=eq.'+bolaoId+'&select=*&order=total.desc',{headers:H});
+    if (r1.ok) ranking = await r1.json();
+
+    // Buscar histórico para tendência e variação de posição
+    var historicoMap = {}; // { apelido: [total_d1, total_d2, ...] }
+    var diasHist = [];
+    try {
+      var rHist = await fetch(SU+'/rest/v1/ranking_historico?bolao_id=eq.'+bolaoId+'&select=apelido,total,dia&order=dia.asc',{headers:H});
+      if (rHist.ok) {
+        var histRows = await rHist.json();
+        // Coletar dias únicos ordenados
+        var diasSet = {};
+        histRows.forEach(function(r){ diasSet[r.dia] = true; });
+        diasHist = Object.keys(diasSet).sort();
+        // Montar mapa
+        histRows.forEach(function(r){
+          if (!historicoMap[r.apelido]) historicoMap[r.apelido] = {};
+          historicoMap[r.apelido][r.dia] = r.total;
+        });
+      }
+    } catch(e) {}
+
+    // Se não tem pontuações, monta lista de quem enviou palpites
+    if (!ranking.length) {
+      var todosApelidos = {};
+      Object.keys(fase1Grupos).forEach(function(a){ todosApelidos[a]=true; });
+      Object.keys(fase2Chaveamento).forEach(function(a){ todosApelidos[a]=true; });
+      ranking = Object.keys(todosApelidos).map(function(a){
+        return {apelido:a, pts_grupos:0, pts_placares:0, pts_zebras:0, pts_chaveamento:0, pts_placares_mata:0, total:0};
+      });
+    }
+
+    if (!ranking.length) {
+      area.innerHTML = '<div class="ranking-card"><div class="empty"><strong>Nenhum palpite ainda</strong>Seja o primeiro!</div></div>';
+      return;
+    }
+
+    // ── RENDER ──────────────────────────────────────────────────────
+    var GRID = '44px 1fr 60px 50px 50px 60px 60px 50px 50px 50px 58px 64px 60px 50px 52px 52px 52px';
+    var html = '<div class="ranking-card" style="overflow-x:visible;width:100%;">';
+    var dataHoje = new Date().toISOString().slice(0,10).split('-').reverse().join('/');
+    html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO ATUAL — '+dataHoje+'</span><div style="display:flex;align-items:center;gap:10px;"><button onclick="exportarTodosPDF(\''+bolaoId+'\')" style="background:#003087;color:#ffdf00;border:1px solid #ffdf00;border-radius:8px;padding:6px 14px;font-family:Bebas Neue,sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;">📄 EXPORTAR PDF</button><span class="ranking-update" style="color:#00c44f;">🟢 Ao vivo</span></div></div>';
+
+    // Header colunas
+    html += '<div style="background:var(--bg3);padding:6px 12px;">';
+    html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:8px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:4px 0;">';
+    html += '<div></div><div></div>';
+    html += '<div style="grid-column:span 7;text-align:center;color:var(--gold);border-bottom:2px solid rgba(255,223,0,0.4);padding-bottom:3px;">FASE DE GRUPOS</div>';
+    html += '<div></div>';
+    html += '<div style="grid-column:span 6;text-align:center;color:var(--muted);border-bottom:2px solid rgba(122,159,212,0.3);padding-bottom:3px;">MATA-MATA</div>';
+    html += '<div></div>';
+    html += '</div>';
+    html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:8px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted);padding:4px 0 6px;">';
+    html += '<div>Pos.</div><div>Participante</div>';
+    html += '<div style="text-align:center">Grupos</div>';
+    html += '<div style="text-align:center">Zebras</div>';
+    html += '<div style="text-align:center">Terceiros</div>';
+    html += '<div style="text-align:center">Rod. 1</div>';
+    html += '<div style="text-align:center">Rod. 2</div>';
+    html += '<div style="text-align:center">Rod. 3</div>';
+    html += '<div style="text-align:center;color:var(--gold);font-weight:700;">Total GRP</div>';
+    html += '<div style="text-align:center">MM</div>';
+    html += '<div style="text-align:center">16 Avos</div>';
+    html += '<div style="text-align:center">Oitavas</div>';
+    html += '<div style="text-align:center">Quartas</div>';
+    html += '<div style="text-align:center">Semi</div>';
+    html += '<div style="text-align:center">Final</div>';
+    html += '<div style="text-align:center;color:var(--muted);font-weight:700;">Total MM</div>';
+    html += '</div></div>';
+
+    // Calcular posições com empate
+    var posicoes = [];
+    var posAtual = 1;
+    for (var ii = 0; ii < ranking.length; ii++) {
+      if (ii > 0 && ranking[ii].total === ranking[ii-1].total) {
+        posicoes.push(posicoes[ii-1]);
+      } else {
+        posAtual = ii + 1;
+        posicoes.push(posAtual);
+      }
+    }
+
+    ranking.forEach(function(r, i) {
+      var pos = posicoes[i];
+      var numColor = pos===1?'var(--gold)':pos===2?'#aaaaaa':pos===3?'#cd7f32':'var(--muted)';
+
+      var temGrupos     = fase1Grupos[r.apelido]      ? '✅' : '❌';
+      var temChaveamento= fase2Chaveamento[r.apelido] ? '✅' : '❌';
+      var temR1  = fase1PlacR1[r.apelido]   ? '✅' : '❌';
+      var temR2  = fase1PlacR2[r.apelido]   ? '✅' : '❌';
+      var temR3  = fase1PlacR3[r.apelido]   ? '✅' : '❌';
+      var tem16avos  = fase2R16[r.apelido]      ? '✅' : '❌';
+      var temOitavas = fase2Oitavas[r.apelido]  ? '✅' : '❌';
+      var temQuartas = fase2Quartas[r.apelido]  ? '✅' : '❌';
+      var temSemi    = fase2Semi[r.apelido]      ? '✅' : '❌';
+      var temFinal   = fase2Final[r.apelido]     ? '✅' : '❌';
+
+      var pGrupos    = r.pts_grupos      || 0;
+      var pZebras    = r.pts_zebras      || 0;
+      var pTerceiros = r.pts_terceiros   || 0;
+      var pR1        = r.pts_placares_r1 || 0;
+      var pR2        = r.pts_placares_r2 || 0;
+      var pR3        = r.pts_placares_r3 || 0;
+      var pChaveamento = r.pts_chaveamento || 0;
+      var p16avos    = r.pts_16avos    || 0;
+      var pOitavas   = r.pts_oitavas   || 0;
+      var pQuartas   = r.pts_quartas   || 0;
+      var pSemi      = r.pts_semi      || 0;
+      var pFinal     = r.pts_final     || 0;
+      var totalGrp   = pGrupos + pZebras + pTerceiros + pR1 + pR2 + pR3;
+      var totalMM    = pChaveamento + p16avos + pOitavas + pQuartas + pSemi + pFinal;
+
+      html += '<div style="display:grid;grid-template-columns:'+GRID+';align-items:center;padding:8px 12px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;">';
+      html += '<div class="ranking-pos" style="color:'+numColor+'">'+pos+'<sup>º</sup></div>';
+      html += '<div class="ranking-apelido" style="display:flex;align-items:center;gap:8px;">'+r.apelido+'<button onclick="gerarResumo(\''+r.apelido+'\',\''+bolaoId+'\')" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.25);color:#ffdf00;border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:0.5px;white-space:nowrap;">📄 RESUMO</button></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pGrupos+' pts</div><div style="font-size:15px;">'+temGrupos+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pZebras+' pts</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pTerceiros+' pts</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pR1+' pts</div><div style="font-size:15px;">'+temR1+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pR2+' pts</div><div style="font-size:15px;">'+temR2+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pR3+' pts</div><div style="font-size:15px;">'+temR3+'</div></div>';
+      html += '<div style="text-align:center;background:rgba(255,223,0,0.06);border-radius:6px;"><div style="font-size:11px;color:var(--gold);font-weight:700;">'+totalGrp+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pChaveamento+' pts</div><div style="font-size:15px;">'+temChaveamento+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+p16avos+' pts</div><div style="font-size:15px;">'+tem16avos+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pOitavas+' pts</div><div style="font-size:15px;">'+temOitavas+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pQuartas+' pts</div><div style="font-size:15px;">'+temQuartas+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pSemi+' pts</div><div style="font-size:15px;">'+temSemi+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pFinal+' pts</div><div style="font-size:15px;">'+temFinal+'</div></div>';
+      html += '<div class="ranking-pts total">'+totalMM+'</div>';
+      html += '</div>';
+    });
+
+    html += '<div class="legend"><span>✅ Palpite enviado</span><span>❌ Palpite não enviado</span></div>';
+    html += '</div>';
+    area.innerHTML = html;
+  } catch(e) {
+    console.error(e);
+    area.innerHTML = '<div class="ranking-card"><div class="empty"><strong>Erro ao carregar</strong></div></div>';
+  }
+}
+
+async function exportarTodosPDF(bolaoId) {
+  var btn = event ? event.target : null;
+  if (btn) { btn.textContent = '⏳ Gerando...'; btn.disabled = true; }
+
+  try {
+    var H2 = {'apikey':SK,'Authorization':'Bearer '+SK};
+
     // Buscar ranking ordenado
     var rrank = await fetch(SU+'/rest/v1/pontuacoes?bolao_id=eq.'+bolaoId+'&select=apelido,total&order=total.desc',{headers:H2});
     var ranking = rrank.ok ? await rrank.json() : [];
