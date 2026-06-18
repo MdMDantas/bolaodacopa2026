@@ -531,7 +531,8 @@ function renderPlacaresMM() {
   var placaresMM = _palpite2 ? (_palpite2.placares_mm || {}) : null;
   var html = '';
   fasesMM.forEach(function(fase) {
-    html += '<div class="section-card"><div class="section-card-header"><span class="section-card-title">'+fase.label+'</span></div><div class="section-card-body">';
+    var btnLimpar = '<button onclick="limparFaseMM(\''+fase.id+'\')" style="background:rgba(255,80,80,0.1);border:1px solid rgba(255,80,80,0.3);color:#ff6b6b;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;">🗑️ LIMPAR</button>';
+    html += '<div class="section-card"><div class="section-card-header"><span class="section-card-title">'+fase.label+'</span>'+btnLimpar+'</div><div class="section-card-body">';
     var temAlgum = false;
     if (placaresMM) {
       for (var i=0; i<fase.jogos; i++) {
@@ -592,7 +593,8 @@ function renderMataMata() {
   fases.forEach(function(fase) {
     var vals = fase.ids.map(function(id){ return d[id]||''; }).filter(function(v){ return v; });
     if (!vals.length) return;
-    html += '<div class="section-card"><div class="section-card-header"><span class="section-card-title">'+fase.label+'</span></div><div class="section-card-body">';
+    var btnLimpar = '<button onclick="limparFaseMM(\''+fase.id+'\')" style="background:rgba(255,80,80,0.1);border:1px solid rgba(255,80,80,0.3);color:#ff6b6b;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;">🗑️ LIMPAR</button>';
+    html += '<div class="section-card"><div class="section-card-header"><span class="section-card-title">'+fase.label+'</span>'+btnLimpar+'</div><div class="section-card-body">';
     if (fase.pairs) {
       // Oitavas: mostrar pares A vs B
       for (var i = 0; i < fase.ids.length; i += 2) {
@@ -950,6 +952,24 @@ function exportarPalpitesPDF() {
 
   rodape();
   doc.save('palpites-' + apelido.replace(/\s+/g,'_') + '-' + agora.getFullYear() + (agora.getMonth()+1).toString().padStart(2,'0') + agora.getDate().toString().padStart(2,'0') + '.pdf');
+}
+
+async function limparFaseMM(faseId) {
+  if (!_bolaoAtual || !_usuario) { alert('Sessão inválida.'); return; }
+  if (!confirm('Apagar os placares de "' + faseId + '"?\nEsta ação não pode ser desfeita.')) return;
+  var resp = await fetch(SUPABASE_URL+'/rest/v1/palpites_fase2?bolao_id=eq.'+_bolaoAtual.id+'&apelido=eq.'+encodeURIComponent(_usuario.apelido)+'&fase=eq.'+faseId, {
+    method: 'DELETE',
+    headers: H
+  });
+  if (resp.ok) {
+    alert('✅ Placares apagados.');
+    // Recarregar palpite2
+    var r2 = await fetch(SUPABASE_URL+'/rest/v1/palpites_fase2?bolao_id=eq.'+_bolaoAtual.id+'&apelido=eq.'+encodeURIComponent(_usuario.apelido)+'&select=*&order=criado_em.desc&limit=1', {headers:H});
+    _palpite2 = r2.ok ? (await r2.json())[0] || null : null;
+    renderPlacaresMM();
+  } else {
+    alert('❌ Erro ao apagar.');
+  }
 }
 
 async function limparPalpitesMM() {
