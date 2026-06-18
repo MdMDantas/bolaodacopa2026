@@ -414,7 +414,7 @@ async function carregarRanking(bolaoId, bolaoNome) {
     var GRID = '44px 1fr 60px 50px 50px 60px 60px 50px 50px 50px 58px 64px 60px 50px 52px 52px 52px';
     var html = '<div class="ranking-card" style="overflow-x:visible;width:100%;">';
     var dataHoje = new Date().toISOString().slice(0,10).split('-').reverse().join('/');
-    html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO ATUAL — '+dataHoje+'</span><span class="ranking-update" style="color:#00c44f;">🟢 Ao vivo</span></div>';
+    html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO ATUAL — '+dataHoje+'</span><div style="display:flex;align-items:center;gap:10px;"><button onclick="exportarTodosPDF(\''+bolaoId+'\')" style="background:#003087;color:#ffdf00;border:1px solid #ffdf00;border-radius:8px;padding:6px 14px;font-family:Bebas Neue,sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;">📄 EXPORTAR PDF</button><span class="ranking-update" style="color:#00c44f;">🟢 Ao vivo</span></div></div>';
 
     // Header colunas
     html += '<div style="background:var(--bg3);padding:6px 12px;">';
@@ -512,6 +512,131 @@ async function carregarRanking(bolaoId, bolaoNome) {
     console.error(e);
     area.innerHTML = '<div class="ranking-card"><div class="empty"><strong>Erro ao carregar</strong></div></div>';
   }
+}
+
+async function exportarTodosPDF(bolaoId) {
+  var btn = event.target;
+  btn.textContent = '⏳ Gerando...';
+  btn.disabled = true;
+
+  try {
+    // Buscar todos os dados necessários
+    var H2 = {'apikey':SK,'Authorization':'Bearer '+SK};
+    var rb = await fetch(SU+'/rest/v1/boloes?id=eq.'+bolaoId+'&select=*',{headers:H2});
+    var bolao = (await rb.json())[0] || {};
+
+    var rp1 = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoId+'&select=*',{headers:H2});
+    var p1Rows = rp1.ok ? await rp1.json() : [];
+
+    var rrank = await fetch(SU+'/rest/v1/pontuacoes?bolao_id=eq.'+bolaoId+'&select=*&order=total.desc',{headers:H2});
+    var ranking = rrank.ok ? await rrank.json() : [];
+
+    var rr = await fetch(SU+'/rest/v1/resultados?select=*',{headers:H2});
+    var resultados = rr.ok ? await rr.json() : [];
+
+    // Montar mapa de palpites por apelido
+    var p1Map = {};
+    p1Rows.forEach(function(r) {
+      if (!p1Map[r.apelido]) p1Map[r.apelido] = {};
+      Object.keys(r).forEach(function(k) {
+        if (k === 'placares') {
+          var pl = r[k]; if (typeof pl==='string'){try{pl=JSON.parse(pl);}catch(e){pl={};}}
+          if (!p1Map[r.apelido].placares) p1Map[r.apelido].placares = {};
+          Object.assign(p1Map[r.apelido].placares, pl||{});
+        } else if (r[k]!==null && r[k]!==undefined && r[k]!=='') {
+          p1Map[r.apelido][k] = r[k];
+        }
+      });
+    });
+
+    // Mapa de resultados
+    var resMap = {};
+    resultados.forEach(function(r){ if(r.api_id) resMap[r.api_id]=r; });
+
+    var JOGOS_R = {
+      R1:{A:[['México','África do Sul'],['Coreia do Sul','República Tcheca']],B:[['Canadá','Bósnia e Herzegovina'],['Catar','Suíça']],C:[['Brasil','Marrocos'],['Haiti','Escócia']],D:[['Estados Unidos','Paraguai'],['Austrália','Turquia']],E:[['Alemanha','Curaçao'],['Costa do Marfim','Equador']],F:[['Holanda','Japão'],['Suécia','Tunísia']],G:[['Bélgica','Egito'],['Irã','Nova Zelândia']],H:[['Espanha','Cabo Verde'],['Arábia Saudita','Uruguai']],I:[['França','Senegal'],['Noruega','Iraque']],J:[['Argentina','Argélia'],['Áustria','Jordânia']],K:[['Portugal','RD Congo'],['Uzbequistão','Colômbia']],L:[['Inglaterra','Croácia'],['Gana','Panamá']]},
+      R2:{A:[['México','Coreia do Sul'],['África do Sul','República Tcheca']],B:[['Canadá','Catar'],['Bósnia e Herzegovina','Suíça']],C:[['Brasil','Haiti'],['Marrocos','Escócia']],D:[['Estados Unidos','Austrália'],['Turquia','Paraguai']],E:[['Alemanha','Costa do Marfim'],['Curaçao','Equador']],F:[['Holanda','Suécia'],['Japão','Tunísia']],G:[['Bélgica','Irã'],['Egito','Nova Zelândia']],H:[['Espanha','Arábia Saudita'],['Cabo Verde','Uruguai']],I:[['França','Iraque'],['Noruega','Senegal']],J:[['Argentina','Áustria'],['Argélia','Jordânia']],K:[['Portugal','Uzbequistão'],['Colômbia','RD Congo']],L:[['Inglaterra','Gana'],['Croácia','Panamá']]},
+      R3:{A:[['México','República Tcheca'],['África do Sul','Coreia do Sul']],B:[['Canadá','Suíça'],['Bósnia e Herzegovina','Catar']],C:[['Brasil','Escócia'],['Marrocos','Haiti']],D:[['Estados Unidos','Turquia'],['Paraguai','Austrália']],E:[['Alemanha','Equador'],['Curaçao','Costa do Marfim']],F:[['Holanda','Tunísia'],['Japão','Suécia']],G:[['Bélgica','Nova Zelândia'],['Egito','Irã']],H:[['Espanha','Uruguai'],['Cabo Verde','Arábia Saudita']],I:[['França','Noruega'],['Senegal','Iraque']],J:[['Argentina','Jordânia'],['Argélia','Áustria']],K:[['Portugal','Colômbia'],['RD Congo','Uzbequistão']],L:[['Inglaterra','Panamá'],['Croácia','Gana']]}
+    };
+
+    function calcPts(pa,pb,ra,rb){if(pa===null||pb===null)return-1;if(pa===ra&&pb===rb)return 3;var pe=pa===pb,re=ra===rb;if(pe&&re)return 2;if(!pe&&!re){var pv=pa>pb?'A':'B',rv=ra>rb?'A':'B';if(pv===rv)return Math.abs(pa-pb)===Math.abs(ra-rb)?2:1;}return 0;}
+
+    var estilos = 'body{font-family:Arial,sans-serif;color:#111;margin:0;padding:0;font-size:11px;}' +
+      '.page{max-width:900px;margin:0 auto;padding:20px;}.jogador{page-break-after:always;padding:24px 32px;}' +
+      '.jogador:last-child{page-break-after:auto;}' +
+      '.header{background:#003087;color:#ffdf00;padding:12px 18px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}' +
+      '.header h2{margin:0;font-size:20px;letter-spacing:2px;text-transform:uppercase;}' +
+      '.header span{font-size:11px;color:rgba(255,255,255,0.7);}' +
+      '.bolao-titulo{text-align:center;padding:16px;font-size:11px;color:#888;letter-spacing:3px;text-transform:uppercase;border-bottom:1px solid #eee;margin-bottom:8px;}' +
+      '.secao{margin-bottom:14px;}.secao-titulo{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#003087;border-bottom:2px solid #003087;padding-bottom:3px;margin-bottom:8px;}' +
+      'table{width:100%;border-collapse:collapse;}th{background:#f0f4ff;color:#003087;font-size:9px;font-weight:700;padding:4px 6px;text-align:left;}' +
+      'td{padding:4px 6px;border-bottom:1px solid #eee;font-size:10px;}' +
+      '.p3{color:#00a050;font-weight:700;}.p2{color:#2266cc;font-weight:700;}.p1{color:#cc8800;font-weight:700;}.p0{color:#cc0000;font-weight:700;}' +
+      '.total-box{background:#003087;color:#fff;border-radius:6px;padding:10px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;margin-top:12px;}' +
+      '.total-label{font-size:9px;color:rgba(255,255,255,0.6);letter-spacing:1px;text-transform:uppercase;}' +
+      '.total-val{font-size:18px;font-weight:900;color:#ffdf00;margin-top:2px;}' +
+      '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}';
+
+    var now = new Date();
+    var dataGer = now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+
+    var htmlPDF = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Palpites — '+bolao.nome+'</title><style>'+estilos+'</style></head><body>';
+    htmlPDF += '<div class="bolao-titulo">Bolão: '+bolao.nome+' · Código: '+(bolao.codigo||'')+'  · Copa do Mundo 2026 · Gerado em: '+dataGer+'</div>';
+
+    ranking.forEach(function(r) {
+      var ap = r.apelido;
+      var p1 = p1Map[ap] || {};
+      var placares = p1.placares || {};
+      if (typeof placares==='string'){try{placares=JSON.parse(placares);}catch(e){placares={};}}
+
+      htmlPDF += '<div class="jogador">';
+      htmlPDF += '<div class="header"><h2>'+ap+'</h2><span>Pontuação: '+r.total+' pts</span></div>';
+
+      // Placares por rodada
+      ['R1','R2','R3'].forEach(function(rod) {
+        var label = rod==='R1'?'Rodada 1':rod==='R2'?'Rodada 2':'Rodada 3';
+        htmlPDF += '<div class="secao"><div class="secao-titulo">⚽ '+label+'</div><table><tr><th>Jogo</th><th>Palpite</th><th>Resultado</th><th>Pts</th></tr>';
+        Object.keys(JOGOS_R[rod]).sort().forEach(function(grupo){
+          JOGOS_R[rod][grupo].forEach(function(jogo,i){
+            var jid = rod+'_'+grupo+'_'+i;
+            var keyA='placar_'+jid+'_a', keyB='placar_'+jid+'_b';
+            var pa=placares[keyA], pb=placares[keyB];
+            var res=resMap[jid];
+            var palpStr=(pa!==undefined&&pb!==undefined)?pa+'×'+pb:'—';
+            var resStr=(res&&res.gols_a!==null)?res.gols_a+'×'+res.gols_b:'—';
+            var pts=res&&res.gols_a!==null&&pa!==undefined?calcPts(parseInt(pa),parseInt(pb),res.gols_a,res.gols_b):-1;
+            var ptsCls=pts===3?'p3':pts===2?'p2':pts===1?'p1':pts===0?'p0':'';
+            var ptsStr=pts>=0?pts+'pts':'—';
+            htmlPDF+='<tr><td>'+jogo[0]+' × '+jogo[1]+'</td><td>'+palpStr+'</td><td>'+resStr+'</td><td class="'+ptsCls+'">'+ptsStr+'</td></tr>';
+          });
+        });
+        htmlPDF+='</table></div>';
+      });
+
+      // Total
+      htmlPDF += '<div class="total-box">';
+      htmlPDF += '<div><div class="total-label">Grupos</div><div class="total-val">'+(r.pts_grupos||0)+'</div></div>';
+      htmlPDF += '<div><div class="total-label">Rod. 1</div><div class="total-val">'+(r.pts_placares_r1||0)+'</div></div>';
+      htmlPDF += '<div><div class="total-label">Rod. 2</div><div class="total-val">'+(r.pts_placares_r2||0)+'</div></div>';
+      htmlPDF += '<div><div class="total-label">Total</div><div class="total-val">'+r.total+'</div></div>';
+      htmlPDF += '</div>';
+      htmlPDF += '</div>';
+    });
+
+    htmlPDF += '</body></html>';
+
+    var w = window.open('','_blank');
+    w.document.write(htmlPDF);
+    w.document.close();
+    setTimeout(function(){ w.print(); }, 800);
+
+  } catch(e) {
+    console.error(e);
+    alert('Erro ao gerar PDF: ' + e.message);
+  }
+
+  btn.textContent = '📄 EXPORTAR PDF';
+  btn.disabled = false;
 }
 
 init();
