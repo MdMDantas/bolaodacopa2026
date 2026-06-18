@@ -116,11 +116,20 @@
     <div class="admin-strip">
       <div class="admin-strip-info">
         <strong>⚙️ Painel do Administrador</strong>
-        Registra o ranking de hoje no histórico. Faça isso após atualizar os resultados do dia.
+        Selecione o dia e registre o snapshot do ranking no histórico.
       </div>
-      <button class="btn-foto" id="btnFoto" onclick="tirarFotoDoDia()">
-        📸 FOTO DO DIA — <span id="dataFotoSpan"></span>
-      </button>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <label style="font-size:10px;color:var(--muted);letter-spacing:1px;">DIA DO SNAPSHOT</label>
+          <input type="date" id="dataFotoInput"
+            style="background:#001a4a;border:1px solid #1a3d7a;border-radius:8px;
+            padding:8px 12px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;"
+            onchange="atualizarBtnFoto()">
+        </div>
+        <button class="btn-foto" id="btnFoto" onclick="tirarFotoDoDia()">
+          📸 TIRAR FOTO
+        </button>
+      </div>
     </div>
   </div>
 
@@ -168,8 +177,10 @@ window.onload = function() {
     var d = hoje.getDate().toString().padStart(2,'0');
     var m = (hoje.getMonth()+1).toString().padStart(2,'0');
     var y = hoje.getFullYear();
-    var span = document.getElementById('dataFotoSpan');
-    if (span) span.textContent = d+'/'+m+'/'+y;
+    var input = document.getElementById('dataFotoInput');
+    if (input) {
+      input.value = hoje.getFullYear()+'-'+(hoje.getMonth()+1).toString().padStart(2,'0')+'-'+d;
+    }
   }
   // Auto-buscar se tiver código salvo
   if (u && u.bolao_codigo) {
@@ -218,10 +229,17 @@ function toast(msg, cor) {
   setTimeout(function(){ t.classList.remove('show'); }, 3500);
 }
 
+function atualizarBtnFoto() {
+  // Nada necessário — o input já tem o valor
+}
+
 async function tirarFotoDoDia() {
   if (!bolaoAtual) { toast('⚠️ Busque um bolão primeiro.', '#ffaa44'); return; }
 
-  var hoje = new Date().toISOString().slice(0, 10);
+  var input = document.getElementById('dataFotoInput');
+  var hoje = input ? input.value : new Date().toISOString().slice(0, 10);
+  if (!hoje) { toast('⚠️ Selecione uma data.', '#ffaa44'); return; }
+
   var btn = document.getElementById('btnFoto');
 
   var resp = await fetch(SU + '/rest/v1/pontuacoes?bolao_id=eq.' + bolaoAtual.id + '&select=apelido,total', { headers: H });
@@ -230,7 +248,7 @@ async function tirarFotoDoDia() {
   if (!rows.length) { toast('⚠️ Nenhuma pontuação encontrada.', '#ffaa44'); return; }
 
   var hojeFormatado = hoje.split('-').reverse().join('/');
-  if (!confirm('📸 FOTO DO DIA — ' + hojeFormatado + '\n\nBolão: ' + bolaoAtual.nome + '\nParticipantes: ' + rows.length + '\n\nIsso vai salvar o ranking de hoje no histórico.\nConfirmar?')) return;
+  if (!confirm('📸 FOTO DO DIA — ' + hojeFormatado + '\n\nBolão: ' + bolaoAtual.nome + '\nParticipantes: ' + rows.length + '\n\nIsso vai salvar o ranking de ' + hojeFormatado + ' no histórico.\nConfirmar?')) return;
 
   btn.disabled = true;
   btn.textContent = '⏳ Salvando...';
@@ -258,8 +276,7 @@ async function tirarFotoDoDia() {
   btn.innerHTML = '📸 FOTO DO DIA';
 
   if (erros === 0) {
-    var hojeF = hoje.split('-').reverse().join('/');
-    toast('✅ Foto do dia ' + hojeF + ' salva! (' + rows.length + ' participantes)');
+    toast('✅ Foto do dia ' + hojeFormatado + ' salva! (' + rows.length + ' participantes)');
     buscar(); // atualiza o gráfico
   } else {
     toast('⚠️ ' + erros + ' erro(s) ao salvar.', '#ff6b6b');

@@ -68,6 +68,18 @@
     font-size:9px;padding:1px 5px;color:#00c44f;font-family:'DM Sans',sans-serif;
     font-weight:700;margin-left:6px;vertical-align:middle;}
 
+  /* RODADA CARDS */
+  .rodada-card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:14px;overflow:hidden;}
+  .rodada-card-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background 0.2s;}
+  .rodada-card-header:hover{background:rgba(255,223,0,0.04);}
+  .rodada-card-header.open{border-bottom:1px solid var(--border);}
+  .rodada-card-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--gold);display:flex;align-items:center;gap:10px;}
+  .rodada-card-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+  .rodada-card-arrow{font-size:14px;color:var(--muted);transition:transform 0.3s;}
+  .rodada-card-arrow.open{transform:rotate(180deg);}
+  .rodada-card-body{display:none;padding:16px 20px;}
+  .rodada-card-body.open{display:block;}
+
   /* MENSAGENS */
   .msg{text-align:center;padding:50px 20px;color:var(--muted);font-size:14px;}
   .msg strong{display:block;font-size:22px;margin-bottom:8px;color:var(--gold);
@@ -183,9 +195,19 @@ function renderAglutinador(bolao, palpites, resultados) {
   html += '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:13px;letter-spacing:2px;color:var(--muted);margin-bottom:16px;">';
   html += '📋 ' + bolao.nome + ' — ' + palpites.length + ' participante(s)</div>';
 
-  ['R1', 'R2', 'R3'].forEach(function(rodada) {
+  ['R1', 'R2', 'R3'].forEach(function(rodada, ri) {
     var rl = rodada === 'R1' ? 'Rodada 1' : rodada === 'R2' ? 'Rodada 2' : 'Rodada 3';
-    html += '<div class="rodada-titulo">⚽ ' + rl + '</div>';
+    var rdates = { R1: '11/06 – 17/06', R2: '18/06 – 23/06', R3: '24/06 – 27/06' };
+    var njogos = Object.values(JOGOS_R[rodada]).reduce(function(s,v){return s+v.length;},0);
+    var isOpen = ri === 0; // primeira aberta por padrão
+
+    html += '<div class="rodada-card">';
+    html += '<div class="rodada-card-header' + (isOpen?' open':'') + '" onclick="toggleRodada(this)">';
+    html += '<div><div class="rodada-card-title">⚽ ' + rl + '</div>';
+    html += '<div class="rodada-card-meta">' + rdates[rodada] + ' · ' + njogos + ' jogos</div></div>';
+    html += '<div class="rodada-card-arrow' + (isOpen?' open':'') + '">▼</div>';
+    html += '</div>';
+    html += '<div class="rodada-card-body' + (isOpen?' open':'') + '">';
 
     Object.keys(JOGOS_R[rodada]).sort().forEach(function(grupo) {
       JOGOS_R[rodada][grupo].forEach(function(jogo, i) {
@@ -279,9 +301,19 @@ function renderAglutinador(bolao, palpites, resultados) {
         html += '</div></div>'; // fim jogo-body e jogo-card
       });
     });
+
+    html += '</div></div>'; // fim rodada-card-body e rodada-card
   });
 
   document.getElementById('area').innerHTML = html;
+}
+
+function toggleRodada(header) {
+  header.classList.toggle('open');
+  var arrow = header.querySelector('.rodada-card-arrow');
+  if (arrow) arrow.classList.toggle('open');
+  var body = header.nextElementSibling;
+  if (body) body.classList.toggle('open');
 }
 </script>
 </body>

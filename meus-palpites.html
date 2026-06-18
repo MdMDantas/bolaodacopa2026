@@ -573,6 +573,11 @@ function renderMataMata() {
   var html = '';
 
   // Campeão
+  // Botão limpar
+  html += '<div style="text-align:right;margin-bottom:12px;">';
+  html += '<button onclick="limparPalpitesMM()" style="background:rgba(255,80,80,0.1);border:1px solid rgba(255,80,80,0.3);color:#ff8888;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🗑️ LIMPAR PALPITES</button>';
+  html += '</div>';
+
   html += '<div class="campiao-box"><div class="campiao-trophy">🏆</div><div class="campiao-label">Seu Campeão</div>';
   html += '<div class="campiao-nome">'+(d.champion||'Não escolhido')+'</div></div>';
 
@@ -945,6 +950,22 @@ function exportarPalpitesPDF() {
 
   rodape();
   doc.save('palpites-' + apelido.replace(/\s+/g,'_') + '-' + agora.getFullYear() + (agora.getMonth()+1).toString().padStart(2,'0') + agora.getDate().toString().padStart(2,'0') + '.pdf');
+}
+
+async function limparPalpitesMM() {
+  if (!_bolaoAtual || !_usuario) { alert('Sessão inválida.'); return; }
+  if (!confirm('Tem certeza que deseja apagar todos os palpites do mata-mata?\nEsta ação não pode ser desfeita.')) return;
+  var resp = await fetch(SUPABASE_URL+'/rest/v1/palpites_fase2?bolao_id=eq.'+_bolaoAtual.id+'&apelido=eq.'+encodeURIComponent(_usuario.apelido), {
+    method: 'DELETE',
+    headers: H
+  });
+  if (resp.ok) {
+    alert('✅ Palpites do mata-mata apagados.');
+    _palpite2 = null;
+    renderMataMata();
+  } else {
+    alert('❌ Erro ao apagar palpites.');
+  }
 }
 </script>
 </body>

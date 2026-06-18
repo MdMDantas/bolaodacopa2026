@@ -446,9 +446,40 @@ async function carregarRanking(bolaoId, bolaoNome) {
     html += '<div style="text-align:center;color:var(--muted);font-weight:700;">Total MM</div>';
     html += '</div></div>';
 
+    // Calcular posições com empate
+    var posicoes = [];
+    var posAtual2 = 1;
+    for (var ii = 0; ii < ranking.length; ii++) {
+      if (ii > 0 && ranking[ii].total === ranking[ii-1].total) {
+        posicoes.push(posicoes[ii-1]);
+      } else {
+        posAtual2 = ii + 1;
+        posicoes.push(posAtual2);
+      }
+    }
+
+    // Posições anteriores para VAR POS
+    var hoje2 = new Date().toISOString().slice(0,10);
+    var diasAnt = diasHist.filter(function(d){ return d < hoje2; });
+    var diaAnt = diasAnt.length ? diasAnt[diasAnt.length-1] : null;
+    var posAntMap = {};
+    if (diaAnt) {
+      var snapAnt = ranking.map(function(r){
+        return { apelido: r.apelido, total: (historicoMap[r.apelido]||{})[diaAnt]||0 };
+      }).sort(function(a,b){ return b.total-a.total; });
+      var posA = 1;
+      snapAnt.forEach(function(r,i){
+        if (i>0 && r.total===snapAnt[i-1].total) posAntMap[r.apelido]=posAntMap[snapAnt[i-1].apelido];
+        else { posA=i+1; posAntMap[r.apelido]=posA; }
+      });
+    }
+
+    var dataHoje2 = hoje2.split('-').reverse().join('/');
+    html = html.replace('CLASSIFICAÇÃO — '+(bolaoNome||''), 'CLASSIFICAÇÃO ATUAL — '+dataHoje2);
+
     ranking.forEach(function(r,i){
-      var num = i+1;
-      var cls = i<3 ? posClasses[i] : 'other';
+      var pos = posicoes[i];
+      var cls = pos===1?'gold':pos===2?'silver':pos===3?'bronze':'other';
 
       var temGrupos     = fase1Grupos[r.apelido]      ? '✅' : '❌';
       var temPlacares   = fase1Placares[r.apelido]    ? '✅' : '❌';
@@ -484,18 +515,18 @@ async function carregarRanking(bolaoId, bolaoNome) {
       var pos = posicoes[i];
       var cls = pos===1?'gold':pos===2?'silver':pos===3?'bronze':'other';
 
-      // Tendência (comparar total atual com último snapshot)
+      // Tendência
       var tendHtml = '<span style="color:var(--muted)">—</span>';
-      if (diaAnterior && historicoMap[r.apelido] && historicoMap[r.apelido][diaAnterior] !== undefined) {
-        var diffPts = r.total - (historicoMap[r.apelido][diaAnterior]||0);
+      if (diaAnt && historicoMap[r.apelido] && historicoMap[r.apelido][diaAnt] !== undefined) {
+        var diffPts = r.total - (historicoMap[r.apelido][diaAnt]||0);
         if (diffPts > 0) tendHtml = '<span style="color:#00c44f;font-weight:700;">▲'+diffPts+'</span>';
         else if (diffPts < 0) tendHtml = '<span style="color:#ff6b6b;font-weight:700;">▼'+Math.abs(diffPts)+'</span>';
       }
 
       // Variação de posição
       var varPosHtml = '<span style="color:var(--muted)">—</span>';
-      if (posAnteriorMap[r.apelido] !== undefined) {
-        var diffPos = posAnteriorMap[r.apelido] - pos; // positivo = subiu
+      if (posAntMap[r.apelido] !== undefined) {
+        var diffPos = posAntMap[r.apelido] - pos;
         if (diffPos > 0) varPosHtml = '<span style="color:#00c44f;font-weight:700;">▲'+diffPos+'</span>';
         else if (diffPos < 0) varPosHtml = '<span style="color:#ff6b6b;font-weight:700;">▼'+Math.abs(diffPos)+'</span>';
       }
