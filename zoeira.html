@@ -272,29 +272,40 @@ function renderAglutinador(bolao, palpites, resultados) {
           html += '<span>🟢 ' + jogo[1] + ' — ' + pctB + '%</span>';
           html += '</div>';
 
-          // ── TOP 3 ODDS ──
-          var placares = Object.keys(contagem)
-            .sort(function(a, b) { return contagem[b] - contagem[a]; })
-            .slice(0, 3);
-          var maxCount = contagem[placares[0]];
+          // ── TODOS OS PLACARES COM NOMES ──
+          var placaresOrdenados = Object.keys(contagem)
+            .sort(function(a, b) { return contagem[b] - contagem[a]; });
+          var maxCount = contagem[placaresOrdenados[0]];
 
-          html += '<div class="odds-titulo">🎯 Placares mais apostados</div>';
-          placares.forEach(function(placar, idx) {
+          html += '<div class="odds-titulo">🎯 Placares apostados</div>';
+          placaresOrdenados.forEach(function(placar, idx) {
             var cnt = contagem[placar];
             var pct = Math.round(cnt / total * 100);
             var barW = Math.round(cnt / maxCount * 100);
-            var cor = CORES[idx];
-            var medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉';
+            var cor = idx===0?'#ffdf00':idx===1?'#00c44f':idx===2?'#7eb8ff':'var(--muted)';
+            var medal = idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':'  ';
             var acertou = res && res.gols_a !== null && placar === res.gols_a + '×' + res.gols_b;
 
+            // Quem apostou neste placar
+            var quemApostou = apelidos.filter(function(ap) {
+              var pp = jogoPalpites[ap];
+              return pp.a !== null && pp.b !== null && (pp.a + '×' + pp.b) === placar;
+            });
+
+            html += '<div style="margin-bottom:10px;">';
             html += '<div class="odds-item">';
             html += '<div class="odds-medal">' + medal + '</div>';
-            html += '<div class="odds-placar">' + placar
-              + (acertou ? '<span class="acertou-badge">✓ ACERTOU</span>' : '') + '</div>';
+            html += '<div class="odds-placar">' + placar + (acertou ? '<span class="acertou-badge">✓ ACERTOU</span>' : '') + '</div>';
             html += '<div class="odds-bar-wrap"><div class="odds-bar" style="width:' + barW + '%;background:' + cor + ';"></div></div>';
             html += '<div class="odds-pct" style="color:' + cor + '">' + pct + '%</div>';
-            html += '<div class="odds-count">(' + cnt + ' pes.)</div>';
+            html += '<div class="odds-count">(' + cnt + ')</div>';
             html += '</div>';
+            html += '<div style="padding-left:32px;display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">';
+            quemApostou.forEach(function(ap) {
+              var corNome = acertou ? '#00c44f' : 'var(--muted)';
+              html += '<span style="font-size:11px;color:' + corNome + ';background:rgba(255,255,255,0.05);border-radius:4px;padding:2px 8px;">' + ap + '</span>';
+            });
+            html += '</div></div>';
           });
         }
 

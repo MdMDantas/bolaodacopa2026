@@ -634,9 +634,13 @@ function syncDecep() {
 function markFilled(sel) { sel.classList.toggle('filled', !!sel.value); }
 
 function updateProgress() {
-  const sels = document.querySelectorAll('select');
-  const filled = [...sels].filter(s => s.value).length;
-  const pct = Math.round((filled / sels.length) * 100);
+  var sels = Array.from(document.querySelectorAll('select'));
+  var inputs = Array.from(document.querySelectorAll('input[type="number"]'));
+  var total = sels.length + inputs.length;
+  if (!total) return;
+  var filledSels = sels.filter(function(s){ return !!s.value; }).length;
+  var filledInps = inputs.filter(function(i){ return i.value !== ''; }).length;
+  var pct = Math.round(((filledSels + filledInps) / total) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('progressPct').textContent = pct + '%';
 }
@@ -730,13 +734,13 @@ async function recuperarUltimoPalpiteF2() {
   var bolao = await DB.buscarBolao(ultimoBolao);
   if (!bolao) { alert('Bolão não encontrado.'); return; }
   var fases = await DB.buscarPalpitesFase2(bolao.id, usuario.apelido);
-  var dados = fases['matamata'] || {};
-  if (!Object.keys(dados).length) { alert('Nenhum palpite de mata-mata salvo.'); return; }
-  // Preencher selects do mata-mata
-  Object.keys(dados).forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el && el.tagName === 'SELECT') { el.value = dados[id]; el.classList.toggle('filled', !!dados[id]); }
-  });
+  var dadosMM = fases['matamata_dados'] || {};
+  if (!Object.keys(dadosMM).length) { alert('Nenhum palpite de mata-mata salvo.'); return; }
+  // Reconstruir o bracket com os dados salvos (chaveamento + top4 + zebras + azarões)
+  buildBracket(dadosMM);
+  syncTop4();
+  syncZebraMM();
+  syncDecep();
   updateProgress();
   alert('✅ Palpites do mata-mata recuperados!');
 }
@@ -795,8 +799,10 @@ function renderBtnFase(elId, prazo, onClickFn) {
     var horas = Math.floor((diff%86400000)/3600000);
     var mins = Math.floor((diff%3600000)/60000);
     var countdown = dias > 0 ? 'Faltam '+dias+'d '+horas+'h '+mins+'min' : 'Faltam '+horas+'h '+mins+'min';
-    el.innerHTML = '<button class="btn-export" onclick="'+onClickFn+'">Enviar Palpites!</button>'
-      + '<div style="font-size:11px;color:#7a9fd4;text-align:center;margin-top:8px;">⏱️ '+countdown+'</div>';
+    el.innerHTML = '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">'
+      + '<button class="btn-export" onclick="'+onClickFn+'">Enviar Palpites!</button>'
+      + '<div style="font-size:11px;color:#7a9fd4;text-align:center;">⏱️ '+countdown+'</div>'
+      + '</div>';
   }
 }
 
@@ -824,6 +830,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         var todosPlacares = {};
         Object.keys(fases).forEach(function(f) { Object.assign(todosPlacares, fases[f]); });
         if (Object.keys(todosPlacares).length > 0) buildJogos(todosPlacares);
+        // Carregar dados do chaveamento (bracket, top4, zebras, azarões)
+        var dadosMM = fases['matamata_dados'] || {};
+        if (Object.keys(dadosMM).length > 0) {
+          buildBracket(dadosMM);
+          syncTop4();
+          syncZebraMM();
+          syncDecep();
+        }
       }
     }
   } catch(e) { console.warn('Carregamento silencioso falhou:', e); }

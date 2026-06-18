@@ -77,13 +77,18 @@ var DB = {
   },
 
   buscarPalpitesFase2: async function(bolaoId, apelido) {
-    var url = SUPABASE_URL + '/rest/v1/palpites_fase2?bolao_id=eq.' + bolaoId + '&apelido=eq.' + encodeURIComponent(apelido) + '&select=fase,placares_mm';
+    var url = SUPABASE_URL + '/rest/v1/palpites_fase2?bolao_id=eq.' + bolaoId + '&apelido=eq.' + encodeURIComponent(apelido) + '&select=fase,placares_mm,dados_mm';
     var resp = await fetch(url, { headers: DB.h() });
     if (!resp.ok) return {};
     var rows = await resp.json();
-    // retorna objeto indexado por fase: { r16avos: {...}, roitavas: {...}, ... }
     var result = {};
-    rows.forEach(function(r) { result[r.fase] = r.placares_mm || {}; });
+    rows.forEach(function(r) {
+      result[r.fase] = r.placares_mm || {};
+      // Para fase matamata, mesclar dados_mm (chaveamento, top4, zebras, azarões)
+      if (r.fase === 'matamata' && r.dados_mm) {
+        result['matamata_dados'] = r.dados_mm;
+      }
+    });
     return result;
   },
 
