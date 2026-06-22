@@ -237,50 +237,127 @@ async function tirarFotoDoDia() {
   if (!bolaoAtual) { toast('⚠️ Busque um bolão primeiro.', '#ffaa44'); return; }
 
   var input = document.getElementById('dataFotoInput');
-  var hoje = input ? input.value : new Date().toISOString().slice(0, 10);
-  if (!hoje) { toast('⚠️ Selecione uma data.', '#ffaa44'); return; }
+  var dataFoto = input ? input.value : new Date().toISOString().slice(0, 10);
+  if (!dataFoto) { toast('⚠️ Selecione uma data.', '#ffaa44'); return; }
 
   var btn = document.getElementById('btnFoto');
-
-  var resp = await fetch(SU + '/rest/v1/pontuacoes?bolao_id=eq.' + bolaoAtual.id + '&select=apelido,total', { headers: H });
-  if (!resp.ok) { toast('❌ Erro ao buscar pontuações.', '#ff6b6b'); return; }
-  var rows = await resp.json();
-  if (!rows.length) { toast('⚠️ Nenhuma pontuação encontrada.', '#ffaa44'); return; }
-
-  var hojeFormatado = hoje.split('-').reverse().join('/');
-  if (!confirm('📸 FOTO DO DIA — ' + hojeFormatado + '\n\nBolão: ' + bolaoAtual.nome + '\nParticipantes: ' + rows.length + '\n\nIsso vai salvar o ranking de ' + hojeFormatado + ' no histórico.\nConfirmar?')) return;
+  var dataFormatada = dataFoto.split('-').reverse().join('/');
 
   btn.disabled = true;
-  btn.textContent = '⏳ Salvando...';
+  btn.textContent = '⏳ Calculando...';
 
-  var erros = 0;
-  for (var i = 0; i < rows.length; i++) {
-    var r = rows[i];
-    // Tenta deletar o registro do dia antes de inserir (evita conflito de constraint)
-    await fetch(SU + '/rest/v1/ranking_historico?bolao_id=eq.' + bolaoAtual.id + '&apelido=eq.' + encodeURIComponent(r.apelido) + '&dia=eq.' + hoje, {
-      method: 'DELETE',
-      headers: Object.assign({}, H, { 'Content-Type': 'application/json' })
+  try {
+    // 1. Buscar todos os palpites do bolão
+    var rp = await fetch(SU + '/rest/v1/palpites_fase1?bolao_id=eq.' + bolaoAtual.id + '&select=apelido,placares', { headers: H });
+    if (!rp.ok) throw new Error('Erro ao buscar palpites');
+    var palpites = await rp.json();
+    if (!palpites.length) { toast('⚠️ Nenhum palpite encontrado.', '#ffaa44'); return; }
+
+    // 2. Buscar resultados de jogos com data_jogo <= dataFoto
+    var rr = await fetch(SU + '/rest/v1/resultados?select=api_id,gols_a,gols_b,finalizado', { headers: H });
+    if (!rr.ok) throw new Error('Erro ao buscar resultados');
+    var todosResultados = await rr.json();
+
+    // 3. Buscar calendario para filtrar por data
+    var rc = await fetch(SU + '/rest/v1/jogos_calendario?data_jogo=lte.' + dataFoto + '&select=api_id', { headers: H });
+    if (!rc.ok) throw new Error('Erro ao buscar calendário');
+    var jogosAteData = await rc.json();
+    var jogoIds = jogosAteData.map(function(j){ return j.api_id; });
+
+    // 4. Filtrar apenas resultados finalizados de jogos até aquela data
+    var resultadosFiltrados = todosResultados.filter(function(r){
+      return r.finalizado && r.gols_a !== null && jogoIds.indexOf(r.api_id) !== -1;
     });
-    var ins = await fetch(SU + '/rest/v1/ranking_historico', {
-      method: 'POST',
-      headers: Object.assign({}, H, {
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      }),
-      body: JSON.stringify({ bolao_id: bolaoAtual.id, apelido: r.apelido, total: r.total, dia: hoje })
+
+    var mapaRes = {};
+    resultadosFiltrados.forEach(function(r){ mapaRes[r.api_id] = r; });
+
+    // 5. Recalcular pontuação de cada participante
+    function calcPts(pa, pb, ra, rb) {
+      if (pa === null || pb === null) return 0;
+      pa = parseInt(pa); pb = parseInt(pb);
+      if (pa === ra && pb === rb) return 3;
+      var pe = pa===pb, re = ra===rb;
+      if (pe && re) return 2;
+      if (!pe && !re) {
+        var pv = pa>pb?'A':'B', rv = ra>rb?'A':'B';
+        if (pv === rv) return Math.abs(pa-pb)===Math.abs(ra-rb)?2:1;
+      }
+      return 0;
+    }
+
+    var pontuacoes = {};
+    palpites.forEach(function(p) {
+      var pl = p.placares || {};
+      if (typeof pl === 'string') { try { pl = JSON.parse(pl); } catch(e) { pl = {}; } }
+      var total = 0;
+      Object.keys(mapaRes).forEach(function(jid) {
+        var res = mapaRes[jid];
+        var pa = pl['placar_' + jid + '_a'];
+        var pb = pl['placar_' + jid + '_b'];
+        if (pa !== undefined && pa !== null && pb !== undefined && pb !== null) {
+          total += calcPts(pa, pb, res.gols_a, res.gols_b);
+        }
+      });
+      pontuacoes[p.apelido] = total;
     });
-    if (!ins.ok) erros++;
+
+    var participantes = Object.keys(pontuacoes);
+
+    if (!confirm('📸 FOTO DO DIA — ' + dataFormatada +
+      '
+
+Bolão: ' + bolaoAtual.nome +
+      '
+Jogos considerados: ' + resultadosFiltrados.length +
+      '
+Participantes: ' + participantes.length +
+      '
+
+Pontuação recalculada com base nos jogos até ' + dataFormatada + '.
+Confirmar?')) {
+      btn.disabled = false;
+      btn.innerHTML = '📸 TIRAR FOTO';
+      return;
+    }
+
+    btn.textContent = '⏳ Salvando...';
+
+    // 6. Salvar no ranking_historico
+    var erros = 0;
+    for (var i = 0; i < participantes.length; i++) {
+      var apelido = participantes[i];
+      var total = pontuacoes[apelido];
+
+      // Deletar registro existente do mesmo dia
+      await fetch(SU + '/rest/v1/ranking_historico?bolao_id=eq.' + bolaoAtual.id +
+        '&apelido=eq.' + encodeURIComponent(apelido) + '&dia=eq.' + dataFoto, {
+        method: 'DELETE',
+        headers: Object.assign({}, H, { 'Content-Type': 'application/json' })
+      });
+
+      var ins = await fetch(SU + '/rest/v1/ranking_historico', {
+        method: 'POST',
+        headers: Object.assign({}, H, { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+        body: JSON.stringify({ bolao_id: bolaoAtual.id, apelido: apelido, total: total, dia: dataFoto })
+      });
+      if (!ins.ok) erros++;
+    }
+
+    if (erros === 0) {
+      toast('✅ Foto do dia ' + dataFormatada + ' salva! (' + participantes.length + ' participantes, ' + resultadosFiltrados.length + ' jogos)');
+      buscar();
+    } else {
+      toast('⚠️ ' + erros + ' erro(s) ao salvar.', '#ff6b6b');
+    }
+
+  } catch(e) {
+    toast('❌ Erro: ' + e.message, '#ff6b6b');
+    console.error(e);
   }
 
   btn.disabled = false;
-  btn.innerHTML = '📸 FOTO DO DIA';
-
-  if (erros === 0) {
-    toast('✅ Foto do dia ' + hojeFormatado + ' salva! (' + rows.length + ' participantes)');
-    buscar(); // atualiza o gráfico
-  } else {
-    toast('⚠️ ' + erros + ' erro(s) ao salvar.', '#ff6b6b');
-  }
+  btn.innerHTML = '📸 TIRAR FOTO';
 }
 
 function renderGrafico(bolao, historico) {
