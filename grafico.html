@@ -267,12 +267,12 @@ async function tirarFotoDoDia() {
     var res=[];
     Object.keys(pMap).forEach(function(ap){
       var p1=pMap[ap],pg=0,pz=0,pt=0,pts=[];
-      Object.keys(GD).forEach(function(g){var tab=cTab(g);for(var pos=1;pos<=4;pos++){var tp=p1['g'+g.toLowerCase()+'_'+pos]||p1['g'+g+'_'+pos]||'';if(!tp)continue;var pr=tab.findIndex(function(t){return t.t===tp;});if(pr===-1)continue;if(pr+1===pos)pg+=1;if(pr<2&&pos<=2)pg+=1;}});
+      Object.keys(GD).forEach(function(g){var tab=cTab(g);if(!tab[0]||tab[0].j===0)return;for(var pos=1;pos<=4;pos++){var tp=p1['g'+g.toLowerCase()+'_'+pos]||p1['g'+g+'_'+pos]||'';if(!tp)continue;var pr=tab.findIndex(function(t){return t.t===tp;});if(pr===-1)continue;if(pr+1===pos)pg+=1;if(pr<2&&pos<=2)pg+=1;}});
       var pl=p1.placares||{};
       JF.forEach(function(j){var k=j.r+'_'+j.g+'_'+j.i,r=resMap[k];if(!r)return;var pa=pl['placar_'+k+'_a'],pb=pl['placar_'+k+'_b'];if(pa===undefined||pa===null||pb===undefined||pb===null)return;pts.push(cP(pa,pb,r.gols_a,r.gols_b));});
       pts.sort(function(a,b){return b-a;});
       var pp=pts.slice(0,24).reduce(function(s,v){return s+v;},0);
-      for(var zi=1;zi<=4;zi++){var z=p1['zebra'+zi];if(!z)continue;var gz=null;Object.keys(GD).forEach(function(g){if(GD[g].indexOf(z)>=0)gz=g;});if(!gz)continue;var tz=cTab(gz),pz2=tz.findIndex(function(t){return t.t===z;});if(pz2===0)pz+=6;else if(pz2===1)pz+=4;else if(pz2===2)pz+=2;}
+      for(var zi=1;zi<=4;zi++){var z=p1['zebra'+zi];if(!z)continue;var gz=null;Object.keys(GD).forEach(function(g){if(GD[g].indexOf(z)>=0)gz=g;});if(!gz)continue;var tz=cTab(gz);if(!tz[0]||tz[0].j===0)continue;var pz2=tz.findIndex(function(t){return t.t===z;});if(pz2===0)pz+=6;else if(pz2===1)pz+=4;else if(pz2===2)pz+=2;}
       for(var ti=1;ti<=8;ti++){var tp2=p1['t'+ti];if(!tp2)continue;var pr2=oito.indexOf(tp2);if(pr2===-1)continue;pt+=(pr2+1===ti)?2:1;}
       res.push({apelido:ap,total:pg+pz+pt+pp});
     });
