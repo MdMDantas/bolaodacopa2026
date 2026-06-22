@@ -152,9 +152,6 @@
 <div id="toast"></div>
 
 <script>
-var SU = SUPABASE_URL;
-var SK = SUPABASE_KEY;
-var H  = { 'apikey': SK, 'Authorization': 'Bearer ' + SK };
 var ADMIN_APELIDO = 'MDANTAS';
 
 var CORES = [
@@ -511,5 +508,6 @@ function toggleLinha(el, key) {
 <script src="config.js"></script>
 <script src="db.js"></script>
 <script src="auth.js"></script>
+<script>var SU = SUPABASE_URL; var SK = SUPABASE_KEY; var H = { 'apikey': SK, 'Authorization': 'Bearer ' + SK };</script>
 </body>
 </html>
