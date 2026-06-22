@@ -151,8 +151,6 @@
 
 <div id="toast"></div>
 
-<script src="db.js"></script>
-<script src="auth.js"></script>
 <script>
 var SU = SUPABASE_URL;
 var SK = SUPABASE_KEY;
@@ -167,7 +165,7 @@ var CORES = [
 
 var bolaoAtual = null;
 
-window.onload = function() {
+window.addEventListener('load', function() {
   // Mostrar barra admin se for MDANTAS
   var u = (typeof AUTH !== 'undefined') ? AUTH.get() : null;
   if (u && u.apelido === ADMIN_APELIDO) {
@@ -182,12 +180,14 @@ window.onload = function() {
       input.value = hoje.getFullYear()+'-'+(hoje.getMonth()+1).toString().padStart(2,'0')+'-'+d;
     }
   }
-  // Auto-buscar se tiver código salvo
-  if (u && u.bolao_codigo) {
-    document.getElementById('codigoInput').value = u.bolao_codigo;
+  // Auto-buscar — tentar código do login ou do localStorage
+  var codigoSalvo = (u && u.bolao_codigo) ? u.bolao_codigo : '';
+  if (!codigoSalvo) { try { codigoSalvo = localStorage.getItem('grafico_bolao_codigo') || ''; } catch(e) {} }
+  if (codigoSalvo) {
+    document.getElementById('codigoInput').value = codigoSalvo;
     buscar();
   }
-};
+});
 
 async function buscar() {
   var codigo = document.getElementById('codigoInput').value.trim().toUpperCase();
@@ -200,6 +200,8 @@ async function buscar() {
   var boloes = await rb.json();
   if (!boloes.length) { showErro('Bolão não encontrado. Verifique o código.'); return; }
   bolaoAtual = boloes[0];
+  // Salvar código para auto-buscar na próxima visita
+  try { localStorage.setItem('grafico_bolao_codigo', codigo); } catch(e) {}
 
   var rh = await fetch(SU + '/rest/v1/ranking_historico?bolao_id=eq.' + bolaoAtual.id + '&select=apelido,total,dia&order=dia.asc', { headers: H });
   if (!rh.ok) { showErro('Tabela de histórico não encontrada. Execute o setup_completo.sql no Supabase.'); return; }
@@ -506,5 +508,8 @@ function toggleLinha(el, key) {
   document.querySelectorAll('.linha-'+key+', .ponto-'+key+', .label-'+key).forEach(function(e){ e.style.opacity=op; });
 }
 </script>
+<script src="config.js"></script>
+<script src="db.js"></script>
+<script src="auth.js"></script>
 </body>
 </html>
