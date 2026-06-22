@@ -482,7 +482,8 @@ async function carregarRanking(bolaoId, bolaoNome) {
       var pQuartas   = r.pts_quartas   || 0;
       var pSemi      = r.pts_semi      || 0;
       var pFinal     = r.pts_final     || 0;
-      var totalGrp   = pGrupos + pZebras + pTerceiros + pR1 + pR2 + pR3;
+      var pPlacares  = r.pts_placares || (r.total - (r.pts_chaveamento||0) - (r.pts_16avos||0) - (r.pts_oitavas||0) - (r.pts_quartas||0) - (r.pts_semi||0) - (r.pts_final||0) - pGrupos - pZebras - pTerceiros);
+      var totalGrp   = pGrupos + pZebras + pTerceiros + pPlacares;
       var totalMM    = pChaveamento + p16avos + pOitavas + pQuartas + pSemi + pFinal;
 
       html += '<div style="display:grid;grid-template-columns:'+GRID+';align-items:center;padding:8px 12px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;">';
@@ -880,7 +881,8 @@ async function carregarRanking(bolaoId, bolaoNome) {
       var pQuartas   = r.pts_quartas   || 0;
       var pSemi      = r.pts_semi      || 0;
       var pFinal     = r.pts_final     || 0;
-      var totalGrp   = pGrupos + pZebras + pTerceiros + pR1 + pR2 + pR3;
+      var pPlacares  = r.pts_placares || (r.total - (r.pts_chaveamento||0) - (r.pts_16avos||0) - (r.pts_oitavas||0) - (r.pts_quartas||0) - (r.pts_semi||0) - (r.pts_final||0) - pGrupos - pZebras - pTerceiros);
+      var totalGrp   = pGrupos + pZebras + pTerceiros + pPlacares;
       var totalMM    = pChaveamento + p16avos + pOitavas + pQuartas + pSemi + pFinal;
 
       html += '<div style="display:grid;grid-template-columns:'+GRID+';align-items:center;padding:8px 12px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;">';
