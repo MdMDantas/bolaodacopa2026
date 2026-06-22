@@ -307,18 +307,7 @@ async function tirarFotoDoDia() {
 
     var participantes = Object.keys(pontuacoes);
 
-    if (!confirm('📸 FOTO DO DIA — ' + dataFormatada +
-      '
-
-Bolão: ' + bolaoAtual.nome +
-      '
-Jogos considerados: ' + resultadosFiltrados.length +
-      '
-Participantes: ' + participantes.length +
-      '
-
-Pontuação recalculada com base nos jogos até ' + dataFormatada + '.
-Confirmar?')) {
+    if (!confirm('📸 FOTO DO DIA — ' + dataFormatada + '\n\nBolão: ' + bolaoAtual.nome + '\nJogos considerados: ' + resultadosFiltrados.length + '\nParticipantes: ' + participantes.length + '\n\nPontuação recalculada com base nos jogos até ' + dataFormatada + '.\nConfirmar?')) {
       btn.disabled = false;
       btn.innerHTML = '📸 TIRAR FOTO';
       return;
