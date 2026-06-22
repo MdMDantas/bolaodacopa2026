@@ -196,28 +196,32 @@ async function buscar() {
 
   document.getElementById('area').innerHTML = '<div class="msg-area"><strong>⏳ CARREGANDO...</strong>Buscando histórico do bolão.</div>';
 
-  var rb = await fetch(SU + '/rest/v1/boloes?codigo=eq.' + encodeURIComponent(codigo) + '&select=id,nome', { headers: H });
-  if (!rb.ok) { showErro('Erro ao conectar ao servidor.'); return; }
-  var boloes = await rb.json();
-  if (!boloes.length) { showErro('Bolão não encontrado. Verifique o código.'); return; }
-  bolaoAtual = boloes[0];
-  // Salvar código para auto-buscar na próxima visita
-  try { localStorage.setItem('grafico_bolao_codigo', codigo); } catch(e) {}
+  try {
+    var rb = await fetch(SU + '/rest/v1/boloes?codigo=eq.' + encodeURIComponent(codigo) + '&select=id,nome', { headers: H });
+    if (!rb.ok) { showErro('Erro ao conectar ao servidor. (' + rb.status + ')'); return; }
+    var boloes = await rb.json();
+    if (!boloes.length) { showErro('Bolão não encontrado. Verifique o código.'); return; }
+    bolaoAtual = boloes[0];
+    try { localStorage.setItem('grafico_bolao_codigo', codigo); } catch(e) {}
 
-  var rh = await fetch(SU + '/rest/v1/ranking_diario?bolao_id=eq.' + bolaoAtual.id + '&select=apelido,total,dia&order=dia.asc', { headers: H });
-  if (!rh.ok) { showErro('Tabela de histórico não encontrada. Execute o setup_completo.sql no Supabase.'); return; }
-  var historico = await rh.json();
+    var rh = await fetch(SU + '/rest/v1/ranking_diario?bolao_id=eq.' + bolaoAtual.id + '&select=apelido,total,dia&order=dia.asc', { headers: H });
+    if (!rh.ok) { showErro('Erro ao buscar histórico. (' + rh.status + ')'); return; }
+    var historico = await rh.json();
 
-  if (!historico.length) {
-    var u = (typeof AUTH !== 'undefined') ? AUTH.get() : null;
-    var dica = (u && u.apelido === ADMIN_APELIDO)
-      ? 'Clique em <strong style="color:var(--green-light)">📸 FOTO DO DIA</strong> acima para registrar o primeiro snapshot.'
-      : 'Peça ao administrador para registrar o primeiro snapshot do dia.';
-    document.getElementById('area').innerHTML = '<div class="msg-area"><strong>📭 SEM HISTÓRICO</strong><span>' + dica + '</span></div>';
-    return;
+    if (!historico.length) {
+      var u = (typeof AUTH !== 'undefined') ? AUTH.get() : null;
+      var dica = (u && u.apelido === ADMIN_APELIDO)
+        ? 'Clique em <strong style="color:var(--green-light)">📸 FOTO DO DIA</strong> acima para registrar o primeiro snapshot.'
+        : 'Peça ao administrador para registrar o primeiro snapshot do dia.';
+      document.getElementById('area').innerHTML = '<div class="msg-area"><strong>📭 SEM HISTÓRICO</strong><span>' + dica + '</span></div>';
+      return;
+    }
+
+    renderGrafico(bolaoAtual, historico);
+  } catch(e) {
+    showErro('Erro inesperado: ' + e.message);
+    console.error(e);
   }
-
-  renderGrafico(bolaoAtual, historico);
 }
 
 function showErro(msg) {
