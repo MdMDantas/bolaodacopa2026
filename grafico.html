@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Corrida do Bolão — Copa 2026</title>
+<script src="config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{--gold:#ffdf00;--green:#009c3b;--green-light:#00c44f;--blue:#003087;--bg:#001a4a;--bg2:#002266;--bg3:#002d80;--card:#00194a;--border:#1a3d7a;--text:#e8f0ff;--muted:#7a9fd4;--white:#fff;}
@@ -152,6 +153,9 @@
 <div id="toast"></div>
 
 <script>
+var SU = SUPABASE_URL;
+var SK = SUPABASE_KEY;
+var H  = { 'apikey': SK, 'Authorization': 'Bearer ' + SK };
 var ADMIN_APELIDO = 'MDANTAS';
 
 var CORES = [
@@ -505,9 +509,7 @@ function toggleLinha(el, key) {
   document.querySelectorAll('.linha-'+key+', .ponto-'+key+', .label-'+key).forEach(function(e){ e.style.opacity=op; });
 }
 </script>
-<script src="config.js"></script>
 <script src="db.js"></script>
 <script src="auth.js"></script>
-<script>var SU = SUPABASE_URL; var SK = SUPABASE_KEY; var H = { 'apikey': SK, 'Authorization': 'Bearer ' + SK };</script>
 </body>
 </html>
