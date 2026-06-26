@@ -68,32 +68,30 @@
   .sel-wrap select.filled { border-color: rgba(0,156,59,0.7); }
 
   /* ── BRACKET ── */
-  .bracket-wrapper { overflow-x: auto; padding: 0 0 12px; }
-  .bracket-outer { display: flex; align-items: stretch; gap: 0; min-width: 900px; font-size: 10px; }
-  .bracket-col { display: flex; flex-direction: column; }
-  .bracket-col.seeds { width: 36px; }
-  .bracket-col.r32  { width: 110px; }
-  .bracket-col.r16  { width: 110px; }
-  .bracket-col.qf   { width: 110px; }
-  .bracket-col.sf   { width: 110px; }
-  .bracket-col.final{ width: 120px; }
-  .bracket-col.conn { width: 16px; }
-  .b-cell { display: flex; align-items: center; justify-content: center; }
-  .b-seed { font-size: 8px; font-weight: 700; color: var(--muted); text-align: right; padding-right: 4px; justify-content: flex-end; }
-  .b-seed-r { text-align: left; padding-left: 4px; justify-content: flex-start; }
-  .b-slot .sel-wrap select { font-size: 10px; padding: 2px 14px 2px 4px; height: 20px; border-radius: 3px; width: 100%; }
-  .b-slot .sel-wrap select[disabled] { opacity: 1; border-color: rgba(255,223,0,0.4); color: #ffdf00; font-weight: 700; cursor: default; }
-  .b-conn-r { border-right: 1px solid var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-  .b-conn-l { border-left: 1px solid var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-  .b-space { }
-  .champion-area { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
-  .champion-area .trophy-icon { font-size: 24px; }
-  .champion-area .champ-label { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 2px; color: var(--gold); }
-  .champion-area .sel-wrap select { font-size: 10px; text-align: center; border-color: rgba(245,197,24,0.4); border-width: 2px; width: 100px; }
-  .round-labels { display: flex; min-width: 900px; margin-bottom: 6px; }
-  .round-label { font-family: 'Bebas Neue', sans-serif; font-size: 10px; letter-spacing: 1.5px; color: var(--gold); text-align: center; padding: 3px 2px; }
+  .bracket-wrapper { overflow-x: auto; padding-bottom: 20px; }
+  .bracket {
+    display: grid;
+    grid-template-columns: 50px 130px 4px 120px 4px 100px 4px 90px 100px 90px 4px 100px 4px 120px 4px 130px 50px;
+    grid-template-rows: repeat(32, 26px);
+    gap: 0;
+    min-width: 1100px;
+    align-items: center;
+  }
+  .slot { display: flex; align-items: center; padding: 0 2px; }
+  .slot .sel-wrap select { font-size: 10px; padding: 3px 18px 3px 5px; height: 22px; border-radius: 4px; width: 100%; }
+  .seed-label { font-size: 9px; font-weight: 700; letter-spacing: 0.5px; color: var(--muted); text-align: right; padding: 0 4px; line-height: 1; }
+  .seed-label-right { font-size: 9px; font-weight: 700; letter-spacing: 0.5px; color: var(--muted); text-align: left; padding: 0 4px; line-height: 1; }
+  .conn-right { border-right: 1px solid var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .conn-left  { border-left: 1px solid var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .spacer { display: block; }
+  .champion-area { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+  .champion-area .trophy-icon { font-size: 28px; }
+  .champion-area .champ-label { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 2px; color: var(--gold); }
+  .champion-area .sel-wrap select { font-size: 11px; text-align: center; border-color: rgba(245,197,24,0.4); border-width: 2px; }
+  .champion-area .sel-wrap select:focus { border-color: var(--gold); }
+  .round-labels { display: grid; grid-template-columns: 50px 130px 4px 120px 4px 100px 4px 90px 100px 90px 4px 100px 4px 120px 4px 130px 50px; min-width: 1100px; margin-bottom: 8px; }
+  .round-label { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 1.5px; color: var(--gold); text-align: center; padding: 4px 2px; }
 
-  /* TOP 4 */
   /* TOP 4 */
   .top4-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
   .top4-card { background: linear-gradient(135deg, rgba(0,48,135,0.4), rgba(0,26,74,0.9)); border: 1px solid rgba(255,223,0,0.3); border-radius: 12px; padding: 18px; }
@@ -231,8 +229,8 @@
       <div class="regra-item pontos-max">🏆 Máximo: <strong>32 pontos</strong></div>
     </div>
     <div class="bracket-wrapper">
-      <div id="roundLabels" style="display:flex;min-width:900px;margin-bottom:6px;"></div>
-      <div id="bracket" style="display:flex;min-width:900px;"></div>
+      <div class="round-labels" id="roundLabels"></div>
+      <div class="bracket" id="bracket"></div>
     </div>
 
     <div class="divider"></div>
@@ -510,171 +508,30 @@ function buildBracket(saved) {
     return pos === 1 ? GRUPO_CLASS[g].primeiro : GRUPO_CLASS[g].segundo;
   }
 
+  const labelEl = document.getElementById('roundLabels');
+  labelEl.innerHTML = `
+    <div class="round-label">Round of 32</div>
+    <div class="round-label">Oitavas</div>
+    <div class="round-label">Quartas</div>
+    <div class="round-label">Semis</div>
+    <div class="round-label" style="grid-column:span 2">🏆 Final</div>
+    <div class="round-label">Semis</div>
+    <div class="round-label">Quartas</div>
+    <div class="round-label">Oitavas</div>
+    <div class="round-label">Round of 32</div>
+  `;
+
   const br = document.getElementById('bracket');
   br.innerHTML = '';
-  br.className = 'bracket-outer';
 
-  // Cada "linha" tem altura H px — 8 jogos × 4 linhas = 32 linhas de H cada
-  const H = 22; // altura de cada linha em px
-  const ROWS = 32;
-  const totalH = H * ROWS;
-
-  function makeCol(cls) {
-    const d = document.createElement('div');
-    d.className = 'bracket-col ' + cls;
-    d.style.height = totalH + 'px';
-    d.style.position = 'relative';
-    br.appendChild(d);
-    return d;
+  function cell(col, row, colspan, rowspan, content, extra='') {
+    const div = document.createElement('div');
+    div.style.gridColumn = colspan > 1 ? `${col} / span ${colspan}` : `${col}`;
+    div.style.gridRow = rowspan > 1 ? `${row} / span ${rowspan}` : `${row}`;
+    div.className = extra;
+    div.innerHTML = content;
+    br.appendChild(div);
   }
-
-  function placeEl(col, top, height, content, cls) {
-    const d = document.createElement('div');
-    d.style.position = 'absolute';
-    d.style.top = top + 'px';
-    d.style.height = height + 'px';
-    d.style.left = '0'; d.style.right = '0';
-    d.style.display = 'flex'; d.style.alignItems = 'center';
-    if (cls) d.className = cls;
-    d.innerHTML = content;
-    col.appendChild(d);
-    return d;
-  }
-
-  function selEl(id, saved, fixed) {
-    if (fixed) return `<div class="sel-wrap" style="width:100%"><select id="${id}" disabled style="opacity:1;border-color:rgba(255,223,0,0.5);color:#ffdf00;font-weight:700;width:100%;font-size:10px;padding:2px 14px 2px 4px;height:20px;border-radius:3px;">${makeOpt(saved||'')}</select></div>`;
-    return `<div class="sel-wrap" style="width:100%"><select id="${id}" onchange="updateProgress();markFilled(this)" style="width:100%;font-size:10px;padding:2px 14px 2px 4px;height:20px;border-radius:3px;">${makeOpt(saved||'')}</select></div>`;
-  }
-
-  // ── LEFT SIDE ──
-  const colSeedL = makeCol('seeds');
-  const colR32L  = makeCol('r32');
-  const colConnL1 = makeCol('conn');
-  const colR16L  = makeCol('r16');
-  const colConnL2 = makeCol('conn');
-  const colQFL   = makeCol('qf');
-  const colConnL3 = makeCol('conn');
-  const colSFL   = makeCol('sf');
-  const colConnL4 = makeCol('conn');
-
-  // ── CENTER ──
-  const colFinal = makeCol('final');
-
-  // ── RIGHT SIDE ──
-  const colConnR4 = makeCol('conn');
-  const colSFR   = makeCol('sf');
-  const colConnR3 = makeCol('conn');
-  const colQFR   = makeCol('qf');
-  const colConnR2 = makeCol('conn');
-  const colR16R  = makeCol('r16');
-  const colConnR1 = makeCol('conn');
-  const colR32R  = makeCol('r32');
-  const colSeedR = makeCol('seeds');
-
-  // ── R32 LEFT ──
-  SEEDS_LEFT.forEach((seeds, i) => {
-    const rowA = i * 4;
-    const rowB = i * 4 + 2;
-    const idA = `r32L_${i}_A`, idB = `r32L_${i}_B`, idW = `r16L_${i}`;
-    const teamA = getR32team(seeds[0]) || saved[idA];
-    const teamB = getR32team(seeds[1]) || saved[idB];
-    const fixedA = !!getR32team(seeds[0]), fixedB = !!getR32team(seeds[1]);
-    placeEl(colSeedL, rowA*H, H, `<span style="font-size:8px;font-weight:700;color:var(--muted);text-align:right;width:100%;padding-right:3px">${seeds[0]}</span>`);
-    placeEl(colSeedL, rowB*H, H, `<span style="font-size:8px;font-weight:700;color:var(--muted);text-align:right;width:100%;padding-right:3px">${seeds[1]}</span>`);
-    placeEl(colR32L, rowA*H, H, selEl(idA, teamA, fixedA));
-    placeEl(colR32L, rowB*H, H, selEl(idB, teamB, fixedB));
-    // connector
-    placeEl(colConnL1, rowA*H, H*3+H, '', 'b-conn-r');
-    // R16
-    placeEl(colR16L, (rowA+1)*H, H*2, selEl(idW, saved[idW]));
-  });
-
-  // ── QF LEFT ──
-  [0,1,2,3].forEach((qi) => {
-    const rowTop = qi * 8 + 1;
-    const idW = `qfL_${qi}`;
-    placeEl(colConnL2, rowTop*H, H*6, '', 'b-conn-r');
-    placeEl(colQFL, (rowTop+1)*H, H*4, selEl(idW, saved[idW]));
-  });
-
-  // ── SF LEFT ──
-  [0,1].forEach((si) => {
-    const rowTop = si * 16 + 3;
-    const idW = `sfL_${si}`;
-    placeEl(colConnL3, rowTop*H, H*10, '', 'b-conn-r');
-    placeEl(colSFL, (rowTop+2)*H, H*6, selEl(idW, saved[idW]));
-  });
-
-  // ── FINAL LEFT connector ──
-  placeEl(colConnL4, 7*H, H*18, '', 'b-conn-r');
-
-  // ── CHAMPION ──
-  const champDiv = document.createElement('div');
-  champDiv.style.position = 'absolute';
-  champDiv.style.top = (totalH/2 - 60) + 'px';
-  champDiv.style.left = '0'; champDiv.style.right = '0';
-  champDiv.style.height = '120px';
-  champDiv.className = 'champion-area';
-  champDiv.innerHTML = `<div class="trophy-icon">🏆</div><div class="champ-label">Campeão</div><div class="sel-wrap" style="width:100px"><select id="champion" onchange="updateProgress();markFilled(this)" style="font-size:10px;text-align:center;border-color:rgba(245,197,24,0.4);border-width:2px;width:100%;height:22px;border-radius:3px;">${makeOpt(saved['champion']||'')}</select></div>`;
-  colFinal.appendChild(champDiv);
-
-  // ── FINAL RIGHT connector ──
-  placeEl(colConnR4, 7*H, H*18, '', 'b-conn-l');
-
-  // ── SF RIGHT ──
-  [0,1].forEach((si) => {
-    const rowTop = si * 16 + 3;
-    const idW = `sfR_${si}`;
-    placeEl(colConnR3, rowTop*H, H*10, '', 'b-conn-l');
-    placeEl(colSFR, (rowTop+2)*H, H*6, selEl(idW, saved[idW]));
-  });
-
-  // ── QF RIGHT ──
-  [0,1,2,3].forEach((qi) => {
-    const rowTop = qi * 8 + 1;
-    const idW = `qfR_${qi}`;
-    placeEl(colConnR2, rowTop*H, H*6, '', 'b-conn-l');
-    placeEl(colQFR, (rowTop+1)*H, H*4, selEl(idW, saved[idW]));
-  });
-
-  // ── R16 RIGHT ──
-  SEEDS_RIGHT.forEach((seeds, i) => {
-    const rowA = i * 4;
-    const rowB = i * 4 + 2;
-    const idA = `r32R_${i}_A`, idB = `r32R_${i}_B`, idW = `r16R_${i}`;
-    const teamA = getR32team(seeds[0]) || saved[idA];
-    const teamB = getR32team(seeds[1]) || saved[idB];
-    const fixedA = !!getR32team(seeds[0]), fixedB = !!getR32team(seeds[1]);
-    placeEl(colConnR1, rowA*H, H*3+H, '', 'b-conn-l');
-    placeEl(colR16R, (rowA+1)*H, H*2, selEl(idW, saved[idW]));
-    placeEl(colR32R, rowA*H, H, selEl(idA, teamA, fixedA));
-    placeEl(colR32R, rowB*H, H, selEl(idB, teamB, fixedB));
-    placeEl(colSeedR, rowA*H, H, `<span style="font-size:8px;font-weight:700;color:var(--muted);padding-left:3px">${seeds[0]}</span>`);
-    placeEl(colSeedR, rowB*H, H, `<span style="font-size:8px;font-weight:700;color:var(--muted);padding-left:3px">${seeds[1]}</span>`);
-  });
-
-  // Update round labels
-  const labelEl = document.getElementById('roundLabels');
-  if (labelEl) {
-    labelEl.className = 'round-labels';
-    labelEl.style.minWidth = '900px';
-    const cols = [
-      {w:'36px', label:''}, {w:'110px', label:'Round of 32'},
-      {w:'16px', label:''}, {w:'110px', label:'Oitavas'},
-      {w:'16px', label:''}, {w:'110px', label:'Quartas'},
-      {w:'16px', label:''}, {w:'110px', label:'Semis'},
-      {w:'16px', label:''}, {w:'120px', label:'🏆 Final'},
-      {w:'16px', label:''}, {w:'110px', label:'Semis'},
-      {w:'16px', label:''}, {w:'110px', label:'Quartas'},
-      {w:'16px', label:''}, {w:'110px', label:'Oitavas'},
-      {w:'16px', label:''}, {w:'110px', label:'Round of 32'},
-      {w:'36px', label:''},
-    ];
-    labelEl.innerHTML = cols.map(c => `<div class="round-label" style="width:${c.w};flex-shrink:0">${c.label}</div>`).join('');
-  }
-
-}
-
 
   SEEDS_LEFT.forEach((seeds, i) => {
     const baseRow = i * 4 + 1;
@@ -1089,31 +946,29 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 // ── PLACARES MATA-MATA ────────────────────────────────────
-// SEEDS_LEFT e SEEDS_RIGHT definem os 16 confrontos do R32
-// Jogo 1-8: lado esquerdo, Jogo 9-16: lado direito
 var RODADAS_MM = {
   'r16avos': [
-    '1ºE vs 3ºs', '3ºs vs 1ºI',
-    '2ºA vs 2ºB', '1ºF vs 2ºC',
-    '2ºK vs 2ºL', '1ºH vs 2ºJ',
-    '1ºD vs 3ºs', '3ºs vs 1ºG',
-    '1ºC vs 2ºF', '2ºE vs 2ºI',
-    '1ºA vs 3ºs', '3ºs vs 1ºL',
-    '1ºJ vs 2ºH', '2ºD vs 2ºG',
-    '1ºB vs 3ºs', '3ºs vs 1ºK'
+    '1ºE vs 3ºs','3ºs vs 1ºI',
+    '2ºA vs 2ºB','1ºF vs 2ºC',
+    '2ºK vs 2ºL','1ºH vs 2ºJ',
+    '1ºD vs 3ºs','3ºs vs 1ºG',
+    '1ºC vs 2ºF','2ºE vs 2ºI',
+    '1ºA vs 3ºs','3ºs vs 1ºL',
+    '1ºJ vs 2ºH','2ºD vs 2ºG',
+    '1ºB vs 3ºs','3ºs vs 1ºK'
   ],
   'roitavas': [
-    'Venc. J1 vs Venc. J2', 'Venc. J3 vs Venc. J4',
-    'Venc. J5 vs Venc. J6', 'Venc. J7 vs Venc. J8',
-    'Venc. J9 vs Venc. J10', 'Venc. J11 vs Venc. J12',
-    'Venc. J13 vs Venc. J14', 'Venc. J15 vs Venc. J16'
+    'Venc. J1 vs Venc. J2','Venc. J3 vs Venc. J4',
+    'Venc. J5 vs Venc. J6','Venc. J7 vs Venc. J8',
+    'Venc. J9 vs Venc. J10','Venc. J11 vs Venc. J12',
+    'Venc. J13 vs Venc. J14','Venc. J15 vs Venc. J16'
   ],
   'rquartas': [
-    'Venc. Oit.1 vs Venc. Oit.2', 'Venc. Oit.3 vs Venc. Oit.4',
-    'Venc. Oit.5 vs Venc. Oit.6', 'Venc. Oit.7 vs Venc. Oit.8'
+    'Venc. Oit.1 vs Venc. Oit.2','Venc. Oit.3 vs Venc. Oit.4',
+    'Venc. Oit.5 vs Venc. Oit.6','Venc. Oit.7 vs Venc. Oit.8'
   ],
-  'rsemi':  ['Venc. Q1 vs Venc. Q2', 'Venc. Q3 vs Venc. Q4'],
-  'rfinal': ['3º Lugar (perdedores das semis)', 'Final']
+  'rsemi':  ['Venc. Q1 vs Venc. Q2','Venc. Q3 vs Venc. Q4'],
+  'rfinal': ['3º Lugar (perd. das semis)','Final']
 };
 
 var RODADAS_LABELS = {
@@ -1137,7 +992,7 @@ function buildJogos(saved) {
       var valB = saved[idB] || '';
       html += '<div class="jogo-card">' +
         '<div class="jogo-label">' + RODADAS_LABELS[rid] + ' · Jogo ' + (idx+1) + '</div>' +
-        '<div style="font-size:10px;color:var(--muted);margin:2px 0 4px;">' + label + '</div>' +
+        '<div style="font-size:10px;color:var(--muted);margin:1px 0 4px;">' + label + '</div>' +
         '<div class="jogo-times"><span>Time A</span><span class="vs">vs</span><span>Time B</span></div>' +
         '<div class="placar-inputs">' +
           '<input type="number" id="' + idA + '" min="0" max="20" placeholder="0" value="' + valA + '"' + (valA!==''?' class="filled"':'') + ' oninput="markInputFilled(this);updateProgress()">' +
