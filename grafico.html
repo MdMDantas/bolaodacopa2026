@@ -243,140 +243,39 @@ async function tirarFotoDoDia() {
   if (!dataFoto) { toast('⚠️ Selecione uma data.', '#ffaa44'); return; }
   var btn = document.getElementById('btnFoto');
   var dataF = dataFoto.split('-').reverse().join('/');
-  btn.disabled = true; btn.textContent = '⏳ Calculando...';
+  btn.disabled = true; btn.textContent = '⏳ Salvando...';
   try {
-    // 1. Jogos até a data
-    var rc = await fetch(SU+'/rest/v1/jogos_calendario?data_jogo=lte.'+dataFoto+'&select=api_id,rodada', {headers:H});
-    if (!rc.ok) throw new Error('Erro calendário');
-    var jIds = {}; (await rc.json()).forEach(function(j){ jIds[j.api_id]=true; });
+    // Pegar pontuação atual do ranking ao vivo — já calculada corretamente
+    var rp = await fetch(SU+'/rest/v1/pontuacoes?bolao_id=eq.'+bolaoAtual.id+'&select=apelido,total&order=total.desc', {headers:H});
+    if (!rp.ok) throw new Error('Erro ao buscar pontuações ('+rp.status+')');
+    var rows = await rp.json();
+    if (!rows.length) { toast('⚠️ Nenhuma pontuação encontrada.', '#ffaa44'); return; }
 
-    // 2. Resultados finalizados até a data
-    var rr = await fetch(SU+'/rest/v1/resultados?select=*', {headers:H});
-    if (!rr.ok) throw new Error('Erro resultados');
-    var resMap = {};
-    (await rr.json()).filter(function(r){ return r.finalizado && r.gols_a!==null && jIds[r.api_id]; })
-      .forEach(function(r){ resMap[r.api_id]=r; });
+    if (!confirm('📸 FOTO DO DIA — '+dataF+'
 
-    // 3. Palpites
-    var rpf = await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoAtual.id+'&select=apelido,placares', {headers:H});
-    if (!rpf.ok) throw new Error('Erro palpites');
-    var pMap = {};
-    (await rpf.json()).forEach(function(x){
-      if (!x.apelido) return;
-      var pl = x.placares||{};
-      if (typeof pl==='string'){ try{pl=JSON.parse(pl);}catch(e){pl={};} }
-      pMap[x.apelido] = pl;
-    });
+Bolão: '+bolaoAtual.nome+'
+Participantes: '+rows.length+'
 
-    // 4. Pontuações do banco
-    var rp = await fetch(SU+'/rest/v1/pontuacoes?bolao_id=eq.'+bolaoAtual.id+'&select=apelido,pts_grupos,pts_zebras,pts_terceiros', {headers:H});
-    if (!rp.ok) throw new Error('Erro pontuações');
-    var pontsMap = {};
-    (await rp.json()).forEach(function(p){ pontsMap[p.apelido]=p; });
-
-    // 5. Estrutura dos jogos
-    var GD = {A:['México','África do Sul','Coreia do Sul','República Tcheca'],B:['Canadá','Bósnia e Herzegovina','Catar','Suíça'],C:['Brasil','Marrocos','Haiti','Escócia'],D:['Estados Unidos','Turquia','Paraguai','Austrália'],E:['Alemanha','Curaçao','Costa do Marfim','Equador'],F:['Holanda','Japão','Suécia','Tunísia'],G:['Bélgica','Egito','Irã','Nova Zelândia'],H:['Espanha','Cabo Verde','Arábia Saudita','Uruguai'],I:['França','Senegal','Noruega','Iraque'],J:['Argentina','Argélia','Áustria','Jordânia'],K:['Portugal','RD Congo','Uzbequistão','Colômbia'],L:['Inglaterra','Croácia','Gana','Panamá']};
-    var JD = {R1:{A:[['México','África do Sul'],['Coreia do Sul','República Tcheca']],B:[['Canadá','Bósnia e Herzegovina'],['Catar','Suíça']],C:[['Brasil','Marrocos'],['Haiti','Escócia']],D:[['Estados Unidos','Paraguai'],['Austrália','Turquia']],E:[['Alemanha','Curaçao'],['Costa do Marfim','Equador']],F:[['Holanda','Japão'],['Suécia','Tunísia']],G:[['Bélgica','Egito'],['Irã','Nova Zelândia']],H:[['Espanha','Cabo Verde'],['Arábia Saudita','Uruguai']],I:[['França','Senegal'],['Noruega','Iraque']],J:[['Argentina','Argélia'],['Áustria','Jordânia']],K:[['Portugal','RD Congo'],['Uzbequistão','Colômbia']],L:[['Inglaterra','Croácia'],['Gana','Panamá']]},R2:{A:[['México','Coreia do Sul'],['África do Sul','República Tcheca']],B:[['Canadá','Catar'],['Bósnia e Herzegovina','Suíça']],C:[['Brasil','Haiti'],['Marrocos','Escócia']],D:[['Estados Unidos','Austrália'],['Turquia','Paraguai']],E:[['Alemanha','Costa do Marfim'],['Curaçao','Equador']],F:[['Holanda','Suécia'],['Japão','Tunísia']],G:[['Bélgica','Irã'],['Egito','Nova Zelândia']],H:[['Espanha','Arábia Saudita'],['Cabo Verde','Uruguai']],I:[['França','Iraque'],['Noruega','Senegal']],J:[['Argentina','Áustria'],['Argélia','Jordânia']],K:[['Portugal','Uzbequistão'],['Colômbia','RD Congo']],L:[['Inglaterra','Gana'],['Croácia','Panamá']]},R3:{A:[['México','República Tcheca'],['África do Sul','Coreia do Sul']],B:[['Canadá','Suíça'],['Bósnia e Herzegovina','Catar']],C:[['Brasil','Escócia'],['Marrocos','Haiti']],D:[['Estados Unidos','Turquia'],['Paraguai','Austrália']],E:[['Alemanha','Equador'],['Curaçao','Costa do Marfim']],F:[['Holanda','Tunísia'],['Japão','Suécia']],G:[['Bélgica','Nova Zelândia'],['Egito','Irã']],H:[['Espanha','Uruguai'],['Cabo Verde','Arábia Saudita']],I:[['França','Noruega'],['Senegal','Iraque']],J:[['Argentina','Jordânia'],['Argélia','Áustria']],K:[['Portugal','Colômbia'],['RD Congo','Uzbequistão']],L:[['Inglaterra','Panamá'],['Croácia','Gana']]}};
-    var JF = []; ['R1','R2','R3'].forEach(function(r){ Object.keys(JD[r]).forEach(function(g){ JD[r][g].forEach(function(j,i){ JF.push({r:r,g:g,i:i,a:j[0],b:j[1]}); }); }); });
-
-    // 6. Calcular tabela por grupo (com resultados até a data)
-    function cTab(g) {
-      var t={}; GD[g].forEach(function(x){ t[x]={t:x,p:0,j:0,gf:0,gc:0,sg:0}; });
-      JF.filter(function(j){ return j.g===g; }).forEach(function(jogo){
-        var k=jogo.r+'_'+jogo.g+'_'+jogo.i, res=resMap[k]; if(!res) return;
-        var ga=parseInt(res.gols_a), gb=parseInt(res.gols_b), ta=t[jogo.a], tb=t[jogo.b];
-        if(!ta||!tb) return;
-        ta.j++; tb.j++; ta.gf+=ga; ta.gc+=gb; ta.sg+=ga-gb; tb.gf+=gb; tb.gc+=ga; tb.sg+=gb-ga;
-        if(ga>gb) ta.p+=3; else if(ga<gb) tb.p+=3; else { ta.p++; tb.p++; }
-      });
-      return Object.values(t).sort(function(a,b){ if(b.p!==a.p) return b.p-a.p; if(b.sg!==a.sg) return b.sg-a.sg; return b.gf-a.gf; });
-    }
-
-    // 7. Identificar grupos COMPLETOS (6 jogos = 3 por time)
-    var gruposCompletos = {};
-    Object.keys(GD).forEach(function(g){
-      var tab = cTab(g);
-      // Grupo completo = cada time jogou 3 vezes (total 6 jogos = 12 participações / 2)
-      var totalJogos = tab.reduce(function(s,t){ return s+t.j; },0) / 2;
-      if (totalJogos >= 6) gruposCompletos[g] = tab;
-    });
-
-    // 8. Terceiros dos grupos completos
-    var terc = [];
-    Object.keys(gruposCompletos).forEach(function(g){
-      var tab = gruposCompletos[g];
-      if (tab[2]) terc.push({t:tab[2].t, p:tab[2].p, sg:tab[2].sg, gf:tab[2].gf});
-    });
-    terc.sort(function(a,b){ if(b.p!==a.p) return b.p-a.p; if(b.sg!==a.sg) return b.sg-a.sg; return b.gf-a.gf; });
-    var oito = terc.slice(0,8).map(function(x){ return x.t; });
-
-    function cP(pa,pb,ra,rb){ pa=parseInt(pa); pb=parseInt(pb); if(pa===ra&&pb===rb) return 3; var pe=pa===pb,re=ra===rb; if(pe&&re) return 2; if(!pe&&!re){ var pv=pa>pb?'A':'B',rv=ra>rb?'A':'B'; if(pv===rv) return Math.abs(pa-pb)===Math.abs(ra-rb)?2:1; } return 0; }
-
-    // 9. Calcular pontuação por participante
-    var resultados = [];
-    Object.keys(pontsMap).forEach(function(ap) {
-      var p = pontsMap[ap];
-      var pl = pMap[ap] || {};
-      var pg=0, pz=0, pt=0, pts=[];
-
-      // Grupos — apenas grupos completos
-      Object.keys(gruposCompletos).forEach(function(g){
-        var tab = gruposCompletos[g];
-        for(var pos=1;pos<=4;pos++){
-          var tp=pl['g'+g.toLowerCase()+'_'+pos]||pl['g'+g+'_'+pos]||''; if(!tp) continue;
-          var pr=tab.findIndex(function(t){ return t.t===tp; }); if(pr===-1) continue;
-          if(pr+1===pos) pg+=1;
-          if(pr<2&&pos<=2) pg+=1;
-        }
-      });
-
-      // Zebras — apenas de grupos completos
-      for(var zi=1;zi<=4;zi++){
-        var z=pl['zebra'+zi]; if(!z) continue;
-        var gz=null; Object.keys(GD).forEach(function(g){ if(GD[g].indexOf(z)>=0) gz=g; });
-        if(!gz||!gruposCompletos[gz]) continue;
-        var tz=gruposCompletos[gz];
-        var pz2=tz.findIndex(function(t){ return t.t===z; });
-        if(pz2===0) pz+=6; else if(pz2===1) pz+=4; else if(pz2===2) pz+=2;
-      }
-
-      // Terceiros — apenas dos grupos completos (máx 8)
-      for(var ti=1;ti<=8;ti++){
-        var tp2=pl['t'+ti]; if(!tp2) continue;
-        var pr2=oito.indexOf(tp2); if(pr2===-1) continue;
-        pt += (pr2+1===ti) ? 2 : 1;
-      }
-
-      // Placares — top 24 dos jogos até a data
-      JF.forEach(function(j){
-        var k=j.r+'_'+j.g+'_'+j.i, res=resMap[k]; if(!res) return;
-        var pa=pl['placar_'+k+'_a'], pb2=pl['placar_'+k+'_b'];
-        if(pa===undefined||pa===null||pb2===undefined||pb2===null){ pts.push(0); return; }
-        pts.push(cP(pa,pb2,res.gols_a,res.gols_b));
-      });
-      pts.sort(function(a,b){ return b-a; });
-      var pp = pts.slice(0,24).reduce(function(s,v){ return s+v; }, 0);
-
-      resultados.push({apelido:ap, total:pg+pz+pt+pp});
-    });
-
-    var nCompletos = Object.keys(gruposCompletos).length;
-    if(!confirm('📸 '+dataF+' — '+resultados.length+' participantes\n'+Object.keys(resMap).length+' jogos, '+nCompletos+'/12 grupos completos\nConfirmar?')){
+Isto salva o ranking ATUAL para o dia '+dataF+'.
+Confirmar?')) {
       btn.disabled=false; btn.innerHTML='📸 TIRAR FOTO'; return;
     }
-    btn.textContent = '⏳ Salvando...';
-    for(var i=0;i<resultados.length;i++){
-      var r2 = resultados[i];
-      await fetch(SU+'/rest/v1/ranking_diario?bolao_id=eq.'+bolaoAtual.id+'&apelido=eq.'+encodeURIComponent(r2.apelido)+'&dia=eq.'+dataFoto,
+
+    var erros = 0;
+    for (var i=0; i<rows.length; i++) {
+      var r = rows[i];
+      await fetch(SU+'/rest/v1/ranking_diario?bolao_id=eq.'+bolaoAtual.id+'&apelido=eq.'+encodeURIComponent(r.apelido)+'&dia=eq.'+dataFoto,
         {method:'DELETE', headers:Object.assign({},H,{'Content-Type':'application/json'})});
-      await fetch(SU+'/rest/v1/ranking_diario', {
+      var ins = await fetch(SU+'/rest/v1/ranking_diario', {
         method:'POST',
         headers:Object.assign({},H,{'Content-Type':'application/json','Prefer':'return=minimal'}),
-        body:JSON.stringify({bolao_id:bolaoAtual.id, apelido:r2.apelido, total:r2.total, dia:dataFoto})
+        body:JSON.stringify({bolao_id:bolaoAtual.id, apelido:r.apelido, total:r.total, dia:dataFoto})
       });
+      if (!ins.ok) erros++;
     }
-    toast('✅ Foto '+dataF+' salva!'); buscar();
-  } catch(e) { toast('❌ '+e.message,'#ff6b6b'); console.error(e); }
+    if (erros===0) { toast('✅ Foto do dia '+dataF+' salva! ('+rows.length+' participantes)'); buscar(); }
+    else { toast('⚠️ '+erros+' erro(s) ao salvar.', '#ff6b6b'); }
+  } catch(e) { toast('❌ '+e.message, '#ff6b6b'); console.error(e); }
   btn.disabled=false; btn.innerHTML='📸 TIRAR FOTO';
 }
 
