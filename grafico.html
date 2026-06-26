@@ -251,13 +251,7 @@ async function tirarFotoDoDia() {
     var rows = await rp.json();
     if (!rows.length) { toast('⚠️ Nenhuma pontuação encontrada.', '#ffaa44'); return; }
 
-    if (!confirm('📸 FOTO DO DIA — '+dataF+'
-
-Bolão: '+bolaoAtual.nome+'
-Participantes: '+rows.length+'
-
-Isto salva o ranking ATUAL para o dia '+dataF+'.
-Confirmar?')) {
+    if (!confirm('📸 FOTO DO DIA — '+dataF+'\n\nBolão: '+bolaoAtual.nome+'\nParticipantes: '+rows.length+'\n\nConfirmar?')) {
       btn.disabled=false; btn.innerHTML='📸 TIRAR FOTO'; return;
     }
 
