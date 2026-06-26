@@ -245,43 +245,77 @@ async function tirarFotoDoDia() {
   var dataF = dataFoto.split('-').reverse().join('/');
   btn.disabled=true; btn.textContent='⏳ Calculando...';
   try {
-    var rc=await fetch(SU+'/rest/v1/jogos_calendario?data_jogo=lte.'+dataFoto+'&select=api_id',{headers:H});
+    // Buscar jogos até a data para saber quais rodadas já aconteceram
+    var rc=await fetch(SU+'/rest/v1/jogos_calendario?data_jogo=lte.'+dataFoto+'&select=api_id,rodada',{headers:H});
     if(!rc.ok) throw new Error('Erro calendário '+rc.status);
-    var jIds={}; (await rc.json()).forEach(function(j){jIds[j.api_id]=true;});
-    var rr=await fetch(SU+'/rest/v1/resultados?select=*',{headers:H});
-    if(!rr.ok) throw new Error('Erro resultados '+rr.status);
-    var resMap={}; (await rr.json()).filter(function(r){return r.finalizado&&r.gols_a!==null&&jIds[r.api_id];}).forEach(function(r){resMap[r.api_id]=r;});
-    var rp=await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoAtual.id+'&select=*',{headers:H});
-    if(!rp.ok) throw new Error('Erro palpites '+rp.status);
-    var pArr=await rp.json();
-    var GD={A:['México','África do Sul','Coreia do Sul','República Tcheca'],B:['Canadá','Bósnia e Herzegovina','Catar','Suíça'],C:['Brasil','Marrocos','Haiti','Escócia'],D:['Estados Unidos','Turquia','Paraguai','Austrália'],E:['Alemanha','Curaçao','Costa do Marfim','Equador'],F:['Holanda','Japão','Suécia','Tunísia'],G:['Bélgica','Egito','Irã','Nova Zelândia'],H:['Espanha','Cabo Verde','Arábia Saudita','Uruguai'],I:['França','Senegal','Noruega','Iraque'],J:['Argentina','Argélia','Áustria','Jordânia'],K:['Portugal','RD Congo','Uzbequistão','Colômbia'],L:['Inglaterra','Croácia','Gana','Panamá']};
+    var jogosAte=await rc.json();
+    var temR1=jogosAte.some(function(j){return j.rodada==='R1';});
+    var temR2=jogosAte.some(function(j){return j.rodada==='R2';});
+    var temR3=jogosAte.some(function(j){return j.rodada==='R3';});
+
+    // Buscar pontuações já calculadas pelo ranking ao vivo (com top 24 aplicado)
+    var rp=await fetch(SU+'/rest/v1/pontuacoes?bolao_id=eq.'+bolaoAtual.id+'&select=apelido,total,pts_grupos,pts_zebras,pts_terceiros,pts_placares,pts_placares_r1,pts_placares_r2,pts_placares_r3',{headers:H});
+    if(!rp.ok) throw new Error('Erro pontuações '+rp.status);
+    var pontuacoes=await rp.json();
+    if(!pontuacoes.length){toast('⚠️ Nenhuma pontuação encontrada.','#ffaa44');return;}
+
+    // Calcular total acumulado até a data usando os valores já calculados
+    // O pts_placares já tem o top 24 aplicado — mas precisamos saber quanto
+    // veio de cada rodada para filtrar por data
+    // Solução: usar pts_placares_r1, r2, r3 individuais mas aplicar top24 sobre os disponíveis
+    var rr=await fetch(SU+'/rest/v1/resultados?select=api_id,gols_a,gols_b,finalizado',{headers:H});
+    var todosRes=rr.ok?await rr.json():[];
+    var jIds={};jogosAte.forEach(function(j){jIds[j.api_id]=true;});
+    var resMap={};todosRes.filter(function(r){return r.finalizado&&r.gols_a!==null&&jIds[r.api_id];}).forEach(function(r){resMap[r.api_id]=r;});
+
+    var rpf=await fetch(SU+'/rest/v1/palpites_fase1?bolao_id=eq.'+bolaoAtual.id+'&select=apelido,placares',{headers:H});
+    var palpitesArr=rpf.ok?await rpf.json():[];
+    var pMap={};
+    palpitesArr.forEach(function(x){if(!x.apelido)return;if(!pMap[x.apelido])pMap[x.apelido]={};var pl=x.placares||{};if(typeof pl==='string'){try{pl=JSON.parse(pl);}catch(e){pl={};}}Object.assign(pMap[x.apelido],pl||{});});
+
+    function cP(pa,pb,ra,rb){pa=parseInt(pa);pb=parseInt(pb);if(pa===ra&&pb===rb)return 3;var pe=pa===pb,re=ra===rb;if(pe&&re)return 2;if(!pe&&!re){var pv=pa>pb?'A':'B',rv=ra>rb?'A':'B';if(pv===rv)return Math.abs(pa-pb)===Math.abs(ra-rb)?2:1;}return 0;}
+
     var JD={R1:{A:[['México','África do Sul'],['Coreia do Sul','República Tcheca']],B:[['Canadá','Bósnia e Herzegovina'],['Catar','Suíça']],C:[['Brasil','Marrocos'],['Haiti','Escócia']],D:[['Estados Unidos','Paraguai'],['Austrália','Turquia']],E:[['Alemanha','Curaçao'],['Costa do Marfim','Equador']],F:[['Holanda','Japão'],['Suécia','Tunísia']],G:[['Bélgica','Egito'],['Irã','Nova Zelândia']],H:[['Espanha','Cabo Verde'],['Arábia Saudita','Uruguai']],I:[['França','Senegal'],['Noruega','Iraque']],J:[['Argentina','Argélia'],['Áustria','Jordânia']],K:[['Portugal','RD Congo'],['Uzbequistão','Colômbia']],L:[['Inglaterra','Croácia'],['Gana','Panamá']]},R2:{A:[['México','Coreia do Sul'],['África do Sul','República Tcheca']],B:[['Canadá','Catar'],['Bósnia e Herzegovina','Suíça']],C:[['Brasil','Haiti'],['Marrocos','Escócia']],D:[['Estados Unidos','Austrália'],['Turquia','Paraguai']],E:[['Alemanha','Costa do Marfim'],['Curaçao','Equador']],F:[['Holanda','Suécia'],['Japão','Tunísia']],G:[['Bélgica','Irã'],['Egito','Nova Zelândia']],H:[['Espanha','Arábia Saudita'],['Cabo Verde','Uruguai']],I:[['França','Iraque'],['Noruega','Senegal']],J:[['Argentina','Áustria'],['Argélia','Jordânia']],K:[['Portugal','Uzbequistão'],['Colômbia','RD Congo']],L:[['Inglaterra','Gana'],['Croácia','Panamá']]},R3:{A:[['México','República Tcheca'],['África do Sul','Coreia do Sul']],B:[['Canadá','Suíça'],['Bósnia e Herzegovina','Catar']],C:[['Brasil','Escócia'],['Marrocos','Haiti']],D:[['Estados Unidos','Turquia'],['Paraguai','Austrália']],E:[['Alemanha','Equador'],['Curaçao','Costa do Marfim']],F:[['Holanda','Tunísia'],['Japão','Suécia']],G:[['Bélgica','Nova Zelândia'],['Egito','Irã']],H:[['Espanha','Uruguai'],['Cabo Verde','Arábia Saudita']],I:[['França','Noruega'],['Senegal','Iraque']],J:[['Argentina','Jordânia'],['Argélia','Áustria']],K:[['Portugal','Colômbia'],['RD Congo','Uzbequistão']],L:[['Inglaterra','Panamá'],['Croácia','Gana']]}};
     var JF=[];['R1','R2','R3'].forEach(function(r){Object.keys(JD[r]).forEach(function(g){JD[r][g].forEach(function(j,i){JF.push({r:r,g:g,i:i,a:j[0],b:j[1]});});});});
+
+    var GD={A:['México','África do Sul','Coreia do Sul','República Tcheca'],B:['Canadá','Bósnia e Herzegovina','Catar','Suíça'],C:['Brasil','Marrocos','Haiti','Escócia'],D:['Estados Unidos','Turquia','Paraguai','Austrália'],E:['Alemanha','Curaçao','Costa do Marfim','Equador'],F:['Holanda','Japão','Suécia','Tunísia'],G:['Bélgica','Egito','Irã','Nova Zelândia'],H:['Espanha','Cabo Verde','Arábia Saudita','Uruguai'],I:['França','Senegal','Noruega','Iraque'],J:['Argentina','Argélia','Áustria','Jordânia'],K:['Portugal','RD Congo','Uzbequistão','Colômbia'],L:['Inglaterra','Croácia','Gana','Panamá']};
     function cTab(g){var t={};GD[g].forEach(function(x){t[x]={t:x,p:0,j:0,gf:0,gc:0,sg:0};});JF.filter(function(j){return j.g===g;}).forEach(function(jogo){var k=jogo.r+'_'+jogo.g+'_'+jogo.i,res=resMap[k];if(!res)return;var ga=parseInt(res.gols_a),gb=parseInt(res.gols_b),ta=t[jogo.a],tb=t[jogo.b];if(!ta||!tb)return;ta.j++;tb.j++;ta.gf+=ga;ta.gc+=gb;ta.sg+=ga-gb;tb.gf+=gb;tb.gc+=ga;tb.sg+=gb-ga;if(ga>gb)ta.p+=3;else if(ga<gb)tb.p+=3;else{ta.p++;tb.p++;}});return Object.values(t).sort(function(a,b){if(b.p!==a.p)return b.p-a.p;if(b.sg!==a.sg)return b.sg-a.sg;return b.gf-a.gf;});}
-    function cP(pa,pb,ra,rb){pa=parseInt(pa);pb=parseInt(pb);if(pa===ra&&pb===rb)return 3;var pe=pa===pb,re=ra===rb;if(pe&&re)return 2;if(!pe&&!re){var pv=pa>pb?'A':'B',rv=ra>rb?'A':'B';if(pv===rv)return Math.abs(pa-pb)===Math.abs(ra-rb)?2:1;}return 0;}
-    var pMap={};
-    pArr.forEach(function(x){if(!x.apelido)return;if(!pMap[x.apelido])pMap[x.apelido]={placares:{}};var p=pMap[x.apelido];Object.keys(x).forEach(function(k){if(k==='placares'){var pl=x[k];if(typeof pl==='string'){try{pl=JSON.parse(pl);}catch(e){pl={};}}Object.assign(p.placares,pl||{});}else if(x[k]!==null&&x[k]!==undefined&&x[k]!==''){p[k]=x[k];}});});
+
     var terc=[];Object.keys(GD).forEach(function(g){var tab=cTab(g);if(tab[2]&&tab[2].j>0)terc.push(tab[2]);});
     terc.sort(function(a,b){if(b.p!==a.p)return b.p-a.p;if(b.sg!==a.sg)return b.sg-a.sg;return b.gf-a.gf;});
     var oito=terc.slice(0,8).map(function(x){return x.t;});
-    var res=[];
-    Object.keys(pMap).forEach(function(ap){
-      var p1=pMap[ap],pg=0,pz=0,pt=0,pts=[];
-      Object.keys(GD).forEach(function(g){var tab=cTab(g);if(!tab[0]||tab[0].j===0)return;for(var pos=1;pos<=4;pos++){var tp=p1['g'+g.toLowerCase()+'_'+pos]||p1['g'+g+'_'+pos]||'';if(!tp)continue;var pr=tab.findIndex(function(t){return t.t===tp;});if(pr===-1)continue;if(pr+1===pos)pg+=1;if(pr<2&&pos<=2)pg+=1;}});
-      var pl=p1.placares||{};
-      // Push pts for ALL games with results (including 0s) so slice(0,24) works correctly
+
+    var resultados=[];
+    pontuacoes.forEach(function(p){
+      var ap=p.apelido;
+      var pl=pMap[ap]||{};
+
+      // Grupos — recalcular com resultados até a data
+      var pg=0;
+      Object.keys(GD).forEach(function(g){var tab=cTab(g);if(!tab[0]||tab[0].j===0)return;for(var pos=1;pos<=4;pos++){var tp=pl['g'+g.toLowerCase()+'_'+pos]||pl['g'+g+'_'+pos]||'';if(!tp)continue;var pr=tab.findIndex(function(t){return t.t===tp;});if(pr===-1)continue;if(pr+1===pos)pg+=1;if(pr<2&&pos<=2)pg+=1;}});
+
+      // Placares — recalcular com top 24 sobre jogos até a data
+      var pts=[];
       JF.forEach(function(j){var k=j.r+'_'+j.g+'_'+j.i,r=resMap[k];if(!r)return;var pa=pl['placar_'+k+'_a'],pb=pl['placar_'+k+'_b'];if(pa===undefined||pa===null||pb===undefined||pb===null){pts.push(0);return;}pts.push(cP(pa,pb,r.gols_a,r.gols_b));});
       pts.sort(function(a,b){return b-a;});
       var pp=pts.slice(0,24).reduce(function(s,v){return s+v;},0);
-      for(var zi=1;zi<=4;zi++){var z=p1['zebra'+zi];if(!z)continue;var gz=null;Object.keys(GD).forEach(function(g){if(GD[g].indexOf(z)>=0)gz=g;});if(!gz)continue;var tz=cTab(gz);if(!tz[0]||tz[0].j===0)continue;var pz2=tz.findIndex(function(t){return t.t===z;});if(pz2===0)pz+=6;else if(pz2===1)pz+=4;else if(pz2===2)pz+=2;}
-      for(var ti=1;ti<=8;ti++){var tp2=p1['t'+ti];if(!tp2)continue;var pr2=oito.indexOf(tp2);if(pr2===-1)continue;pt+=(pr2+1===ti)?2:1;}
-      res.push({apelido:ap,total:pg+pz+pt+pp});
+
+      // Zebras
+      var pz=0;
+      for(var zi=1;zi<=4;zi++){var z=pl['zebra'+zi];if(!z)continue;var gz=null;Object.keys(GD).forEach(function(g){if(GD[g].indexOf(z)>=0)gz=g;});if(!gz)continue;var tz=cTab(gz);if(!tz[0]||tz[0].j===0)continue;var pz2=tz.findIndex(function(t){return t.t===z;});if(pz2===0)pz+=6;else if(pz2===1)pz+=4;else if(pz2===2)pz+=2;}
+
+      // Terceiros
+      var pt=0;
+      for(var ti=1;ti<=8;ti++){var tp2=pl['t'+ti];if(!tp2)continue;var pr2=oito.indexOf(tp2);if(pr2===-1)continue;pt+=(pr2+1===ti)?2:1;}
+
+      resultados.push({apelido:ap,total:pg+pz+pt+pp});
     });
-    if(!confirm('📸 '+dataF+' — '+res.length+' participantes, '+Object.keys(resMap).length+' jogos\nConfirmar?')){btn.disabled=false;btn.innerHTML='📸 TIRAR FOTO';return;}
+
+    if(!confirm('📸 '+dataF+' — '+resultados.length+' participantes, '+Object.keys(resMap).length+' jogos\nTop 24 placares aplicado.\nConfirmar?')){btn.disabled=false;btn.innerHTML='📸 TIRAR FOTO';return;}
     btn.textContent='⏳ Salvando...';
     var erros=0;
-    for(var i=0;i<res.length;i++){
-      var r2=res[i];
+    for(var i=0;i<resultados.length;i++){
+      var r2=resultados[i];
       await fetch(SU+'/rest/v1/ranking_diario?bolao_id=eq.'+bolaoAtual.id+'&apelido=eq.'+encodeURIComponent(r2.apelido)+'&dia=eq.'+dataFoto,{method:'DELETE',headers:Object.assign({},H,{'Content-Type':'application/json'})});
       var ins=await fetch(SU+'/rest/v1/ranking_diario',{method:'POST',headers:Object.assign({},H,{'Content-Type':'application/json','Prefer':'return=minimal'}),body:JSON.stringify({bolao_id:bolaoAtual.id,apelido:r2.apelido,total:r2.total,dia:dataFoto})});
       if(!ins.ok)erros++;
@@ -291,153 +325,3 @@ async function tirarFotoDoDia() {
   btn.disabled=false;btn.innerHTML='📸 TIRAR FOTO';
 }
 
-function renderGrafico(bolao, historico) {
-  var diasSet = [], participantesMap = {};
-  historico.forEach(function(r) {
-    if (diasSet.indexOf(r.dia) === -1) diasSet.push(r.dia);
-    if (!participantesMap[r.apelido]) participantesMap[r.apelido] = {};
-    participantesMap[r.apelido][r.dia] = r.total;
-  });
-  diasSet.sort();
-
-  var nomes = Object.keys(participantesMap);
-  var HOJE_IDX = diasSet.length - 1;
-
-  var series = nomes.map(function(nome, ci) {
-    var pts = diasSet.map(function(d) { return participantesMap[nome][d] !== undefined ? participantesMap[nome][d] : null; });
-    return { nome: nome, pts: pts, cor: CORES[ci % CORES.length] };
-  });
-
-  var ordenado = series.slice().sort(function(a,b){ return b.pts[HOJE_IDX] - a.pts[HOJE_IDX]; });
-  var diaAtual = diasSet[HOJE_IDX];
-
-  var maxPts = 0;
-  series.forEach(function(s){ s.pts.forEach(function(v){ if(v && v > maxPts) maxPts = v; }); });
-  maxPts = Math.ceil(maxPts / 10) * 10 + 10;
-
-  var html = '';
-  html += '<div class="hoje-badge"><div class="hoje-dot"></div>DIA ' + (HOJE_IDX+1) + ' — ' + formatarData(diaAtual) + '</div>';
-  html += '<div class="chart-card">';
-  html += '<div class="chart-title">📈 ' + bolao.nome + '</div>';
-
-  // Legenda
-  html += '<div class="legenda">';
-  series.forEach(function(s) {
-    html += '<div class="legenda-item" onclick="toggleLinha(this,\'' + sanitize(s.nome) + '\')">'
-      + '<span class="leg-linha-wrap">'
-      + '<span class="leg-linha" style="background:' + s.cor + '"></span>'
-      + '<span class="leg-dot" style="background:' + s.cor + '"></span>'
-      + '</span>' + s.nome + '</div>';
-  });
-  html += '</div>';
-
-  html += buildSVG(series, diasSet, HOJE_IDX, maxPts);
-  html += '<div class="nota">💡 Clique em um nome na legenda para destacar ou ocultar a linha.</div>';
-  html += '</div>';
-
-  // Tabela
-  var colsTemplate = '50px 1fr ' + diasSet.map(function(){ return '56px'; }).join(' ') + ' 52px';
-  html += '<div class="pos-card"><div class="pos-header">🏆 Classificação Atual — ' + formatarData(diaAtual) + '</div>';
-  html += '<div class="pos-row head" style="grid-template-columns:' + colsTemplate + '">';
-  html += '<div>POS</div><div>PARTICIPANTE</div>';
-  diasSet.forEach(function(d, i){ html += '<div style="text-align:center">' + (i===HOJE_IDX?'★ ':'') + 'D'+(i+1)+'</div>'; });
-  html += '<div style="text-align:center">TEND.</div></div>';
-
-  // Calcular posições com empate
-  var posicoesGraf = [];
-  var posAtualGraf = 1;
-  for (var gi = 0; gi < ordenado.length; gi++) {
-    if (gi > 0 && ordenado[gi].pts[HOJE_IDX] === ordenado[gi-1].pts[HOJE_IDX]) {
-      posicoesGraf.push(posicoesGraf[gi-1]);
-    } else {
-      posAtualGraf = gi + 1;
-      posicoesGraf.push(posAtualGraf);
-    }
-  }
-
-  ordenado.forEach(function(s, idx) {
-    var pos = posicoesGraf[idx];
-    var numColor = pos===1?'#ffdf00':pos===2?'#aaa':pos===3?'#cd7f32':'#7a9fd4';
-    var medal = '';
-    var curr = s.pts[HOJE_IDX] || 0;
-    var prev = s.pts[HOJE_IDX-1] || 0;
-    var diff = curr - prev;
-    var trend = diff>0?'<span style="color:#00c44f;font-size:12px;">▲'+diff+'</span>'
-              : diff<0?'<span style="color:#ff6b6b;font-size:12px;">▼'+Math.abs(diff)+'</span>'
-              : '<span style="color:#7a9fd4;font-size:12px;">—</span>';
-    html += '<div class="pos-row" style="grid-template-columns:' + colsTemplate + '">';
-    html += '<div class="pos-num" style="color:' + numColor + '">' + pos + '<sup>º</sup></div>';
-    html += '<div class="pos-nome" style="color:' + s.cor + '">' + s.nome + '</div>';
-    s.pts.forEach(function(v,i){ html += '<div class="pos-pts'+(i===HOJE_IDX?' hoje':'')+'">'+( v!==null?v:'—')+'</div>'; });
-    html += '<div class="trend">'+trend+'</div></div>';
-  });
-  html += '</div>';
-
-  document.getElementById('area').innerHTML = html;
-}
-
-function buildSVG(series, dias, hojeIdx, maxPts) {
-  var PAD = { top:30, right:155, bottom:38, left:52 };
-  var W=1000, H=420, PW=W-PAD.left-PAD.right, PH=H-PAD.top-PAD.bottom, N=dias.length;
-
-  function xOf(i){ return N===1 ? PAD.left+PW/2 : PAD.left+(i/(N-1))*PW; }
-  function yOf(v){ return PAD.top+PH-(v/maxPts)*PH; }
-
-  var s = '<svg id="chart-svg" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;overflow:visible;">';
-
-  var step = maxPts<=30?5:maxPts<=60?10:maxPts<=120?20:30;
-  for(var v=0;v<=maxPts;v+=step){
-    var y=yOf(v);
-    s+='<line x1="'+PAD.left+'" y1="'+y+'" x2="'+(PAD.left+PW)+'" y2="'+y+'" stroke="#1a3d7a" stroke-width="'+(v===0?1.5:0.7)+'" stroke-dasharray="'+(v===0?'none':'4,5')+'"/>';
-    s+='<text x="'+(PAD.left-10)+'" y="'+(y+4)+'" text-anchor="end" fill="#7a9fd4" font-size="11" font-family="DM Sans,sans-serif">'+v+'</text>';
-  }
-
-  dias.forEach(function(d,i){
-    var x=xOf(i);
-    s+='<line x1="'+x+'" y1="'+PAD.top+'" x2="'+x+'" y2="'+(PAD.top+PH)+'" stroke="#1a3d7a" stroke-width="0.5" stroke-dasharray="2,6"/>';
-    s+='<text x="'+x+'" y="'+(PAD.top+PH+18)+'" text-anchor="middle" fill="'+(i===hojeIdx?'#ffdf00':'#7a9fd4')+'" font-size="11" font-family="DM Sans,sans-serif" font-weight="'+(i===hojeIdx?700:400)+'">Dia '+(i+1)+'</text>';
-  });
-
-  var xH=xOf(hojeIdx);
-  s+='<line x1="'+xH+'" y1="'+PAD.top+'" x2="'+xH+'" y2="'+(PAD.top+PH)+'" stroke="#ffdf00" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.45"/>';
-  s+='<rect x="'+(xH-22)+'" y="'+(PAD.top-20)+'" width="44" height="16" rx="4" fill="rgba(255,223,0,0.12)" stroke="rgba(255,223,0,0.35)" stroke-width="0.8"/>';
-  s+='<text x="'+xH+'" y="'+(PAD.top-8)+'" text-anchor="middle" fill="#ffdf00" font-size="9" font-weight="700" font-family="DM Sans,sans-serif" letter-spacing="1">HOJE</text>';
-
-  var ordenadoZ=series.slice().sort(function(a,b){ return (a.pts[hojeIdx]||0)-(b.pts[hojeIdx]||0); });
-  ordenadoZ.forEach(function(p){
-    var validPts=[];
-    p.pts.forEach(function(v,i){ if(v!==null && i<=hojeIdx) validPts.push({i:i,v:v}); });
-    if(!validPts.length) return;
-    var pontos=validPts.map(function(pt){ return xOf(pt.i)+','+yOf(pt.v); }).join(' ');
-    var key=sanitize(p.nome);
-    s+='<polyline class="linha-'+key+'" points="'+pontos+'" fill="none" stroke="'+p.cor+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>';
-    validPts.forEach(function(pt){
-      var isHoje=pt.i===hojeIdx;
-      s+='<circle class="ponto-'+key+'" cx="'+xOf(pt.i)+'" cy="'+yOf(pt.v)+'" r="'+(isHoje?6:3.5)+'" fill="'+p.cor+'" stroke="#001a4a" stroke-width="'+(isHoje?2:1.5)+'"/>';
-    });
-    var lastV=p.pts[hojeIdx]||0;
-    var sortedByPts=series.slice().sort(function(a,b){return (b.pts[hojeIdx]||0)-(a.pts[hojeIdx]||0);});
-    var pos=sortedByPts.findIndex(function(x){return x.nome===p.nome;})+1;
-    var medal=pos===1?'🥇 ':pos===2?'🥈 ':pos===3?'🥉 ':'';
-    // Quando há só 1 dia, distribuir labels verticalmente por ranking (evita sobreposição)
-    var labelY = N===1 ? (PAD.top + 20 + (pos-1)*18) : (yOf(lastV)+4);
-    s+='<text class="label-'+key+'" x="'+(xH+14)+'" y="'+labelY+'" fill="'+p.cor+'" font-size="12" font-weight="700" font-family="DM Sans,sans-serif">'+medal+p.nome+'  '+lastV+'pts</text>';
-  });
-
-  s+='</svg>';
-  return s;
-}
-
-function sanitize(str){ return str.replace(/[^a-zA-Z0-9]/g,'_'); }
-function formatarData(d){ if(!d) return ''; var p=d.split('-'); return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:d; }
-
-function toggleLinha(el, key) {
-  el.classList.toggle('dim');
-  var op = el.classList.contains('dim') ? '0' : '0.9';
-  document.querySelectorAll('.linha-'+key+', .ponto-'+key+', .label-'+key).forEach(function(e){ e.style.opacity=op; });
-}
-</script>
-<script src="db.js"></script>
-<script src="auth.js"></script>
-</body>
-</html>
