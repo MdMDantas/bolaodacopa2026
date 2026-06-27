@@ -500,12 +500,26 @@ function buildBracket(saved) {
   saved = saved || {};
 
   // Usar classificação real para R32 quando disponível
+  // Classificação já conhecida — atualizar conforme grupos terminam
+  var CLASS_CONHECIDA = {
+    A: {primeiro:'México',         segundo:'África do Sul'},
+    B: {primeiro:'Suíça',          segundo:'Canadá'},
+    C: {primeiro:'Brasil',         segundo:'Marrocos'},
+    D: {primeiro:'Estados Unidos', segundo:'Austrália'},
+    E: {primeiro:'Alemanha',       segundo:'Costa do Marfim'},
+    F: {primeiro:'Holanda',        segundo:'Japão'},
+    H: {primeiro:'Espanha',        segundo:'Cabo Verde'},
+    I: {primeiro:'França',         segundo:'Noruega'},
+  };
+
   function getR32team(seed) {
     var m = seed.match(/^([12])º([A-L])$/);
     if (!m) return '';
     var pos = parseInt(m[1]), g = m[2];
-    if (!GRUPO_CLASS[g]) return '';
-    return pos === 1 ? GRUPO_CLASS[g].primeiro : GRUPO_CLASS[g].segundo;
+    // Primeiro usar classificação do banco (GRUPO_CLASS), depois a conhecida
+    if (GRUPO_CLASS[g]) return pos === 1 ? GRUPO_CLASS[g].primeiro : GRUPO_CLASS[g].segundo;
+    if (CLASS_CONHECIDA[g]) return pos === 1 ? CLASS_CONHECIDA[g].primeiro : CLASS_CONHECIDA[g].segundo;
+    return '';
   }
 
   const labelEl = document.getElementById('roundLabels');
@@ -948,14 +962,22 @@ document.addEventListener('DOMContentLoaded', async function() {
 // ── PLACARES MATA-MATA ────────────────────────────────────
 var RODADAS_MM = {
   'r16avos': [
-    '1ºE vs 3ºs','3ºs vs 1ºI',
-    '2ºA vs 2ºB','1ºF vs 2ºC',
-    '2ºK vs 2ºL','1ºH vs 2ºJ',
-    '1ºD vs 3ºs','3ºs vs 1ºG',
-    '1ºC vs 2ºF','2ºE vs 2ºI',
-    '1ºA vs 3ºs','3ºs vs 1ºL',
-    '1ºJ vs 2ºH','2ºD vs 2ºG',
-    '1ºB vs 3ºs','3ºs vs 1ºK'
+    'Alemanha (1ºE) vs 3ºs',
+    '3ºs vs França (1ºI)',
+    'África do Sul (2ºA) vs Canadá (2ºB)',
+    'Holanda (1ºF) vs Marrocos (2ºC)',
+    '2ºK vs 2ºL',
+    'Espanha (1ºH) vs 2ºJ',
+    'Estados Unidos (1ºD) vs 3ºs',
+    '3ºs vs 1ºG',
+    'Brasil (1ºC) vs Japão (2ºF)',
+    'Costa do Marfim (2ºE) vs Noruega (2ºI)',
+    'México (1ºA) vs 3ºs',
+    '3ºs vs 1ºL',
+    '1ºJ vs Cabo Verde (2ºH)',
+    'Austrália (2ºD) vs 2ºG',
+    'Suíça (1ºB) vs 3ºs',
+    '3ºs vs 1ºK'
   ],
   'roitavas': [
     'Venc. J1 vs Venc. J2','Venc. J3 vs Venc. J4',
