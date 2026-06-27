@@ -1001,6 +1001,67 @@ var RODADAS_LABELS = {
   'rfinal': 'Final'
 };
 
+// Times por jogo — usados para mostrar nomes e filtrar selects
+var TIMES_MM = {
+  'r16avos': [
+    ['Alemanha','3ºs'],['3ºs','França'],['África do Sul','Canadá'],['Holanda','Marrocos'],
+    ['2ºK','2ºL'],['Espanha','2ºJ'],['Estados Unidos','3ºs'],['3ºs','1ºG'],
+    ['Brasil','Japão'],['Costa do Marfim','Noruega'],['México','3ºs'],['3ºs','1ºL'],
+    ['1ºJ','Cabo Verde'],['Austrália','2ºG'],['Suíça','3ºs'],['3ºs','1ºK']
+  ],
+  'roitavas': [
+    ['Venc. J1','Venc. J2'],['Venc. J3','Venc. J4'],['Venc. J5','Venc. J6'],['Venc. J7','Venc. J8'],
+    ['Venc. J9','Venc. J10'],['Venc. J11','Venc. J12'],['Venc. J13','Venc. J14'],['Venc. J15','Venc. J16']
+  ],
+  'rquartas': [
+    ['Venc. Oit.1','Venc. Oit.2'],['Venc. Oit.3','Venc. Oit.4'],
+    ['Venc. Oit.5','Venc. Oit.6'],['Venc. Oit.7','Venc. Oit.8']
+  ],
+  'rsemi':  [['Venc. Q1','Venc. Q2'],['Venc. Q3','Venc. Q4']],
+  'rfinal': [['3º Lugar (perd. semis)','Final']]
+};
+
+// Mapa de times disponíveis por fase/jogo para filtro cascata
+// r16avos: times fixos; oitavas: vencedor dos pares de r16avos; etc.
+// Pares de r16avos → oitavas (jogo i de oitavas = venc. r16avos[i*2] e r16avos[i*2+1])
+function getTimesJogo(rid, idx, saved) {
+  var times = TIMES_MM[rid];
+  if (times && times[idx]) {
+    // Para r16avos, usar os times fixos
+    if (rid === 'r16avos') return times[idx];
+    // Para oitavas: pegar o time selecionado nos dois jogos de r16avos correspondentes
+    if (rid === 'roitavas') {
+      var j1 = idx*2, j2 = idx*2+1;
+      var tA = saved['r16avos_'+j1+'_A'] || saved['r16avos_'+j1+'_B'] || times[idx][0];
+      var tB = saved['r16avos_'+j2+'_A'] || saved['r16avos_'+j2+'_B'] || times[idx][1];
+      // Se selecionou vencedor do jogo anterior, usar esse
+      // Simplificado: mostrar os times dos confrontos de origem
+      var r16A = TIMES_MM['r16avos'][j1] || [];
+      var r16B = TIMES_MM['r16avos'][j2] || [];
+      return [r16A[0]+'/'+r16A[1], r16B[0]+'/'+r16B[1]];
+    }
+  }
+  return ['Time A', 'Time B'];
+}
+
+function makeOptsJogo(rid, idx, saved) {
+  // Para r16avos: só os 2 times do confronto
+  if (rid === 'r16avos' && TIMES_MM[rid][idx]) {
+    var pair = TIMES_MM[rid][idx];
+    var t1 = pair[0], t2 = pair[1];
+    // Se é "3ºs", "2ºK" etc (genérico), usar ALL_TEAMS
+    var isGeneric = function(t){ return t.match(/^[123]º[A-Ls]/) || t === '3ºs'; };
+    if (isGeneric(t1) || isGeneric(t2)) return makeOpt; // fallback
+    // Times conhecidos — só esses 2
+    return function(val) {
+      return '<option value="">—</option>' +
+        '<option value="'+t1+'"'+(val===t1?' selected':'')+'>'+t1+'</option>' +
+        '<option value="'+t2+'"'+(val===t2?' selected':'')+'>'+t2+'</option>';
+    };
+  }
+  return makeOpt;
+}
+
 function buildJogos(saved) {
   saved = saved || {};
   Object.keys(RODADAS_MM).forEach(function(rid) {
@@ -1012,10 +1073,14 @@ function buildJogos(saved) {
       var idB = rid + '_' + idx + '_B';
       var valA = saved[idA] || '';
       var valB = saved[idB] || '';
+      // Times do jogo
+      var timesJogo = (TIMES_MM[rid] && TIMES_MM[rid][idx]) ? TIMES_MM[rid][idx] : ['Time A','Time B'];
+      var nomeA = timesJogo[0] || 'Time A';
+      var nomeB = timesJogo[1] || 'Time B';
       html += '<div class="jogo-card">' +
         '<div class="jogo-label">' + RODADAS_LABELS[rid] + ' · Jogo ' + (idx+1) + '</div>' +
         '<div style="font-size:10px;color:var(--muted);margin:1px 0 4px;">' + label + '</div>' +
-        '<div class="jogo-times"><span>Time A</span><span class="vs">vs</span><span>Time B</span></div>' +
+        '<div class="jogo-times"><span style="color:var(--text);font-weight:700;">' + nomeA + '</span><span class="vs">vs</span><span style="color:var(--text);font-weight:700;">' + nomeB + '</span></div>' +
         '<div class="placar-inputs">' +
           '<input type="number" id="' + idA + '" min="0" max="20" placeholder="0" value="' + valA + '"' + (valA!==''?' class="filled"':'') + ' oninput="markInputFilled(this);updateProgress()">' +
           '<span class="sep">×</span>' +
