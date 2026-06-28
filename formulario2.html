@@ -626,13 +626,13 @@ function buildBracket(saved) {
   const labelEl = document.getElementById('roundLabels');
   labelEl.innerHTML = `
     <div class="round-label" style="grid-column:2">Round of 32</div>
-    <div class="round-label" style="grid-column:4">Oitavas</div>
-    <div class="round-label" style="grid-column:6">Quartas</div>
-    <div class="round-label" style="grid-column:8">Semis</div>
+    <div class="round-label" style="grid-column:3">Oitavas</div>
+    <div class="round-label" style="grid-column:4">Quartas</div>
+    <div class="round-label" style="grid-column:5">Semis</div>
     <div class="round-label" style="grid-column:9">🏆 Final</div>
-    <div class="round-label" style="grid-column:10">Semis</div>
-    <div class="round-label" style="grid-column:12">Quartas</div>
-    <div class="round-label" style="grid-column:14">Oitavas</div>
+    <div class="round-label" style="grid-column:13">Semis</div>
+    <div class="round-label" style="grid-column:14">Quartas</div>
+    <div class="round-label" style="grid-column:15">Oitavas</div>
     <div class="round-label" style="grid-column:16">Round of 32</div>
   `;
 
@@ -694,7 +694,7 @@ function buildBracket(saved) {
   cell(5, 22, 1, 1, '', 'conn-right');
 
   const champDiv = document.createElement('div');
-  champDiv.style.gridColumn = '5 / span 2';
+  champDiv.style.gridColumn = '9';
   champDiv.style.gridRow = '14 / span 5';
   champDiv.className = 'champion-area';
   champDiv.innerHTML = `
@@ -718,13 +718,13 @@ function buildBracket(saved) {
     const fixedA = !!teamA;
     const fixedB = !!teamB;
     const teamsWR = [teamA, teamB].filter(function(t){ return t && ALL_TEAMS.indexOf(t)>=0; });
-    cell(9, baseRow,   1, 1, `<div class="seed-label" style="text-align:left">${seeds[0]}</div>`);
-    cell(9, baseRow+2, 1, 1, `<div class="seed-label" style="text-align:left">${seeds[1]}</div>`);
-    cell(9, baseRow,   1, 1, sel(idA, teamA, fixedA, pair.length>=2?pair:null), 'slot');
-    cell(9, baseRow+2, 1, 1, sel(idB, teamB, fixedB, pair.length>=2?pair:null), 'slot');
-    cell(9, baseRow+1, 1, 1, '', 'conn-left');
-    cell(9, baseRow+3, 1, 1, '', 'conn-left');
-    cell(8, baseRow+1, 1, 2, sel(idW, saved[idW], false, teamsWR.length>=2?teamsWR:null), 'slot');
+    cell(17, baseRow,   1, 1, `<div class="seed-label" style="text-align:left">${seeds[0]}</div>`);
+    cell(17, baseRow+2, 1, 1, `<div class="seed-label" style="text-align:left">${seeds[1]}</div>`);
+    cell(16, baseRow,   1, 1, sel(idA, teamA, fixedA, pair.length>=2?pair:null), 'slot');
+    cell(16, baseRow+2, 1, 1, sel(idB, teamB, fixedB, pair.length>=2?pair:null), 'slot');
+    cell(16, baseRow+1, 1, 1, '', 'conn-left');
+    cell(16, baseRow+3, 1, 1, '', 'conn-left');
+    cell(15, baseRow+1, 1, 2, sel(idW, saved[idW], false, teamsWR.length>=2?teamsWR:null), 'slot');
   });
 
   [0,2,4,6].forEach((i, qi) => {
@@ -732,9 +732,9 @@ function buildBracket(saved) {
     const idW = `qfR_${qi}`;
     const qfR_t1=saved[`r16R_${i}`]||'', qfR_t2=saved[`r16R_${i+1}`]||'';
     const qfRteams = qfR_t1&&qfR_t2?[qfR_t1,qfR_t2]:null;
-    cell(8, baseRow,   1, 1, '', 'conn-left');
-    cell(8, baseRow+4, 1, 1, '', 'conn-left');
-    cell(7, baseRow+1, 1, 2, sel(idW, saved[idW], false, qfRteams), 'slot');
+    cell(15, baseRow,   1, 1, '', 'conn-left');
+    cell(15, baseRow+4, 1, 1, '', 'conn-left');
+    cell(14, baseRow+1, 1, 2, sel(idW, saved[idW], false, qfRteams), 'slot');
   });
 
   [0,2].forEach((qi, si) => {
@@ -742,18 +742,18 @@ function buildBracket(saved) {
     const idW = `sfR_${si}`;
     const sfR_t1=saved[`qfR_${qi}`]||'', sfR_t2=saved[`qfR_${qi+1}`]||'';
     const sfRteams = sfR_t1&&sfR_t2?[sfR_t1,sfR_t2]:null;
-    cell(7, baseRow,   1, 1, '', 'conn-left');
-    cell(7, baseRow+8, 1, 1, '', 'conn-left');
-    cell(6, baseRow+3, 1, 2, sel(idW, saved[idW], false, sfRteams), 'slot');
+    cell(14, baseRow,   1, 1, '', 'conn-left');
+    cell(14, baseRow+8, 1, 1, '', 'conn-left');
+    cell(13, baseRow+3, 1, 2, sel(idW, saved[idW], false, sfRteams), 'slot');
   });
 
-  cell(6, 9,  1, 1, '', 'conn-left');
-  cell(6, 22, 1, 1, '', 'conn-left');
+  cell(13, 9,  1, 1, '', 'conn-left');
+  cell(13, 22, 1, 1, '', 'conn-left');
 
   SEEDS_RIGHT.forEach((seeds, i) => {
     const baseRow = i * 4 + 1;
-    cell(10, baseRow,   1, 1, `<div class="seed-label">${seeds[0]}</div>`);
-    cell(10, baseRow+2, 1, 1, `<div class="seed-label">${seeds[1]}</div>`);
+    cell(17, baseRow,   1, 1, `<div class="seed-label">${seeds[0]}</div>`);
+    cell(17, baseRow+2, 1, 1, `<div class="seed-label">${seeds[1]}</div>`);
   });
 
   // Top 4
