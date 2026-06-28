@@ -252,7 +252,7 @@
     <div class="phase-header"><div class="phase-badge"></div><h2>3. ZEBRAS DO MATA-MATA</h2></div>
     <div class="regras-box">
       <div class="regra-item">🦓 Selecione <strong>4 times zebra</strong> que vão surpreender no mata-mata — times que eliminam um favorito.</div>
-      <div class="regra-item">🎯 <strong>Zebra passou de fase:</strong> <span class="pts">+3 pts</span> &nbsp;·&nbsp; <strong>Chegou nas Oitavas:</strong> <span class="pts">+2 pts</span> &nbsp;·&nbsp; <strong>Chegou nas Quartas:</strong> <span class="pts">+3 pts</span> &nbsp;·&nbsp; <strong>Semis ou além:</strong> <span class="pts">+4 pts</span></div>
+      <div class="regra-item">🎯 <strong>Chegou nas Oitavas:</strong> <span class="pts">+2 pts</span> &nbsp;·&nbsp; <strong>Chegou nas Quartas:</strong> <span class="pts">+3 pts</span> &nbsp;·&nbsp; <strong>Semis ou além:</strong> <span class="pts">+4 pts</span></div>
       <div class="regra-item pontos-max">🏆 Máximo: 4 × 4 pts = <strong>16 pontos</strong></div>
     </div>
     <div class="top4-grid">
@@ -436,16 +436,16 @@ const ALL_TEAMS = ['África do Sul','Alemanha','Arábia Saudita','Argentina','Ar
 const AZARAO_TEAMS = ['Alemanha','Argentina','Brasil','Espanha','França','Holanda','Inglaterra','Portugal'];
 
 const SEEDS_LEFT = [
-  ['1ºE','3ºs'], ['1ºI','3ºs'],
+  ['1ºE','3ºD'], ['1ºI','3ºF'],
   ['2ºA','2ºB'], ['1ºF','2ºC'],
   ['2ºK','2ºL'], ['1ºH','2ºJ'],
-  ['1ºD','3ºs'], ['1ºG','3ºs'],
+  ['1ºD','3ºB'], ['1ºG','3ºI'],
 ];
 const SEEDS_RIGHT = [
   ['1ºC','2ºF'], ['2ºE','2ºI'],
-  ['1ºA','3ºs'], ['1ºL','3ºs'],
+  ['1ºA','3ºE'], ['1ºL','3ºK'],
   ['1ºJ','2ºH'], ['2ºD','2ºG'],
-  ['1ºB','3ºs'], ['1ºK','3ºs'],
+  ['1ºB','3ºJ'], ['1ºK','3ºL'],
 ];
 
 function makeOpt(saved, teams) {
@@ -463,14 +463,14 @@ function sel(id, saved, fixed, teams) {
 
 // Times por par de R32 — usado para filtrar oitavas, quartas, etc.
 var R32_PAIRS = [
-  ['Alemanha','Senegal'],    ['Irã','França'],
+  ['Alemanha','Paraguai'],   ['França','Suécia'],
   ['África do Sul','Canadá'], ['Holanda','Marrocos'],
-  ['Portugal','Croácia'],    ['Espanha','2ºJ'],
-  ['Estados Unidos','Paraguai'], ['Bósnia','Bélgica'],
+  ['Portugal','Croácia'],    ['Espanha','Áustria'],
+  ['Estados Unidos','Bósnia'], ['Bélgica','Senegal'],
   ['Brasil','Japão'],        ['Costa do Marfim','Noruega'],
-  ['México','Equador'],      ['Gana','Inglaterra'],
-  ['1ºJ','Cabo Verde'],      ['Austrália','Egito'],
-  ['Suíça','RD Congo'],      ['Suécia','Colômbia']
+  ['México','Equador'],      ['Inglaterra','RD Congo'],
+  ['Argentina','Cabo Verde'], ['Austrália','Egito'],
+  ['Suíça','Argélia'],       ['Colômbia','Gana']
 ];
 
 function getTeamsForSlot(bracketId, saved) {
@@ -593,6 +593,7 @@ function buildBracket(saved) {
     G: {primeiro:'Bélgica',        segundo:'Egito'},
     H: {primeiro:'Espanha',        segundo:'Cabo Verde'},
     I: {primeiro:'França',         segundo:'Noruega'},
+    J: {primeiro:'Argentina',      segundo:'Áustria'},
     K: {primeiro:'Colômbia',       segundo:'Portugal'},
     L: {primeiro:'Inglaterra',     segundo:'Croácia'},
   };
@@ -1099,10 +1100,10 @@ var RODADAS_LABELS = {
 // Times por jogo — usados para mostrar nomes e filtrar selects
 var TIMES_MM = {
   'r16avos': [
-    ['Alemanha','Senegal'],['Irã','França'],['África do Sul','Canadá'],['Holanda','Marrocos'],
-    ['Portugal','Croácia'],['Espanha','2ºJ'],['Estados Unidos','Paraguai'],['Bósnia','Bélgica'],
-    ['Brasil','Japão'],['Costa do Marfim','Noruega'],['México','Equador'],['Gana','Inglaterra'],
-    ['1ºJ','Cabo Verde'],['Austrália','Egito'],['Suíça','RD Congo'],['Suécia','Colômbia']
+    ['Alemanha','Paraguai'],['França','Suécia'],['África do Sul','Canadá'],['Holanda','Marrocos'],
+    ['Portugal','Croácia'],['Espanha','Áustria'],['Estados Unidos','Bósnia'],['Bélgica','Senegal'],
+    ['Brasil','Japão'],['Costa do Marfim','Noruega'],['México','Equador'],['Inglaterra','RD Congo'],
+    ['Argentina','Cabo Verde'],['Austrália','Egito'],['Suíça','Argélia'],['Colômbia','Gana']
   ],
   'roitavas': [
     ['Venc. J1','Venc. J2'],['Venc. J3','Venc. J4'],['Venc. J5','Venc. J6'],['Venc. J7','Venc. J8'],
