@@ -219,7 +219,7 @@
 
   <!-- ══ CARD 1: MATA-MATA (Chaveamento + Top 4 + Zebras + Azarões) ══ -->
   <div class="mm-tab-panel active" id="mm-matamata">
-    <div class="prazo-badge-mm">📅 Prazo: até 28/06 às 16h (horário de Brasília)</div>
+    <div class="prazo-badge-mm">📅 Prazo: até 29/06 às 14h (horário de Brasília)</div>
 
     <div class="phase-header"><div class="phase-badge"></div><h2>1. CHAVEAMENTO COMPLETO</h2></div>
     <div class="regras-box">
@@ -271,18 +271,13 @@
     <div class="phase-header"><div class="phase-badge"></div><h2>4. AZARÕES</h2></div>
     <div class="regras-box">
       <div class="regra-item">⭐ <strong>Caiu no R32:</strong> <span class="pts">+4 pts</span> &nbsp;·&nbsp; <strong>Oitavas:</strong> <span class="pts">+3 pts</span> &nbsp;·&nbsp; <strong>Quartas:</strong> <span class="pts">+2 pts</span> &nbsp;·&nbsp; <strong>Semi ou além:</strong> <span class="pts">0 pts</span></div>
-      <div class="regra-item pontos-max">🏆 Máximo: 2 × 4 pts = <strong>8 pontos</strong></div>
+      <div class="regra-item pontos-max">🏆 Máximo: 1 × 4 pts = <strong>4 pontos</strong></div>
     </div>
     <div class="decep-grid">
       <div class="especial-card decep">
-        <div class="card-icon">⭐</div><div class="card-title">Azarão 1</div>
+        <div class="card-icon">⭐</div><div class="card-title">Azarão</div>
         <div class="card-desc">Time que vai surpreender no mata-mata.</div>
         <div class="sel-wrap"><select id="decepcao1" onchange="updateProgress();markFilled(this);syncDecep()"><option value="">Selecione...</option></select></div>
-      </div>
-      <div class="especial-card decep">
-        <div class="card-icon">⭐</div><div class="card-title">Azarão 2</div>
-        <div class="card-desc">Time que vai surpreender no mata-mata.</div>
-        <div class="sel-wrap"><select id="decepcao2" onchange="updateProgress();markFilled(this);syncDecep()"><option value="">Selecione...</option></select></div>
       </div>
     </div>
     <div class="save-section" id="btnMataMata" style="text-align:right;margin-top:16px;"></div>
@@ -290,7 +285,7 @@
 
   <!-- ══ CARD 2: 16 AVOS ══ -->
   <div class="mm-tab-panel" id="mm-16avos">
-    <div class="prazo-badge-mm" >📅 Prazo: até 28/06 às 16h (horário de Brasília)</div>
+    <div class="prazo-badge-mm" >📅 Prazo: até 29/06 às 14h (horário de Brasília)</div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-bottom:12px;">
       <button onclick="recuperarPalpitesMM('r16avos')" style="background:rgba(0,160,100,0.1);border:1px solid rgba(0,200,120,0.3);color:#00c878;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">♻️ RECUPERAR ÚLTIMO PALPITE</button>
       <button onclick="preencherAleatorioMM('r16avos');updateProgress()" style="background:rgba(255,223,0,0.1);border:1px solid rgba(255,223,0,0.3);color:#ffdf00;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🎲 PREENCHER ALEATÓRIO</button>
@@ -437,7 +432,7 @@ var SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 const ALL_TEAMS = ['África do Sul','Alemanha','Arábia Saudita','Argentina','Argélia','Austrália','Áustria','Bélgica','Bósnia e Herzegovina','Brasil','Cabo Verde','Canadá','Catar','Colômbia','Coreia do Sul','Costa do Marfim','Croácia','Curaçao','Egito','Equador','Escócia','Espanha','Estados Unidos','França','Gana','Haiti','Holanda','Inglaterra','Iraque','Irã','Japão','Jordânia','México','Marrocos','Nova Zelândia','Noruega','Panamá','Paraguai','Portugal','RD Congo','República Tcheca','Senegal','Suécia','Suíça','Tunísia','Turquia','Uruguai','Uzbequistão'];
 
 // Times para azarões — ordem alfabética
-const AZARAO_TEAMS = ['Alemanha','Argentina','Brasil','Espanha','França','Holanda','Inglaterra','Portugal'];
+const AZARAO_TEAMS = ['Argentina','Espanha','França','Inglaterra'];
 const ZEBRA_TEAMS = ['Áustria','Cabo Verde','Japão','Marrocos','Paraguai','RD Congo','Senegal','Suécia'];
 
 const SEEDS_LEFT = [
@@ -494,22 +489,22 @@ function getTeamsForSlot(bracketId, saved) {
     var pair2 = R32_PAIRS[8 + idx2] || [];
     return pair2.length >= 2 ? pair2 : ALL_TEAMS;
   }
-  // R16 (oitavas do bracket): pares de R32
-  var mL = bracketId.match(/^r16L_(\d+)$/);
-  var mR = bracketId.match(/^r16R_(\d+)$/);
+  // R16 (oitavas do bracket): os 2 times do confronto R32 correspondente
+  var mL = bracketId.match(/^r16L_(\d+)$/);\
+  var mR = bracketId.match(/^r16R_(\d+)$/);\
   if (mL) {
     var i = parseInt(mL[1]);
-    var p = R32_PAIRS[i] || [];
-    return p.filter(function(t){ return ALL_TEAMS.indexOf(t) >= 0; }).length >= 2
-      ? p.filter(function(t){ return ALL_TEAMS.indexOf(t) >= 0; })
-      : ALL_TEAMS;
+    var pair = R32_PAIRS[i] || [];
+    var tA = pair[0] || saved['r32L_'+i+'_A'] || '';
+    var tB = pair[1] || saved['r32L_'+i+'_B'] || '';
+    return tA && tB ? [tA, tB] : ALL_TEAMS;
   }
   if (mR) {
     var i2 = parseInt(mR[1]);
-    var p2 = R32_PAIRS[i2] || [];
-    return p2.filter(function(t){ return ALL_TEAMS.indexOf(t) >= 0; }).length >= 2
-      ? p2.filter(function(t){ return ALL_TEAMS.indexOf(t) >= 0; })
-      : ALL_TEAMS;
+    var pair2 = R32_PAIRS[8 + i2] || [];
+    var tC = pair2[0] || saved['r32R_'+i2+'_A'] || '';
+    var tD = pair2[1] || saved['r32R_'+i2+'_B'] || '';
+    return tC && tD ? [tC, tD] : ALL_TEAMS;
   }
   // QF: pares de R16
   var mQL = bracketId.match(/^qfL_(\d+)$/);
@@ -698,13 +693,29 @@ function buildBracket(saved) {
   champDiv.style.gridColumn = '6';
   champDiv.style.gridRow = '14 / span 5';
   champDiv.className = 'champion-area';
+  var sf = [saved['sfL_0']||'', saved['sfL_1']||'', saved['sfR_0']||'', saved['sfR_1']||''].filter(Boolean);
+  var sfTeams = sf.length === 4 ? sf : null;
+  function placeOpt(id) { return makeOpt(saved[id]||'', sfTeams); }
   champDiv.innerHTML = `
     <div class="trophy-icon">🏆</div>
-    <div class="champ-label">Campeão</div>
-    <div class="sel-wrap" style="max-width:140px">
-      <select id="champion" onchange="cascadeUpdate();updateProgress();markFilled(this)" style="text-align:center;border-color:rgba(245,197,24,0.4);border-width:2px">
-        ${makeOpt(saved['champion']||'', saved['sfL_0']&&saved['sfR_0']?[saved['sfL_0'],saved['sfR_0']]:null)}
-      </select>
+    <div class="champ-label">Top 4</div>
+    <div style="display:flex;flex-direction:column;gap:4px;width:100%;max-width:150px">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--gold);min-width:24px">1°</span>
+        <div class="sel-wrap" style="flex:1"><select id="pos1" onchange="cascadeUpdate();updateProgress();markFilled(this)" style="border-color:rgba(245,197,24,0.4);border-width:2px">${placeOpt('pos1')}</select></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--gold);min-width:24px">2°</span>
+        <div class="sel-wrap" style="flex:1"><select id="pos2" onchange="cascadeUpdate();updateProgress();markFilled(this)" style="border-color:rgba(245,197,24,0.4);border-width:2px">${placeOpt('pos2')}</select></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--gold);min-width:24px">3°</span>
+        <div class="sel-wrap" style="flex:1"><select id="pos3" onchange="cascadeUpdate();updateProgress();markFilled(this)" style="border-color:rgba(245,197,24,0.4);border-width:2px">${placeOpt('pos3')}</select></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--gold);min-width:24px">4°</span>
+        <div class="sel-wrap" style="flex:1"><select id="pos4" onchange="cascadeUpdate();updateProgress();markFilled(this)" style="border-color:rgba(245,197,24,0.4);border-width:2px">${placeOpt('pos4')}</select></div>
+      </div>
     </div>`;
   br.appendChild(champDiv);
 
@@ -781,7 +792,7 @@ function buildBracket(saved) {
   syncZebraMM();
 
   // Azarões
-  ['decepcao1','decepcao2'].forEach(function(id) {
+  ['decepcao1'].forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
     var cur = saved[id] || '';
@@ -830,7 +841,7 @@ function syncZebraMM() {
 }
 
 function syncDecep() {
-  var ids = ['decepcao1','decepcao2'];
+  var ids = ['decepcao1'];
   var escolhidos = {};
   ids.forEach(function(id){ var el = document.getElementById(id); if(el && el.value) escolhidos[el.value]=id; });
   ids.forEach(function(id) {
@@ -893,7 +904,7 @@ function preencherAleatorioF2() {
   syncZebraMM();
 
   var decTeams = AZARAO_TEAMS.slice();
-  ['decepcao1','decepcao2'].forEach(function(id){
+  ['decepcao1'].forEach(function(id){
     var el=document.getElementById(id);
     if(el){
       var idx=Math.floor(Math.random()*decTeams.length);
@@ -938,7 +949,7 @@ function preencherAleatorioMM(rid) {
 }
 
 // PRAZO
-var PRAZO_MATAMATA = new Date('2026-06-28T19:00:00Z'); // 28/06 às 16h Brasília
+var PRAZO_MATAMATA = new Date('2026-06-29T17:00:00Z'); // 29/06 às 14h Brasília
 
 var PRAZOS_MM = {
   'btnMataMata': new Date('2026-06-28T19:00:00Z'),
@@ -1184,23 +1195,38 @@ function buildJogos(saved) {
     var container = document.getElementById('jogos-' + rid);
     if (!container) return;
     var html = '';
+    // Resultados fixos (já jogados)
+    var FIXED = { 'r16avos_2': ['Canadá', 1, 'África do Sul', 0] };
+
     RODADAS_MM[rid].forEach(function(label, idx) {
       var idA = rid + '_' + idx + '_A';
       var idB = rid + '_' + idx + '_B';
-      var valA = saved[idA] || '';
-      var valB = saved[idB] || '';
-      // Times do jogo
-      var timesJogo = (TIMES_MM[rid] && TIMES_MM[rid][idx]) ? TIMES_MM[rid][idx] : ['Time A','Time B'];
-      var nomeA = timesJogo[0] || 'Time A';
-      var nomeB = timesJogo[1] || 'Time B';
-      html += '<div class="jogo-card">' +
-        '<div class="jogo-label">' + RODADAS_LABELS[rid] + ' · Jogo ' + (idx+1) + '</div>' +
+      var fixedKey = rid + '_' + idx;
+      var fixed = FIXED[fixedKey];
+      var valA, valB, nomeA, nomeB, isFixed;
+      if (fixed) {
+        nomeA = fixed[0]; valA = String(fixed[1]);
+        nomeB = fixed[2]; valB = String(fixed[3]);
+        isFixed = true;
+      } else {
+        valA = saved[idA] || '';
+        valB = saved[idB] || '';
+        var timesJogo = (TIMES_MM[rid] && TIMES_MM[rid][idx]) ? TIMES_MM[rid][idx] : ['Time A','Time B'];
+        nomeA = timesJogo[0] || 'Time A';
+        nomeB = timesJogo[1] || 'Time B';
+        isFixed = false;
+      }
+      var disabledAttr = isFixed ? ' disabled' : '';
+      var filledClass = (valA!==''?' class="filled"':'');
+      var filledClassB = (valB!==''?' class="filled"':'');
+      html += '<div class="jogo-card"' + (isFixed?' style="opacity:0.7;border-color:rgba(0,200,120,0.4)"':'') + '>' +
+        '<div class="jogo-label">' + RODADAS_LABELS[rid] + ' · Jogo ' + (idx+1) + (isFixed?' ✅':'') + '</div>' +
         '<div style="font-size:10px;color:var(--muted);margin:1px 0 4px;">' + label + '</div>' +
         '<div class="jogo-times"><span style="color:var(--text);font-weight:700;">' + nomeA + '</span><span class="vs">vs</span><span style="color:var(--text);font-weight:700;">' + nomeB + '</span></div>' +
         '<div class="placar-inputs">' +
-          '<input type="number" id="' + idA + '" min="0" max="20" placeholder="0" value="' + valA + '"' + (valA!==''?' class="filled"':'') + ' oninput="markInputFilled(this);updateProgress()">' +
+          '<input type="number" id="' + idA + '" min="0" max="20" placeholder="0" value="' + valA + '"' + filledClass + disabledAttr + ' oninput="markInputFilled(this);updateProgress()">' +
           '<span class="sep">×</span>' +
-          '<input type="number" id="' + idB + '" min="0" max="20" placeholder="0" value="' + valB + '"' + (valB!==''?' class="filled"':'') + ' oninput="markInputFilled(this);updateProgress()">' +
+          '<input type="number" id="' + idB + '" min="0" max="20" placeholder="0" value="' + valB + '"' + filledClassB + disabledAttr + ' oninput="markInputFilled(this);updateProgress()">' +
         '</div>' +
       '</div>';
     });
