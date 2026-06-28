@@ -625,15 +625,15 @@ function buildBracket(saved) {
 
   const labelEl = document.getElementById('roundLabels');
   labelEl.innerHTML = `
-    <div class="round-label">Round of 32</div>
-    <div class="round-label">Oitavas</div>
-    <div class="round-label">Quartas</div>
-    <div class="round-label">Semis</div>
-    <div class="round-label" style="grid-column:span 2">🏆 Final</div>
-    <div class="round-label">Semis</div>
-    <div class="round-label">Quartas</div>
-    <div class="round-label">Oitavas</div>
-    <div class="round-label">Round of 32</div>
+    <div class="round-label" style="grid-column:2">Round of 32</div>
+    <div class="round-label" style="grid-column:4">Oitavas</div>
+    <div class="round-label" style="grid-column:6">Quartas</div>
+    <div class="round-label" style="grid-column:8">Semis</div>
+    <div class="round-label" style="grid-column:9">🏆 Final</div>
+    <div class="round-label" style="grid-column:10">Semis</div>
+    <div class="round-label" style="grid-column:12">Quartas</div>
+    <div class="round-label" style="grid-column:14">Oitavas</div>
+    <div class="round-label" style="grid-column:16">Round of 32</div>
   `;
 
   const br = document.getElementById('bracket');
@@ -653,16 +653,18 @@ function buildBracket(saved) {
     const idA = `r32L_${i}_A`;
     const idB = `r32L_${i}_B`;
     const idW = `r16L_${i}`;
-    const teamA = getR32team(seeds[0]) || saved[idA];
-    const teamB = getR32team(seeds[1]) || saved[idB];
-    const fixedA = !!getR32team(seeds[0]);
-    const fixedB = !!getR32team(seeds[1]);
-    const pairTeams = R32_PAIRS[i] && R32_PAIRS[i].length >= 2 ? R32_PAIRS[i] : null;
-    const teamsW = [teamA||seeds[0], teamB||seeds[1]].filter(function(t){ return ALL_TEAMS.indexOf(t)>=0; });
+    const pair = R32_PAIRS[i] || [];
+    // Usar R32_PAIRS como fonte primária; getR32team como fallback para seeds 1º/2º
+    const teamA = pair[0] || getR32team(seeds[0]) || saved[idA];
+    const teamB = pair[1] || getR32team(seeds[1]) || saved[idB];
+    // Fixar sempre que o time for conhecido pelo par
+    const fixedA = !!teamA;
+    const fixedB = !!teamB;
+    const teamsW = [teamA, teamB].filter(function(t){ return t && ALL_TEAMS.indexOf(t)>=0; });
     cell(1, baseRow,   1, 1, `<div class="seed-label">${seeds[0]}</div>`);
     cell(1, baseRow+2, 1, 1, `<div class="seed-label">${seeds[1]}</div>`);
-    cell(2, baseRow,   1, 1, sel(idA, teamA, fixedA, pairTeams), 'slot');
-    cell(2, baseRow+2, 1, 1, sel(idB, teamB, fixedB, pairTeams), 'slot');
+    cell(2, baseRow,   1, 1, sel(idA, teamA, fixedA, pair.length>=2?pair:null), 'slot');
+    cell(2, baseRow+2, 1, 1, sel(idB, teamB, fixedB, pair.length>=2?pair:null), 'slot');
     cell(2, baseRow+1, 1, 1, '', 'conn-right');
     cell(2, baseRow+3, 1, 1, '', 'conn-right');
     cell(3, baseRow+1, 1, 2, sel(idW, saved[idW], false, teamsW.length>=2?teamsW:null), 'slot');
@@ -710,16 +712,16 @@ function buildBracket(saved) {
     const idA = `r32R_${i}_A`;
     const idB = `r32R_${i}_B`;
     const idW = `r16R_${i}`;
-    const teamA = getR32team(seeds[0]) || saved[idA];
-    const teamB = getR32team(seeds[1]) || saved[idB];
-    const fixedA = !!getR32team(seeds[0]);
-    const fixedB = !!getR32team(seeds[1]);
-    const pairTeamsR = R32_PAIRS[8 + i] && R32_PAIRS[8 + i].length >= 2 ? R32_PAIRS[8 + i] : null;
-    const teamsWR = [teamA||seeds[0], teamB||seeds[1]].filter(function(t){ return ALL_TEAMS.indexOf(t)>=0; });
+    const pair = R32_PAIRS[8 + i] || [];
+    const teamA = pair[0] || getR32team(seeds[0]) || saved[idA];
+    const teamB = pair[1] || getR32team(seeds[1]) || saved[idB];
+    const fixedA = !!teamA;
+    const fixedB = !!teamB;
+    const teamsWR = [teamA, teamB].filter(function(t){ return t && ALL_TEAMS.indexOf(t)>=0; });
     cell(9, baseRow,   1, 1, `<div class="seed-label" style="text-align:left">${seeds[0]}</div>`);
     cell(9, baseRow+2, 1, 1, `<div class="seed-label" style="text-align:left">${seeds[1]}</div>`);
-    cell(9, baseRow,   1, 1, sel(idA, teamA, fixedA, pairTeamsR), 'slot');
-    cell(9, baseRow+2, 1, 1, sel(idB, teamB, fixedB, pairTeamsR), 'slot');
+    cell(9, baseRow,   1, 1, sel(idA, teamA, fixedA, pair.length>=2?pair:null), 'slot');
+    cell(9, baseRow+2, 1, 1, sel(idB, teamB, fixedB, pair.length>=2?pair:null), 'slot');
     cell(9, baseRow+1, 1, 1, '', 'conn-left');
     cell(9, baseRow+3, 1, 1, '', 'conn-left');
     cell(8, baseRow+1, 1, 2, sel(idW, saved[idW], false, teamsWR.length>=2?teamsWR:null), 'slot');
