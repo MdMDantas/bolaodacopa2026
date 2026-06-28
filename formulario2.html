@@ -71,7 +71,7 @@
   .bracket-wrapper { overflow-x: auto; padding-bottom: 20px; width: 100%; }
   .bracket {
     display: grid;
-    grid-template-columns: 48px 1fr 14px 1fr 14px 1fr 14px 1fr 110px 1fr 14px 1fr 14px 1fr 14px 1fr 48px;
+    grid-template-columns: repeat(17, 1fr);
     grid-template-rows: repeat(32, 28px);
     gap: 0;
     min-width: 1200px;
@@ -91,7 +91,7 @@
   .champion-area .champ-label { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--gold); }
   .champion-area .sel-wrap select { font-size: 11px; text-align: center; border-color: rgba(245,197,24,0.4); border-width: 2px; }
   .champion-area .sel-wrap select:focus { border-color: var(--gold); }
-  .round-labels { display: grid; grid-template-columns: 48px 1fr 14px 1fr 14px 1fr 14px 1fr 110px 1fr 14px 1fr 14px 1fr 14px 1fr 48px; min-width: 1200px; width: 100%; margin-bottom: 8px; }
+  .round-labels { display: grid; grid-template-columns: repeat(17, 1fr); min-width: 1200px; width: 100%; margin-bottom: 8px; }
   .round-label { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 1px; color: var(--gold); text-align: center; padding: 4px 2px; }
 
   /* TOP 4 */
@@ -438,6 +438,7 @@ const ALL_TEAMS = ['África do Sul','Alemanha','Arábia Saudita','Argentina','Ar
 
 // Times para azarões — ordem alfabética
 const AZARAO_TEAMS = ['Alemanha','Argentina','Brasil','Espanha','França','Holanda','Inglaterra','Portugal'];
+const ZEBRA_TEAMS = ['Áustria','Cabo Verde','Japão','Marrocos','Paraguai','RD Congo','Senegal','Suécia'];
 
 const SEEDS_LEFT = [
   ['1ºE','3ºD'], ['1ºI','3ºF'],
@@ -776,7 +777,7 @@ function buildBracket(saved) {
     if (!el) return;
     var cur = saved[id] || '';
     el.innerHTML = '<option value="">Selecione...</option>' +
-      ALL_TEAMS.map(t => `<option value="${t}"${cur===t?' selected':''}>${t}</option>`).join('');
+      ZEBRA_TEAMS.map(t => `<option value="${t}"${cur===t?' selected':''}>${t}</option>`).join('');
     el.classList.toggle('filled', !!cur);
   });
   syncZebraMM();
@@ -821,7 +822,7 @@ function syncZebraMM() {
     if (!el) return;
     var cur = el.value;
     var html = '<option value="">Selecione...</option>';
-    ALL_TEAMS.forEach(function(t) {
+    ZEBRA_TEAMS.forEach(function(t) {
       if (!escolhidos[t] || escolhidos[t] === id) {
         html += '<option value="' + t + '"' + (cur===t?' selected':'') + '>' + t + '</option>';
       }
@@ -881,7 +882,7 @@ function preencherAleatorioF2() {
     if(el){el.value=rnd();el.classList.add('filled');}
   });
   // Zebras MM aleatório
-  var allTeamsCopy = ALL_TEAMS.slice();
+  var allTeamsCopy = ZEBRA_TEAMS.slice();
   ['zebra_mm_1','zebra_mm_2','zebra_mm_3','zebra_mm_4'].forEach(function(id){
     var el=document.getElementById(id);
     if(el){
