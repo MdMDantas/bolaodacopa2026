@@ -68,18 +68,20 @@
   .sel-wrap select.filled { border-color: rgba(0,156,59,0.7); }
 
   /* ── BRACKET ── */
-  .bracket-wrapper { overflow-x: hidden; padding-bottom: 20px; width: 100%; }
+  .bracket-wrapper { overflow-x: auto; padding-bottom: 20px; width: 100%; }
   .bracket {
     display: grid;
-    grid-template-columns: 3% 13% 1% 12% 1% 10% 1% 9% 10% 9% 1% 10% 1% 12% 1% 13% 3%;
+    grid-template-columns: 36px 1fr 10px 1fr 10px 1fr 10px 1fr 90px 1fr 10px 1fr 10px 1fr 10px 1fr 36px;
     grid-template-rows: repeat(32, 26px);
     gap: 0;
+    min-width: 900px;
     width: 100%;
     align-items: center;
   }
   .slot { display: flex; align-items: center; padding: 0 2px; }
   .slot .sel-wrap select { font-size: 9px; padding: 2px 14px 2px 3px; height: 22px; border-radius: 4px; width: 100%; }
-  .seed-label { font-size: 8px; font-weight: 700; color: var(--muted); text-align: right; padding: 0 3px; line-height: 1; }
+  .slot .sel-wrap select[disabled] { opacity:1; border-color:rgba(255,223,0,0.4); color:#ffdf00; font-weight:700; cursor:default; }
+  .seed-label { font-size: 8px; font-weight: 700; color: var(--muted); text-align: right; padding: 0 3px; line-height: 1; white-space:nowrap; overflow:hidden; }
   .seed-label-right { font-size: 8px; font-weight: 700; color: var(--muted); text-align: left; padding: 0 3px; line-height: 1; }
   .conn-right { border-right: 1px solid var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
   .conn-left  { border-left: 1px solid var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
@@ -89,7 +91,7 @@
   .champion-area .champ-label { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 2px; color: var(--gold); }
   .champion-area .sel-wrap select { font-size: 10px; text-align: center; border-color: rgba(245,197,24,0.4); border-width: 2px; }
   .champion-area .sel-wrap select:focus { border-color: var(--gold); }
-  .round-labels { display: grid; grid-template-columns: 3% 13% 1% 12% 1% 10% 1% 9% 10% 9% 1% 10% 1% 12% 1% 13% 3%; width: 100%; margin-bottom: 8px; }
+  .round-labels { display: grid; grid-template-columns: 36px 1fr 10px 1fr 10px 1fr 10px 1fr 90px 1fr 10px 1fr 10px 1fr 10px 1fr 36px; min-width: 900px; width: 100%; margin-bottom: 8px; }
   .round-label { font-family: 'Bebas Neue', sans-serif; font-size: 10px; letter-spacing: 1px; color: var(--gold); text-align: center; padding: 4px 2px; }
 
   /* TOP 4 */
