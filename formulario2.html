@@ -71,7 +71,7 @@
   .bracket-wrapper { overflow-x: auto; padding-bottom: 20px; width: 100%; }
   .bracket {
     display: grid;
-    grid-template-columns: 40px 1fr 12px 1fr 12px 1fr 12px 1fr 120px 1fr 12px 1fr 12px 1fr 12px 1fr 40px;
+    grid-template-columns: 40px 1fr 1fr 1fr 1fr 120px 1fr 1fr 1fr 1fr 40px;
     grid-template-rows: repeat(32, 28px);
     gap: 0;
     min-width: 1200px;
@@ -91,7 +91,7 @@
   .champion-area .champ-label { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--gold); }
   .champion-area .sel-wrap select { font-size: 11px; text-align: center; border-color: rgba(245,197,24,0.4); border-width: 2px; }
   .champion-area .sel-wrap select:focus { border-color: var(--gold); }
-  .round-labels { display: grid; grid-template-columns: 40px 1fr 12px 1fr 12px 1fr 12px 1fr 120px 1fr 12px 1fr 12px 1fr 12px 1fr 40px; min-width: 1200px; width: 100%; margin-bottom: 8px; }
+  .round-labels { display: grid; grid-template-columns: 40px 1fr 1fr 1fr 1fr 120px 1fr 1fr 1fr 1fr 40px; min-width: 1200px; width: 100%; margin-bottom: 8px; }
   .round-label { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 1px; color: var(--gold); text-align: center; padding: 4px 2px; }
 
   /* TOP 4 */
@@ -632,11 +632,11 @@ function buildBracket(saved) {
     <div class="round-label" style="grid-column:3">Oitavas</div>
     <div class="round-label" style="grid-column:4">Quartas</div>
     <div class="round-label" style="grid-column:5">Semis</div>
-    <div class="round-label" style="grid-column:9">🏆 Final</div>
-    <div class="round-label" style="grid-column:13">Semis</div>
-    <div class="round-label" style="grid-column:14">Quartas</div>
-    <div class="round-label" style="grid-column:15">Oitavas</div>
-    <div class="round-label" style="grid-column:16">Round of 32</div>
+    <div class="round-label" style="grid-column:6">🏆 Final</div>
+    <div class="round-label" style="grid-column:7">Semis</div>
+    <div class="round-label" style="grid-column:8">Quartas</div>
+    <div class="round-label" style="grid-column:9">Oitavas</div>
+    <div class="round-label" style="grid-column:10">Round of 32</div>
   `;
 
   const br = document.getElementById('bracket');
@@ -657,10 +657,8 @@ function buildBracket(saved) {
     const idB = `r32L_${i}_B`;
     const idW = `r16L_${i}`;
     const pair = R32_PAIRS[i] || [];
-    // Usar R32_PAIRS como fonte primária; getR32team como fallback para seeds 1º/2º
     const teamA = pair[0] || getR32team(seeds[0]) || saved[idA];
     const teamB = pair[1] || getR32team(seeds[1]) || saved[idB];
-    // Fixar sempre que o time for conhecido pelo par
     const fixedA = !!teamA;
     const fixedB = !!teamB;
     const teamsW = [teamA, teamB].filter(function(t){ return t && ALL_TEAMS.indexOf(t)>=0; });
@@ -697,7 +695,7 @@ function buildBracket(saved) {
   cell(5, 22, 1, 1, '', 'conn-right');
 
   const champDiv = document.createElement('div');
-  champDiv.style.gridColumn = '9';
+  champDiv.style.gridColumn = '6';
   champDiv.style.gridRow = '14 / span 5';
   champDiv.className = 'champion-area';
   champDiv.innerHTML = `
@@ -721,13 +719,13 @@ function buildBracket(saved) {
     const fixedA = !!teamA;
     const fixedB = !!teamB;
     const teamsWR = [teamA, teamB].filter(function(t){ return t && ALL_TEAMS.indexOf(t)>=0; });
-    cell(17, baseRow,   1, 1, `<div class="seed-label" style="text-align:left">${seeds[0]}</div>`);
-    cell(17, baseRow+2, 1, 1, `<div class="seed-label" style="text-align:left">${seeds[1]}</div>`);
-    cell(16, baseRow,   1, 1, sel(idA, teamA, fixedA, pair.length>=2?pair:null), 'slot');
-    cell(16, baseRow+2, 1, 1, sel(idB, teamB, fixedB, pair.length>=2?pair:null), 'slot');
-    cell(16, baseRow+1, 1, 1, '', 'conn-left');
-    cell(16, baseRow+3, 1, 1, '', 'conn-left');
-    cell(15, baseRow+1, 1, 2, sel(idW, saved[idW], false, teamsWR.length>=2?teamsWR:null), 'slot');
+    cell(11, baseRow,   1, 1, `<div class="seed-label" style="text-align:left">${seeds[0]}</div>`);
+    cell(11, baseRow+2, 1, 1, `<div class="seed-label" style="text-align:left">${seeds[1]}</div>`);
+    cell(10, baseRow,   1, 1, sel(idA, teamA, fixedA, pair.length>=2?pair:null), 'slot');
+    cell(10, baseRow+2, 1, 1, sel(idB, teamB, fixedB, pair.length>=2?pair:null), 'slot');
+    cell(10, baseRow+1, 1, 1, '', 'conn-left');
+    cell(10, baseRow+3, 1, 1, '', 'conn-left');
+    cell(9, baseRow+1, 1, 2, sel(idW, saved[idW], false, teamsWR.length>=2?teamsWR:null), 'slot');
   });
 
   [0,2,4,6].forEach((i, qi) => {
@@ -735,9 +733,9 @@ function buildBracket(saved) {
     const idW = `qfR_${qi}`;
     const qfR_t1=saved[`r16R_${i}`]||'', qfR_t2=saved[`r16R_${i+1}`]||'';
     const qfRteams = qfR_t1&&qfR_t2?[qfR_t1,qfR_t2]:null;
-    cell(15, baseRow,   1, 1, '', 'conn-left');
-    cell(15, baseRow+4, 1, 1, '', 'conn-left');
-    cell(14, baseRow+1, 1, 2, sel(idW, saved[idW], false, qfRteams), 'slot');
+    cell(9, baseRow,   1, 1, '', 'conn-left');
+    cell(9, baseRow+4, 1, 1, '', 'conn-left');
+    cell(8, baseRow+1, 1, 2, sel(idW, saved[idW], false, qfRteams), 'slot');
   });
 
   [0,2].forEach((qi, si) => {
@@ -745,18 +743,18 @@ function buildBracket(saved) {
     const idW = `sfR_${si}`;
     const sfR_t1=saved[`qfR_${qi}`]||'', sfR_t2=saved[`qfR_${qi+1}`]||'';
     const sfRteams = sfR_t1&&sfR_t2?[sfR_t1,sfR_t2]:null;
-    cell(14, baseRow,   1, 1, '', 'conn-left');
-    cell(14, baseRow+8, 1, 1, '', 'conn-left');
-    cell(13, baseRow+3, 1, 2, sel(idW, saved[idW], false, sfRteams), 'slot');
+    cell(9, baseRow,   1, 1, '', 'conn-left');
+    cell(9, baseRow+8, 1, 1, '', 'conn-left');
+    cell(7, baseRow+3, 1, 2, sel(idW, saved[idW], false, sfRteams), 'slot');
   });
 
-  cell(13, 9,  1, 1, '', 'conn-left');
-  cell(13, 22, 1, 1, '', 'conn-left');
+  cell(7, 9,  1, 1, '', 'conn-left');
+  cell(7, 22, 1, 1, '', 'conn-left');
 
   SEEDS_RIGHT.forEach((seeds, i) => {
     const baseRow = i * 4 + 1;
-    cell(17, baseRow,   1, 1, `<div class="seed-label">${seeds[0]}</div>`);
-    cell(17, baseRow+2, 1, 1, `<div class="seed-label">${seeds[1]}</div>`);
+    cell(11, baseRow,   1, 1, `<div class="seed-label">${seeds[0]}</div>`);
+    cell(11, baseRow+2, 1, 1, `<div class="seed-label">${seeds[1]}</div>`);
   });
 
   // Top 4
