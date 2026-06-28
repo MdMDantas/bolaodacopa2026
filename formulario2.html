@@ -68,29 +68,29 @@
   .sel-wrap select.filled { border-color: rgba(0,156,59,0.7); }
 
   /* ── BRACKET ── */
-  .bracket-wrapper { overflow-x: auto; padding-bottom: 20px; }
+  .bracket-wrapper { overflow-x: hidden; padding-bottom: 20px; width: 100%; }
   .bracket {
     display: grid;
-    grid-template-columns: 50px 130px 4px 120px 4px 100px 4px 90px 100px 90px 4px 100px 4px 120px 4px 130px 50px;
+    grid-template-columns: 3% 13% 1% 12% 1% 10% 1% 9% 10% 9% 1% 10% 1% 12% 1% 13% 3%;
     grid-template-rows: repeat(32, 26px);
     gap: 0;
-    min-width: 1100px;
+    width: 100%;
     align-items: center;
   }
   .slot { display: flex; align-items: center; padding: 0 2px; }
-  .slot .sel-wrap select { font-size: 10px; padding: 3px 18px 3px 5px; height: 22px; border-radius: 4px; width: 100%; }
-  .seed-label { font-size: 9px; font-weight: 700; letter-spacing: 0.5px; color: var(--muted); text-align: right; padding: 0 4px; line-height: 1; }
-  .seed-label-right { font-size: 9px; font-weight: 700; letter-spacing: 0.5px; color: var(--muted); text-align: left; padding: 0 4px; line-height: 1; }
+  .slot .sel-wrap select { font-size: 9px; padding: 2px 14px 2px 3px; height: 22px; border-radius: 4px; width: 100%; }
+  .seed-label { font-size: 8px; font-weight: 700; color: var(--muted); text-align: right; padding: 0 3px; line-height: 1; }
+  .seed-label-right { font-size: 8px; font-weight: 700; color: var(--muted); text-align: left; padding: 0 3px; line-height: 1; }
   .conn-right { border-right: 1px solid var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
   .conn-left  { border-left: 1px solid var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
   .spacer { display: block; }
   .champion-area { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
   .champion-area .trophy-icon { font-size: 28px; }
   .champion-area .champ-label { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 2px; color: var(--gold); }
-  .champion-area .sel-wrap select { font-size: 11px; text-align: center; border-color: rgba(245,197,24,0.4); border-width: 2px; }
+  .champion-area .sel-wrap select { font-size: 10px; text-align: center; border-color: rgba(245,197,24,0.4); border-width: 2px; }
   .champion-area .sel-wrap select:focus { border-color: var(--gold); }
-  .round-labels { display: grid; grid-template-columns: 50px 130px 4px 120px 4px 100px 4px 90px 100px 90px 4px 100px 4px 120px 4px 130px 50px; min-width: 1100px; margin-bottom: 8px; }
-  .round-label { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 1.5px; color: var(--gold); text-align: center; padding: 4px 2px; }
+  .round-labels { display: grid; grid-template-columns: 3% 13% 1% 12% 1% 10% 1% 9% 10% 9% 1% 10% 1% 12% 1% 13% 3%; width: 100%; margin-bottom: 8px; }
+  .round-label { font-family: 'Bebas Neue', sans-serif; font-size: 10px; letter-spacing: 1px; color: var(--gold); text-align: center; padding: 4px 2px; }
 
   /* TOP 4 */
   .top4-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
@@ -448,20 +448,102 @@ const SEEDS_RIGHT = [
   ['1ºB','3ºs'], ['1ºK','3ºs'],
 ];
 
-function makeOpt(saved) {
+function makeOpt(saved, teams) {
+  var list = teams || ALL_TEAMS;
   return `<option value="">—</option>` +
-    ALL_TEAMS.map(t => `<option value="${t}"${saved===t?' selected':''}>${t}</option>`).join('');
+    list.map(t => `<option value="${t}"${saved===t?' selected':''}>${t}</option>`).join('');
 }
 
-function sel(id, saved, fixed) {
+function sel(id, saved, fixed, teams) {
   if (fixed) {
-    return `<div class="sel-wrap"><select id="${id}" disabled style="opacity:1;cursor:default;border-color:rgba(255,223,0,0.4);color:#ffdf00;font-weight:700;">${makeOpt(saved||'')}</select></div>`;
+    return `<div class="sel-wrap"><select id="${id}" disabled style="opacity:1;cursor:default;border-color:rgba(255,223,0,0.4);color:#ffdf00;font-weight:700;">${makeOpt(saved||'', teams)}</select></div>`;
   }
-  return `<div class="sel-wrap"><select id="${id}" onchange="updateProgress();markFilled(this)">${makeOpt(saved||'')}</select></div>`;
+  return `<div class="sel-wrap"><select id="${id}" onchange="cascadeUpdate();updateProgress();markFilled(this)">${makeOpt(saved||'', teams)}</select></div>`;
+}
+
+// Times por par de R32 — usado para filtrar oitavas, quartas, etc.
+var R32_PAIRS = [
+  ['Alemanha','Senegal'],    ['Irã','França'],
+  ['África do Sul','Canadá'], ['Holanda','Marrocos'],
+  ['Portugal','Croácia'],    ['Espanha','2ºJ'],
+  ['Estados Unidos','Paraguai'], ['Bósnia','Bélgica'],
+  ['Brasil','Japão'],        ['Costa do Marfim','Noruega'],
+  ['México','Equador'],      ['Gana','Inglaterra'],
+  ['1ºJ','Cabo Verde'],      ['Austrália','Egito'],
+  ['Suíça','RD Congo'],      ['Suécia','Colômbia']
+];
+
+function getTeamsForSlot(bracketId, saved) {
+  // R32: todos os times
+  if (bracketId.startsWith('r32')) return ALL_TEAMS;
+  // R16 (oitavas do bracket): pares de R32
+  var mL = bracketId.match(/^r16L_(\d+)$/);
+  var mR = bracketId.match(/^r16R_(\d+)$/);
+  if (mL) {
+    var i = parseInt(mL[1]);
+    var p = R32_PAIRS[i] || [];
+    return p.filter(function(t){ return ALL_TEAMS.indexOf(t) >= 0; }).length >= 2
+      ? p.filter(function(t){ return ALL_TEAMS.indexOf(t) >= 0; })
+      : ALL_TEAMS;
+  }
+  if (mR) {
+    var i2 = parseInt(mR[1]);
+    var p2 = R32_PAIRS[i2] || [];
+    return p2.filter(function(t){ return ALL_TEAMS.indexOf(t) >= 0; }).length >= 2
+      ? p2.filter(function(t){ return ALL_TEAMS.indexOf(t) >= 0; })
+      : ALL_TEAMS;
+  }
+  // QF: pares de R16
+  var mQL = bracketId.match(/^qfL_(\d+)$/);
+  var mQR = bracketId.match(/^qfR_(\d+)$/);
+  if (mQL) {
+    var qi = parseInt(mQL[1]);
+    var t1 = saved['r16L_'+(qi*2)] || ''; var t2 = saved['r16L_'+(qi*2+1)] || '';
+    return t1 && t2 ? [t1,t2] : ALL_TEAMS;
+  }
+  if (mQR) {
+    var qi2 = parseInt(mQR[1]);
+    var t3 = saved['r16R_'+(qi2*2)] || ''; var t4 = saved['r16R_'+(qi2*2+1)] || '';
+    return t3 && t4 ? [t3,t4] : ALL_TEAMS;
+  }
+  // SF: pares de QF
+  var mSL = bracketId.match(/^sfL_(\d+)$/);
+  var mSR = bracketId.match(/^sfR_(\d+)$/);
+  if (mSL) {
+    var si = parseInt(mSL[1]);
+    var t5 = saved['qfL_'+(si*2)] || ''; var t6 = saved['qfL_'+(si*2+1)] || '';
+    return t5 && t6 ? [t5,t6] : ALL_TEAMS;
+  }
+  if (mSR) {
+    var si2 = parseInt(mSR[1]);
+    var t7 = saved['qfR_'+(si2*2)] || ''; var t8 = saved['qfR_'+(si2*2+1)] || '';
+    return t7 && t8 ? [t7,t8] : ALL_TEAMS;
+  }
+  // Final
+  if (bracketId === 'champion') {
+    var t9 = saved['sfL_0'] || ''; var t10 = saved['sfR_0'] || '';
+    return t9 && t10 ? [t9,t10] : ALL_TEAMS;
+  }
+  return ALL_TEAMS;
+}
+
+function cascadeUpdate() {
+  // Re-render bracket with current saved values to update cascaded selects
+  var saved = {};
+  document.querySelectorAll('#bracket select').forEach(function(s){ if(s.value) saved[s.id]=s.value; });
+  var champ = document.getElementById('champion');
+  if (champ && champ.value) saved['champion'] = champ.value;
+  buildBracket(saved);
 }
 
 // Mapa de classificação dos grupos — preenchido automaticamente
 var GRUPO_CLASS = {};
+
+function cascadeUpdate() {
+  var saved = {};
+  document.querySelectorAll('#bracket select, #champion').forEach(function(s){ if(s&&s.value) saved[s.id]=s.value; });
+  buildBracket(saved);
+}
 
 async function carregarClassificacao() {
   try {
@@ -508,8 +590,11 @@ function buildBracket(saved) {
     D: {primeiro:'Estados Unidos', segundo:'Austrália'},
     E: {primeiro:'Alemanha',       segundo:'Costa do Marfim'},
     F: {primeiro:'Holanda',        segundo:'Japão'},
+    G: {primeiro:'Bélgica',        segundo:'Egito'},
     H: {primeiro:'Espanha',        segundo:'Cabo Verde'},
     I: {primeiro:'França',         segundo:'Noruega'},
+    K: {primeiro:'Colômbia',       segundo:'Portugal'},
+    L: {primeiro:'Inglaterra',     segundo:'Croácia'},
   };
 
   function getR32team(seed) {
@@ -556,29 +641,34 @@ function buildBracket(saved) {
     const teamB = getR32team(seeds[1]) || saved[idB];
     const fixedA = !!getR32team(seeds[0]);
     const fixedB = !!getR32team(seeds[1]);
+    const teamsW = [teamA||seeds[0], teamB||seeds[1]].filter(function(t){ return ALL_TEAMS.indexOf(t)>=0; });
     cell(1, baseRow,   1, 1, `<div class="seed-label">${seeds[0]}</div>`);
     cell(1, baseRow+2, 1, 1, `<div class="seed-label">${seeds[1]}</div>`);
     cell(2, baseRow,   1, 1, sel(idA, teamA, fixedA), 'slot');
     cell(2, baseRow+2, 1, 1, sel(idB, teamB, fixedB), 'slot');
     cell(2, baseRow+1, 1, 1, '', 'conn-right');
     cell(2, baseRow+3, 1, 1, '', 'conn-right');
-    cell(3, baseRow+1, 1, 2, sel(idW, saved[idW]), 'slot');
+    cell(3, baseRow+1, 1, 2, sel(idW, saved[idW], false, teamsW.length>=2?teamsW:null), 'slot');
   });
 
   [0,2,4,6].forEach((i, qi) => {
     const baseRow = i * 4 + 3;
     const idW = `qfL_${qi}`;
+    const qfL_t1=saved[`r16L_${i}`]||'', qfL_t2=saved[`r16L_${i+1}`]||'';
+    const qfLteams = qfL_t1&&qfL_t2?[qfL_t1,qfL_t2]:null;
     cell(3, baseRow,   1, 1, '', 'conn-right');
     cell(3, baseRow+4, 1, 1, '', 'conn-right');
-    cell(4, baseRow+1, 1, 2, sel(idW, saved[idW]), 'slot');
+    cell(4, baseRow+1, 1, 2, sel(idW, saved[idW], false, qfLteams), 'slot');
   });
 
   [0,2].forEach((qi, si) => {
     const baseRow = qi * 8 + 5;
     const idW = `sfL_${si}`;
+    const sfL_t1=saved[`qfL_${qi}`]||'', sfL_t2=saved[`qfL_${qi+1}`]||'';
+    const sfLteams = sfL_t1&&sfL_t2?[sfL_t1,sfL_t2]:null;
     cell(4, baseRow,   1, 1, '', 'conn-right');
     cell(4, baseRow+8, 1, 1, '', 'conn-right');
-    cell(5, baseRow+3, 1, 2, sel(idW, saved[idW]), 'slot');
+    cell(5, baseRow+3, 1, 2, sel(idW, saved[idW], false, sfLteams), 'slot');
   });
 
   cell(5, 9,  1, 1, '', 'conn-right');
@@ -592,8 +682,8 @@ function buildBracket(saved) {
     <div class="trophy-icon">🏆</div>
     <div class="champ-label">Campeão</div>
     <div class="sel-wrap" style="max-width:140px">
-      <select id="champion" onchange="updateProgress();markFilled(this)" style="text-align:center;border-color:rgba(245,197,24,0.4);border-width:2px">
-        ${makeOpt(saved['champion']||'')}
+      <select id="champion" onchange="cascadeUpdate();updateProgress();markFilled(this)" style="text-align:center;border-color:rgba(245,197,24,0.4);border-width:2px">
+        ${makeOpt(saved['champion']||'', saved['sfL_0']&&saved['sfR_0']?[saved['sfL_0'],saved['sfR_0']]:null)}
       </select>
     </div>`;
   br.appendChild(champDiv);
@@ -607,29 +697,34 @@ function buildBracket(saved) {
     const teamB = getR32team(seeds[1]) || saved[idB];
     const fixedA = !!getR32team(seeds[0]);
     const fixedB = !!getR32team(seeds[1]);
+    const teamsWR = [teamA||seeds[0], teamB||seeds[1]].filter(function(t){ return ALL_TEAMS.indexOf(t)>=0; });
     cell(9, baseRow,   1, 1, `<div class="seed-label" style="text-align:left">${seeds[0]}</div>`);
     cell(9, baseRow+2, 1, 1, `<div class="seed-label" style="text-align:left">${seeds[1]}</div>`);
     cell(9, baseRow,   1, 1, sel(idA, teamA, fixedA), 'slot');
     cell(9, baseRow+2, 1, 1, sel(idB, teamB, fixedB), 'slot');
     cell(9, baseRow+1, 1, 1, '', 'conn-left');
     cell(9, baseRow+3, 1, 1, '', 'conn-left');
-    cell(8, baseRow+1, 1, 2, sel(idW, saved[idW]), 'slot');
+    cell(8, baseRow+1, 1, 2, sel(idW, saved[idW], false, teamsWR.length>=2?teamsWR:null), 'slot');
   });
 
   [0,2,4,6].forEach((i, qi) => {
     const baseRow = i * 4 + 3;
     const idW = `qfR_${qi}`;
+    const qfR_t1=saved[`r16R_${i}`]||'', qfR_t2=saved[`r16R_${i+1}`]||'';
+    const qfRteams = qfR_t1&&qfR_t2?[qfR_t1,qfR_t2]:null;
     cell(8, baseRow,   1, 1, '', 'conn-left');
     cell(8, baseRow+4, 1, 1, '', 'conn-left');
-    cell(7, baseRow+1, 1, 2, sel(idW, saved[idW]), 'slot');
+    cell(7, baseRow+1, 1, 2, sel(idW, saved[idW], false, qfRteams), 'slot');
   });
 
   [0,2].forEach((qi, si) => {
     const baseRow = qi * 8 + 5;
     const idW = `sfR_${si}`;
+    const sfR_t1=saved[`qfR_${qi}`]||'', sfR_t2=saved[`qfR_${qi+1}`]||'';
+    const sfRteams = sfR_t1&&sfR_t2?[sfR_t1,sfR_t2]:null;
     cell(7, baseRow,   1, 1, '', 'conn-left');
     cell(7, baseRow+8, 1, 1, '', 'conn-left');
-    cell(6, baseRow+3, 1, 2, sel(idW, saved[idW]), 'slot');
+    cell(6, baseRow+3, 1, 2, sel(idW, saved[idW], false, sfRteams), 'slot');
   });
 
   cell(6, 9,  1, 1, '', 'conn-left');
@@ -1004,10 +1099,10 @@ var RODADAS_LABELS = {
 // Times por jogo — usados para mostrar nomes e filtrar selects
 var TIMES_MM = {
   'r16avos': [
-    ['Alemanha','3ºs'],['3ºs','França'],['África do Sul','Canadá'],['Holanda','Marrocos'],
-    ['2ºK','2ºL'],['Espanha','2ºJ'],['Estados Unidos','3ºs'],['3ºs','1ºG'],
-    ['Brasil','Japão'],['Costa do Marfim','Noruega'],['México','3ºs'],['3ºs','1ºL'],
-    ['1ºJ','Cabo Verde'],['Austrália','2ºG'],['Suíça','3ºs'],['3ºs','1ºK']
+    ['Alemanha','Senegal'],['Irã','França'],['África do Sul','Canadá'],['Holanda','Marrocos'],
+    ['Portugal','Croácia'],['Espanha','2ºJ'],['Estados Unidos','Paraguai'],['Bósnia','Bélgica'],
+    ['Brasil','Japão'],['Costa do Marfim','Noruega'],['México','Equador'],['Gana','Inglaterra'],
+    ['1ºJ','Cabo Verde'],['Austrália','Egito'],['Suíça','RD Congo'],['Suécia','Colômbia']
   ],
   'roitavas': [
     ['Venc. J1','Venc. J2'],['Venc. J3','Venc. J4'],['Venc. J5','Venc. J6'],['Venc. J7','Venc. J8'],
