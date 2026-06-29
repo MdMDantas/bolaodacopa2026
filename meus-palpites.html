@@ -998,7 +998,7 @@ function exportarPalpitesPDF() {
     var hasAnyBracket = ['r32L_0_A','r16L_0','qfL_0','sfL_0'].some(function(id){ return !!d2[id]; });
     if (hasAnyBracket) {
       rodape();
-      doc.addPage([297, 210]);
+      doc.addPage('a4', 'landscape');
       var BW = 297, BH = 210, BM = 8;
       doc.setFillColor(0,26,74); doc.rect(0,0,BW,14,'F');
       doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(255,223,0);

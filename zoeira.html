@@ -410,7 +410,7 @@ function renderAglutinador(bolao, palpites, resultados) {
         var pctB = Math.round(venc.B / total * 100);
         var pctE = 100 - pctA - pctB;
 
-        // Barra de consenso
+        // Barra de consenso — mesmo layout da Rodada 1
         html += '<div class="consenso-bar">';
         if (pctA > 0) html += '<div class="consenso-seg" style="width:'+pctA+'%;background:#003087;">'+(pctA>=15?nomeA.split(' ')[0]+' '+pctA+'%':pctA>=8?pctA+'%':'')+'</div>';
         if (pctE > 0) html += '<div class="consenso-seg" style="width:'+pctE+'%;background:#3a5580;">'+(pctE>=8?'= '+pctE+'%':'')+'</div>';
@@ -419,32 +419,36 @@ function renderAglutinador(bolao, palpites, resultados) {
         html += '<div class="consenso-labels">';
         html += '<span>🔵 ' + nomeA + ' — ' + pctA + '%</span>';
         html += '<span>⚪ Empate — ' + pctE + '%</span>';
-        html += '<span>🟢 ' + nomeB + ' — ' + pctB + '%</span>';
+        html += '<span>🟢 ' + (nomeB||'') + ' — ' + pctB + '%</span>';
         html += '</div>';
 
-        // Placares apostados
-        html += '<div class="placares-apostados"><div class="pa-titulo">PLACARES APOSTADOS</div>';
-        var placaresOrdenados = Object.keys(contagem).sort(function(a,b){ return contagem[b]-contagem[a]; });
-        placaresOrdenados.forEach(function(key) {
-          var cnt = contagem[key];
-          var pct2 = Math.round(cnt/total*100);
-          var acertou = res && res.gols_a !== null && key === res.gols_a+'×'+res.gols_b;
-          var quemApostou = apelidos.filter(function(ap){ return jogoPalpites[ap].a+'×'+jogoPalpites[ap].b === key; });
-          var cor = pct2 >= 40 ? '#FFD700' : pct2 >= 20 ? '#C0C0C0' : '#CD7F32';
-          html += '<div class="pa-linha">';
-          html += '<div class="pa-placar' + (acertou?' acerto':'') + '">' + (acertou?'✅ ':'') + key.replace('×',' × ') + '</div>';
-          html += '<div class="pa-bar-wrap"><div class="pa-bar" style="width:'+pct2+'%;"></div></div>';
-          html += '<div class="odds-pct" style="color:'+cor+'">'+pct2+'%</div>';
-          html += '<div class="odds-count">('+cnt+')</div>';
+        // Placares apostados — mesmo layout da Rodada 1
+        html += '<div class="odds-titulo">🎯 Placares apostados</div>';
+        var placaresOrdenados2 = Object.keys(contagem).sort(function(a,b){ return contagem[b]-contagem[a]; });
+        var maxCount2 = contagem[placaresOrdenados2[0]];
+        placaresOrdenados2.forEach(function(placar, idx2) {
+          var cnt2 = contagem[placar];
+          var pct2 = Math.round(cnt2/total*100);
+          var barW2 = Math.round(cnt2/maxCount2*100);
+          var cor2 = idx2===0?'#ffdf00':idx2===1?'#00c44f':idx2===2?'#7eb8ff':'var(--muted)';
+          var medal2 = idx2===0?'🥇':idx2===1?'🥈':idx2===2?'🥉':'  ';
+          var acertou2 = res && res.gols_a !== null && placar === res.gols_a+'×'+res.gols_b;
+          var quemApostou2 = apelidos.filter(function(ap){ return jogoPalpites[ap].a+'×'+jogoPalpites[ap].b === placar; });
+          html += '<div style="margin-bottom:10px;">';
+          html += '<div class="odds-item">';
+          html += '<div class="odds-medal">'+medal2+'</div>';
+          html += '<div class="odds-placar">'+placar+(acertou2?'<span class="acertou-badge">✓ ACERTOU</span>':'')+'</div>';
+          html += '<div class="odds-bar-wrap"><div class="odds-bar" style="width:'+barW2+'%;background:'+cor2+';"></div></div>';
+          html += '<div class="odds-pct" style="color:'+cor2+'">'+pct2+'%</div>';
+          html += '<div class="odds-count">('+cnt2+')</div>';
           html += '</div>';
           html += '<div style="padding-left:32px;display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">';
-          quemApostou.forEach(function(ap) {
-            var corNome = acertou ? '#00c44f' : 'var(--muted)';
-            html += '<span style="font-size:11px;color:'+corNome+';background:rgba(255,255,255,0.05);border-radius:4px;padding:2px 8px;">'+ap+'</span>';
+          quemApostou2.forEach(function(ap) {
+            var corNome2 = acertou2 ? '#00c44f' : 'var(--muted)';
+            html += '<span style="font-size:11px;color:'+corNome2+';background:rgba(255,255,255,0.05);border-radius:4px;padding:2px 8px;">'+ap+'</span>';
           });
           html += '</div></div>';
         });
-        html += '</div>';
       }
 
       html += '</div></div>'; // fim jogo-body e jogo-card
