@@ -316,6 +316,68 @@ function renderAglutinador(bolao, palpites, resultados) {
     html += '</div></div>'; // fim rodada-card-body e rodada-card
   });
 
+  // ── MATA-MATA ──
+  var FASES_MM = [
+    {id:'r16avos', label:'⚔️ 16 Avos de Final', times:[['Alemanha','Paraguai'],['França','Suécia'],['África do Sul','Canadá'],['Holanda','Marrocos'],['Portugal','Croácia'],['Espanha','Áustria'],['Estados Unidos','Bósnia e Herzegovina'],['Bélgica','Senegal'],['Brasil','Japão'],['Costa do Marfim','Noruega'],['México','Equador'],['Inglaterra','RD Congo'],['Argentina','Cabo Verde'],['Austrália','Egito'],['Suíça','Argélia'],['Colômbia','Gana']]},
+    {id:'roitavas', label:'⚔️ Oitavas de Final', times:[['Venc. J1','Venc. J2'],['Venc. J3','Venc. J4'],['Venc. J5','Venc. J6'],['Venc. J7','Venc. J8'],['Venc. J9','Venc. J10'],['Venc. J11','Venc. J12'],['Venc. J13','Venc. J14'],['Venc. J15','Venc. J16']]},
+    {id:'rquartas', label:'⚔️ Quartas de Final', times:[['Venc. Oit.1','Venc. Oit.2'],['Venc. Oit.3','Venc. Oit.4'],['Venc. Oit.5','Venc. Oit.6'],['Venc. Oit.7','Venc. Oit.8']]},
+    {id:'rsemi',   label:'⚔️ Semifinal',         times:[['Venc. Q1','Venc. Q2'],['Venc. Q3','Venc. Q4']]},
+    {id:'rfinal',  label:'🏆 3º Lugar e Final',  times:[['3º Lugar','4º Lugar'],['Final']]}
+  ];
+
+  FASES_MM.forEach(function(fase) {
+    // Coletar palpites de todos os participantes para esta fase
+    var temAlgum = palpites.some(function(p) {
+      var pm = p.placares_mm || {};
+      return fase.times.some(function(_, ji) {
+        return pm[fase.id+'_'+ji+'_A'] !== undefined;
+      });
+    });
+    if (!temAlgum) return;
+
+    html += '<div class="rodada-card">';
+    html += '<div class="rodada-card-header" onclick="toggleRodada(this)">';
+    html += '<div><div class="rodada-card-title">' + fase.label + '</div>';
+    html += '<div class="rodada-card-meta">' + fase.times.length + ' jogo(s)</div></div>';
+    html += '<div class="rodada-card-arrow">▼</div></div>';
+    html += '<div class="rodada-card-body">';
+
+    fase.times.forEach(function(times, ji) {
+      var nomeA = times[0], nomeB = times[1] || '';
+      var idA = fase.id+'_'+ji+'_A', idB = fase.id+'_'+ji+'_B';
+
+      // Coletar palpites de todos para este jogo
+      var apelidos = palpites.filter(function(p) {
+        var pm = p.placares_mm || {};
+        return pm[idA] !== undefined || pm[idB] !== undefined;
+      });
+
+      html += '<div class="jogo-card">';
+      html += '<div class="jogo-header">';
+      html += '<div><div class="jogo-nome">⚽ ' + nomeA + (nomeB?' × '+nomeB:'') + '</div>';
+      html += '<div class="jogo-sub">' + apelidos.length + ' palpite(s)</div></div></div>';
+      html += '<div class="jogo-body">';
+
+      if (!apelidos.length) {
+        html += '<div class="sem-palpites">Nenhum palpite para este jogo</div>';
+      } else {
+        apelidos.forEach(function(p) {
+          var pm = p.placares_mm || {};
+          var va = pm[idA] !== undefined ? pm[idA] : '?';
+          var vb = pm[idB] !== undefined ? pm[idB] : '?';
+          html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">';
+          html += '<span style="font-size:11px;color:var(--muted);min-width:80px;">' + (p.apelido||'?') + '</span>';
+          html += '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;color:var(--white);">' + va + ' × ' + vb + '</span>';
+          html += '</div>';
+        });
+      }
+
+      html += '</div></div>';
+    });
+
+    html += '</div></div>';
+  });
+
   document.getElementById('area').innerHTML = html;
 }
 

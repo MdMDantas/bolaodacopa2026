@@ -308,13 +308,18 @@ window.onload = function() {
 };
 
 function editarPalpites() {
-  // Salvar o código do bolão atual para o formulário recuperar automaticamente
   if (_bolaoAtual && _bolaoAtual.codigo) {
     if (typeof AUTH !== 'undefined') AUTH.salvarUltimoBolao(_bolaoAtual.codigo);
   }
-  // Sinalizar para o formulário que deve recuperar automaticamente
   sessionStorage.setItem('autoRecuperar', '1');
-  window.location.href = 'formulario1.html';
+  // Detectar aba ativa e redirecionar para o formulário correto
+  var abaAtiva = '';
+  document.querySelectorAll('.tab-panel.active').forEach(function(p){ abaAtiva = p.id; });
+  if (abaAtiva === 'aba-matamata' || abaAtiva === 'aba-placaresMM') {
+    window.location.href = 'formulario2.html';
+  } else {
+    window.location.href = 'formulario1.html';
+  }
 }
 
 function trocarBolao() {
@@ -545,13 +550,23 @@ function renderPlacaresMM() {
       for (var j=0; j<fase.jogos; j++) {
         var va = placaresMM[fase.id+'_'+j+'_A'];
         var vb = placaresMM[fase.id+'_'+j+'_B'];
+        // Buscar nomes dos times
+        var TIMES_MM_MP = {
+          'r16avos': [['Alemanha','Paraguai'],['França','Suécia'],['África do Sul','Canadá'],['Holanda','Marrocos'],['Portugal','Croácia'],['Espanha','Áustria'],['Estados Unidos','Bósnia e Herzegovina'],['Bélgica','Senegal'],['Brasil','Japão'],['Costa do Marfim','Noruega'],['México','Equador'],['Inglaterra','RD Congo'],['Argentina','Cabo Verde'],['Austrália','Egito'],['Suíça','Argélia'],['Colômbia','Gana']],
+          'roitavas': [['Venc. J1','Venc. J2'],['Venc. J3','Venc. J4'],['Venc. J5','Venc. J6'],['Venc. J7','Venc. J8'],['Venc. J9','Venc. J10'],['Venc. J11','Venc. J12'],['Venc. J13','Venc. J14'],['Venc. J15','Venc. J16']],
+          'rquartas': [['Venc. Oit.1','Venc. Oit.2'],['Venc. Oit.3','Venc. Oit.4'],['Venc. Oit.5','Venc. Oit.6'],['Venc. Oit.7','Venc. Oit.8']],
+          'rsemi':    [['Venc. Q1','Venc. Q2'],['Venc. Q3','Venc. Q4']],
+          'rfinal':   [['3º Lugar','4º Lugar'],['Campeão','Vice-Campeão']]
+        };
+        var times = (TIMES_MM_MP[fase.id] && TIMES_MM_MP[fase.id][j]) ? TIMES_MM_MP[fase.id][j] : ['Time A','Time B'];
         html += '<div class="jogo-row">';
-        html += '<div class="jogo-time">Jogo '+(j+1)+'</div>';
+        html += '<div class="jogo-time">'+times[0]+'</div>';
         if (va !== undefined || vb !== undefined) {
           html += '<div class="jogo-placar"><div class="placar-num">'+(va!==undefined?va:'?')+'</div><div class="placar-x">×</div><div class="placar-num">'+(vb!==undefined?vb:'?')+'</div></div>';
         } else {
           html += '<div class="jogo-placar"><span class="placar-vazio">— × —</span></div>';
         }
+        html += '<div class="jogo-time away">'+times[1]+'</div>';
         html += '</div>';
       }
     }
@@ -579,8 +594,16 @@ function renderMataMata() {
   html += '<button onclick="limparPalpitesMM()" style="background:rgba(255,80,80,0.1);border:1px solid rgba(255,80,80,0.3);color:#ff8888;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🗑️ LIMPAR PALPITES</button>';
   html += '</div>';
 
-  html += '<div class="campiao-box"><div class="campiao-trophy">🏆</div><div class="campiao-label">Seu Campeão</div>';
-  html += '<div class="campiao-nome">'+(d.champion||'Não escolhido')+'</div></div>';
+  html += '<div class="campiao-box"><div class="campiao-trophy">🏆</div><div class="campiao-label">Top 4</div>';
+  html += '<div style="display:flex;flex-direction:column;gap:4px;margin-top:6px;">';
+  [['1°', 'pos1'], ['2°', 'pos2'], ['3°', 'pos3'], ['4°', 'pos4']].forEach(function(item) {
+    var val = d[item[1]] || '';
+    html += '<div style="display:flex;align-items:center;gap:8px;">';
+    html += '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:13px;color:var(--gold);min-width:22px">' + item[0] + '</span>';
+    html += '<span style="color:' + (val ? 'var(--white)' : 'var(--muted)') + ';font-weight:700;font-size:13px;">' + (val || 'Não escolhido') + '</span>';
+    html += '</div>';
+  });
+  html += '</div></div>';
 
   // Fases do mata-mata
   var fases = [
@@ -636,12 +659,11 @@ function renderMataMata() {
     html += '</div></div>';
   }
 
-  // Decepções
-  var decep1 = d['decepcao1']||'', decep2 = d['decepcao2']||'';
-  if (decep1 || decep2) {
-    html += '<div class="section-card"><div class="section-card-header"><span class="section-card-title">💣 Decepções</span></div><div class="section-card-body">';
-    if (decep1) html += '<div class="mata-jogo"><div class="mata-time">💣 Decepção 1: '+decep1+'</div></div>';
-    if (decep2) html += '<div class="mata-jogo"><div class="mata-time">💣 Decepção 2: '+decep2+'</div></div>';
+  // Azarão
+  var decep1 = d['decepcao1']||'';
+  if (decep1) {
+    html += '<div class="section-card"><div class="section-card-header"><span class="section-card-title">⭐ Azarão</span></div><div class="section-card-body">';
+    html += '<div class="mata-jogo"><div class="mata-time">⭐ ' + decep1 + '</div></div>';
     html += '</div></div>';
   }
 

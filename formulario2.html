@@ -702,19 +702,19 @@ function buildBracket(saved) {
     <div style="display:flex;flex-direction:column;gap:4px;width:100%;max-width:150px">
       <div style="display:flex;align-items:center;gap:6px">
         <span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--gold);min-width:24px">1°</span>
-        <div class="sel-wrap" style="flex:1"><select id="pos1" onchange="cascadeUpdate();updateProgress();markFilled(this)" style="border-color:rgba(245,197,24,0.4);border-width:2px">${placeOpt('pos1')}</select></div>
+        <div class="sel-wrap" style="flex:1"><select id="pos1" onchange="cascadeUpdate();syncPos();updateProgress();markFilled(this)" style="border-color:rgba(245,197,24,0.4);border-width:2px">${placeOpt('pos1')}</select></div>
       </div>
       <div style="display:flex;align-items:center;gap:6px">
         <span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--gold);min-width:24px">2°</span>
-        <div class="sel-wrap" style="flex:1"><select id="pos2" onchange="cascadeUpdate();updateProgress();markFilled(this)" style="border-color:rgba(245,197,24,0.4);border-width:2px">${placeOpt('pos2')}</select></div>
+        <div class="sel-wrap" style="flex:1"><select id="pos2" onchange="cascadeUpdate();syncPos();updateProgress();markFilled(this)" style="border-color:rgba(245,197,24,0.4);border-width:2px">${placeOpt('pos2')}</select></div>
       </div>
       <div style="display:flex;align-items:center;gap:6px">
         <span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--gold);min-width:24px">3°</span>
-        <div class="sel-wrap" style="flex:1"><select id="pos3" onchange="cascadeUpdate();updateProgress();markFilled(this)" style="border-color:rgba(245,197,24,0.4);border-width:2px">${placeOpt('pos3')}</select></div>
+        <div class="sel-wrap" style="flex:1"><select id="pos3" onchange="cascadeUpdate();syncPos();updateProgress();markFilled(this)" style="border-color:rgba(245,197,24,0.4);border-width:2px">${placeOpt('pos3')}</select></div>
       </div>
       <div style="display:flex;align-items:center;gap:6px">
         <span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--gold);min-width:24px">4°</span>
-        <div class="sel-wrap" style="flex:1"><select id="pos4" onchange="cascadeUpdate();updateProgress();markFilled(this)" style="border-color:rgba(245,197,24,0.4);border-width:2px">${placeOpt('pos4')}</select></div>
+        <div class="sel-wrap" style="flex:1"><select id="pos4" onchange="cascadeUpdate();syncPos();updateProgress();markFilled(this)" style="border-color:rgba(245,197,24,0.4);border-width:2px">${placeOpt('pos4')}</select></div>
       </div>
     </div>`;
   br.appendChild(champDiv);
@@ -837,6 +837,21 @@ function syncZebraMM() {
       }
     });
     el.innerHTML = html;
+  });
+}
+
+function syncPos() {
+  var ids = ['pos1','pos2','pos3','pos4'];
+  var escolhidos = {};
+  ids.forEach(function(id){ var el=document.getElementById(id); if(el&&el.value) escolhidos[el.value]=id; });
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var cur = el.value;
+    Array.from(el.options).forEach(function(opt) {
+      if (opt.value === '' || opt.value === cur) { opt.disabled = false; return; }
+      opt.disabled = !!escolhidos[opt.value];
+    });
   });
 }
 
