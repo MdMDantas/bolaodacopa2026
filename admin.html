@@ -503,7 +503,59 @@ function exportarPDF() {
     var temMM = d.p2Map[ap] || d.p2R16Map[ap] || Object.keys(plMM).length > 0;
 
     if (temMM) {
-      // Top 4
+      // Chaveamento — vencedores por fase
+      var R32_PAIRS_PDF = [
+        ['Alemanha','Paraguai'],['Franca','Suecia'],['Africa do Sul','Canada'],['Holanda','Marrocos'],
+        ['Portugal','Croatia'],['Espanha','Austria'],['Estados Unidos','Bosnia'],['Belgica','Senegal'],
+        ['Brasil','Japao'],['Costa do Marfim','Noruega'],['Mexico','Equador'],['Inglaterra','RD Congo'],
+        ['Argentina','Cabo Verde'],['Australia','Egito'],['Suica','Algeria'],['Colombia','Gana']
+      ];
+      var FASES_CHAV = [
+        { label:'Round of 32 — Classificados para as Oitavas', ids:[
+          'r16L_0','r16L_1','r16L_2','r16L_3','r16L_4','r16L_5','r16L_6','r16L_7',
+          'r16R_0','r16R_1','r16R_2','r16R_3','r16R_4','r16R_5','r16R_6','r16R_7'
+        ], pairIds:[
+          ['r32L_0_A','r32L_0_B'],['r32L_1_A','r32L_1_B'],['r32L_2_A','r32L_2_B'],['r32L_3_A','r32L_3_B'],
+          ['r32L_4_A','r32L_4_B'],['r32L_5_A','r32L_5_B'],['r32L_6_A','r32L_6_B'],['r32L_7_A','r32L_7_B'],
+          ['r32R_0_A','r32R_0_B'],['r32R_1_A','r32R_1_B'],['r32R_2_A','r32R_2_B'],['r32R_3_A','r32R_3_B'],
+          ['r32R_4_A','r32R_4_B'],['r32R_5_A','r32R_5_B'],['r32R_6_A','r32R_6_B'],['r32R_7_A','r32R_7_B']
+        ]},
+        { label:'Oitavas — Classificados para as Quartas', ids:[
+          'qfL_0','qfL_1','qfL_2','qfL_3','qfR_0','qfR_1','qfR_2','qfR_3'
+        ], pairIds:null},
+        { label:'Quartas — Classificados para as Semis', ids:[
+          'sfL_0','sfL_1','sfR_0','sfR_1'
+        ], pairIds:null},
+        { label:'Semifinal — Finalistas', ids:[
+          'pos1','pos2'
+        ], pairIds:null}
+      ];
+
+      var temChav = FASES_CHAV.some(function(f){ return f.ids.some(function(id){ return !!dadosMM[id]; }); });
+      if (temChav) {
+        html += '<div class="secao"><div class="secao-titulo">Chaveamento</div>';
+        FASES_CHAV.forEach(function(fase) {
+          var vals = fase.ids.filter(function(id){ return !!dadosMM[id]; });
+          if (!vals.length) return;
+          html += '<div style="font-size:10px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin:8px 0 4px;">' + fase.label + '</div>';
+          html += '<div class="placares-grid">';
+          fase.ids.forEach(function(id, i) {
+            var venc = dadosMM[id];
+            if (!venc) return;
+            var confronto = '';
+            if (fase.pairIds) {
+              var pA = dadosMM[fase.pairIds[i][0]] || R32_PAIRS_PDF[i] && R32_PAIRS_PDF[i][0] || '';
+              var pB = dadosMM[fase.pairIds[i][1]] || R32_PAIRS_PDF[i] && R32_PAIRS_PDF[i][1] || '';
+              confronto = pA + ' x ' + pB;
+            }
+            html += '<div class="jogo-item">';
+            if (confronto) html += '<span class="jogo-nome" style="font-size:10px;color:#888;">' + confronto + '</span>';
+            html += '<span class="jogo-placar" style="color:#003087;font-size:12px;">➜ ' + venc + '</span></div>';
+          });
+          html += '</div>';
+        });
+        html += '</div>';
+      }
       var posVals = [dadosMM['pos1']||'', dadosMM['pos2']||'', dadosMM['pos3']||'', dadosMM['pos4']||''];
       if (posVals.some(function(v){ return v; })) {
         html += '<div class="secao"><div class="secao-titulo">Top 4 Final</div><div class="mata-grid">';
