@@ -511,9 +511,9 @@ function renderPlacares() {
           html += '<div class="jogo-row">';
           html += '<div class="jogo-time">'+jogo[0]+'</div>';
           if (va !== undefined || vb !== undefined) {
-            html += '<div class="jogo-placar"><div class="placar-num">'+(va!==undefined?va:'?')+'</div>';
+            html += '<div class="jogo-placar"><div class="placar-num">'+(va!==undefined?va:'0')+'</div>';
             html += '<div class="placar-x">×</div>';
-            html += '<div class="placar-num">'+(vb!==undefined?vb:'?')+'</div></div>';
+            html += '<div class="placar-num">'+(vb!==undefined?vb:'0')+'</div></div>';
           } else {
             html += '<div class="jogo-placar"><span class="placar-vazio">— × —</span></div>';
           }
@@ -569,7 +569,7 @@ function renderPlacaresMM() {
         html += '<div class="jogo-row">';
         html += '<div class="jogo-time">'+times[0]+'</div>';
         if (va !== undefined || vb !== undefined) {
-          html += '<div class="jogo-placar"><div class="placar-num">'+(va!==undefined?va:'?')+'</div><div class="placar-x">×</div><div class="placar-num">'+(vb!==undefined?vb:'?')+'</div></div>';
+          html += '<div class="jogo-placar"><div class="placar-num">'+(va!==undefined?va:'0')+'</div><div class="placar-x">×</div><div class="placar-num">'+(vb!==undefined?vb:'0')+'</div></div>';
         } else {
           html += '<div class="jogo-placar"><span class="placar-vazio">— × —</span></div>';
         }
@@ -604,7 +604,7 @@ function renderMataMata() {
   html += '<div class="campiao-box"><div class="campiao-trophy">🏆</div><div class="campiao-label">Final</div>';
   var finL = d['finalL'] || '', finR = d['finalR'] || '';
   if (finL || finR) {
-    html += '<div style="font-size:14px;font-weight:700;color:var(--gold);margin-top:6px;">' + (finL||'?') + ' × ' + (finR||'?') + '</div>';
+    html += '<div style="font-size:14px;font-weight:700;color:var(--gold);margin-top:6px;">' + (finL||'0') + ' × ' + (finR||'0') + '</div>';
   } else {
     html += '<div style="color:var(--muted);font-size:13px;margin-top:6px;">Não escolhido</div>';
   }
@@ -956,8 +956,8 @@ function _exportarPalpitesPDFInterno() {
           var col = ki % pCols, px = M + col * pColW;
           if (ki % pCols === 0 && ki > 0) y += 12;
           var kb = ka.replace(/_a$/,'_b');
-          var va = pl[ka] !== undefined ? pl[ka] : '?';
-          var vb = pl[kb] !== undefined ? pl[kb] : '?';
+          var va = pl[ka] !== undefined ? pl[ka] : '0';
+          var vb = pl[kb] !== undefined ? pl[kb] : '0';
           var parts2 = ka.replace('placar_'+r+'_','').replace(/_a$/,'').split('_');
           var grp2 = parts2[0], ji2 = parseInt(parts2[1]);
           var jogoData = PDF_JOGOS[r] && PDF_JOGOS[r][grp2] ? PDF_JOGOS[r][grp2][ji2] : null;
@@ -987,7 +987,7 @@ function _exportarPalpitesPDFInterno() {
       doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(120,70,0);
       doc.text('Final', M+3, y-0.5);
       doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(0,34,102);
-      doc.text((finLpdf||'?') + ' x ' + (finRpdf||'?'), M+3, y+7);
+      doc.text((finLpdf||'0') + ' x ' + (finRpdf||'0'), M+3, y+7);
       y += 16;
     }
     // Top 4
@@ -1106,7 +1106,7 @@ function _exportarPalpitesPDFInterno() {
         doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(80,20,100);
         doc.text(label3, px4+2, y-1);
         doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(80,20,100);
-        doc.text((va3!==undefined?va3:'?')+' x '+(vb3!==undefined?vb3:'?'), px4+2, y+4.5);
+        doc.text((va3!==undefined?va3:'0')+' x '+(vb3!==undefined?vb3:'0'), px4+2, y+4.5);
       });
       y += 14;
     });
