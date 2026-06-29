@@ -241,6 +241,7 @@ async function carregarAdmin() {
   // Tabela de participantes
   html += '<div class="card"><div class="card-header"><span class="card-title">👥 PARTICIPANTES — '+_bolaoAtual.nome+'</span>';
   html += '<button class="btn" onclick="exportarPDF()" style="background:#003087;color:#ffdf00;border:1px solid #ffdf00;">📄 PDF POR JOGADOR</button>';
+  html += '<button class="btn" onclick="corrigirPlacares()" style="background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);margin-left:8px;">🔧 CORRIGIR ? → 0</button>';
   html += '</div>';
   html += '<div class="tabela-participantes">';
   html += '<div class="participante-row header"><div>Apelido</div><div>Grupos</div><div>Rod.1</div><div>Rod.2</div><div>Rod.3</div><div>Mata-Mata</div><div>16 Avos</div><div>Oitavas</div><div>Quartas</div><div>Semi</div><div>Final</div><div>Total</div></div>';
@@ -379,6 +380,46 @@ function exportarCSV() {
   a.download = 'bolao-'+d.bolao.codigo+'-palpites-completos.csv';
   a.click();
   URL.revokeObjectURL(url);
+}
+
+async function corrigirPlacares() {
+  if (!_bolaoAtual) { alert('Carregue um bolão primeiro.'); return; }
+  if (!confirm('Isso vai substituir todos os "?" (campos vazios) por 0 nos placares do mata-mata de todos os participantes.\n\nConfirma?')) return;
+
+  var H = { 'apikey': CONFIG.SUPABASE_KEY, 'Authorization': 'Bearer ' + CONFIG.SUPABASE_KEY };
+  var SU = CONFIG.SUPABASE_URL;
+
+  // Buscar todos os palpites_fase2 do bolão
+  var resp = await fetch(SU + '/rest/v1/palpites_fase2?bolao_id=eq.' + _bolaoAtual.id + '&select=id,apelido,fase,placares_mm', { headers: H });
+  if (!resp.ok) { alert('Erro ao buscar palpites.'); return; }
+  var rows = await resp.json();
+
+  var corrigidos = 0;
+  for (var row of rows) {
+    if (!row.placares_mm) continue;
+    var pm = typeof row.placares_mm === 'string' ? JSON.parse(row.placares_mm) : row.placares_mm;
+    var changed = false;
+    Object.keys(pm).forEach(function(k) {
+      if (pm[k] === '?' || pm[k] === null || pm[k] === undefined || pm[k] === '') {
+        pm[k] = '0';
+        changed = true;
+      }
+    });
+    if (!changed) continue;
+
+    // Atualizar o registro
+    var patchResp = await fetch(
+      SU + '/rest/v1/palpites_fase2?id=eq.' + row.id,
+      {
+        method: 'PATCH',
+        headers: Object.assign({}, H, { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+        body: JSON.stringify({ placares_mm: pm })
+      }
+    );
+    if (patchResp.ok) corrigidos++;
+  }
+
+  alert('Concluído! ' + corrigidos + ' registro(s) corrigido(s).');
 }
 
 function exportarPDF() {

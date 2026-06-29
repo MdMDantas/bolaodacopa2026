@@ -1226,9 +1226,9 @@ function buildJogos(saved) {
         '<div class="jogo-label">' + RODADAS_LABELS[rid] + ' · Jogo ' + (idx+1) + (isFixed?' ✅':'') + '</div>' +
         '<div class="jogo-times"><span style="color:var(--text);font-weight:700;">' + nomeA + '</span><span class="vs">vs</span><span style="color:var(--text);font-weight:700;">' + nomeB + '</span></div>' +
         '<div class="placar-inputs">' +
-          '<input type="number" id="' + idA + '" min="0" max="20" placeholder="0" value="' + valA + '"' + filledClass + disabledAttr + ' oninput="markInputFilled(this);updateProgress()">' +
+          '<input type="number" id="' + idA + '" min="0" max="20" placeholder="" value="' + valA + '"' + filledClass + disabledAttr + ' oninput="markInputFilled(this);updateProgress()">' +
           '<span class="sep">×</span>' +
-          '<input type="number" id="' + idB + '" min="0" max="20" placeholder="0" value="' + valB + '"' + filledClassB + disabledAttr + ' oninput="markInputFilled(this);updateProgress()">' +
+          '<input type="number" id="' + idB + '" min="0" max="20" placeholder="" value="' + valB + '"' + filledClassB + disabledAttr + ' oninput="markInputFilled(this);updateProgress()">' +
         '</div>' +
       '</div>';
     });
