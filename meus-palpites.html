@@ -674,6 +674,16 @@ function renderMataMata() {
     html += '</div></div>';
   }
 
+  // Zebras do Mata-Mata
+  var zebrasMM = [d['zebra_mm_1']||'', d['zebra_mm_2']||'', d['zebra_mm_3']||'', d['zebra_mm_4']||''].filter(Boolean);
+  if (zebrasMM.length) {
+    html += '<div class="section-card"><div class="section-card-header"><span class="section-card-title">🌪️ Zebras do Mata-Mata</span></div><div class="section-card-body">';
+    zebrasMM.forEach(function(z, zi) {
+      html += '<div class="mata-jogo"><div class="mata-time">🌪️ Zebra ' + (zi+1) + ': ' + z + '</div></div>';
+    });
+    html += '</div></div>';
+  }
+
   el.innerHTML = html;
 }
 
@@ -1025,6 +1035,23 @@ function exportarPalpitesPDF() {
       doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(100,20,20);
       doc.text('⭐ ' + az, M+3, y+0.5);
       y += 12;
+    }
+
+    // Zebras do Mata-Mata
+    var zebrasMM2 = [d2['zebra_mm_1']||'', d2['zebra_mm_2']||'', d2['zebra_mm_3']||'', d2['zebra_mm_4']||''].filter(Boolean);
+    if (zebrasMM2.length) {
+      secao('Zebras do Mata-Mata', [0,80,100]);
+      checkPage(10);
+      var zmmColW = (W-M*2)/4;
+      zebrasMM2.forEach(function(z, zi) {
+        var pxz = M + zi * zmmColW;
+        doc.setFillColor(220,240,250); doc.roundedRect(pxz, y-5, zmmColW-2, 9, 1.5,1.5,'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(0,60,80);
+        doc.text('Zebra '+(zi+1), pxz+2, y-0.5);
+        doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(0,34,102);
+        doc.text(z, pxz+2, y+5);
+      });
+      y += 14;
     }
   }
 
