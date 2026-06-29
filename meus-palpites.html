@@ -601,10 +601,22 @@ function renderMataMata() {
   html += '<button onclick="limparPalpitesMM()" style="background:rgba(255,80,80,0.1);border:1px solid rgba(255,80,80,0.3);color:#ff8888;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">🗑️ LIMPAR PALPITES</button>';
   html += '</div>';
 
-  html += '<div class="campiao-box"><div class="campiao-trophy">🏆</div><div class="campiao-label">Campeão</div>';
-  var campVal = d['champion'] || '';
-  html += '<div class="campiao-nome" style="color:' + (campVal ? 'var(--gold)' : 'var(--muted)') + ';font-size:18px;font-weight:700;margin-top:6px;">' + (campVal || 'Não escolhido') + '</div>';
+  html += '<div class="campiao-box"><div class="campiao-trophy">🏆</div><div class="campiao-label">Final</div>';
+  var finL = d['finalL'] || '', finR = d['finalR'] || '';
+  if (finL || finR) {
+    html += '<div style="font-size:14px;font-weight:700;color:var(--gold);margin-top:6px;">' + (finL||'?') + ' × ' + (finR||'?') + '</div>';
+  } else {
+    html += '<div style="color:var(--muted);font-size:13px;margin-top:6px;">Não escolhido</div>';
+  }
   html += '</div>';
+
+  // Top 4
+  html += '<div class="section-card"><div class="section-card-header"><span class="section-card-title">🏅 Top 4 Final</span></div><div class="section-card-body">';
+  [['🥇 1º Lugar','top4_1'],['🥈 2º Lugar','top4_2'],['🥉 3º Lugar','top4_3'],['4º Lugar','top4_4']].forEach(function(item) {
+    var val = d[item[1]] || '';
+    html += '<div class="mata-jogo"><div class="mata-time' + (val?'':' empty') + '">' + item[0] + ': ' + (val||'Não escolhido') + '</div></div>';
+  });
+  html += '</div></div>';
 
   // Fases do mata-mata
   var fases = [
@@ -645,19 +657,6 @@ function renderMataMata() {
   if (d.decepcaoMata) {
     html += '<div class="section-card"><div class="section-card-header"><span class="section-card-title">😬 Decepção do Mata-mata</span></div>';
     html += '<div class="section-card-body"><div class="mata-jogo"><div class="mata-time">'+d.decepcaoMata+'</div></div></div></div>';
-  }
-
-  // Top 4
-  var top4Labels = ['🥇 Campeão','🥈 Vice','🥉 3º Lugar','4️⃣ 4º Lugar'];
-  var top4Ids = ['top4_1','top4_2','top4_3','top4_4'];
-  var top4Vals = top4Ids.map(function(id){ return d[id]||''; });
-  if (top4Vals.some(function(v){ return v; })) {
-    html += '<div class="section-card"><div class="section-card-header"><span class="section-card-title">🏅 Top 4 Final</span></div><div class="section-card-body">';
-    top4Ids.forEach(function(id, i) {
-      var val = d[id]||'';
-      html += '<div class="mata-jogo"><div class="mata-time'+(val?'':' empty')+'">'+top4Labels[i]+': '+(val||'Não escolhido')+'</div></div>';
-    });
-    html += '</div></div>';
   }
 
   // Azarão
@@ -979,15 +978,33 @@ function _exportarPalpitesPDFInterno() {
     var d2 = (_palpite2.dados_mm && typeof _palpite2.dados_mm === 'object') ? _palpite2.dados_mm : _palpite2;
 
     // Top 4
-    var campPDF = d2['champion'] || '';
-    if (campPDF) {
-      secao('Campeao', [100,60,0]);
+    var finLpdf = d2['finalL'] || '', finRpdf = d2['finalR'] || '';
+    if (finLpdf || finRpdf) {
+      secao('Final', [100,60,0]);
       checkPage(12);
       doc.setFillColor(255,245,220); doc.roundedRect(M, y-5, W-M*2, 12, 1.5,1.5,'F');
       doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(120,70,0);
-      doc.text('Campeao', M+3, y-0.5);
-      doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(0,34,102);
-      doc.text(campPDF, M+3, y+7);
+      doc.text('Final', M+3, y-0.5);
+      doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(0,34,102);
+      doc.text((finLpdf||'?') + ' x ' + (finRpdf||'?'), M+3, y+7);
+      y += 16;
+    }
+    // Top 4
+    var t4Ids = ['top4_1','top4_2','top4_3','top4_4'];
+    var t4Labels = ['1o Lugar','2o Lugar','3o Lugar','4o Lugar'];
+    var t4Vals = t4Ids.map(function(id){ return d2[id]||''; });
+    if (t4Vals.some(function(v){ return v; })) {
+      secao('Top 4 Final', [100,60,0]);
+      checkPage(14);
+      var t4ColW = (W-M*2)/4;
+      t4Vals.forEach(function(val, i) {
+        var px = M + i * t4ColW;
+        doc.setFillColor(255,245,220); doc.roundedRect(px, y-5, t4ColW-2, 14, 1.5,1.5,'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(120,70,0);
+        doc.text(t4Labels[i], px+2, y-0.5);
+        doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(0,34,102);
+        doc.text(val||'-', px+2, y+6);
+      });
       y += 16;
     }
 

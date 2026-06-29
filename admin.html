@@ -556,10 +556,19 @@ function exportarPDF() {
         });
         html += '</div>';
       }
-      var campAd = dadosMM['champion'] || '';
-      if (campAd) {
-        html += '<div class="secao"><div class="secao-titulo">Campeao</div><div class="mata-grid">';
-        html += '<div class="mata-item"><div class="mata-label">Campeao</div><div class="mata-valor" style="font-size:18px;">' + campAd + '</div></div>';
+      var finLad = dadosMM['finalL'] || '', finRad = dadosMM['finalR'] || '';
+      if (finLad || finRad) {
+        html += '<div class="secao"><div class="secao-titulo">Final</div><div class="mata-grid">';
+        html += '<div class="mata-item"><div class="mata-label">Final</div><div class="mata-valor" style="font-size:16px;">' + (finLad||'?') + ' × ' + (finRad||'?') + '</div></div>';
+        html += '</div></div>';
+      }
+      // Top 4
+      var t4Vals2 = ['top4_1','top4_2','top4_3','top4_4'].map(function(id){ return dadosMM[id]||''; });
+      if (t4Vals2.some(function(v){ return v; })) {
+        html += '<div class="secao"><div class="secao-titulo">Top 4 Final</div><div class="mata-grid">';
+        ['1o Lugar','2o Lugar','3o Lugar','4o Lugar'].forEach(function(lbl, i) {
+          html += '<div class="mata-item"><div class="mata-label">' + lbl + '</div><div class="mata-valor">' + (t4Vals2[i]||'—') + '</div></div>';
+        });
         html += '</div></div>';
       }
 

@@ -691,13 +691,15 @@ function buildBracket(saved) {
   champDiv.style.gridColumn = '6';
   champDiv.style.gridRow = '14 / span 5';
   champDiv.className = 'champion-area';
-  var sf = [saved['sfL_0']||'', saved['sfL_1']||'', saved['sfR_0']||'', saved['sfR_1']||''].filter(Boolean);
-  var sfTeams = sf.length >= 2 ? sf : null;
+  var sfLTeams = [saved['sfL_0']||'', saved['sfL_1']||''].filter(Boolean);
+  var sfRTeams = [saved['sfR_0']||'', saved['sfR_1']||''].filter(Boolean);
   champDiv.innerHTML = `
     <div class="trophy-icon">🏆</div>
-    <div class="champ-label">Campeão</div>
-    <div class="sel-wrap" style="width:100%;max-width:150px">
-      <select id="champion" onchange="cascadeUpdate();updateProgress();markFilled(this)" style="border-color:rgba(245,197,24,0.4);border-width:2px;text-align:center">${makeOpt(saved['champion']||'', sfTeams)}</select>
+    <div class="champ-label">Final</div>
+    <div style="display:flex;flex-direction:column;gap:4px;width:100%;max-width:150px">
+      <div class="sel-wrap"><select id="finalL" onchange="cascadeUpdate();updateProgress();markFilled(this)" style="border-color:rgba(245,197,24,0.4);border-width:2px">${makeOpt(saved['finalL']||'', sfLTeams.length>=1?sfLTeams:null)}</select></div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:11px;color:var(--muted);text-align:center">vs</div>
+      <div class="sel-wrap"><select id="finalR" onchange="cascadeUpdate();updateProgress();markFilled(this)" style="border-color:rgba(245,197,24,0.4);border-width:2px">${makeOpt(saved['finalR']||'', sfRTeams.length>=1?sfRTeams:null)}</select></div>
     </div>`;
   br.appendChild(champDiv);
 
@@ -751,12 +753,14 @@ function buildBracket(saved) {
   });
 
   // Top 4
+  var sfTeams4 = ['sfL_0','sfL_1','sfR_0','sfR_1'].map(function(id){ return saved[id]||''; }).filter(Boolean);
+  var top4Teams = sfTeams4.length >= 2 ? sfTeams4 : ALL_TEAMS;
   ['top4_1','top4_2','top4_3','top4_4'].forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
     var cur = saved[id] || '';
     el.innerHTML = '<option value="">Selecione...</option>' +
-      ALL_TEAMS.map(t => `<option value="${t}"${cur===t?' selected':''}>${t}</option>`).join('');
+      top4Teams.map(t => `<option value="${t}"${cur===t?' selected':''}>${t}</option>`).join('');
     el.classList.toggle('filled', !!cur);
   });
 
@@ -787,20 +791,25 @@ function buildBracket(saved) {
 
 function syncTop4() {
   var ids = ['top4_1','top4_2','top4_3','top4_4'];
+  var sf = ['sfL_0','sfL_1','sfR_0','sfR_1'].map(function(id){
+    var el = document.getElementById(id); return el ? el.value : '';
+  }).filter(Boolean);
+  var teams = sf.length >= 2 ? sf : ALL_TEAMS;
   var escolhidos = {};
   ids.forEach(function(id){ var v = (document.getElementById(id)||{}).value; if(v) escolhidos[v]=id; });
   ids.forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
     var cur = el.value;
-    // Reconstruir opções sem os já escolhidos por outros
     var html = '<option value="">Selecione...</option>';
-    ALL_TEAMS.forEach(function(t) {
+    teams.forEach(function(t) {
       if (!escolhidos[t] || escolhidos[t] === id) {
         html += '<option value="' + t + '"' + (cur===t?' selected':'') + '>' + t + '</option>';
       }
     });
     el.innerHTML = html;
+  });
+}
   });
 }
 
