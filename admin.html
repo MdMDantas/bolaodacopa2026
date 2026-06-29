@@ -218,6 +218,11 @@ async function carregarAdmin() {
   var todos = {};
   Object.keys(p1Map).forEach(function(a){ todos[a]=true; });
   Object.keys(p2Map).forEach(function(a){ todos[a]=true; });
+  Object.keys(p2R16Map).forEach(function(a){ todos[a]=true; });
+  Object.keys(p2OitMap).forEach(function(a){ todos[a]=true; });
+  Object.keys(p2QuaMap).forEach(function(a){ todos[a]=true; });
+  Object.keys(p2SemMap).forEach(function(a){ todos[a]=true; });
+  Object.keys(p2FinMap).forEach(function(a){ todos[a]=true; });
   var participantes = Object.keys(todos);
 
   var totalP = participantes.length;
@@ -268,7 +273,15 @@ async function carregarAdmin() {
 
 
   content.innerHTML = html;
-  window._dadosExport = { participantes:participantes, p1Map:p1Map, placMap:placMap, p2Map:p2Map, p1Data:p1Data, p2Data:p2Data, bolao:_bolaoAtual };
+  // Agregar todos os placares_mm por apelido (de todas as fases)
+  var p2PlacaresMM = {};
+  palpites2.forEach(function(x) {
+    if (!x.apelido || !x.placares_mm) return;
+    if (!p2PlacaresMM[x.apelido]) p2PlacaresMM[x.apelido] = {};
+    Object.assign(p2PlacaresMM[x.apelido], x.placares_mm);
+  });
+
+  window._dadosExport = { participantes:participantes, p1Map:p1Map, placMap:placMap, p2Map:p2Map, p2R16Map:p2R16Map, p1Data:p1Data, p2Data:p2Data, p2PlacaresMM:p2PlacaresMM, bolao:_bolaoAtual };
   } catch(e) { console.error('carregarAdmin erro:', e); document.getElementById('adminContent').innerHTML = '<div class="loading">Erro: ' + e.message + '</div>'; }
 }
 
@@ -484,12 +497,60 @@ function exportarPDF() {
       html += '</div>';
     }
 
-    // Mata-mata
-    if (d.p2Map[ap]) {
-      html += '<div class="secao"><div class="secao-titulo">Mata-Mata</div><div class="mata-grid">';
-      html += '<div class="mata-item"><div class="mata-label">🏆 Campeão</div><div class="mata-valor">' + (p2['champion'] || '—') + '</div></div>';
-      html += '<div class="mata-item"><div class="mata-label">😬 Decepção</div><div class="mata-valor">' + (p2['decepcaoMata'] || '—') + '</div></div>';
-      html += '</div></div>';
+    // Mata-mata — chaveamento e Top 4
+    var dadosMM = (d.p2Data[ap] && d.p2Data[ap].dados_mm) ? d.p2Data[ap].dados_mm : (d.p2Map[ap] ? d.p2Data[ap] : {});
+    var plMM = d.p2PlacaresMM[ap] || {};
+    var temMM = d.p2Map[ap] || d.p2R16Map[ap] || Object.keys(plMM).length > 0;
+
+    if (temMM) {
+      // Top 4
+      var posVals = [dadosMM['pos1']||'', dadosMM['pos2']||'', dadosMM['pos3']||'', dadosMM['pos4']||''];
+      if (posVals.some(function(v){ return v; })) {
+        html += '<div class="secao"><div class="secao-titulo">Top 4 Final</div><div class="mata-grid">';
+        ['1o Lugar','2o Lugar','3o Lugar','4o Lugar'].forEach(function(lbl, i) {
+          html += '<div class="mata-item"><div class="mata-label">' + lbl + '</div><div class="mata-valor">' + (posVals[i]||'—') + '</div></div>';
+        });
+        html += '</div></div>';
+      }
+
+      // Azarão
+      var az = dadosMM['decepcao1'] || '';
+      if (az) html += '<div class="secao"><div class="secao-titulo">Azarao</div><div class="zebras-row"><span class="zebra-tag">' + az + '</span></div></div>';
+
+      // Zebras MM
+      var zMM = [dadosMM['zebra_mm_1']||'', dadosMM['zebra_mm_2']||''].filter(Boolean);
+      if (zMM.length) {
+        html += '<div class="secao"><div class="secao-titulo">Zebras do Mata-Mata</div><div class="zebras-row">';
+        zMM.forEach(function(z) { html += '<span class="zebra-tag">' + z + '</span>'; });
+        html += '</div></div>';
+      }
+
+      // Placares MM
+      var FASES_MM_PDF = [
+        {id:'r16avos', label:'16 Avos', times:[['Alemanha','Paraguai'],['Franca','Suecia'],['Africa do Sul','Canada'],['Holanda','Marrocos'],['Portugal','Croatia'],['Espanha','Austria'],['Estados Unidos','Bosnia'],['Belgica','Senegal'],['Brasil','Japao'],['Costa do Marfim','Noruega'],['Mexico','Equador'],['Inglaterra','RD Congo'],['Argentina','Cabo Verde'],['Australia','Egito'],['Suica','Algeria'],['Colombia','Gana']]},
+        {id:'roitavas', label:'Oitavas', times:[['J1','J2'],['J3','J4'],['J5','J6'],['J7','J8'],['J9','J10'],['J11','J12'],['J13','J14'],['J15','J16']]},
+        {id:'rquartas', label:'Quartas', times:[['Oit1','Oit2'],['Oit3','Oit4'],['Oit5','Oit6'],['Oit7','Oit8']]},
+        {id:'rsemi', label:'Semifinal', times:[['Q1','Q2'],['Q3','Q4']]},
+        {id:'rfinal', label:'Final', times:[['3o Lugar','4o Lugar'],['Final','']]}
+      ];
+      var temPlacMM = FASES_MM_PDF.some(function(f){ return f.times.some(function(_,ji){ return plMM[f.id+'_'+ji+'_A'] !== undefined; }); });
+      if (temPlacMM) {
+        html += '<div class="secao"><div class="secao-titulo">Placares Mata-Mata</div>';
+        FASES_MM_PDF.forEach(function(fase) {
+          var temFase = fase.times.some(function(_,ji){ return plMM[fase.id+'_'+ji+'_A'] !== undefined; });
+          if (!temFase) return;
+          html += '<div style="font-size:10px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin:8px 0 4px;">' + fase.label + '</div>';
+          html += '<div class="placares-grid">';
+          fase.times.forEach(function(times, ji) {
+            var va = plMM[fase.id+'_'+ji+'_A'], vb = plMM[fase.id+'_'+ji+'_B'];
+            if (va === undefined && vb === undefined) return;
+            var nome = times[0] + (times[1] ? ' x ' + times[1] : '');
+            html += '<div class="jogo-item"><span class="jogo-nome">' + nome + '</span><span class="jogo-placar">' + (va!==undefined?va:'?') + ' x ' + (vb!==undefined?vb:'?') + '</span></div>';
+          });
+          html += '</div>';
+        });
+        html += '</div>';
+      }
     }
 
     html += '</div>'; // fim .jogador
