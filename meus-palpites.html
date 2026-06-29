@@ -620,10 +620,11 @@ function renderMataMata() {
 
   // Fases do mata-mata
   var fases = [
-    { key:'r32', label:'Oitavas de Final', ids:['r32L_0_A','r32L_0_B','r32L_1_A','r32L_1_B','r32L_2_A','r32L_2_B','r32L_3_A','r32L_3_B','r32L_4_A','r32L_4_B','r32L_5_A','r32L_5_B','r32L_6_A','r32L_6_B','r32L_7_A','r32L_7_B','r32R_0_A','r32R_0_B','r32R_1_A','r32R_1_B','r32R_2_A','r32R_2_B','r32R_3_A','r32R_3_B','r32R_4_A','r32R_4_B','r32R_5_A','r32R_5_B','r32R_6_A','r32R_6_B','r32R_7_A','r32R_7_B'], pairs:true },
-    { key:'r16', label:'Quartas de Final', ids:['r16L_0','r16L_1','r16L_2','r16L_3','r16L_4','r16L_5','r16L_6','r16L_7','r16R_0','r16R_1','r16R_2','r16R_3','r16R_4','r16R_5','r16R_6','r16R_7'], pairs:false },
-    { key:'qf', label:'Semifinais', ids:['qfL_0','qfL_1','qfL_2','qfL_3','qfR_0','qfR_1','qfR_2','qfR_3'], pairs:false },
-    { key:'sf', label:'Final', ids:['sfL_0','sfL_1','sfR_0','sfR_1'], pairs:false }
+    { key:'r32', label:'16 Avos de Final', ids:['r32L_0_A','r32L_0_B','r32L_1_A','r32L_1_B','r32L_2_A','r32L_2_B','r32L_3_A','r32L_3_B','r32L_4_A','r32L_4_B','r32L_5_A','r32L_5_B','r32L_6_A','r32L_6_B','r32L_7_A','r32L_7_B','r32R_0_A','r32R_0_B','r32R_1_A','r32R_1_B','r32R_2_A','r32R_2_B','r32R_3_A','r32R_3_B','r32R_4_A','r32R_4_B','r32R_5_A','r32R_5_B','r32R_6_A','r32R_6_B','r32R_7_A','r32R_7_B'], pairs:true },
+    { key:'r16', label:'Oitavas de Final', ids:['r16L_0','r16L_1','r16L_2','r16L_3','r16L_4','r16L_5','r16L_6','r16L_7','r16R_0','r16R_1','r16R_2','r16R_3','r16R_4','r16R_5','r16R_6','r16R_7'], pairs:false },
+    { key:'qf', label:'Quartas de Final', ids:['qfL_0','qfL_1','qfL_2','qfL_3','qfR_0','qfR_1','qfR_2','qfR_3'], pairs:false },
+    { key:'sf', label:'Semifinal', ids:['sfL_0','sfL_1','sfR_0','sfR_1'], pairs:false },
+    { key:'final', label:'Final', ids:['finalL','finalR'], pairs:false }
   ];
 
   fases.forEach(function(fase) {
@@ -1013,7 +1014,8 @@ function _exportarPalpitesPDFInterno() {
       { label:'Round of 32', ids:['r32L_0_A','r32L_0_B','r32L_1_A','r32L_1_B','r32L_2_A','r32L_2_B','r32L_3_A','r32L_3_B','r32L_4_A','r32L_4_B','r32L_5_A','r32L_5_B','r32L_6_A','r32L_6_B','r32L_7_A','r32L_7_B','r32R_0_A','r32R_0_B','r32R_1_A','r32R_1_B','r32R_2_A','r32R_2_B','r32R_3_A','r32R_3_B','r32R_4_A','r32R_4_B','r32R_5_A','r32R_5_B','r32R_6_A','r32R_6_B','r32R_7_A','r32R_7_B'], pairs:true },
       { label:'Oitavas',   ids:['r16L_0','r16L_1','r16L_2','r16L_3','r16L_4','r16L_5','r16L_6','r16L_7','r16R_0','r16R_1','r16R_2','r16R_3','r16R_4','r16R_5','r16R_6','r16R_7'], pairs:false },
       { label:'Quartas',   ids:['qfL_0','qfL_1','qfL_2','qfL_3','qfR_0','qfR_1','qfR_2','qfR_3'], pairs:false },
-      { label:'Semifinal', ids:['sfL_0','sfL_1','sfR_0','sfR_1'], pairs:false }
+      { label:'Semifinal', ids:['sfL_0','sfL_1','sfR_0','sfR_1'], pairs:false },
+      { label:'Final',     ids:['finalL','finalR'], pairs:false }
     ];
     FASES_CH.forEach(function(fase) {
       var vals = fase.ids.map(function(id){ return d2[id]||''; }).filter(Boolean);
