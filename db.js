@@ -72,7 +72,7 @@ var DB = {
       }),
       body: JSON.stringify(row)
     });
-    if (!resp.ok) { var e = await resp.text(); console.error('salvarFase2:', resp.status, e); }
+    if (!resp.ok) { var e = await resp.text(); console.error('salvarFase2 ERRO:', resp.status, e); alert('Erro detalhado: ' + resp.status + ' — ' + e); }
     return resp.ok;
   },
 
