@@ -351,9 +351,16 @@ async function carregarTudo() {
   var r1 = await fetch(SUPABASE_URL+'/rest/v1/palpites_fase1?bolao_id=eq.'+_bolaoAtual.id+'&apelido=eq.'+encodeURIComponent(_usuario.apelido)+'&select=*&order=criado_em.desc&limit=1', {headers:H});
   _palpite1 = r1.ok ? (await r1.json())[0] || null : null;
 
-  // Buscar palpite fase 2
-  var r2 = await fetch(SUPABASE_URL+'/rest/v1/palpites_fase2?bolao_id=eq.'+_bolaoAtual.id+'&apelido=eq.'+encodeURIComponent(_usuario.apelido)+'&select=*&order=criado_em.desc&limit=1', {headers:H});
+  // Buscar palpite fase 2 — registro do chaveamento (fase=matamata)
+  var r2 = await fetch(SUPABASE_URL+'/rest/v1/palpites_fase2?bolao_id=eq.'+_bolaoAtual.id+'&apelido=eq.'+encodeURIComponent(_usuario.apelido)+'&fase=eq.matamata&select=*&order=criado_em.desc&limit=1', {headers:H});
   _palpite2 = r2.ok ? (await r2.json())[0] || null : null;
+  // Buscar placares MM separadamente (pode estar em fases diferentes)
+  var r2pl = await fetch(SUPABASE_URL+'/rest/v1/palpites_fase2?bolao_id=eq.'+_bolaoAtual.id+'&apelido=eq.'+encodeURIComponent(_usuario.apelido)+'&select=fase,placares_mm&order=criado_em.desc', {headers:H});
+  var r2plRows = r2pl.ok ? (await r2pl.json()) : [];
+  var _placaresMM = {};
+  r2plRows.forEach(function(row){ if(row.placares_mm) Object.assign(_placaresMM, row.placares_mm); });
+  if (_palpite2) _palpite2._allPlacaresMM = _placaresMM;
+  else if (r2plRows.length) { _palpite2 = r2plRows[0]; _palpite2._allPlacaresMM = _placaresMM; }
 
   // Buscar pontuação
   var rp = await fetch(SUPABASE_URL+'/rest/v1/pontuacoes?bolao_id=eq.'+_bolaoAtual.id+'&apelido=eq.'+encodeURIComponent(_usuario.apelido)+'&select=*', {headers:H});
@@ -533,7 +540,7 @@ function renderPlacaresMM() {
     {id:'rsemi',    label:'⚔️ Semifinal',           jogos:2,  card:'mm-semi'},
     {id:'rfinal',   label:'🏆 3º Lugar e Final',   jogos:2,  card:'mm-final'}
   ];
-  var placaresMM = _palpite2 ? (_palpite2.placares_mm || {}) : null;
+  var placaresMM = _palpite2 ? (_palpite2._allPlacaresMM || _palpite2.placares_mm || {}) : null;
   var html = '';
   fasesMM.forEach(function(fase) {
     var btnLimpar = '<button onclick="limparFaseMM(\''+fase.id+'\')" style="background:rgba(255,80,80,0.1);border:1px solid rgba(255,80,80,0.3);color:#ff6b6b;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;">🗑️ LIMPAR</button>';
@@ -950,26 +957,113 @@ function exportarPalpitesPDF() {
     }
   }
 
+  // Mata-Mata — Chaveamento e Top 4
+  if (_palpite2) {
+    var d2 = (_palpite2.dados_mm && typeof _palpite2.dados_mm === 'object') ? _palpite2.dados_mm : _palpite2;
+
+    // Top 4
+    var posLabels = ['1° Lugar — Campeão','2° Lugar — Vice','3° Lugar','4° Lugar'];
+    var posIds    = ['pos1','pos2','pos3','pos4'];
+    var posVals   = posIds.map(function(id){ return d2[id]||''; });
+    if (posVals.some(function(v){ return v; })) {
+      secao('Top 4 Final', [100,60,0]);
+      checkPage(14);
+      var t4ColW = (W-M*2)/4;
+      posVals.forEach(function(val, i) {
+        var px = M + i * t4ColW;
+        doc.setFillColor(255,245,220); doc.roundedRect(px, y-5, t4ColW-2, 14, 1.5,1.5,'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(120,70,0);
+        doc.text(posLabels[i], px+2, y-0.5);
+        doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(0,34,102);
+        doc.text(val||'—', px+2, y+6);
+      });
+      y += 16;
+    }
+
+    // Chaveamento (R32 → SF)
+    var FASES_CH = [
+      { label:'Round of 32', ids:['r32L_0_A','r32L_0_B','r32L_1_A','r32L_1_B','r32L_2_A','r32L_2_B','r32L_3_A','r32L_3_B','r32L_4_A','r32L_4_B','r32L_5_A','r32L_5_B','r32L_6_A','r32L_6_B','r32L_7_A','r32L_7_B','r32R_0_A','r32R_0_B','r32R_1_A','r32R_1_B','r32R_2_A','r32R_2_B','r32R_3_A','r32R_3_B','r32R_4_A','r32R_4_B','r32R_5_A','r32R_5_B','r32R_6_A','r32R_6_B','r32R_7_A','r32R_7_B'], pairs:true },
+      { label:'Oitavas',     ids:['r16L_0','r16L_1','r16L_2','r16L_3','r16L_4','r16L_5','r16L_6','r16L_7','r16R_0','r16R_1','r16R_2','r16R_3','r16R_4','r16R_5','r16R_6','r16R_7'], pairs:false },
+      { label:'Quartas',     ids:['qfL_0','qfL_1','qfL_2','qfL_3','qfR_0','qfR_1','qfR_2','qfR_3'], pairs:false },
+      { label:'Semifinal',   ids:['sfL_0','sfL_1','sfR_0','sfR_1'], pairs:false }
+    ];
+    FASES_CH.forEach(function(fase) {
+      var vals = fase.ids.map(function(id){ return d2[id]||''; }).filter(Boolean);
+      if (!vals.length) return;
+      secao('Chaveamento — ' + fase.label, [0,60,130]);
+      var chCols = fase.pairs ? 2 : 4;
+      var chColW = (W-M*2)/chCols;
+      if (fase.pairs) {
+        for (var pi = 0; pi < fase.ids.length; pi += 2) {
+          var va2 = d2[fase.ids[pi]]||'', vb2 = d2[fase.ids[pi+1]]||'';
+          if (!va2 && !vb2) continue;
+          var col2 = (pi/2) % chCols, px2 = M + col2 * chColW;
+          if (col2 === 0 && pi > 0) { y += 10; checkPage(10); }
+          doc.setFillColor(235,240,255); doc.roundedRect(px2, y-5, chColW-2, 9, 1.5,1.5,'F');
+          doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(0,34,102);
+          doc.text((va2||'—') + ' × ' + (vb2||'—'), px2+2, y);
+        }
+        y += 12;
+      } else {
+        vals.forEach(function(v, vi) {
+          var col3 = vi % chCols, px3 = M + col3 * chColW;
+          if (col3 === 0 && vi > 0) { y += 9; checkPage(9); }
+          doc.setFillColor(235,240,255); doc.roundedRect(px3, y-5, chColW-2, 8, 1.5,1.5,'F');
+          doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(0,34,102);
+          doc.text(v, px3+2, y);
+        });
+        y += 10;
+      }
+    });
+
+    // Azarão
+    var az = d2['decepcao1']||'';
+    if (az) {
+      secao('Azarão', [100,20,20]);
+      checkPage(10);
+      doc.setFillColor(252,240,240); doc.roundedRect(M, y-5, 60, 9, 1.5,1.5,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(100,20,20);
+      doc.text('⭐ ' + az, M+3, y+0.5);
+      y += 12;
+    }
+  }
+
   // Placares Mata-Mata
-  if (_palpite2 && _palpite2.placares_mm) {
-    var plMM = typeof _palpite2.placares_mm === 'string' ? JSON.parse(_palpite2.placares_mm) : _palpite2.placares_mm;
-    var keysA = Object.keys(plMM).filter(function(k){ return k.endsWith('_A'); });
-    if (keysA.length) {
-      secao('Placares — Mata-Mata', [80,20,100]);
-      var pCols = 4, pColW = (W-M*2)/pCols;
-      keysA.forEach(function(ka, ki) {
+  if (_palpite2 && (_palpite2._allPlacaresMM || _palpite2.placares_mm)) {
+    var TIMES_PDF = {
+      'r16avos': [['Alemanha','Paraguai'],['França','Suécia'],['África do Sul','Canadá'],['Holanda','Marrocos'],['Portugal','Croácia'],['Espanha','Áustria'],['Estados Unidos','Bósnia e Herz.'],['Bélgica','Senegal'],['Brasil','Japão'],['Costa do Marfim','Noruega'],['México','Equador'],['Inglaterra','RD Congo'],['Argentina','Cabo Verde'],['Austrália','Egito'],['Suíça','Argélia'],['Colômbia','Gana']],
+      'roitavas': [['J1','J2'],['J3','J4'],['J5','J6'],['J7','J8'],['J9','J10'],['J11','J12'],['J13','J14'],['J15','J16']],
+      'rquartas': [['Oit.1','Oit.2'],['Oit.3','Oit.4'],['Oit.5','Oit.6'],['Oit.7','Oit.8']],
+      'rsemi':    [['Q1','Q2'],['Q3','Q4']],
+      'rfinal':   [['3º Lugar','4º Lugar'],['Final','']]
+    };
+    var FASES_PDF = [
+      {id:'r16avos',label:'16 Avos de Final',n:16},{id:'roitavas',label:'Oitavas de Final',n:8},
+      {id:'rquartas',label:'Quartas de Final',n:4},{id:'rsemi',label:'Semifinal',n:2},{id:'rfinal',label:'3º Lugar e Final',n:2}
+    ];
+    var plMM = _palpite2._allPlacaresMM || (typeof _palpite2.placares_mm === 'string' ? JSON.parse(_palpite2.placares_mm) : (_palpite2.placares_mm || {}));
+    FASES_PDF.forEach(function(fase) {
+      var keysA = [];
+      for (var fi=0; fi<fase.n; fi++) { if (plMM[fase.id+'_'+fi+'_A'] !== undefined) keysA.push(fi); }
+      if (!keysA.length) return;
+      secao('Placares — ' + fase.label, [80,20,100]);
+      var pCols = 4, pColW2 = (W-M*2)/pCols;
+      keysA.forEach(function(ji3, ki) {
         if (ki % pCols === 0) checkPage(12);
-        var col = ki % pCols, px = M + col * pColW;
+        var col4 = ki % pCols, px4 = M + col4 * pColW2;
         if (ki % pCols === 0 && ki > 0) y += 12;
-        var kb = ka.replace(/_A$/,'_B');
-        doc.setFillColor(245,240,255); doc.roundedRect(px, y-5, pColW-2, 10, 1.5,1.5,'F');
-        doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(80,20,100);
-        doc.text('Jogo '+(ki+1), px+2, y-1);
+        var va3 = plMM[fase.id+'_'+ji3+'_A'], vb3 = plMM[fase.id+'_'+ji3+'_B'];
+        var timesArr = TIMES_PDF[fase.id] && TIMES_PDF[fase.id][ji3] ? TIMES_PDF[fase.id][ji3] : ['Time A','Time B'];
+        var label3 = timesArr[0] + (timesArr[1]?' × '+timesArr[1]:'');
+        if (label3.length > 22) label3 = label3.substring(0,20)+'…';
+        doc.setFillColor(245,240,255); doc.roundedRect(px4, y-5, pColW2-2, 10, 1.5,1.5,'F');
+        doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(80,20,100);
+        doc.text(label3, px4+2, y-1);
         doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(80,20,100);
-        doc.text((plMM[ka]||'?')+' × '+(plMM[kb]||'?'), px+2, y+4.5);
+        doc.text((va3!==undefined?va3:'?')+' × '+(vb3!==undefined?vb3:'?'), px4+2, y+4.5);
       });
       y += 14;
-    }
+    });
   }
 
   rodape();
