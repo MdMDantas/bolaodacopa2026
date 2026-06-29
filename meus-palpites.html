@@ -990,42 +990,150 @@ function exportarPalpitesPDF() {
       y += 16;
     }
 
-    // Chaveamento (R32 → SF)
-    var FASES_CH = [
-      { label:'Round of 32', ids:['r32L_0_A','r32L_0_B','r32L_1_A','r32L_1_B','r32L_2_A','r32L_2_B','r32L_3_A','r32L_3_B','r32L_4_A','r32L_4_B','r32L_5_A','r32L_5_B','r32L_6_A','r32L_6_B','r32L_7_A','r32L_7_B','r32R_0_A','r32R_0_B','r32R_1_A','r32R_1_B','r32R_2_A','r32R_2_B','r32R_3_A','r32R_3_B','r32R_4_A','r32R_4_B','r32R_5_A','r32R_5_B','r32R_6_A','r32R_6_B','r32R_7_A','r32R_7_B'], pairs:true },
-      { label:'Oitavas',     ids:['r16L_0','r16L_1','r16L_2','r16L_3','r16L_4','r16L_5','r16L_6','r16L_7','r16R_0','r16R_1','r16R_2','r16R_3','r16R_4','r16R_5','r16R_6','r16R_7'], pairs:false },
-      { label:'Quartas',     ids:['qfL_0','qfL_1','qfL_2','qfL_3','qfR_0','qfR_1','qfR_2','qfR_3'], pairs:false },
-      { label:'Semifinal',   ids:['sfL_0','sfL_1','sfR_0','sfR_1'], pairs:false }
-    ];
-    FASES_CH.forEach(function(fase) {
-      var vals = fase.ids.map(function(id){ return d2[id]||''; }).filter(Boolean);
-      if (!vals.length) return;
-      secao('Chaveamento — ' + fase.label, [0,60,130]);
-      var chCols = fase.pairs ? 2 : 4;
-      var chColW = (W-M*2)/chCols;
-      if (fase.pairs) {
-        for (var pi = 0; pi < fase.ids.length; pi += 2) {
-          var va2 = d2[fase.ids[pi]]||'', vb2 = d2[fase.ids[pi+1]]||'';
-          if (!va2 && !vb2) continue;
-          var col2 = (pi/2) % chCols, px2 = M + col2 * chColW;
-          if (col2 === 0 && pi > 0) { y += 10; checkPage(10); }
-          doc.setFillColor(235,240,255); doc.roundedRect(px2, y-5, chColW-2, 9, 1.5,1.5,'F');
-          doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(0,34,102);
-          doc.text((va2||'—') + ' × ' + (vb2||'—'), px2+2, y);
-        }
-        y += 12;
-      } else {
-        vals.forEach(function(v, vi) {
-          var col3 = vi % chCols, px3 = M + col3 * chColW;
-          if (col3 === 0 && vi > 0) { y += 9; checkPage(9); }
-          doc.setFillColor(235,240,255); doc.roundedRect(px3, y-5, chColW-2, 8, 1.5,1.5,'F');
-          doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(0,34,102);
-          doc.text(v, px3+2, y);
-        });
-        y += 10;
-      }
-    });
+    // Chaveamento — Bracket visual em página landscape
+    var hasAnyBracket = ['r32L_0_A','r16L_0','qfL_0','sfL_0'].some(function(id){ return !!d2[id]; });
+    if (hasAnyBracket) {
+      rodape();
+      doc.addPage([297, 210]);
+      var BW = 297, BH = 210, BM = 8;
+      doc.setFillColor(0,26,74); doc.rect(0,0,BW,14,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(255,223,0);
+      doc.text('CHAVEAMENTO  -  ' + apelido.toUpperCase(), BM, 9.5);
 
+      var bTop = 20, bBot = BH - 8, bH = bBot - bTop;
+      var nRows = 16, rowH = bH / nRows, slotH = rowH * 0.38;
+      var usableW = BW - 2*BM, cW = 3;
+      var colW = (usableW - 8*cW) / 9;
+      var cols = [];
+      for (var ci = 0; ci < 9; ci++) cols.push(BM + ci*(colW+cW));
+      var colLabels = ['Round of 32','Oitavas','Quartas','Semis','Final','Semis','Quartas','Oitavas','Round of 32'];
+      doc.setFont('helvetica','bold'); doc.setFontSize(5.5); doc.setTextColor(180,150,0);
+      colLabels.forEach(function(lbl,ci) {
+        doc.text(lbl, cols[ci] + colW/2, bTop - 2, {align:'center'});
+      });
+
+      function trunc(str, maxW) {
+        if (!str) return '-';
+        var mc = Math.floor(maxW / 1.55);
+        return str.length > mc ? str.substring(0, mc-1)+'.' : str;
+      }
+      function drawSlot(x, y, w, h, text, hl) {
+        if (hl) { doc.setFillColor(0,48,140); doc.setTextColor(255,223,0); }
+        else     { doc.setFillColor(225,232,252); doc.setTextColor(0,26,74); }
+        doc.roundedRect(x, y, w-1, h, 0.8, 0.8, 'F');
+        doc.setFont('helvetica', hl?'bold':'normal'); doc.setFontSize(5.8);
+        doc.text(trunc(text, w-3), x+1.5, y+h*0.72);
+      }
+      function drawConn(x1, y1, x2, y2) {
+        doc.setDrawColor(150,170,220); doc.setLineWidth(0.3);
+        var mx = (x1+x2)/2;
+        doc.line(x1, y1, mx, y1);
+        doc.line(mx, y1, mx, y2);
+        doc.line(mx, y2, x2, y2);
+      }
+
+      var R32P = [
+        ['Alemanha','Paraguai'],['Franca','Suecia'],['Africa do Sul','Canada'],['Holanda','Marrocos'],
+        ['Portugal','Croatia'],['Espanha','Austria'],['Estados Unidos','Bosnia'],['Belgica','Senegal'],
+        ['Brasil','Japao'],['Costa do Marfim','Noruega'],['Mexico','Equador'],['Inglaterra','RD Congo'],
+        ['Argentina','Cabo Verde'],['Australia','Egito'],['Suica','Algeria'],['Colombia','Gana']
+      ];
+
+      var slotMidY = [];
+      for (var ri = 0; ri < 16; ri++) {
+        var pairTop = bTop + ri * rowH;
+        var yA = pairTop + rowH*0.10, yB = pairTop + rowH*0.52;
+        slotMidY.push((yA + yB + slotH) / 2);
+        if (ri < 8) {
+          var tA = d2['r32L_'+ri+'_A'] || R32P[ri][0];
+          var tB = d2['r32L_'+ri+'_B'] || R32P[ri][1];
+          var wL = d2['r16L_'+ri]||'';
+          drawSlot(cols[0], yA, colW, slotH, tA, wL===tA&&!!wL);
+          drawSlot(cols[0], yB, colW, slotH, tB, wL===tB&&!!wL);
+        } else {
+          var rri = ri-8;
+          var tA2 = d2['r32R_'+rri+'_A'] || R32P[ri][0];
+          var tB2 = d2['r32R_'+rri+'_B'] || R32P[ri][1];
+          var wR = d2['r16R_'+rri]||'';
+          drawSlot(cols[8], yA, colW, slotH, tA2, wR===tA2&&!!wR);
+          drawSlot(cols[8], yB, colW, slotH, tB2, wR===tB2&&!!wR);
+        }
+      }
+
+      // R16
+      var r16YL=[], r16YR=[];
+      for (var i=0;i<8;i++) {
+        var yL=(slotMidY[i*2]+slotMidY[i*2+1])/2-slotH/2;
+        var yR=(slotMidY[8+i*2]+slotMidY[8+i*2+1])/2-slotH/2; // note: only 16 total
+        r16YL.push(yL); r16YR.push(yR);
+        var wL2=d2['r16L_'+i]||'', wR2=d2['r16R_'+i]||'';
+        var qwL=d2['qfL_'+Math.floor(i/2)]||'', qwR=d2['qfR_'+Math.floor(i/2)]||'';
+        drawSlot(cols[1], yL, colW, slotH, wL2||'?', qwL===wL2&&!!wL2);
+        drawSlot(cols[7], yR, colW, slotH, wR2||'?', qwR===wR2&&!!wR2);
+        if (i%2===1) {
+          var qyL=(r16YL[i-1]+r16YL[i])/2+slotH/2;
+          var qyR=(r16YR[i-1]+r16YR[i])/2+slotH/2;
+          drawConn(cols[1]+colW-1, r16YL[i-1]+slotH/2, cols[2], qyL);
+          drawConn(cols[1]+colW-1, r16YL[i]+slotH/2,   cols[2], qyL);
+          drawConn(cols[7]-cW*0.5, r16YR[i-1]+slotH/2, cols[7]-cW, qyR);
+          drawConn(cols[7]-cW*0.5, r16YR[i]+slotH/2,   cols[7]-cW, qyR);
+        }
+      }
+
+      // QF
+      var qfYL=[], qfYR=[];
+      for (var qi=0;qi<4;qi++) {
+        var qyL2=(r16YL[qi*2]+r16YL[qi*2+1])/2;
+        var qyR2=(r16YR[qi*2]+r16YR[qi*2+1])/2;
+        qfYL.push(qyL2); qfYR.push(qyR2);
+        var qwL2=d2['qfL_'+qi]||'', qwR2=d2['qfR_'+qi]||'';
+        var swL=d2['sfL_'+Math.floor(qi/2)]||'', swR=d2['sfR_'+Math.floor(qi/2)]||'';
+        drawSlot(cols[2], qyL2, colW, slotH, qwL2||'?', swL===qwL2&&!!qwL2);
+        drawSlot(cols[6], qyR2, colW, slotH, qwR2||'?', swR===qwR2&&!!qwR2);
+        if (qi%2===1) {
+          var syL=(qfYL[qi-1]+qfYL[qi])/2+slotH/2;
+          var syR=(qfYR[qi-1]+qfYR[qi])/2+slotH/2;
+          drawConn(cols[2]+colW-1, qfYL[qi-1]+slotH/2, cols[3], syL);
+          drawConn(cols[2]+colW-1, qfYL[qi]+slotH/2,   cols[3], syL);
+          drawConn(cols[6]-cW*0.5, qfYR[qi-1]+slotH/2, cols[6]-cW, syR);
+          drawConn(cols[6]-cW*0.5, qfYR[qi]+slotH/2,   cols[6]-cW, syR);
+        }
+      }
+
+      // SF
+      var sfCY = BH/2;
+      for (var si=0;si<2;si++) {
+        var syL2=(qfYL[si*2]+qfYL[si*2+1])/2;
+        var syR2=(qfYR[si*2]+qfYR[si*2+1])/2;
+        var swL2=d2['sfL_'+si]||'', swR2=d2['sfR_'+si]||'';
+        drawSlot(cols[3], syL2, colW, slotH, swL2||'?', false);
+        drawSlot(cols[5], syR2, colW, slotH, swR2||'?', false);
+        drawConn(cols[3]+colW-1, syL2+slotH/2, cols[4], sfCY);
+        drawConn(cols[5]-cW*0.5, syR2+slotH/2, cols[4]+colW, sfCY);
+      }
+
+      // Final / Top4
+      var fx=cols[4], fy=sfCY-28;
+      doc.setFillColor(255,200,0); doc.roundedRect(fx,fy,colW,56,2,2,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(0,26,74);
+      doc.text('TOP 4', fx+colW/2, fy+6, {align:'center'});
+      var pLbls=['1o','2o','3o','4o'], pIds=['pos1','pos2','pos3','pos4'];
+      pIds.forEach(function(id,pi) {
+        var pv=d2[id]||'-';
+        var py=fy+11+pi*11;
+        doc.setFillColor(0,34,102); doc.roundedRect(fx+2,py,colW-4,9,1,1,'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(5); doc.setTextColor(255,223,0);
+        doc.text(pLbls[pi], fx+4, py+5);
+        doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(255,255,255);
+        doc.text(trunc(pv, colW-14), fx+11, py+6);
+      });
+
+      doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(160,160,160);
+      doc.text('Bolao da Copa 2026  -  Chaveamento de ' + apelido + '  -  ' + dataHora, BM, BH-3);
+
+      doc.addPage();
+      cabecalhoMini();
+    }
     // Azarão
     var az = d2['decepcao1']||'';
     if (az) {

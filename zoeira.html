@@ -165,6 +165,27 @@ async function buscar() {
   var rp = await fetch(SU + '/rest/v1/palpites_fase1?bolao_id=eq.' + bolao.id + '&select=apelido,placares', { headers: H });
   var palpites = await rp.json();
 
+  // Buscar placares mata-mata (fase2) — agregar por apelido
+  var rp2 = await fetch(SU + '/rest/v1/palpites_fase2?bolao_id=eq.' + bolao.id + '&select=apelido,fase,placares_mm', { headers: H });
+  var palpites2 = rp2.ok ? await rp2.json() : [];
+  // Montar mapa apelido -> placares_mm agregados
+  var mapaPlacaresMM = {};
+  palpites2.forEach(function(row) {
+    if (!row.placares_mm) return;
+    if (!mapaPlacaresMM[row.apelido]) mapaPlacaresMM[row.apelido] = {};
+    Object.assign(mapaPlacaresMM[row.apelido], row.placares_mm);
+  });
+  // Garantir que participantes do fase2 apareçam mesmo sem fase1
+  Object.keys(mapaPlacaresMM).forEach(function(ap) {
+    if (!palpites.some(function(p){ return p.apelido === ap; })) {
+      palpites.push({ apelido: ap, placares: {} });
+    }
+  });
+  // Injetar placares_mm em cada palpite
+  palpites.forEach(function(p) {
+    p.placares_mm = mapaPlacaresMM[p.apelido] || {};
+  });
+
   var rr = await fetch(SU + '/rest/v1/resultados?select=*', { headers: H });
   var resultados = await rr.json();
 
