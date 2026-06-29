@@ -887,7 +887,7 @@ function _exportarPalpitesPDFInterno() {
   // Grupos
   if (_palpite1) {
     var GRUPOS_KEYS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
-    secao('Classificação dos Grupos', [0,34,102]);
+    secao('Classificacao dos Grupos', [0,34,102]);
     var gruposCols = 4, gColW = (W-M*2)/gruposCols;
     for (var gi = 0; gi < GRUPOS_KEYS.length; gi += gruposCols) {
       checkPage(32);
@@ -955,7 +955,7 @@ function _exportarPalpitesPDFInterno() {
         var r = rv[0], rLabel = rv[1];
         var keysA = Object.keys(pl).filter(function(k){ return k.indexOf('placar_'+r+'_')===0 && k.endsWith('_a'); });
         if (!keysA.length) return;
-        secao('Placares — ' + rLabel, [0,60,130]);
+        secao('Placares - ' + rLabel, [0,60,130]);
         var pCols = 3, pColW = (W-M*2)/pCols;
         keysA.forEach(function(ka, ki) {
           if (ki % pCols === 0) checkPage(12);
@@ -1041,7 +1041,7 @@ function _exportarPalpitesPDFInterno() {
 
     var az = d2['decepcao1']||'';
     if (az) {
-      secao('Azarão', [100,20,20]);
+      secao('Azarao', [100,20,20]);
       checkPage(10);
       doc.setFillColor(252,240,240); doc.roundedRect(M, y-5, 60, 9, 1.5,1.5,'F');
       doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(100,20,20);
@@ -1085,7 +1085,7 @@ function _exportarPalpitesPDFInterno() {
       var keysA = [];
       for (var fi=0; fi<fase.n; fi++) { if (plMM[fase.id+'_'+fi+'_A'] !== undefined) keysA.push(fi); }
       if (!keysA.length) return;
-      secao('Placares — ' + fase.label, [80,20,100]);
+      secao('Placares - ' + fase.label, [80,20,100]);
       var pCols = 4, pColW2 = (W-M*2)/pCols;
       keysA.forEach(function(ji3, ki) {
         if (ki % pCols === 0) checkPage(12);
