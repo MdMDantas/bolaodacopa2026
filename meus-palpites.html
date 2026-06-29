@@ -809,6 +809,10 @@ var PDF_JOGOS = {
 };
 
 function exportarPalpitesPDF() {
+  if (typeof window.jspdf === 'undefined') {
+    alert('Biblioteca PDF ainda carregando. Tente novamente em alguns segundos.');
+    return;
+  }
   var { jsPDF } = window.jspdf;
   var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 

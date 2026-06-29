@@ -255,15 +255,13 @@
 
     <div class="phase-header"><div class="phase-badge"></div><h2>3. ZEBRAS DO MATA-MATA</h2></div>
     <div class="regras-box">
-      <div class="regra-item">🦓 Selecione <strong>4 times zebra</strong> que vão surpreender no mata-mata — times que eliminam um favorito.</div>
+      <div class="regra-item">🦓 Selecione <strong>2 times zebra</strong> que vão surpreender no mata-mata — times que eliminam um favorito.</div>
       <div class="regra-item">🎯 <strong>Chegou nas Oitavas:</strong> <span class="pts">+2 pts</span> &nbsp;·&nbsp; <strong>Chegou nas Quartas:</strong> <span class="pts">+3 pts</span> &nbsp;·&nbsp; <strong>Semis ou além:</strong> <span class="pts">+4 pts</span></div>
-      <div class="regra-item pontos-max">🏆 Máximo: 4 × 4 pts = <strong>16 pontos</strong></div>
+      <div class="regra-item pontos-max">🏆 Máximo: 2 × 4 pts = <strong>8 pontos</strong></div>
     </div>
     <div class="top4-grid">
       <div class="top4-card"><div class="t4-pos">🦓 ZEBRA 1</div><div class="sel-wrap"><select id="zebra_mm_1" onchange="updateProgress();markFilled(this);syncZebraMM()"><option value="">Selecione...</option></select></div></div>
       <div class="top4-card"><div class="t4-pos">🦓 ZEBRA 2</div><div class="sel-wrap"><select id="zebra_mm_2" onchange="updateProgress();markFilled(this);syncZebraMM()"><option value="">Selecione...</option></select></div></div>
-      <div class="top4-card"><div class="t4-pos">🦓 ZEBRA 3</div><div class="sel-wrap"><select id="zebra_mm_3" onchange="updateProgress();markFilled(this);syncZebraMM()"><option value="">Selecione...</option></select></div></div>
-      <div class="top4-card"><div class="t4-pos">🦓 ZEBRA 4</div><div class="sel-wrap"><select id="zebra_mm_4" onchange="updateProgress();markFilled(this);syncZebraMM()"><option value="">Selecione...</option></select></div></div>
     </div>
 
     <div class="divider"></div>
@@ -781,7 +779,7 @@ function buildBracket(saved) {
   syncTop4();
 
   // Zebras MM
-  ['zebra_mm_1','zebra_mm_2','zebra_mm_3','zebra_mm_4'].forEach(function(id) {
+  ['zebra_mm_1','zebra_mm_2'].forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
     var cur = saved[id] || '';
@@ -823,7 +821,7 @@ function syncTop4() {
 }
 
 function syncZebraMM() {
-  var ids = ['zebra_mm_1','zebra_mm_2','zebra_mm_3','zebra_mm_4'];
+  var ids = ['zebra_mm_1','zebra_mm_2'];
   var escolhidos = {};
   ids.forEach(function(id){ var el = document.getElementById(id); if(el && el.value) escolhidos[el.value]=id; });
   ids.forEach(function(id) {
@@ -907,7 +905,7 @@ function preencherAleatorioF2() {
   });
   // Zebras MM aleatório
   var allTeamsCopy = ZEBRA_TEAMS.slice();
-  ['zebra_mm_1','zebra_mm_2','zebra_mm_3','zebra_mm_4'].forEach(function(id){
+  ['zebra_mm_1','zebra_mm_2'].forEach(function(id){
     var el=document.getElementById(id);
     if(el){
       var idx=Math.floor(Math.random()*allTeamsCopy.length);

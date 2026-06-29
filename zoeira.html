@@ -343,60 +343,114 @@ function renderAglutinador(bolao, palpites, resultados) {
     {id:'roitavas', label:'⚔️ Oitavas de Final', times:[['Venc. J1','Venc. J2'],['Venc. J3','Venc. J4'],['Venc. J5','Venc. J6'],['Venc. J7','Venc. J8'],['Venc. J9','Venc. J10'],['Venc. J11','Venc. J12'],['Venc. J13','Venc. J14'],['Venc. J15','Venc. J16']]},
     {id:'rquartas', label:'⚔️ Quartas de Final', times:[['Venc. Oit.1','Venc. Oit.2'],['Venc. Oit.3','Venc. Oit.4'],['Venc. Oit.5','Venc. Oit.6'],['Venc. Oit.7','Venc. Oit.8']]},
     {id:'rsemi',   label:'⚔️ Semifinal',         times:[['Venc. Q1','Venc. Q2'],['Venc. Q3','Venc. Q4']]},
-    {id:'rfinal',  label:'🏆 3º Lugar e Final',  times:[['3º Lugar','4º Lugar'],['Final']]}
+    {id:'rfinal',  label:'🏆 3º Lugar e Final',  times:[['3º Lugar','4º Lugar'],['Final','']]}
   ];
 
   FASES_MM.forEach(function(fase) {
-    // Coletar palpites de todos os participantes para esta fase
     var temAlgum = palpites.some(function(p) {
       var pm = p.placares_mm || {};
-      return fase.times.some(function(_, ji) {
-        return pm[fase.id+'_'+ji+'_A'] !== undefined;
-      });
+      return fase.times.some(function(_, ji) { return pm[fase.id+'_'+ji+'_A'] !== undefined; });
     });
     if (!temAlgum) return;
 
+    var isOpen = false;
     html += '<div class="rodada-card">';
-    html += '<div class="rodada-card-header" onclick="toggleRodada(this)">';
+    html += '<div class="rodada-card-header' + (isOpen?' open':'') + '" onclick="toggleRodada(this)">';
     html += '<div><div class="rodada-card-title">' + fase.label + '</div>';
     html += '<div class="rodada-card-meta">' + fase.times.length + ' jogo(s)</div></div>';
-    html += '<div class="rodada-card-arrow">▼</div></div>';
-    html += '<div class="rodada-card-body">';
+    html += '<div class="rodada-card-arrow' + (isOpen?' open':'') + '">▼</div></div>';
+    html += '<div class="rodada-card-body' + (isOpen?' open':'') + '">';
 
     fase.times.forEach(function(times, ji) {
       var nomeA = times[0], nomeB = times[1] || '';
       var idA = fase.id+'_'+ji+'_A', idB = fase.id+'_'+ji+'_B';
 
-      // Coletar palpites de todos para este jogo
-      var apelidos = palpites.filter(function(p) {
+      // Resultados reais (se existirem em mapaRes)
+      var resKey = fase.id + '_' + ji;
+      var res = mapaRes[resKey];
+
+      // Coletar palpites com placar dos dois lados
+      var jogoPalpites = {};
+      palpites.forEach(function(p) {
         var pm = p.placares_mm || {};
-        return pm[idA] !== undefined || pm[idB] !== undefined;
+        if (pm[idA] !== undefined && pm[idB] !== undefined) {
+          jogoPalpites[p.apelido] = { a: parseInt(pm[idA]), b: parseInt(pm[idB]) };
+        }
       });
+      var apelidos = Object.keys(jogoPalpites);
+      var total = apelidos.length;
+
+      var resStr = res && res.gols_a !== null
+        ? '<span class="jogo-resultado definido">✓ ' + res.gols_a + ' × ' + res.gols_b + '</span>'
+        : '<span class="jogo-resultado">Aguardando</span>';
 
       html += '<div class="jogo-card">';
       html += '<div class="jogo-header">';
-      html += '<div><div class="jogo-nome">⚽ ' + nomeA + (nomeB?' × '+nomeB:'') + '</div>';
-      html += '<div class="jogo-sub">' + apelidos.length + ' palpite(s)</div></div></div>';
+      html += '<div><div class="jogo-nome">⚔️ ' + nomeA + (nomeB?' × '+nomeB:'') + '</div>';
+      html += '<div class="jogo-sub">' + total + ' palpite(s)</div></div>';
+      html += resStr + '</div>';
       html += '<div class="jogo-body">';
 
-      if (!apelidos.length) {
-        html += '<div class="sem-palpites">Nenhum palpite para este jogo</div>';
+      if (total === 0) {
+        html += '<div class="sem-palpites">Nenhum palpite registrado para este jogo</div>';
       } else {
-        apelidos.forEach(function(p) {
-          var pm = p.placares_mm || {};
-          var va = pm[idA] !== undefined ? pm[idA] : '?';
-          var vb = pm[idB] !== undefined ? pm[idB] : '?';
-          html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">';
-          html += '<span style="font-size:11px;color:var(--muted);min-width:80px;">' + (p.apelido||'?') + '</span>';
-          html += '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;color:var(--white);">' + va + ' × ' + vb + '</span>';
-          html += '</div>';
+        // Consenso de vencedor
+        var venc = { A: 0, B: 0, E: 0 };
+        var contagem = {};
+        apelidos.forEach(function(ap) {
+          var pp = jogoPalpites[ap];
+          if (pp.a > pp.b) venc.A++;
+          else if (pp.b > pp.a) venc.B++;
+          else venc.E++;
+          var key = pp.a + '×' + pp.b;
+          contagem[key] = (contagem[key] || 0) + 1;
         });
+
+        var pctA = Math.round(venc.A / total * 100);
+        var pctB = Math.round(venc.B / total * 100);
+        var pctE = 100 - pctA - pctB;
+
+        // Barra de consenso
+        html += '<div class="consenso-bar">';
+        if (pctA > 0) html += '<div class="consenso-seg" style="width:'+pctA+'%;background:#003087;">'+(pctA>=15?nomeA.split(' ')[0]+' '+pctA+'%':pctA>=8?pctA+'%':'')+'</div>';
+        if (pctE > 0) html += '<div class="consenso-seg" style="width:'+pctE+'%;background:#3a5580;">'+(pctE>=8?'= '+pctE+'%':'')+'</div>';
+        if (pctB > 0) html += '<div class="consenso-seg" style="width:'+pctB+'%;background:#009c3b;">'+(pctB>=15?nomeB.split(' ')[0]+' '+pctB+'%':pctB>=8?pctB+'%':'')+'</div>';
+        html += '</div>';
+        html += '<div class="consenso-labels">';
+        html += '<span>🔵 ' + nomeA + ' — ' + pctA + '%</span>';
+        html += '<span>⚪ Empate — ' + pctE + '%</span>';
+        html += '<span>🟢 ' + nomeB + ' — ' + pctB + '%</span>';
+        html += '</div>';
+
+        // Placares apostados
+        html += '<div class="placares-apostados"><div class="pa-titulo">PLACARES APOSTADOS</div>';
+        var placaresOrdenados = Object.keys(contagem).sort(function(a,b){ return contagem[b]-contagem[a]; });
+        placaresOrdenados.forEach(function(key) {
+          var cnt = contagem[key];
+          var pct2 = Math.round(cnt/total*100);
+          var acertou = res && res.gols_a !== null && key === res.gols_a+'×'+res.gols_b;
+          var quemApostou = apelidos.filter(function(ap){ return jogoPalpites[ap].a+'×'+jogoPalpites[ap].b === key; });
+          var cor = pct2 >= 40 ? '#FFD700' : pct2 >= 20 ? '#C0C0C0' : '#CD7F32';
+          html += '<div class="pa-linha">';
+          html += '<div class="pa-placar' + (acertou?' acerto':'') + '">' + (acertou?'✅ ':'') + key.replace('×',' × ') + '</div>';
+          html += '<div class="pa-bar-wrap"><div class="pa-bar" style="width:'+pct2+'%;"></div></div>';
+          html += '<div class="odds-pct" style="color:'+cor+'">'+pct2+'%</div>';
+          html += '<div class="odds-count">('+cnt+')</div>';
+          html += '</div>';
+          html += '<div style="padding-left:32px;display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">';
+          quemApostou.forEach(function(ap) {
+            var corNome = acertou ? '#00c44f' : 'var(--muted)';
+            html += '<span style="font-size:11px;color:'+corNome+';background:rgba(255,255,255,0.05);border-radius:4px;padding:2px 8px;">'+ap+'</span>';
+          });
+          html += '</div></div>';
+        });
+        html += '</div>';
       }
 
-      html += '</div></div>';
+      html += '</div></div>'; // fim jogo-body e jogo-card
     });
 
-    html += '</div></div>';
+    html += '</div></div>'; // fim rodada-card
   });
 
   document.getElementById('area').innerHTML = html;

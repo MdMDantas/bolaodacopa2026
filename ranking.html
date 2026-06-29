@@ -403,6 +403,15 @@ async function carregarRanking(bolaoId, bolaoNome) {
       ranking = Object.keys(todosApelidos).map(function(a){
         return {apelido:a, pts_grupos:0, pts_placares:0, pts_zebras:0, pts_chaveamento:0, pts_placares_mata:0, total:0};
       });
+    } else {
+      // Adicionar participantes que só têm fase2 e não estão no ranking
+      var apelidosNoRanking = {};
+      ranking.forEach(function(r){ apelidosNoRanking[r.apelido]=true; });
+      [fase2Chaveamento, fase1Grupos].forEach(function(mapa){
+        Object.keys(mapa).forEach(function(a){
+          if (!apelidosNoRanking[a]) { ranking.push({apelido:a, pts_grupos:0, pts_placares:0, pts_zebras:0, pts_chaveamento:0, pts_placares_mata:0, total:0}); apelidosNoRanking[a]=true; }
+        });
+      });
     }
 
     if (!ranking.length) {
@@ -801,6 +810,15 @@ async function carregarRanking(bolaoId, bolaoNome) {
       Object.keys(fase2Chaveamento).forEach(function(a){ todosApelidos[a]=true; });
       ranking = Object.keys(todosApelidos).map(function(a){
         return {apelido:a, pts_grupos:0, pts_placares:0, pts_zebras:0, pts_chaveamento:0, pts_placares_mata:0, total:0};
+      });
+    } else {
+      // Adicionar participantes que só têm fase2 e não estão no ranking
+      var apelidosNoRanking = {};
+      ranking.forEach(function(r){ apelidosNoRanking[r.apelido]=true; });
+      [fase2Chaveamento, fase1Grupos].forEach(function(mapa){
+        Object.keys(mapa).forEach(function(a){
+          if (!apelidosNoRanking[a]) { ranking.push({apelido:a, pts_grupos:0, pts_placares:0, pts_zebras:0, pts_chaveamento:0, pts_placares_mata:0, total:0}); apelidosNoRanking[a]=true; }
+        });
       });
     }
 
