@@ -1073,11 +1073,26 @@ function _exportarPalpitesPDFInterno() {
         }
       }
 
-      // R16
+      // R16 — left uses slotMidY[0..7] pairs, right uses slotMidY[8..15] pairs
       var r16YL=[], r16YR=[];
       for (var i=0;i<8;i++) {
         var yL=(slotMidY[i*2]+slotMidY[i*2+1])/2-slotH/2;
-        var yR=(slotMidY[8+i*2]+slotMidY[8+i*2+1])/2-slotH/2; // note: only 16 total
+        var yR=(slotMidY[8+i*2]!==undefined && slotMidY[8+i*2+1]!==undefined)
+          ? (slotMidY[8+i*2]+slotMidY[8+i*2+1])/2-slotH/2
+          : bTop + (8+i)*rowH + rowH/2 - slotH/2;
+        // For right side: pairs 8-15 map to r16R indices 0-7
+        // slotMidY has 16 entries (0-15), right side pairs are indices 8-15
+        // Each r16R[i] corresponds to slotMidY pairs (8+i*2, 8+i*2+1) but we only have 16 entries
+        // So right side: r16R[i] midpoint between slotMidY[8+floor(i*2/1)] -- recalculate
+        var rA = bTop + (8 + i*2) * rowH + rowH*0.10;
+        var rB = bTop + (8 + i*2) * rowH + rowH*0.52;
+        var rA2 = bTop + (8 + i*2+1) * rowH + rowH*0.10;
+        var rB2 = bTop + (8 + i*2+1) * rowH + rowH*0.52;
+        yR = ((rA+rB+rA2+rB2)/4 + slotH/2)/2 - slotH/4;
+        // Simpler: average Y of the two R32 pair midpoints on the right
+        var midR1 = (rA + rB + slotH) / 2;
+        var midR2 = (rA2 + rB2 + slotH) / 2;
+        yR = (midR1 + midR2) / 2 - slotH/2;
         r16YL.push(yL); r16YR.push(yR);
         var wL2=d2['r16L_'+i]||'', wR2=d2['r16R_'+i]||'';
         var qwL=d2['qfL_'+Math.floor(i/2)]||'', qwR=d2['qfR_'+Math.floor(i/2)]||'';
@@ -1096,8 +1111,8 @@ function _exportarPalpitesPDFInterno() {
       // QF
       var qfYL=[], qfYR=[];
       for (var qi=0;qi<4;qi++) {
-        var qyL2=(r16YL[qi*2]+r16YL[qi*2+1])/2;
-        var qyR2=(r16YR[qi*2]+r16YR[qi*2+1])/2;
+        var qyL2=(r16YL[qi*2]!==undefined&&r16YL[qi*2+1]!==undefined)?(r16YL[qi*2]+r16YL[qi*2+1])/2:bTop+(qi*4)*rowH;
+        var qyR2=(r16YR[qi*2]!==undefined&&r16YR[qi*2+1]!==undefined)?(r16YR[qi*2]+r16YR[qi*2+1])/2:bTop+(8+qi*4)*rowH;
         qfYL.push(qyL2); qfYR.push(qyR2);
         var qwL2=d2['qfL_'+qi]||'', qwR2=d2['qfR_'+qi]||'';
         var swL=d2['sfL_'+Math.floor(qi/2)]||'', swR=d2['sfR_'+Math.floor(qi/2)]||'';
