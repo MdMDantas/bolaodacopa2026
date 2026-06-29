@@ -68,11 +68,29 @@ var DB = {
       method: 'POST',
       headers: Object.assign({}, DB.h(), {
         'Prefer': 'resolution=merge-duplicates,return=minimal',
-        'on_conflict': 'bolao_id,apelido,fase'
+        'Content-Type': 'application/json'
       }),
       body: JSON.stringify(row)
     });
-    if (!resp.ok) { var e = await resp.text(); console.error('salvarFase2 ERRO:', resp.status, e); alert('Erro detalhado: ' + resp.status + ' — ' + e); }
+    // Se conflito de chave única, tenta PATCH
+    if (!resp.ok) {
+      var errText = await resp.text();
+      if (errText.indexOf('23505') !== -1 || errText.indexOf('duplicate') !== -1) {
+        // Faz update direto via PATCH
+        var patchResp = await fetch(
+          SUPABASE_URL + '/rest/v1/palpites_fase2?bolao_id=eq.' + row.bolao_id + '&apelido=eq.' + encodeURIComponent(row.apelido) + '&fase=eq.' + row.fase,
+          {
+            method: 'PATCH',
+            headers: Object.assign({}, DB.h(), { 'Prefer': 'return=minimal', 'Content-Type': 'application/json' }),
+            body: JSON.stringify({ dados_mm: row.dados_mm, placares_mm: row.placares_mm })
+          }
+        );
+        if (!patchResp.ok) { var e2 = await patchResp.text(); console.error('PATCH erro:', patchResp.status, e2); }
+        return patchResp.ok;
+      }
+      console.error('salvarFase2 ERRO:', resp.status, errText);
+      return false;
+    }
     return resp.ok;
   },
 
