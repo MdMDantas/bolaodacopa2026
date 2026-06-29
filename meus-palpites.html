@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meus Palpites — Bolão da Copa 2026</title>
+<title>Meus Palpites — Bolao da Copa 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{--gold:#ffdf00;--green:#009c3b;--green-light:#00c44f;--blue:#003087;--bg:#001a4a;--bg2:#002266;--bg3:#002d80;--card:#00194a;--border:#1a3d7a;--text:#e8f0ff;--muted:#7a9fd4;--white:#fff;}
@@ -22,7 +22,7 @@
   .btn-sair{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;}
   .btn-sair:hover{border-color:var(--gold);color:var(--gold);}
 
-  /* BUSCA DE BOLÃO */
+  /* BUSCA DE BOLAO */
   .bolao-busca{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:24px;}
   .bolao-busca label{display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
   .busca-row{display:flex;gap:10px;}
@@ -169,7 +169,7 @@
 
   <!-- Busca de bolão -->
   <div id="bolaoBox" class="bolao-busca">
-    <label>Código do Bolão</label>
+    <label>Código do Bolao</label>
     <div class="busca-row">
       <input type="text" id="codigoBolao" placeholder="Digite o código" onkeydown="if(event.key==='Enter')buscar()">
       <button onclick="buscar()">BUSCAR</button>
@@ -335,13 +335,13 @@ async function buscar() {
   var resp = await fetch(SUPABASE_URL+'/rest/v1/boloes?codigo=eq.'+encodeURIComponent(codigo)+'&select=id,nome,codigo', {headers:H});
   if (!resp.ok) { alert('Erro ao buscar bolão.'); return; }
   var data = await resp.json();
-  if (!data.length) { alert('Bolão não encontrado. Verifique o código.'); return; }
+  if (!data.length) { alert('Bolao não encontrado. Verifique o código.'); return; }
   _bolaoAtual = data[0];
   AUTH.salvarUltimoBolao(codigo);
   document.getElementById('bolaoBox').style.display = 'none';
   document.getElementById('pageHeader').style.display = 'flex';
   document.getElementById('headerNome').textContent = _usuario.apelido;
-  document.getElementById('headerBolao').textContent = 'Bolão: ' + _bolaoAtual.nome + ' (' + _bolaoAtual.codigo + ')';
+  document.getElementById('headerBolao').textContent = 'Bolao: ' + _bolaoAtual.nome + ' (' + _bolaoAtual.codigo + ')';
   document.getElementById('mainContent').style.display = 'block';
   carregarTudo();
 }
@@ -632,9 +632,9 @@ function renderMataMata() {
         var va = d[idA]||'', vb = d[idB]||'';
         if (!va && !vb) continue;
         html += '<div class="mata-jogo">';
-        html += '<div class="mata-time'+(va?'':' empty')+'">'+( va||'—')+'</div>';
+        html += '<div class="mata-time'+(va?'':' empty')+'">'+( va||'-')+'</div>';
         html += '<div class="vs">vs</div>';
-        html += '<div class="mata-time'+(vb?'':' empty')+'">'+( vb||'—')+'</div>';
+        html += '<div class="mata-time'+(vb?'':' empty')+'">'+( vb||'-')+'</div>';
         html += '</div>';
       }
     } else {
@@ -692,7 +692,7 @@ function renderPontuacao() {
   var el = document.getElementById('pontuacaoContent');
   var html = '';
   var p = _pontuacao || {};
-  function v(key) { return p[key] !== undefined ? p[key] : '—'; }
+  function v(key) { return p[key] !== undefined ? p[key] : '-'; }
 
   // ── FASE DE GRUPOS ──
   html += '<div class="pontos-section-title grupos">🏟️ FASE DE GRUPOS</div>';
@@ -813,6 +813,15 @@ function exportarPalpitesPDF() {
     alert('Biblioteca PDF ainda carregando. Tente novamente em alguns segundos.');
     return;
   }
+  try {
+    _exportarPalpitesPDFInterno();
+  } catch(e) {
+    console.error('Erro ao gerar PDF:', e);
+    alert('Erro ao gerar PDF: ' + e.message + '\n\nVerifique o console para detalhes.');
+  }
+}
+
+function _exportarPalpitesPDFInterno() {
   var { jsPDF } = window.jspdf;
   var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
@@ -832,13 +841,13 @@ function exportarPalpitesPDF() {
     var pg = doc.internal.getCurrentPageInfo().pageNumber;
     doc.setDrawColor(200,200,200); doc.line(M, 287, W-M, 287);
     doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(160,160,160);
-    doc.text('Bolão da Copa 2026  ·  Comprovante de ' + apelido + '  ·  ' + dataHora + '  ·  Página ' + pg, M, 292);
+    doc.text('Bolao da Copa 2026 - Comprovante de ' + apelido + '  -  ' + dataHora + '  -  Pagina ' + pg, M, 292);
   }
 
   function cabecalhoMini() {
     doc.setFillColor(0,34,102); doc.rect(0,0,W,14,'F');
     doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(255,223,0);
-    doc.text('BOLÃO DA COPA 2026  ·  ' + apelido.toUpperCase(), M, 9);
+    doc.text('BOLAO DA COPA 2026 - ' + apelido.toUpperCase(), M, 9);
     y = 20;
   }
 
@@ -862,16 +871,16 @@ function exportarPalpitesPDF() {
   doc.setFillColor(0,26,74); doc.rect(0,0,W,38,'F');
   doc.setFillColor(255,223,0); doc.rect(0,38,W,2,'F');
   doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.setTextColor(255,223,0);
-  doc.text('BOLÃO DA COPA 2026', M, 16);
+  doc.text('BOLAO DA COPA 2026', M, 16);
   doc.setFontSize(11); doc.setTextColor(180,210,255);
   doc.text('Comprovante de Palpites', M, 25);
   doc.setFontSize(9); doc.setTextColor(255,255,255);
   doc.text(apelido.toUpperCase(), M, 33);
   doc.setFillColor(0,34,102); doc.roundedRect(M, 45, W-M*2, 18, 2, 2, 'F');
   doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(122,159,212);
-  doc.text('PARTICIPANTE', M+4, 52); doc.text('BOLÃO', M+80, 52); doc.text('EXPORTADO EM', M+140, 52);
+  doc.text('PARTICIPANTE', M+4, 52); doc.text('BOLAO', M+80, 52); doc.text('EXPORTADO EM', M+140, 52);
   doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
-  doc.text(apelido, M+4, 58); doc.text(bolao || '—', M+80, 58);
+  doc.text(apelido, M+4, 58); doc.text(bolao || '-', M+80, 58);
   doc.setFontSize(7.5); doc.text(dataHora, M+140, 58);
   y = 72;
 
@@ -890,11 +899,11 @@ function exportarPalpitesPDF() {
         doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(0,34,102);
         doc.text('GRUPO ' + g, cx+2, rowY+4.2);
         for (var p = 1; p <= 4; p++) {
-          var team = _palpite1['g'+g.toLowerCase()+'_'+p] || _palpite1['g'+g+'_'+p] || '—';
+          var team = _palpite1['g'+g.toLowerCase()+'_'+p] || _palpite1['g'+g+'_'+p] || '-';
           var ty = rowY + 8 + (p-1)*6;
           doc.setFont('helvetica', p===1?'bold':'normal'); doc.setFontSize(7.5);
           doc.setTextColor(p===1?30:80, p===1?30:80, p===1?30:80);
-          doc.text(p+'º '+team, cx+2, ty);
+          doc.text(p+'o '+team, cx+2, ty);
         }
       }
       y = rowY + 8 + 4*6 + 4;
@@ -913,7 +922,7 @@ function exportarPalpitesPDF() {
         var tx = M + (ti2%4) * tColW;
         doc.setFillColor(240,250,244); doc.roundedRect(tx, y-4, tColW-2, 7, 1,1,'F');
         doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(0,100,40);
-        doc.text((ti2+1)+'º', tx+2, y);
+        doc.text((ti2+1)+'o', tx+2, y);
         doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30);
         doc.text(terceiros[ti2], tx+10, y);
       }
@@ -964,7 +973,7 @@ function exportarPalpitesPDF() {
           doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(80,80,120);
           doc.text(timesShort, px+2, y-1);
           doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(0,34,102);
-          doc.text(va+' × '+vb, px+2, y+5);
+          doc.text(va+' x '+vb, px+2, y+5);
         });
         y += 14;
       });
@@ -989,12 +998,12 @@ function exportarPalpitesPDF() {
         doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(120,70,0);
         doc.text(posLabels[i], px+2, y-0.5);
         doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(0,34,102);
-        doc.text(val||'—', px+2, y+6);
+        doc.text(val||'-', px+2, y+6);
       });
       y += 16;
     }
 
-    // Chaveamento — Bracket visual em página landscape
+    // Chaveamento — Bracket visual em pagina landscape
     var hasAnyBracket = ['r32L_0_A','r16L_0','qfL_0','sfL_0'].some(function(id){ return !!d2[id]; });
     if (hasAnyBracket) {
       rodape();
@@ -1002,7 +1011,7 @@ function exportarPalpitesPDF() {
       var BW = 297, BH = 210, BM = 8;
       doc.setFillColor(0,26,74); doc.rect(0,0,BW,14,'F');
       doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(255,223,0);
-      doc.text('CHAVEAMENTO  -  ' + apelido.toUpperCase(), BM, 9.5);
+      doc.text('CHAVEAMENTO - ' + apelido.toUpperCase(), BM, 9.5);
 
       var bTop = 20, bBot = BH - 8, bH = bBot - bTop;
       var nRows = 16, rowH = bH / nRows, slotH = rowH * 0.38;
@@ -1133,7 +1142,7 @@ function exportarPalpitesPDF() {
       });
 
       doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(160,160,160);
-      doc.text('Bolao da Copa 2026  -  Chaveamento de ' + apelido + '  -  ' + dataHora, BM, BH-3);
+      doc.text('Bolao da Copa 2026 - Chaveamento de ' + apelido + '  -  ' + dataHora, BM, BH-3);
 
       doc.addPage();
       cabecalhoMini();
@@ -1145,7 +1154,7 @@ function exportarPalpitesPDF() {
       checkPage(10);
       doc.setFillColor(252,240,240); doc.roundedRect(M, y-5, 60, 9, 1.5,1.5,'F');
       doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(100,20,20);
-      doc.text('⭐ ' + az, M+3, y+0.5);
+      doc.text('Azarao: ' + az, M+3, y+0.5);
       y += 12;
     }
 
@@ -1199,7 +1208,7 @@ function exportarPalpitesPDF() {
         doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(80,20,100);
         doc.text(label3, px4+2, y-1);
         doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(80,20,100);
-        doc.text((va3!==undefined?va3:'?')+' × '+(vb3!==undefined?vb3:'?'), px4+2, y+4.5);
+        doc.text((va3!==undefined?va3:'?')+' x '+(vb3!==undefined?vb3:'?'), px4+2, y+4.5);
       });
       y += 14;
     });

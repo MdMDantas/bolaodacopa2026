@@ -395,25 +395,17 @@ async function carregarRanking(bolaoId, bolaoNome) {
       }
     } catch(e) {}
 
-    // Se não tem pontuações, monta lista de quem enviou palpites
-    if (!ranking.length) {
-      var todosApelidos = {};
-      Object.keys(fase1Grupos).forEach(function(a){ todosApelidos[a]=true; });
-      Object.keys(fase2Chaveamento).forEach(function(a){ todosApelidos[a]=true; });
-      ranking = Object.keys(todosApelidos).map(function(a){
-        return {apelido:a, pts_grupos:0, pts_placares:0, pts_zebras:0, pts_chaveamento:0, pts_placares_mata:0, total:0};
+    // Garantir que todos que palpitaram apareçam no ranking
+    var apelidosNoRanking = {};
+    ranking.forEach(function(r){ apelidosNoRanking[r.apelido]=true; });
+    [fase1Grupos, fase2Chaveamento, fase2R16, fase2Oitavas, fase2Quartas, fase2Semi, fase2Final].forEach(function(mapa){
+      Object.keys(mapa).forEach(function(a){
+        if (!apelidosNoRanking[a]) {
+          ranking.push({apelido:a, pts_grupos:0, pts_placares:0, pts_zebras:0, pts_chaveamento:0, pts_placares_mata:0, total:0});
+          apelidosNoRanking[a]=true;
+        }
       });
-    } else {
-      // Adicionar participantes que só têm fase2 e não estão no ranking
-      var apelidosNoRanking = {};
-      ranking.forEach(function(r){ apelidosNoRanking[r.apelido]=true; });
-      [fase2Chaveamento, fase2R16, fase2Oitavas, fase2Quartas, fase2Semi, fase2Final, fase1Grupos].forEach(function(mapa){
-        Object.keys(mapa).forEach(function(a){
-          if (!apelidosNoRanking[a]) { ranking.push({apelido:a, pts_grupos:0, pts_placares:0, pts_zebras:0, pts_chaveamento:0, pts_placares_mata:0, total:0}); apelidosNoRanking[a]=true; }
-        });
-      });
-    }
-
+    });
     if (!ranking.length) {
       area.innerHTML = '<div class="ranking-card"><div class="empty"><strong>Nenhum palpite ainda</strong>Seja o primeiro!</div></div>';
       return;
@@ -803,25 +795,17 @@ async function carregarRanking(bolaoId, bolaoNome) {
       }
     } catch(e) {}
 
-    // Se não tem pontuações, monta lista de quem enviou palpites
-    if (!ranking.length) {
-      var todosApelidos = {};
-      Object.keys(fase1Grupos).forEach(function(a){ todosApelidos[a]=true; });
-      Object.keys(fase2Chaveamento).forEach(function(a){ todosApelidos[a]=true; });
-      ranking = Object.keys(todosApelidos).map(function(a){
-        return {apelido:a, pts_grupos:0, pts_placares:0, pts_zebras:0, pts_chaveamento:0, pts_placares_mata:0, total:0};
+    // Garantir que todos que palpitaram apareçam no ranking
+    var apelidosNoRanking = {};
+    ranking.forEach(function(r){ apelidosNoRanking[r.apelido]=true; });
+    [fase1Grupos, fase2Chaveamento, fase2R16, fase2Oitavas, fase2Quartas, fase2Semi, fase2Final].forEach(function(mapa){
+      Object.keys(mapa).forEach(function(a){
+        if (!apelidosNoRanking[a]) {
+          ranking.push({apelido:a, pts_grupos:0, pts_placares:0, pts_zebras:0, pts_chaveamento:0, pts_placares_mata:0, total:0});
+          apelidosNoRanking[a]=true;
+        }
       });
-    } else {
-      // Adicionar participantes que só têm fase2 e não estão no ranking
-      var apelidosNoRanking = {};
-      ranking.forEach(function(r){ apelidosNoRanking[r.apelido]=true; });
-      [fase2Chaveamento, fase2R16, fase2Oitavas, fase2Quartas, fase2Semi, fase2Final, fase1Grupos].forEach(function(mapa){
-        Object.keys(mapa).forEach(function(a){
-          if (!apelidosNoRanking[a]) { ranking.push({apelido:a, pts_grupos:0, pts_placares:0, pts_zebras:0, pts_chaveamento:0, pts_placares_mata:0, total:0}); apelidosNoRanking[a]=true; }
-        });
-      });
-    }
-
+    });
     if (!ranking.length) {
       area.innerHTML = '<div class="ranking-card"><div class="empty"><strong>Nenhum palpite ainda</strong>Seja o primeiro!</div></div>';
       return;
