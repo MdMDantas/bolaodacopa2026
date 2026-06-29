@@ -490,8 +490,8 @@ function getTeamsForSlot(bracketId, saved) {
     return pair2.length >= 2 ? pair2 : ALL_TEAMS;
   }
   // R16 (oitavas do bracket): os 2 times do confronto R32 correspondente
-  var mL = bracketId.match(/^r16L_(\d+)$/);\
-  var mR = bracketId.match(/^r16R_(\d+)$/);\
+  var mL = bracketId.match(/^r16L_(\d+)$/);
+  var mR = bracketId.match(/^r16R_(\d+)$/);
   if (mL) {
     var i = parseInt(mL[1]);
     var pair = R32_PAIRS[i] || [];
