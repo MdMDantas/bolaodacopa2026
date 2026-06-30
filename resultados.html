@@ -90,6 +90,28 @@
     <button class="btn btn-salvar" onclick="salvarResultados()">💾 SALVAR RESULTADOS</button>
     <button class="btn btn-calcular" onclick="calcularEPublicarRanking()">🏆 CALCULAR E PUBLICAR RANKING</button>
   </div>
+
+  <!-- MATA-MATA -->
+  <div class="card" style="margin-top:24px;">
+    <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
+      <span class="card-title">⚔️ MATA-MATA</span>
+      <button id="btnEditarMM" class="btn btn-editar" onclick="toggleEdicaoMM()">✏️ EDITAR</button>
+    </div>
+    <!-- Abas -->
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);overflow-x:auto;">
+      <button class="mm-tab active" onclick="mudarAbaMMM(this,'r16avos')" style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;padding:10px 16px;background:transparent;border:none;color:var(--gold);border-bottom:2px solid var(--gold);cursor:pointer;white-space:nowrap;">16 Avos</button>
+      <button class="mm-tab" onclick="mudarAbaMMM(this,'roitavas')" style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;padding:10px 16px;background:transparent;border:none;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;">Oitavas</button>
+      <button class="mm-tab" onclick="mudarAbaMMM(this,'rquartas')" style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;padding:10px 16px;background:transparent;border:none;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;">Quartas</button>
+      <button class="mm-tab" onclick="mudarAbaMMM(this,'rsemi')" style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;padding:10px 16px;background:transparent;border:none;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;">Semis</button>
+      <button class="mm-tab" onclick="mudarAbaMMM(this,'rfinal')" style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;padding:10px 16px;background:transparent;border:none;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;">Final</button>
+    </div>
+    <div class="card-body" id="mmContent"><div class="loading">Carregando...</div></div>
+    <div id="acoesMM" style="display:none;" class="acoes">
+      <button class="btn btn-cancelar" onclick="cancelarEdicaoMM()">CANCELAR</button>
+      <button class="btn btn-salvar" onclick="salvarResultadosMM()">💾 SALVAR</button>
+      <button class="btn btn-calcular" onclick="calcularEPublicarMM()">🏆 CALCULAR MATA-MATA</button>
+    </div>
+  </div>
 </div>
 
 <script src="db.js"></script>
@@ -557,6 +579,124 @@ window.addEventListener('DOMContentLoaded', function(){
   if(u && u.apelido===ADMIN_APELIDO){
     document.getElementById('btnEditar').style.display = 'inline-block';
   }
+});
+
+// ── MATA-MATA ────────────────────────────────────────────────────────
+var _abaMMAtual = 'r16avos';
+var _modoEdicaoMM = false;
+var _resultadosMM = {};
+
+var MM_JOGOS = {
+  r16avos: [
+    ['Alemanha','Paraguai'],['França','Suécia'],['Canadá','África do Sul'],['Holanda','Marrocos'],
+    ['Portugal','Croácia'],['Espanha','Áustria'],['Estados Unidos','Bósnia e Herzegovina'],['Bélgica','Senegal'],
+    ['Brasil','Japão'],['Costa do Marfim','Noruega'],['México','Equador'],['Inglaterra','RD Congo'],
+    ['Argentina','Cabo Verde'],['Austrália','Egito'],['Suíça','Argélia'],['Colômbia','Gana']
+  ],
+  roitavas: [
+    ['Venc. J1','Venc. J2'],['Venc. J3','Venc. J4'],['Venc. J5','Venc. J6'],['Venc. J7','Venc. J8'],
+    ['Venc. J9','Venc. J10'],['Venc. J11','Venc. J12'],['Venc. J13','Venc. J14'],['Venc. J15','Venc. J16']
+  ],
+  rquartas: [
+    ['Venc. Oit.1','Venc. Oit.2'],['Venc. Oit.3','Venc. Oit.4'],
+    ['Venc. Oit.5','Venc. Oit.6'],['Venc. Oit.7','Venc. Oit.8']
+  ],
+  rsemi: [['Venc. Q1','Venc. Q2'],['Venc. Q3','Venc. Q4']],
+  rfinal: [['3º Lugar','4º Lugar'],['Finalista 1','Finalista 2']]
+};
+
+var MM_LABELS = { r16avos:'16 Avos de Final', roitavas:'Oitavas de Final', rquartas:'Quartas de Final', rsemi:'Semifinal', rfinal:'Final' };
+
+function mudarAbaMMM(btn, fase) {
+  document.querySelectorAll('.mm-tab').forEach(function(b) {
+    b.style.color = 'var(--muted)'; b.style.borderBottom = '2px solid transparent';
+  });
+  btn.style.color = 'var(--gold)'; btn.style.borderBottom = '2px solid var(--gold)';
+  _abaMMAtual = fase;
+  renderMMFase(fase);
+}
+
+async function carregarResultadosMM() {
+  try {
+    var H2 = {'apikey':CONFIG.SUPABASE_KEY,'Authorization':'Bearer '+CONFIG.SUPABASE_KEY};
+    var r = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/resultados_mm?select=*', {headers:H2});
+    if (r.ok) {
+      var rows = await r.json();
+      _resultadosMM = {};
+      rows.forEach(function(x) { _resultadosMM[x.fase+'_'+x.jogo_idx] = x; });
+    }
+  } catch(e) {}
+  renderMMFase(_abaMMAtual);
+}
+
+function renderMMFase(fase) {
+  var jogos = MM_JOGOS[fase] || [];
+  var html = '<div class="jogos-grid">';
+  jogos.forEach(function(times, ji) {
+    var key = fase+'_'+ji;
+    var res = _resultadosMM[key];
+    var ga = res && res.gols_a !== null ? res.gols_a : '';
+    var gb = res && res.gols_b !== null ? res.gols_b : '';
+    var finalizado = res && res.finalizado;
+    html += '<div class="jogo-card">';
+    html += '<div class="jogo-grp">'+MM_LABELS[fase]+' · Jogo '+(ji+1)+(finalizado?' <span style="color:#00c44f;">✓</span>':'')+'</div>';
+    html += '<div class="jogo-row">';
+    html += '<div class="jogo-time home" style="text-align:right">'+times[0]+'</div>';
+    if (_modoEdicaoMM) {
+      html += '<input type="number" id="mm_'+key+'_a" class="placar-input" min="0" max="20" value="'+ga+'" placeholder="-">';
+      html += '<span class="sep">×</span>';
+      html += '<input type="number" id="mm_'+key+'_b" class="placar-input" min="0" max="20" value="'+gb+'" placeholder="-">';
+    } else {
+      html += '<div class="jogo-placar'+(ga!==''&&gb!==''?'':' vazio')+'">'+(ga!==''&&gb!==''?ga+' × '+gb:'— × —')+'</div>';
+    }
+    html += '<div class="jogo-time away">'+times[1]+'</div>';
+    html += '</div></div>';
+  });
+  html += '</div>';
+  document.getElementById('mmContent').innerHTML = html;
+}
+
+function toggleEdicaoMM() {
+  _modoEdicaoMM = !_modoEdicaoMM;
+  document.getElementById('acoesMM').style.display = _modoEdicaoMM ? 'flex' : 'none';
+  document.getElementById('btnEditarMM').textContent = _modoEdicaoMM ? '👁️ VER' : '✏️ EDITAR';
+  renderMMFase(_abaMMAtual);
+}
+
+function cancelarEdicaoMM() {
+  _modoEdicaoMM = false;
+  document.getElementById('acoesMM').style.display = 'none';
+  document.getElementById('btnEditarMM').textContent = '✏️ EDITAR';
+  renderMMFase(_abaMMAtual);
+}
+
+async function salvarResultadosMM() {
+  var H2 = {'apikey':CONFIG.SUPABASE_KEY,'Authorization':'Bearer '+CONFIG.SUPABASE_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'};
+  var fase = _abaMMAtual;
+  var jogos = MM_JOGOS[fase] || [];
+  var salvos = 0;
+  for (var ji = 0; ji < jogos.length; ji++) {
+    var key = fase+'_'+ji;
+    var inpA = document.getElementById('mm_'+key+'_a');
+    var inpB = document.getElementById('mm_'+key+'_b');
+    if (!inpA || !inpB || (inpA.value==='' && inpB.value==='')) continue;
+    var ga = inpA.value!=='' ? parseInt(inpA.value) : null;
+    var gb = inpB.value!=='' ? parseInt(inpB.value) : null;
+    var row = {fase:fase, jogo_idx:ji, time_a:jogos[ji][0], time_b:jogos[ji][1], gols_a:ga, gols_b:gb, finalizado:ga!==null&&gb!==null};
+    var existente = _resultadosMM[key];
+    var resp = await fetch(
+      CONFIG.SUPABASE_URL+'/rest/v1/resultados_mm'+(existente?'?fase=eq.'+fase+'&jogo_idx=eq.'+ji:''),
+      {method: existente?'PATCH':'POST', headers:H2, body:JSON.stringify(row)}
+    );
+    if (resp.ok) { _resultadosMM[key] = row; salvos++; }
+  }
+  alert(salvos+' resultado(s) salvo(s)!');
+  cancelarEdicaoMM();
+  carregarResultadosMM();
+}
+
+window.addEventListener('load', function() {
+  setTimeout(carregarResultadosMM, 1200);
 });
 </script>
 </body>
