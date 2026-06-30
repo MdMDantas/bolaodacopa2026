@@ -287,13 +287,196 @@ async function gerarResumo(apelido, bolaoId) {
   pts_placares=ptsLista.slice(0,24).reduce(function(s,v){return s+v;},0);
   html += '</tbody></table></div>';
 
-  // Total
+  // Total Fase Grupos
   html += '<div class="resumo-total" style="grid-template-columns:repeat(5,1fr);">';
   html += '<div><div class="total-item-label">Grupos</div><div class="total-item-val">'+pts_grupos+'</div></div>';
   html += '<div><div class="total-item-label">Zebras</div><div class="total-item-val">'+pts_zebras+'</div></div>';
   html += '<div><div class="total-item-label">Terceiros</div><div class="total-item-val">'+pts_terceiros+'</div></div>';
   html += '<div><div class="total-item-label">Placares</div><div class="total-item-val">'+pts_placares+'</div></div>';
   html += '<div><div class="total-item-label" style="color:#ffdf00;">Total Fase Grupos</div><div class="total-item-val" style="font-size:22px;">'+(pts_grupos+pts_zebras+pts_terceiros+pts_placares)+'</div></div>';
+  html += '</div>';
+
+  // ── MATA-MATA ──
+  var rp2 = await fetch(SU+'/rest/v1/palpites_fase2?bolao_id=eq.'+bolaoId+'&apelido=eq.'+encodeURIComponent(apelido)+'&select=*&order=criado_em.asc',{headers:H2});
+  var palpites2 = rp2.ok ? await rp2.json() : [];
+  var dadosMM = {}, placaresMM = {};
+  palpites2.forEach(function(x){
+    if (x.fase === 'matamata' && x.dados_mm) Object.assign(dadosMM, x.dados_mm);
+    if (x.placares_mm) Object.assign(placaresMM, x.placares_mm);
+  });
+
+  var rrm = await fetch(SU+'/rest/v1/resultados_mm?select=*',{headers:H2});
+  var resultadosMM = rrm.ok ? await rrm.json() : [];
+  var vencedoresReaisR = {}, placaresReaisR = {};
+  resultadosMM.forEach(function(r){
+    var k = r.fase+'_'+r.jogo_idx;
+    if (r.vencedor) vencedoresReaisR[k] = r.vencedor;
+    if (r.gols_a !== null && r.gols_b !== null) placaresReaisR[k] = {ga:r.gols_a, gb:r.gols_b};
+  });
+
+  var MM_PAIRS_R = [
+    ['Alemanha','Paraguai'],['França','Suécia'],['Canadá','África do Sul'],['Holanda','Marrocos'],
+    ['Portugal','Croácia'],['Espanha','Áustria'],['Estados Unidos','Bósnia e Herzegovina'],['Bélgica','Senegal'],
+    ['Brasil','Japão'],['Costa do Marfim','Noruega'],['México','Equador'],['Inglaterra','RD Congo'],
+    ['Argentina','Cabo Verde'],['Austrália','Egito'],['Suíça','Argélia'],['Colômbia','Gana']
+  ];
+
+  // Chaveamento
+  var pts_chaveamento = 0;
+  html += '<div class="secao"><div class="secao-titulo">Chaveamento — Mata-Mata</div><table class="placares"><thead><tr><th>Fase</th><th>Confronto</th><th>Seu palpite</th><th>Resultado real</th><th>Pts</th></tr></thead><tbody>';
+  for (var i=0;i<8;i++) {
+    var confL = MM_PAIRS_R[i][0]+' × '+MM_PAIRS_R[i][1];
+    var realL = vencedoresReaisR['r16avos_'+i];
+    var palL = dadosMM['r16L_'+i]||'—';
+    var ptsL = (realL && palL===realL) ? 1 : 0;
+    pts_chaveamento += ptsL;
+    html += '<tr><td>R32→Oit.</td><td>'+confL+'</td><td style="font-weight:700;">'+palL+'</td><td>'+(realL||'Aguardando')+'</td><td class="pts-cell '+(ptsL?'pts3':'pts0')+'">'+ptsL+'</td></tr>';
+    var confR = MM_PAIRS_R[i+8][0]+' × '+MM_PAIRS_R[i+8][1];
+    var realR = vencedoresReaisR['r16avos_'+(i+8)];
+    var palR = dadosMM['r16R_'+i]||'—';
+    var ptsR = (realR && palR===realR) ? 1 : 0;
+    pts_chaveamento += ptsR;
+    html += '<tr><td>R32→Oit.</td><td>'+confR+'</td><td style="font-weight:700;">'+palR+'</td><td>'+(realR||'Aguardando')+'</td><td class="pts-cell '+(ptsR?'pts3':'pts0')+'">'+ptsR+'</td></tr>';
+  }
+  for (var i2=0;i2<4;i2++) {
+    var realQL = vencedoresReaisR['roitavas_'+i2];
+    var palQL = dadosMM['qfL_'+i2]||'—';
+    var ptsQL = (realQL && palQL===realQL) ? 1 : 0;
+    pts_chaveamento += ptsQL;
+    html += '<tr><td>Oit.→Qua.</td><td>—</td><td style="font-weight:700;">'+palQL+'</td><td>'+(realQL||'Aguardando')+'</td><td class="pts-cell '+(ptsQL?'pts3':'pts0')+'">'+ptsQL+'</td></tr>';
+    var realQR = vencedoresReaisR['roitavas_'+(i2+4)];
+    var palQR = dadosMM['qfR_'+i2]||'—';
+    var ptsQR = (realQR && palQR===realQR) ? 1 : 0;
+    pts_chaveamento += ptsQR;
+    html += '<tr><td>Oit.→Qua.</td><td>—</td><td style="font-weight:700;">'+palQR+'</td><td>'+(realQR||'Aguardando')+'</td><td class="pts-cell '+(ptsQR?'pts3':'pts0')+'">'+ptsQR+'</td></tr>';
+  }
+  for (var i3=0;i3<2;i3++) {
+    var realSL = vencedoresReaisR['rquartas_'+i3];
+    var palSL = dadosMM['sfL_'+i3]||'—';
+    var ptsSL = (realSL && palSL===realSL) ? 1 : 0;
+    pts_chaveamento += ptsSL;
+    html += '<tr><td>Qua.→Semi</td><td>—</td><td style="font-weight:700;">'+palSL+'</td><td>'+(realSL||'Aguardando')+'</td><td class="pts-cell '+(ptsSL?'pts3':'pts0')+'">'+ptsSL+'</td></tr>';
+    var realSR = vencedoresReaisR['rquartas_'+(i3+2)];
+    var palSR = dadosMM['sfR_'+i3]||'—';
+    var ptsSR = (realSR && palSR===realSR) ? 1 : 0;
+    pts_chaveamento += ptsSR;
+    html += '<tr><td>Qua.→Semi</td><td>—</td><td style="font-weight:700;">'+palSR+'</td><td>'+(realSR||'Aguardando')+'</td><td class="pts-cell '+(ptsSR?'pts3':'pts0')+'">'+ptsSR+'</td></tr>';
+  }
+  var realFL = vencedoresReaisR['rsemi_0'];
+  var palFL = dadosMM['finalL']||'—';
+  var ptsFL = (realFL && palFL===realFL) ? 1 : 0;
+  pts_chaveamento += ptsFL;
+  html += '<tr><td>Semi→Final</td><td>—</td><td style="font-weight:700;">'+palFL+'</td><td>'+(realFL||'Aguardando')+'</td><td class="pts-cell '+(ptsFL?'pts3':'pts0')+'">'+ptsFL+'</td></tr>';
+  var realFR = vencedoresReaisR['rsemi_1'];
+  var palFR = dadosMM['finalR']||'—';
+  var ptsFR = (realFR && palFR===realFR) ? 1 : 0;
+  pts_chaveamento += ptsFR;
+  html += '<tr><td>Semi→Final</td><td>—</td><td style="font-weight:700;">'+palFR+'</td><td>'+(realFR||'Aguardando')+'</td><td class="pts-cell '+(ptsFR?'pts3':'pts0')+'">'+ptsFR+'</td></tr>';
+  html += '</tbody></table></div>';
+
+  // Top 4
+  var pts_top4 = 0;
+  var finalResR = resultadosMM.find(function(r){return r.fase==='rfinal'&&r.jogo_idx===1;});
+  var terceiroResR = resultadosMM.find(function(r){return r.fase==='rfinal'&&r.jogo_idx===0;});
+  var campeaoRealR = finalResR ? finalResR.vencedor : null;
+  var viceRealR = finalResR ? (finalResR.vencedor===finalResR.time_a?finalResR.time_b:finalResR.time_a) : null;
+  var terceiroRealR = terceiroResR ? terceiroResR.vencedor : null;
+  var quartoRealR = terceiroResR ? (terceiroResR.vencedor===terceiroResR.time_a?terceiroResR.time_b:terceiroResR.time_a) : null;
+  var top4RealR = [campeaoRealR, viceRealR, terceiroRealR, quartoRealR];
+  var top4Labels = ['1º Lugar — Campeão','2º Lugar — Vice','3º Lugar','4º Lugar'];
+  html += '<div class="secao"><div class="secao-titulo">Top 4 Final</div><div class="zebra-row">';
+  for (var ti2=0; ti2<4; ti2++) {
+    var palT4 = dadosMM['top4_'+(ti2+1)]||'—';
+    var realT4 = top4RealR[ti2];
+    var ptsT4=0, descT4='Aguardando';
+    if (realT4) {
+      if (palT4===realT4) { ptsT4=2; descT4='Posição exata +2pts'; }
+      else if (top4RealR.indexOf(palT4)>=0) { ptsT4=1; descT4='No Top4, posição errada +1pt'; }
+      else { ptsT4=0; descT4='Fora do Top4 +0pts'; }
+    }
+    pts_top4 += ptsT4;
+    html += '<div class="zebra-item"><div class="zebra-nome">'+top4Labels[ti2]+': '+palT4+'</div><div class="zebra-pos">'+descT4+'</div></div>';
+  }
+  html += '</div></div>';
+
+  // Azarão
+  var pts_azarao = 0;
+  var azaraoNome = dadosMM['decepcao1']||'—';
+  var azDesc = 'Aguardando';
+  if (azaraoNome !== '—') {
+    var passouR16az = Object.keys(vencedoresReaisR).some(function(k){return k.indexOf('r16avos_')===0 && vencedoresReaisR[k]===azaraoNome;});
+    var passouQFaz  = Object.keys(vencedoresReaisR).some(function(k){return k.indexOf('roitavas_')===0 && vencedoresReaisR[k]===azaraoNome;});
+    var passouSFaz  = Object.keys(vencedoresReaisR).some(function(k){return k.indexOf('rquartas_')===0 && vencedoresReaisR[k]===azaraoNome;});
+    if (!passouR16az && Object.keys(vencedoresReaisR).some(function(k){return k.indexOf('r16avos_')===0;})) { pts_azarao=4; azDesc='Caiu no R32 +4pts'; }
+    else if (!passouQFaz && passouR16az) { pts_azarao=3; azDesc='Caiu nas Oitavas +3pts'; }
+    else if (!passouSFaz && passouQFaz) { pts_azarao=2; azDesc='Caiu nas Quartas +2pts'; }
+    else if (passouSFaz) { pts_azarao=0; azDesc='Chegou às Semis ou além +0pts'; }
+  }
+  html += '<div class="secao"><div class="secao-titulo">Azarão</div><div class="zebra-row" style="grid-template-columns:1fr;">';
+  html += '<div class="zebra-item"><div class="zebra-nome">⭐ '+azaraoNome+'</div><div class="zebra-pos">'+azDesc+'</div></div>';
+  html += '</div></div>';
+
+  // Zebras do Mata-Mata
+  var pts_zebras_mm = 0;
+  html += '<div class="secao"><div class="secao-titulo">Zebras do Mata-Mata</div><div class="zebra-row">';
+  [dadosMM['zebra_mm_1'], dadosMM['zebra_mm_2']].forEach(function(zebraMM, zmi) {
+    var nomeZMM = zebraMM || '—';
+    var descZMM = 'Aguardando';
+    var ptsZMM = 0;
+    if (nomeZMM !== '—') {
+      var passouR16zm = Object.keys(vencedoresReaisR).some(function(k){return k.indexOf('r16avos_')===0 && vencedoresReaisR[k]===nomeZMM;});
+      var passouQFzm  = Object.keys(vencedoresReaisR).some(function(k){return k.indexOf('roitavas_')===0 && vencedoresReaisR[k]===nomeZMM;});
+      var passouSFzm  = Object.keys(vencedoresReaisR).some(function(k){return k.indexOf('rquartas_')===0 && vencedoresReaisR[k]===nomeZMM;});
+      if (passouSFzm) { ptsZMM=4; descZMM='Chegou às Semis ou além +4pts'; }
+      else if (passouQFzm) { ptsZMM=3; descZMM='Chegou às Quartas +3pts'; }
+      else if (passouR16zm) { ptsZMM=2; descZMM='Chegou às Oitavas +2pts'; }
+      else if (Object.keys(vencedoresReaisR).length) { ptsZMM=0; descZMM='Eliminada no R32 +0pts'; }
+    }
+    pts_zebras_mm += ptsZMM;
+    html += '<div class="zebra-item"><div class="zebra-nome">🦓 Zebra '+(zmi+1)+': '+nomeZMM+'</div><div class="zebra-pos">'+descZMM+'</div></div>';
+  });
+  html += '</div></div>';
+
+  // Placares Mata-Mata
+  var pts_placares_mata = 0;
+  var FASES_MM_R = {
+    r16avos: {n:16, label:'16 Avos de Final'}, roitavas: {n:8, label:'Oitavas de Final'},
+    rquartas: {n:4, label:'Quartas de Final'}, rsemi: {n:2, label:'Semifinal'}, rfinal: {n:2, label:'Final'}
+  };
+  html += '<div class="secao"><div class="secao-titulo">Placares — Mata-Mata</div><table class="placares"><thead><tr><th>Jogo</th><th>Palpite</th><th>Resultado</th><th>Pts</th></tr></thead><tbody>';
+  Object.keys(FASES_MM_R).forEach(function(fase) {
+    var faseInfo = FASES_MM_R[fase];
+    var temJogoNessaFase = false;
+    for (var ji=0; ji<faseInfo.n; ji++) {
+      var pa2 = placaresMM[fase+'_'+ji+'_A'], pb2 = placaresMM[fase+'_'+ji+'_B'];
+      if (pa2===undefined && pb2===undefined) continue;
+      if (!temJogoNessaFase) { html += '<tr><td colspan="4" class="rodada-titulo">'+faseInfo.label+'</td></tr>'; temJogoNessaFase = true; }
+      var realMM = placaresReaisR[fase+'_'+ji];
+      var palpiteStrMM = (pa2!==undefined) ? pa2+' × '+pb2 : '—';
+      var realStrMM = realMM ? realMM.ga+' × '+realMM.gb : 'Aguardando';
+      var calcMM = {pts:0, desc:'Aguardando'};
+      if (realMM && pa2!==undefined) calcMM = calcPlacarDesc(parseInt(pa2), parseInt(pb2), realMM.ga, realMM.gb);
+      pts_placares_mata += calcMM.pts;
+      var clsMM = calcMM.pts===3?'pts3':calcMM.pts===2?'pts2':calcMM.pts===1?'pts1':'pts0';
+      html += '<tr><td>Jogo '+(ji+1)+'</td><td style="text-align:center;font-weight:700;">'+palpiteStrMM+'</td><td style="text-align:center;font-weight:700;">'+realStrMM+'</td><td class="pts-cell '+clsMM+'">'+calcMM.pts+'</td></tr>';
+    }
+  });
+  html += '</tbody></table></div>';
+
+  // Total Mata-Mata
+  var totalMataMata = pts_chaveamento + pts_top4 + pts_azarao + pts_zebras_mm + pts_placares_mata;
+  html += '<div class="resumo-total" style="grid-template-columns:repeat(5,1fr);">';
+  html += '<div><div class="total-item-label">Chaveamento</div><div class="total-item-val">'+pts_chaveamento+'</div></div>';
+  html += '<div><div class="total-item-label">Top4</div><div class="total-item-val">'+pts_top4+'</div></div>';
+  html += '<div><div class="total-item-label">Azarão</div><div class="total-item-val">'+pts_azarao+'</div></div>';
+  html += '<div><div class="total-item-label">Zebras MM</div><div class="total-item-val">'+pts_zebras_mm+'</div></div>';
+  html += '<div><div class="total-item-label" style="color:#ffdf00;">Total Mata-Mata</div><div class="total-item-val" style="font-size:22px;">'+totalMataMata+'</div></div>';
+  html += '</div>';
+  html += '<div style="text-align:center;font-size:9px;color:#888;margin-top:2px;">Placares Mata-Mata: '+pts_placares_mata+' pts (incluído no total acima)</div>';
+
+  // Total Geral
+  html += '<div class="resumo-total" style="margin-top:8px;background:#00194a;">';
+  html += '<div><div class="total-item-label" style="color:#ffdf00;">TOTAL GERAL</div><div class="total-item-val" style="font-size:26px;">'+(pts_grupos+pts_zebras+pts_terceiros+pts_placares+totalMataMata)+'</div></div>';
   html += '</div>';
   html += '</div></body></html>';
 
@@ -412,7 +595,7 @@ async function carregarRanking(bolaoId, bolaoNome) {
     }
 
     // ── RENDER ──────────────────────────────────────────────────────
-    var GRID = '44px 1fr 60px 50px 50px 60px 60px 50px 50px 50px 58px 64px 60px 50px 52px 52px 52px';
+    var GRID = '44px 1fr 60px 50px 50px 60px 60px 50px 58px 60px 50px 50px 50px 60px 64px';
     var html = '<div class="ranking-card" style="overflow-x:visible;width:100%;">';
     var dataHoje = new Date().toISOString().slice(0,10).split('-').reverse().join('/');
     html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO ATUAL — '+dataHoje+'</span><div style="display:flex;align-items:center;gap:10px;"><button onclick="exportarTodosPDF(\''+bolaoId+'\')" style="background:#003087;color:#ffdf00;border:1px solid #ffdf00;border-radius:8px;padding:6px 14px;font-family:Bebas Neue,sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;">📄 EXPORTAR PDF</button><span class="ranking-update" style="color:#00c44f;">🟢 Ao vivo</span></div></div>';
@@ -421,9 +604,9 @@ async function carregarRanking(bolaoId, bolaoNome) {
     html += '<div style="background:var(--bg3);padding:6px 12px;">';
     html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:8px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:4px 0;">';
     html += '<div></div><div></div>';
-    html += '<div style="grid-column:span 7;text-align:center;color:var(--gold);border-bottom:2px solid rgba(255,223,0,0.4);padding-bottom:3px;">FASE DE GRUPOS</div>';
+    html += '<div style="grid-column:span 6;text-align:center;color:var(--gold);border-bottom:2px solid rgba(255,223,0,0.4);padding-bottom:3px;">FASE DE GRUPOS</div>';
     html += '<div></div>';
-    html += '<div style="grid-column:span 6;text-align:center;color:var(--muted);border-bottom:2px solid rgba(122,159,212,0.3);padding-bottom:3px;">MATA-MATA</div>';
+    html += '<div style="grid-column:span 5;text-align:center;color:var(--muted);border-bottom:2px solid rgba(122,159,212,0.3);padding-bottom:3px;">MATA-MATA</div>';
     html += '<div></div>';
     html += '</div>';
     html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:8px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted);padding:4px 0 6px;">';
@@ -435,12 +618,11 @@ async function carregarRanking(bolaoId, bolaoNome) {
     html += '<div style="text-align:center">Rod. 2</div>';
     html += '<div style="text-align:center">Rod. 3</div>';
     html += '<div style="text-align:center;color:var(--gold);font-weight:700;">Total GRP</div>';
-    html += '<div style="text-align:center">MM</div>';
-    html += '<div style="text-align:center">16 Avos</div>';
-    html += '<div style="text-align:center">Oitavas</div>';
-    html += '<div style="text-align:center">Quartas</div>';
-    html += '<div style="text-align:center">Semi</div>';
-    html += '<div style="text-align:center">Final</div>';
+    html += '<div style="text-align:center">Chaveam.</div>';
+    html += '<div style="text-align:center">Top4</div>';
+    html += '<div style="text-align:center">Zebras MM</div>';
+    html += '<div style="text-align:center">Azarão</div>';
+    html += '<div style="text-align:center">Placares MM</div>';
     html += '<div style="text-align:center;color:var(--muted);font-weight:700;">Total MM</div>';
     html += '</div></div>';
 
@@ -478,14 +660,17 @@ async function carregarRanking(bolaoId, bolaoNome) {
       var pR2        = r.pts_placares_r2 || 0;
       var pR3        = r.pts_placares_r3 || 0;
       var pChaveamento = r.pts_chaveamento || 0;
+      var pTop4      = r.pts_top4      || 0;
+      var pZebrasMM  = r.pts_zebras_mm || 0;
+      var pAzarao    = r.pts_azarao    || 0;
       var p16avos    = r.pts_16avos    || 0;
       var pOitavas   = r.pts_oitavas   || 0;
       var pQuartas   = r.pts_quartas   || 0;
       var pSemi      = r.pts_semi      || 0;
       var pFinal     = r.pts_final     || 0;
-      var pPlacares  = r.pts_placares || (r.total - (r.pts_chaveamento||0) - (r.pts_16avos||0) - (r.pts_oitavas||0) - (r.pts_quartas||0) - (r.pts_semi||0) - (r.pts_final||0) - pGrupos - pZebras - pTerceiros);
-      var totalGrp   = pGrupos + pZebras + pTerceiros + pPlacares;
-      var totalMM    = pChaveamento + p16avos + pOitavas + pQuartas + pSemi + pFinal;
+      var pPlacares  = r.pts_placares_mata || 0;
+      var totalGrp   = pGrupos + pZebras + pTerceiros + (r.pts_placares||0);
+      var totalMM    = pChaveamento + pTop4 + pZebrasMM + pAzarao + pPlacares;
 
       html += '<div style="display:grid;grid-template-columns:'+GRID+';align-items:center;padding:8px 12px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;">';
       html += '<div class="ranking-pos" style="color:'+numColor+'">'+pos+'<sup>º</sup></div>';
@@ -498,11 +683,10 @@ async function carregarRanking(bolaoId, bolaoNome) {
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pR3+' pts</div><div style="font-size:15px;">'+temR3+'</div></div>';
       html += '<div style="text-align:center;background:rgba(255,223,0,0.06);border-radius:6px;"><div style="font-size:11px;color:var(--gold);font-weight:700;">'+totalGrp+'</div></div>';
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pChaveamento+' pts</div><div style="font-size:15px;">'+temChaveamento+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+p16avos+' pts</div><div style="font-size:15px;">'+tem16avos+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pOitavas+' pts</div><div style="font-size:15px;">'+temOitavas+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pQuartas+' pts</div><div style="font-size:15px;">'+temQuartas+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pSemi+' pts</div><div style="font-size:15px;">'+temSemi+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pFinal+' pts</div><div style="font-size:15px;">'+temFinal+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pTop4+' pts</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pZebrasMM+' pts</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pAzarao+' pts</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pPlacares+' pts</div></div>';
       html += '<div class="ranking-pts total">'+totalMM+'</div>';
       html += '</div>';
     });
@@ -812,7 +996,7 @@ async function carregarRanking(bolaoId, bolaoNome) {
     }
 
     // ── RENDER ──────────────────────────────────────────────────────
-    var GRID = '44px 1fr 60px 50px 50px 60px 60px 50px 50px 50px 58px 64px 60px 50px 52px 52px 52px';
+    var GRID = '44px 1fr 60px 50px 50px 60px 60px 50px 58px 60px 50px 50px 50px 60px 64px';
     var html = '<div class="ranking-card" style="overflow-x:visible;width:100%;">';
     var dataHoje = new Date().toISOString().slice(0,10).split('-').reverse().join('/');
     html += '<div class="ranking-header"><span class="ranking-title">CLASSIFICAÇÃO ATUAL — '+dataHoje+'</span><div style="display:flex;align-items:center;gap:10px;"><button onclick="exportarTodosPDF(\''+bolaoId+'\')" style="background:#003087;color:#ffdf00;border:1px solid #ffdf00;border-radius:8px;padding:6px 14px;font-family:Bebas Neue,sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;">📄 EXPORTAR PDF</button><span class="ranking-update" style="color:#00c44f;">🟢 Ao vivo</span></div></div>';
@@ -821,9 +1005,9 @@ async function carregarRanking(bolaoId, bolaoNome) {
     html += '<div style="background:var(--bg3);padding:6px 12px;">';
     html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:8px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:4px 0;">';
     html += '<div></div><div></div>';
-    html += '<div style="grid-column:span 7;text-align:center;color:var(--gold);border-bottom:2px solid rgba(255,223,0,0.4);padding-bottom:3px;">FASE DE GRUPOS</div>';
+    html += '<div style="grid-column:span 6;text-align:center;color:var(--gold);border-bottom:2px solid rgba(255,223,0,0.4);padding-bottom:3px;">FASE DE GRUPOS</div>';
     html += '<div></div>';
-    html += '<div style="grid-column:span 6;text-align:center;color:var(--muted);border-bottom:2px solid rgba(122,159,212,0.3);padding-bottom:3px;">MATA-MATA</div>';
+    html += '<div style="grid-column:span 5;text-align:center;color:var(--muted);border-bottom:2px solid rgba(122,159,212,0.3);padding-bottom:3px;">MATA-MATA</div>';
     html += '<div></div>';
     html += '</div>';
     html += '<div style="display:grid;grid-template-columns:'+GRID+';gap:4px;font-size:8px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted);padding:4px 0 6px;">';
@@ -835,12 +1019,11 @@ async function carregarRanking(bolaoId, bolaoNome) {
     html += '<div style="text-align:center">Rod. 2</div>';
     html += '<div style="text-align:center">Rod. 3</div>';
     html += '<div style="text-align:center;color:var(--gold);font-weight:700;">Total GRP</div>';
-    html += '<div style="text-align:center">MM</div>';
-    html += '<div style="text-align:center">16 Avos</div>';
-    html += '<div style="text-align:center">Oitavas</div>';
-    html += '<div style="text-align:center">Quartas</div>';
-    html += '<div style="text-align:center">Semi</div>';
-    html += '<div style="text-align:center">Final</div>';
+    html += '<div style="text-align:center">Chaveam.</div>';
+    html += '<div style="text-align:center">Top4</div>';
+    html += '<div style="text-align:center">Zebras MM</div>';
+    html += '<div style="text-align:center">Azarão</div>';
+    html += '<div style="text-align:center">Placares MM</div>';
     html += '<div style="text-align:center;color:var(--muted);font-weight:700;">Total MM</div>';
     html += '</div></div>';
 
@@ -878,14 +1061,17 @@ async function carregarRanking(bolaoId, bolaoNome) {
       var pR2        = r.pts_placares_r2 || 0;
       var pR3        = r.pts_placares_r3 || 0;
       var pChaveamento = r.pts_chaveamento || 0;
+      var pTop4      = r.pts_top4      || 0;
+      var pZebrasMM  = r.pts_zebras_mm || 0;
+      var pAzarao    = r.pts_azarao    || 0;
       var p16avos    = r.pts_16avos    || 0;
       var pOitavas   = r.pts_oitavas   || 0;
       var pQuartas   = r.pts_quartas   || 0;
       var pSemi      = r.pts_semi      || 0;
       var pFinal     = r.pts_final     || 0;
-      var pPlacares  = r.pts_placares || (r.total - (r.pts_chaveamento||0) - (r.pts_16avos||0) - (r.pts_oitavas||0) - (r.pts_quartas||0) - (r.pts_semi||0) - (r.pts_final||0) - pGrupos - pZebras - pTerceiros);
-      var totalGrp   = pGrupos + pZebras + pTerceiros + pPlacares;
-      var totalMM    = pChaveamento + p16avos + pOitavas + pQuartas + pSemi + pFinal;
+      var pPlacares  = r.pts_placares_mata || 0;
+      var totalGrp   = pGrupos + pZebras + pTerceiros + (r.pts_placares||0);
+      var totalMM    = pChaveamento + pTop4 + pZebrasMM + pAzarao + pPlacares;
 
       html += '<div style="display:grid;grid-template-columns:'+GRID+';align-items:center;padding:8px 12px;border-bottom:1px solid rgba(26,61,122,0.4);gap:4px;">';
       html += '<div class="ranking-pos" style="color:'+numColor+'">'+pos+'<sup>º</sup></div>';
@@ -898,11 +1084,10 @@ async function carregarRanking(bolaoId, bolaoNome) {
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--gold);font-weight:700;">'+pR3+' pts</div><div style="font-size:15px;">'+temR3+'</div></div>';
       html += '<div style="text-align:center;background:rgba(255,223,0,0.06);border-radius:6px;"><div style="font-size:11px;color:var(--gold);font-weight:700;">'+totalGrp+'</div></div>';
       html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pChaveamento+' pts</div><div style="font-size:15px;">'+temChaveamento+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+p16avos+' pts</div><div style="font-size:15px;">'+tem16avos+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pOitavas+' pts</div><div style="font-size:15px;">'+temOitavas+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pQuartas+' pts</div><div style="font-size:15px;">'+temQuartas+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pSemi+' pts</div><div style="font-size:15px;">'+temSemi+'</div></div>';
-      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pFinal+' pts</div><div style="font-size:15px;">'+temFinal+'</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pTop4+' pts</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pZebrasMM+' pts</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pAzarao+' pts</div></div>';
+      html += '<div style="text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:700;">'+pPlacares+' pts</div></div>';
       html += '<div class="ranking-pts total">'+totalMM+'</div>';
       html += '</div>';
     });
