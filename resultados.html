@@ -637,23 +637,51 @@ function renderMMFase(fase) {
     var res = _resultadosMM[key];
     var ga = res && res.gols_a !== null ? res.gols_a : '';
     var gb = res && res.gols_b !== null ? res.gols_b : '';
+    var venc = res && res.vencedor ? res.vencedor : '';
     var finalizado = res && res.finalizado;
+    var empate = (ga !== '' && gb !== '' && ga === gb);
     html += '<div class="jogo-card">';
     html += '<div class="jogo-grp">'+MM_LABELS[fase]+' · Jogo '+(ji+1)+(finalizado?' <span style="color:#00c44f;">✓</span>':'')+'</div>';
     html += '<div class="jogo-row">';
     html += '<div class="jogo-time home" style="text-align:right">'+times[0]+'</div>';
     if (_modoEdicaoMM) {
-      html += '<input type="number" id="mm_'+key+'_a" class="placar-input" min="0" max="20" value="'+ga+'" placeholder="-">';
+      html += '<input type="number" id="mm_'+key+'_a" class="placar-input" min="0" max="20" value="'+ga+'" placeholder="-" oninput="checkEmpateMM(\''+key+'\')">';
       html += '<span class="sep">×</span>';
-      html += '<input type="number" id="mm_'+key+'_b" class="placar-input" min="0" max="20" value="'+gb+'" placeholder="-">';
+      html += '<input type="number" id="mm_'+key+'_b" class="placar-input" min="0" max="20" value="'+gb+'" placeholder="-" oninput="checkEmpateMM(\''+key+'\')">';
     } else {
       html += '<div class="jogo-placar'+(ga!==''&&gb!==''?'':' vazio')+'">'+(ga!==''&&gb!==''?ga+' × '+gb:'— × —')+'</div>';
     }
     html += '<div class="jogo-time away">'+times[1]+'</div>';
-    html += '</div></div>';
+    html += '</div>';
+    // Seletor de vencedor — sempre visível no modo edição (decide quem avança, mesmo em caso de empate/pênaltis)
+    if (_modoEdicaoMM) {
+      html += '<div id="venc_wrap_'+key+'" style="margin-top:8px;display:flex;align-items:center;gap:6px;">';
+      html += '<span style="font-size:9px;color:var(--muted);letter-spacing:1px;">QUEM AVANÇA:</span>';
+      html += '<select id="mm_'+key+'_venc" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--white);font-size:11px;padding:4px 6px;outline:none;">';
+      html += '<option value="">Selecione...</option>';
+      html += '<option value="'+times[0]+'"'+(venc===times[0]?' selected':'')+'>'+times[0]+'</option>';
+      html += '<option value="'+times[1]+'"'+(venc===times[1]?' selected':'')+'>'+times[1]+'</option>';
+      html += '</select></div>';
+    } else if (venc) {
+      html += '<div style="margin-top:6px;font-size:10px;color:#00c44f;text-align:center;">➜ '+venc+' avança'+(empate?' (pênaltis)':'')+'</div>';
+    }
+    html += '</div>';
   });
   html += '</div>';
   document.getElementById('mmContent').innerHTML = html;
+}
+
+function checkEmpateMM(key) {
+  // Apenas força o usuário a notar que precisa escolher o vencedor em caso de empate
+  var inpA = document.getElementById('mm_'+key+'_a');
+  var inpB = document.getElementById('mm_'+key+'_b');
+  var sel = document.getElementById('mm_'+key+'_venc');
+  if (!inpA || !inpB || !sel) return;
+  if (inpA.value !== '' && inpA.value === inpB.value) {
+    sel.style.borderColor = '#ffa500';
+  } else {
+    sel.style.borderColor = 'var(--border)';
+  }
 }
 
 function toggleEdicaoMM() {
@@ -675,14 +703,21 @@ async function salvarResultadosMM() {
   var fase = _abaMMAtual;
   var jogos = MM_JOGOS[fase] || [];
   var salvos = 0;
+  var faltandoVencedor = [];
   for (var ji = 0; ji < jogos.length; ji++) {
     var key = fase+'_'+ji;
     var inpA = document.getElementById('mm_'+key+'_a');
     var inpB = document.getElementById('mm_'+key+'_b');
+    var selV = document.getElementById('mm_'+key+'_venc');
     if (!inpA || !inpB || (inpA.value==='' && inpB.value==='')) continue;
     var ga = inpA.value!=='' ? parseInt(inpA.value) : null;
     var gb = inpB.value!=='' ? parseInt(inpB.value) : null;
-    var row = {fase:fase, jogo_idx:ji, time_a:jogos[ji][0], time_b:jogos[ji][1], gols_a:ga, gols_b:gb, finalizado:ga!==null&&gb!==null};
+    var venc = selV ? selV.value : '';
+    if (ga !== null && gb !== null && !venc) {
+      faltandoVencedor.push('Jogo ' + (ji+1) + ' (' + jogos[ji][0] + ' x ' + jogos[ji][1] + ')');
+      continue;
+    }
+    var row = {fase:fase, jogo_idx:ji, time_a:jogos[ji][0], time_b:jogos[ji][1], gols_a:ga, gols_b:gb, vencedor:venc||null, finalizado:ga!==null&&gb!==null&&!!venc};
     var existente = _resultadosMM[key];
     var resp = await fetch(
       CONFIG.SUPABASE_URL+'/rest/v1/resultados_mm'+(existente?'?fase=eq.'+fase+'&jogo_idx=eq.'+ji:''),
@@ -690,9 +725,169 @@ async function salvarResultadosMM() {
     );
     if (resp.ok) { _resultadosMM[key] = row; salvos++; }
   }
-  alert(salvos+' resultado(s) salvo(s)!');
+  if (faltandoVencedor.length) {
+    alert('Faltou selecionar quem avança em:\n\n' + faltandoVencedor.join('\n') + '\n\nEsses jogos NÃO foram salvos. Selecione o vencedor e salve de novo.');
+  } else {
+    alert(salvos+' resultado(s) salvo(s)!');
+  }
   cancelarEdicaoMM();
   carregarResultadosMM();
+}
+
+async function calcularEPublicarMM() {
+  if (!confirm('Isso vai calcular os pontos do mata-mata (chaveamento + placares + Top4 + azarão + zebras) para TODOS os participantes, usando os resultados salvos.\n\nConfirma?')) return;
+
+  var H2 = {'apikey':CONFIG.SUPABASE_KEY,'Authorization':'Bearer '+CONFIG.SUPABASE_KEY};
+
+  await carregarResultadosMM();
+
+  var rPalp = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/palpites_fase2?select=*', {headers:H2});
+  if (!rPalp.ok) { alert('Erro ao buscar palpites.'); return; }
+  var palpites = await rPalp.json();
+
+  var porParticipante = {};
+  palpites.forEach(function(p) {
+    var key = p.bolao_id + '|' + p.apelido;
+    if (!porParticipante[key]) porParticipante[key] = { bolao_id:p.bolao_id, apelido:p.apelido, dados_mm:{}, placares_mm:{} };
+    if (p.fase === 'matamata' && p.dados_mm) Object.assign(porParticipante[key].dados_mm, p.dados_mm);
+    if (p.placares_mm) Object.assign(porParticipante[key].placares_mm, p.placares_mm);
+  });
+
+  var vencedoresReais = {};
+  var placaresReais = {};
+  Object.keys(_resultadosMM).forEach(function(k) {
+    var r = _resultadosMM[k];
+    if (r.vencedor) vencedoresReais[k] = r.vencedor;
+    if (r.gols_a !== null && r.gols_b !== null) placaresReais[k] = { ga:r.gols_a, gb:r.gols_b };
+  });
+
+  var resultadosCalculados = [];
+  Object.keys(porParticipante).forEach(function(key) {
+    var part = porParticipante[key];
+    var d = part.dados_mm;
+    var pm = part.placares_mm;
+    var pts_chaveamento = 0, pts_placares_mata = 0, pts_top4 = 0, pts_azarao = 0, pts_zebras_mm = 0;
+
+    for (var i = 0; i < 8; i++) {
+      var realL = vencedoresReais['r16avos_'+i];
+      if (realL && d['r16L_'+i] === realL) pts_chaveamento += 1;
+      var realR = vencedoresReais['r16avos_'+(i+8)];
+      if (realR && d['r16R_'+i] === realR) pts_chaveamento += 1;
+    }
+    for (var i2 = 0; i2 < 4; i2++) {
+      var realQL = vencedoresReais['roitavas_'+i2];
+      if (realQL && d['qfL_'+i2] === realQL) pts_chaveamento += 1;
+      var realQR = vencedoresReais['roitavas_'+(i2+4)];
+      if (realQR && d['qfR_'+i2] === realQR) pts_chaveamento += 1;
+    }
+    for (var i3 = 0; i3 < 2; i3++) {
+      var realSL = vencedoresReais['rquartas_'+i3];
+      if (realSL && d['sfL_'+i3] === realSL) pts_chaveamento += 1;
+      var realSR = vencedoresReais['rquartas_'+(i3+2)];
+      if (realSR && d['sfR_'+i3] === realSR) pts_chaveamento += 1;
+    }
+    var realFL = vencedoresReais['rsemi_0'];
+    if (realFL && d['finalL'] === realFL) pts_chaveamento += 1;
+    var realFR = vencedoresReais['rsemi_1'];
+    if (realFR && d['finalR'] === realFR) pts_chaveamento += 1;
+
+    var finalRes = _resultadosMM['rfinal_1'];
+    var terceiroRes = _resultadosMM['rfinal_0'];
+    var campeaoReal = finalRes ? finalRes.vencedor : null;
+    var viceReal = finalRes ? (finalRes.vencedor === finalRes.time_a ? finalRes.time_b : finalRes.time_a) : null;
+    var terceiroReal = terceiroRes ? terceiroRes.vencedor : null;
+    var quartoReal = terceiroRes ? (terceiroRes.vencedor === terceiroRes.time_a ? terceiroRes.time_b : terceiroRes.time_a) : null;
+    var top4Real = [campeaoReal, viceReal, terceiroReal, quartoReal];
+    var top4Palpite = [d['top4_1'], d['top4_2'], d['top4_3'], d['top4_4']];
+    top4Palpite.forEach(function(palpite, idx) {
+      if (!palpite) return;
+      if (palpite === top4Real[idx]) pts_top4 += 2;
+      else if (top4Real.indexOf(palpite) >= 0) pts_top4 += 1;
+    });
+
+    var FASES_CALC = { r16avos:16, roitavas:8, rquartas:4, rsemi:2, rfinal:2 };
+    Object.keys(FASES_CALC).forEach(function(fase) {
+      for (var ji = 0; ji < FASES_CALC[fase]; ji++) {
+        var rk = fase+'_'+ji;
+        var real = placaresReais[rk];
+        if (!real) continue;
+        var pa = pm[fase+'_'+ji+'_A'], pb = pm[fase+'_'+ji+'_B'];
+        if (pa === undefined || pb === undefined) continue;
+        pa = parseInt(pa); pb = parseInt(pb);
+        var ra = real.ga, rb = real.gb;
+        if (pa === ra && pb === rb) { pts_placares_mata += REGRAS.placares.placar_exato; continue; }
+        var palpiteEmpate = pa === pb, realEmpate = ra === rb;
+        if (palpiteEmpate && realEmpate) { pts_placares_mata += REGRAS.placares.empate_errado; continue; }
+        if (!palpiteEmpate && realEmpate) { pts_placares_mata += REGRAS.placares.apostou_vencedor_empatou; continue; }
+        if (palpiteEmpate && !realEmpate) { pts_placares_mata += REGRAS.placares.errou_tudo; continue; }
+        var palpiteVenceu = pa > pb ? 'A' : 'B';
+        var realVenceu = ra > rb ? 'A' : 'B';
+        if (palpiteVenceu !== realVenceu) { pts_placares_mata += REGRAS.placares.errou_tudo; continue; }
+        var diffPalpite = Math.abs(pa-pb), diffReal = Math.abs(ra-rb);
+        if (diffPalpite === diffReal) { pts_placares_mata += REGRAS.placares.vencedor_diff_certa; continue; }
+        pts_placares_mata += REGRAS.placares.so_vencedor;
+      }
+    });
+
+    var azarao = d['decepcao1'];
+    if (azarao) {
+      var passouR16 = Object.keys(vencedoresReais).some(function(k){ return k.indexOf('r16avos_')===0 && vencedoresReais[k]===azarao; });
+      var passouQF  = Object.keys(vencedoresReais).some(function(k){ return k.indexOf('roitavas_')===0 && vencedoresReais[k]===azarao; });
+      var passouSF  = Object.keys(vencedoresReais).some(function(k){ return k.indexOf('rquartas_')===0 && vencedoresReais[k]===azarao; });
+      if (!passouR16) pts_azarao = 4;
+      else if (!passouQF) pts_azarao = 3;
+      else if (!passouSF) pts_azarao = 2;
+      else pts_azarao = 0;
+    }
+
+    [d['zebra_mm_1'], d['zebra_mm_2']].forEach(function(zebra) {
+      if (!zebra) return;
+      var passouR16z = Object.keys(vencedoresReais).some(function(k){ return k.indexOf('r16avos_')===0 && vencedoresReais[k]===zebra; });
+      var passouQFz  = Object.keys(vencedoresReais).some(function(k){ return k.indexOf('roitavas_')===0 && vencedoresReais[k]===zebra; });
+      var passouSFz  = Object.keys(vencedoresReais).some(function(k){ return k.indexOf('rquartas_')===0 && vencedoresReais[k]===zebra; });
+      if (passouSFz) pts_zebras_mm += 4;
+      else if (passouQFz) pts_zebras_mm += 3;
+      else if (passouR16z) pts_zebras_mm += 2;
+    });
+
+    var total_mm = pts_chaveamento + pts_placares_mata + pts_top4 + pts_azarao + pts_zebras_mm;
+
+    resultadosCalculados.push({
+      bolao_id: part.bolao_id, apelido: part.apelido,
+      pts_chaveamento: pts_chaveamento, pts_placares_mata: pts_placares_mata,
+      pts_top4: pts_top4, pts_azarao: pts_azarao, pts_zebras_mm: pts_zebras_mm,
+      total_mm: total_mm
+    });
+  });
+
+  var H3 = Object.assign({}, H2, {'Content-Type':'application/json'});
+  var atualizados = 0;
+  for (var rc of resultadosCalculados) {
+    var rExist = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/pontuacoes?bolao_id=eq.'+rc.bolao_id+'&apelido=eq.'+encodeURIComponent(rc.apelido)+'&select=*', {headers:H2});
+    var existRows = rExist.ok ? await rExist.json() : [];
+    var pts_grupos = existRows[0] ? (existRows[0].pts_grupos||0) : 0;
+    var pts_placares = existRows[0] ? (existRows[0].pts_placares||0) : 0;
+    var pts_zebras = existRows[0] ? (existRows[0].pts_zebras||0) : 0;
+    var pts_terceiros = existRows[0] ? (existRows[0].pts_terceiros||0) : 0;
+    var novoTotal = pts_grupos + pts_placares + pts_zebras + pts_terceiros + rc.total_mm;
+
+    var payload = {
+      bolao_id: rc.bolao_id, apelido: rc.apelido,
+      pts_chaveamento: rc.pts_chaveamento, pts_placares_mata: rc.pts_placares_mata,
+      pts_top4: rc.pts_top4, pts_azarao: rc.pts_azarao, pts_zebras_mm: rc.pts_zebras_mm,
+      total: novoTotal
+    };
+
+    var resp;
+    if (existRows.length) {
+      resp = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/pontuacoes?bolao_id=eq.'+rc.bolao_id+'&apelido=eq.'+encodeURIComponent(rc.apelido), {method:'PATCH', headers:Object.assign({},H3,{'Prefer':'return=minimal'}), body:JSON.stringify(payload)});
+    } else {
+      resp = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/pontuacoes', {method:'POST', headers:Object.assign({},H3,{'Prefer':'return=minimal'}), body:JSON.stringify(payload)});
+    }
+    if (resp.ok) atualizados++;
+  }
+
+  alert('Mata-mata calculado! ' + atualizados + ' participante(s) atualizado(s) na tabela de pontuações.');
 }
 
 window.addEventListener('load', function() {
