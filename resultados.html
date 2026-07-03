@@ -618,8 +618,8 @@ function mudarAbaMMM(btn, fase) {
 
 async function carregarResultadosMM() {
   try {
-    var H2 = {'apikey':CONFIG.SUPABASE_KEY,'Authorization':'Bearer '+CONFIG.SUPABASE_KEY};
-    var r = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/resultados_mm?select=*', {headers:H2});
+    var H2 = {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
+    var r = await fetch(SUPABASE_URL+'/rest/v1/resultados_mm?select=*', {headers:H2});
     if (r.ok) {
       var rows = await r.json();
       _resultadosMM = {};
@@ -699,12 +699,13 @@ function cancelarEdicaoMM() {
 }
 
 async function salvarResultadosMM() {
-  var H2 = {'apikey':CONFIG.SUPABASE_KEY,'Authorization':'Bearer '+CONFIG.SUPABASE_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'};
+  var H2 = {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
   var fase = _abaMMAtual;
   var jogos = MM_JOGOS[fase] || [];
   var salvos = 0;
   var erros = [];
   var faltandoVencedor = [];
+
   for (var ji = 0; ji < jogos.length; ji++) {
     var key = fase+'_'+ji;
     var inpA = document.getElementById('mm_'+key+'_a');
@@ -715,34 +716,50 @@ async function salvarResultadosMM() {
     var gb = inpB.value!=='' ? parseInt(inpB.value) : null;
     var venc = selV ? selV.value : '';
     if (ga !== null && gb !== null && !venc) {
-      faltandoVencedor.push('Jogo ' + (ji+1) + ' (' + jogos[ji][0] + ' x ' + jogos[ji][1] + ')');
+      faltandoVencedor.push('Jogo '+(ji+1)+' ('+jogos[ji][0]+' x '+jogos[ji][1]+')');
       continue;
     }
     var row = {fase:fase, jogo_idx:ji, time_a:jogos[ji][0], time_b:jogos[ji][1], gols_a:ga, gols_b:gb, vencedor:venc||null, finalizado:ga!==null&&gb!==null&&!!venc};
-
-    var resp = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/resultados_mm', {method:'POST', headers:H2, body:JSON.stringify(row)});
-
-    if (!resp.ok) {
+    var existente = _resultadosMM[key];
+    var url, method, headers;
+    if (existente && existente.id) {
+      // Sempre usar o ID para o PATCH — mais confiável
+      url = SUPABASE_URL+'/rest/v1/resultados_mm?id=eq.'+existente.id;
+      method = 'PATCH';
+      headers = Object.assign({},H2,{'Prefer':'return=minimal'});
+    } else {
+      url = SUPABASE_URL+'/rest/v1/resultados_mm';
+      method = 'POST';
+      headers = Object.assign({},H2,{'Prefer':'return=representation'});
+    }
+    var resp = await fetch(url, {method:method, headers:headers, body:JSON.stringify(row)});
+    if (resp.ok) {
+      if (method === 'POST') {
+        var created = await resp.json();
+        if (created && created[0]) row = Object.assign(row, created[0]);
+      }
+      _resultadosMM[key] = row;
+      salvos++;
+    } else {
       var errText = await resp.text();
-      if (errText.indexOf('23505') !== -1 || errText.indexOf('duplicate') !== -1) {
-        // Já existe — fazer PATCH
-        var patchResp = await fetch(
-          CONFIG.SUPABASE_URL+'/rest/v1/resultados_mm?fase=eq.'+fase+'&jogo_idx=eq.'+ji,
+      // Se POST falhou com duplicata, tentar PATCH por fase+jogo_idx
+      if (method === 'POST' && (errText.indexOf('23505') !== -1 || errText.indexOf('duplicate') !== -1)) {
+        var pResp = await fetch(
+          SUPABASE_URL+'/rest/v1/resultados_mm?fase=eq.'+encodeURIComponent(fase)+'&jogo_idx=eq.'+ji,
           {method:'PATCH', headers:Object.assign({},H2,{'Prefer':'return=minimal'}), body:JSON.stringify(row)}
         );
-        if (patchResp.ok) { _resultadosMM[key] = row; salvos++; }
-        else { var e2 = await patchResp.text(); erros.push('Jogo '+(ji+1)+': '+e2); }
+        if (pResp.ok) { _resultadosMM[key] = row; salvos++; }
+        else { erros.push('Jogo '+(ji+1)+': '+( await pResp.text()).substring(0,80)); }
       } else {
-        erros.push('Jogo '+(ji+1)+': '+errText);
+        erros.push('Jogo '+(ji+1)+' ('+method+'): '+errText.substring(0,80));
       }
-    } else {
-      _resultadosMM[key] = row; salvos++;
     }
   }
+
   if (faltandoVencedor.length) {
-    alert('Faltou selecionar quem avança em:\n\n' + faltandoVencedor.join('\n') + '\n\nEsses jogos NÃO foram salvos. Selecione o vencedor e salve de novo.');
+    alert('Faltou selecionar quem avança em:\n\n'+faltandoVencedor.join('\n')+'\n\nEsses jogos NÃO foram salvos.');
   } else if (erros.length) {
-    alert('Erro ao salvar alguns jogos:\n\n' + erros.join('\n'));
+    alert('Erro ao salvar:\n\n'+erros.join('\n'));
   } else {
     alert(salvos+' resultado(s) salvo(s)!');
   }
@@ -753,11 +770,11 @@ async function salvarResultadosMM() {
 async function calcularEPublicarMM() {
   if (!confirm('Isso vai calcular os pontos do mata-mata (chaveamento + placares + Top4 + azarão + zebras) para TODOS os participantes, usando os resultados salvos.\n\nConfirma?')) return;
 
-  var H2 = {'apikey':CONFIG.SUPABASE_KEY,'Authorization':'Bearer '+CONFIG.SUPABASE_KEY};
+  var H2 = {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
 
   await carregarResultadosMM();
 
-  var rPalp = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/palpites_fase2?select=*', {headers:H2});
+  var rPalp = await fetch(SUPABASE_URL+'/rest/v1/palpites_fase2?select=*', {headers:H2});
   if (!rPalp.ok) { alert('Erro ao buscar palpites.'); return; }
   var palpites = await rPalp.json();
 
@@ -879,7 +896,7 @@ async function calcularEPublicarMM() {
   var H3 = Object.assign({}, H2, {'Content-Type':'application/json'});
   var atualizados = 0;
   for (var rc of resultadosCalculados) {
-    var rExist = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/pontuacoes?bolao_id=eq.'+rc.bolao_id+'&apelido=eq.'+encodeURIComponent(rc.apelido)+'&select=*', {headers:H2});
+    var rExist = await fetch(SUPABASE_URL+'/rest/v1/pontuacoes?bolao_id=eq.'+rc.bolao_id+'&apelido=eq.'+encodeURIComponent(rc.apelido)+'&select=*', {headers:H2});
     var existRows = rExist.ok ? await rExist.json() : [];
     var pts_grupos = existRows[0] ? (existRows[0].pts_grupos||0) : 0;
     var pts_placares = existRows[0] ? (existRows[0].pts_placares||0) : 0;
@@ -896,9 +913,9 @@ async function calcularEPublicarMM() {
 
     var resp;
     if (existRows.length) {
-      resp = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/pontuacoes?bolao_id=eq.'+rc.bolao_id+'&apelido=eq.'+encodeURIComponent(rc.apelido), {method:'PATCH', headers:Object.assign({},H3,{'Prefer':'return=minimal'}), body:JSON.stringify(payload)});
+      resp = await fetch(SUPABASE_URL+'/rest/v1/pontuacoes?bolao_id=eq.'+rc.bolao_id+'&apelido=eq.'+encodeURIComponent(rc.apelido), {method:'PATCH', headers:Object.assign({},H3,{'Prefer':'return=minimal'}), body:JSON.stringify(payload)});
     } else {
-      resp = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/pontuacoes', {method:'POST', headers:Object.assign({},H3,{'Prefer':'return=minimal'}), body:JSON.stringify(payload)});
+      resp = await fetch(SUPABASE_URL+'/rest/v1/pontuacoes', {method:'POST', headers:Object.assign({},H3,{'Prefer':'return=minimal'}), body:JSON.stringify(payload)});
     }
     if (resp.ok) atualizados++;
   }
