@@ -703,6 +703,7 @@ async function salvarResultadosMM() {
   var fase = _abaMMAtual;
   var jogos = MM_JOGOS[fase] || [];
   var salvos = 0;
+  var erros = [];
   var faltandoVencedor = [];
   for (var ji = 0; ji < jogos.length; ji++) {
     var key = fase+'_'+ji;
@@ -718,15 +719,30 @@ async function salvarResultadosMM() {
       continue;
     }
     var row = {fase:fase, jogo_idx:ji, time_a:jogos[ji][0], time_b:jogos[ji][1], gols_a:ga, gols_b:gb, vencedor:venc||null, finalizado:ga!==null&&gb!==null&&!!venc};
-    var existente = _resultadosMM[key];
-    var resp = await fetch(
-      CONFIG.SUPABASE_URL+'/rest/v1/resultados_mm'+(existente?'?fase=eq.'+fase+'&jogo_idx=eq.'+ji:''),
-      {method: existente?'PATCH':'POST', headers:H2, body:JSON.stringify(row)}
-    );
-    if (resp.ok) { _resultadosMM[key] = row; salvos++; }
+
+    var resp = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/resultados_mm', {method:'POST', headers:H2, body:JSON.stringify(row)});
+
+    if (!resp.ok) {
+      var errText = await resp.text();
+      if (errText.indexOf('23505') !== -1 || errText.indexOf('duplicate') !== -1) {
+        // Já existe — fazer PATCH
+        var patchResp = await fetch(
+          CONFIG.SUPABASE_URL+'/rest/v1/resultados_mm?fase=eq.'+fase+'&jogo_idx=eq.'+ji,
+          {method:'PATCH', headers:Object.assign({},H2,{'Prefer':'return=minimal'}), body:JSON.stringify(row)}
+        );
+        if (patchResp.ok) { _resultadosMM[key] = row; salvos++; }
+        else { var e2 = await patchResp.text(); erros.push('Jogo '+(ji+1)+': '+e2); }
+      } else {
+        erros.push('Jogo '+(ji+1)+': '+errText);
+      }
+    } else {
+      _resultadosMM[key] = row; salvos++;
+    }
   }
   if (faltandoVencedor.length) {
     alert('Faltou selecionar quem avança em:\n\n' + faltandoVencedor.join('\n') + '\n\nEsses jogos NÃO foram salvos. Selecione o vencedor e salve de novo.');
+  } else if (erros.length) {
+    alert('Erro ao salvar alguns jogos:\n\n' + erros.join('\n'));
   } else {
     alert(salvos+' resultado(s) salvo(s)!');
   }

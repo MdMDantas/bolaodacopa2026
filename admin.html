@@ -242,7 +242,7 @@ async function carregarAdmin() {
   html += '<div class="card"><div class="card-header"><span class="card-title">👥 PARTICIPANTES — '+_bolaoAtual.nome+'</span>';
   html += '<button class="btn" onclick="exportarPDF()" style="background:#003087;color:#ffdf00;border:1px solid #ffdf00;">📄 PDF POR JOGADOR</button>';
   html += '<button class="btn" onclick="corrigirPlacares()" style="background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);margin-left:8px;">🔧 CORRIGIR ? → 0</button>';
-  html += '<button class="btn" onclick="corrigirJogo3()" style="background:rgba(255,50,50,0.15);color:#ff6060;border:1px solid rgba(255,50,50,0.4);margin-left:8px;">🔄 INVERTER JOGO 3</button>';
+  html += '<button class="btn" onclick="corrigirJogo3()" style="background:rgba(255,50,50,0.15);color:#ff6060;border:1px solid rgba(255,50,50,0.4);margin-left:8px;">⚽ FORÇAR CANADÁ 1×0</button>';
   html += '</div>';
   html += '<div class="tabela-participantes">';
   html += '<div class="participante-row header"><div>Apelido</div><div>Grupos</div><div>Rod.1</div><div>Rod.2</div><div>Rod.3</div><div>Mata-Mata</div><div>16 Avos</div><div>Oitavas</div><div>Quartas</div><div>Semi</div><div>Final</div><div>Total</div></div>';
@@ -385,7 +385,7 @@ function exportarCSV() {
 
 async function corrigirJogo3() {
   if (!_bolaoAtual) { alert('Carregue um bolão primeiro.'); return; }
-  if (!confirm('Isso vai corrigir o Jogo 3 (África do Sul × Canadá) para todos os participantes:\n\nCada placar apostado será INVERTIDO para refletir a ordem correta: Canadá × África do Sul.\n\nEx: quem apostou 1×0 passa a ter 0×1, e quem apostou 0×1 passa a ter 1×0.\n\nConfirma?')) return;
+  if (!confirm('Isso vai FORÇAR o placar do Jogo 3 (Canadá × África do Sul) para 1×0 (Canadá) em TODOS os participantes deste bolão, independente do que cada um apostou.\n\nConfirma?')) return;
 
   var H = { 'apikey': CONFIG.SUPABASE_KEY, 'Authorization': 'Bearer ' + CONFIG.SUPABASE_KEY };
   var SU = CONFIG.SUPABASE_URL;
@@ -396,14 +396,10 @@ async function corrigirJogo3() {
 
   var corrigidos = 0;
   for (var row of rows) {
-    if (!row.placares_mm) continue;
-    var pm = typeof row.placares_mm === 'string' ? JSON.parse(row.placares_mm) : Object.assign({}, row.placares_mm);
-    var kA = 'r16avos_2_A', kB = 'r16avos_2_B';
-    if (pm[kA] === undefined && pm[kB] === undefined) continue;
-    // Inverter A e B
-    var tmp = pm[kA];
-    pm[kA] = pm[kB] !== undefined ? pm[kB] : '0';
-    pm[kB] = tmp !== undefined ? tmp : '0';
+    var pm = row.placares_mm ? (typeof row.placares_mm === 'string' ? JSON.parse(row.placares_mm) : Object.assign({}, row.placares_mm)) : {};
+    // Forçar Canadá 1 x 0 África do Sul para todos, mesmo quem não tinha apostado nada nesse jogo
+    pm['r16avos_2_A'] = '1';
+    pm['r16avos_2_B'] = '0';
 
     var patchResp = await fetch(
       SU + '/rest/v1/palpites_fase2?id=eq.' + row.id,
@@ -415,7 +411,7 @@ async function corrigirJogo3() {
     );
     if (patchResp.ok) corrigidos++;
   }
-  alert('Concluído! ' + corrigidos + ' palpite(s) corrigido(s).');
+  alert('Concluído! Jogo 3 (Canadá 1 x 0 África do Sul) aplicado para ' + corrigidos + ' participante(s).');
 }
 
 async function corrigirPlacares() {
