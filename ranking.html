@@ -439,18 +439,27 @@ async function gerarResumo(apelido, bolaoId) {
 
   // Placares Mata-Mata
   var pts_placares_mata = 0;
+  var TIMES_MM_RESUMO = {
+    'r16avos': [['Alemanha','Paraguai'],['França','Suécia'],['Canadá','África do Sul'],['Holanda','Marrocos'],['Portugal','Croácia'],['Espanha','Áustria'],['Estados Unidos','Bósnia e Herz.'],['Bélgica','Senegal'],['Brasil','Japão'],['Costa do Marfim','Noruega'],['México','Equador'],['Inglaterra','RD Congo'],['Argentina','Cabo Verde'],['Austrália','Egito'],['Suíça','Argélia'],['Colômbia','Gana']],
+    'roitavas': [['J1','J2'],['J3','J4'],['J5','J6'],['J7','J8'],['J9','J10'],['J11','J12'],['J13','J14'],['J15','J16']],
+    'rquartas': [['Oit.1','Oit.2'],['Oit.3','Oit.4'],['Oit.5','Oit.6'],['Oit.7','Oit.8']],
+    'rsemi':    [['Q1','Q2'],['Q3','Q4']],
+    'rfinal':   [['3° Lugar','4° Lugar'],['Final','']]
+  };
   var FASES_MM_R = {
     r16avos: {n:16, label:'16 Avos de Final'}, roitavas: {n:8, label:'Oitavas de Final'},
     rquartas: {n:4, label:'Quartas de Final'}, rsemi: {n:2, label:'Semifinal'}, rfinal: {n:2, label:'Final'}
   };
-  html += '<div class="secao"><div class="secao-titulo">Placares — Mata-Mata</div><table class="placares"><thead><tr><th>Jogo</th><th>Palpite</th><th>Resultado</th><th>Pts</th></tr></thead><tbody>';
+  html += '<div class="secao"><div class="secao-titulo">Placares — Mata-Mata</div><table class="placares"><thead><tr><th>Confronto</th><th>Palpite</th><th>Resultado</th><th>Desc.</th><th>Pts</th></tr></thead><tbody>';
   Object.keys(FASES_MM_R).forEach(function(fase) {
     var faseInfo = FASES_MM_R[fase];
     var temJogoNessaFase = false;
     for (var ji=0; ji<faseInfo.n; ji++) {
       var pa2 = placaresMM[fase+'_'+ji+'_A'], pb2 = placaresMM[fase+'_'+ji+'_B'];
       if (pa2===undefined && pb2===undefined) continue;
-      if (!temJogoNessaFase) { html += '<tr><td colspan="4" class="rodada-titulo">'+faseInfo.label+'</td></tr>'; temJogoNessaFase = true; }
+      if (!temJogoNessaFase) { html += '<tr><td colspan="5" class="rodada-titulo">'+faseInfo.label+'</td></tr>'; temJogoNessaFase = true; }
+      var timesArr = TIMES_MM_RESUMO[fase] && TIMES_MM_RESUMO[fase][ji] ? TIMES_MM_RESUMO[fase][ji] : ['Time A','Time B'];
+      var nomeJogo = timesArr[0] + (timesArr[1] ? ' × ' + timesArr[1] : '');
       var realMM = placaresReaisR[fase+'_'+ji];
       var palpiteStrMM = (pa2!==undefined) ? pa2+' × '+pb2 : '—';
       var realStrMM = realMM ? realMM.ga+' × '+realMM.gb : 'Aguardando';
@@ -458,7 +467,7 @@ async function gerarResumo(apelido, bolaoId) {
       if (realMM && pa2!==undefined) calcMM = calcPlacarDesc(parseInt(pa2), parseInt(pb2), realMM.ga, realMM.gb);
       pts_placares_mata += calcMM.pts;
       var clsMM = calcMM.pts===3?'pts3':calcMM.pts===2?'pts2':calcMM.pts===1?'pts1':'pts0';
-      html += '<tr><td>Jogo '+(ji+1)+'</td><td style="text-align:center;font-weight:700;">'+palpiteStrMM+'</td><td style="text-align:center;font-weight:700;">'+realStrMM+'</td><td class="pts-cell '+clsMM+'">'+calcMM.pts+'</td></tr>';
+      html += '<tr><td style="font-size:10px;">'+nomeJogo+'</td><td style="text-align:center;font-weight:700;">'+palpiteStrMM+'</td><td style="text-align:center;font-weight:700;">'+realStrMM+'</td><td style="font-size:10px;color:#666;">'+calcMM.desc+'</td><td class="pts-cell '+clsMM+'">'+calcMM.pts+'</td></tr>';
     }
   });
   html += '</tbody></table></div>';
