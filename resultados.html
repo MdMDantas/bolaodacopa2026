@@ -650,17 +650,22 @@ function renderMMFase(fase) {
       html += '<input type="number" id="mm_'+key+'_b" class="placar-input" min="0" max="20" value="'+gb+'" placeholder="-" oninput="checkEmpateMM(\''+key+'\')">';
     } else {
       html += '<div class="jogo-placar'+(ga!==''&&gb!==''?'':' vazio')+'">'+(ga!==''&&gb!==''?ga+' × '+gb:'— × —')+'</div>';
+      if (venc) {
+        html += '<div style="font-size:10px;color:#00c44f;margin-top:2px;text-align:center;">➜ '+venc+(empate?' (pen.)':'')+'</div>';
+      }
     }
     html += '<div class="jogo-time away">'+times[1]+'</div>';
     html += '</div>';
-    // Seletor de vencedor — sempre visível no modo edição (decide quem avança, mesmo em caso de empate/pênaltis)
+    // Seletor de vencedor — sempre visível no modo edição
     if (_modoEdicaoMM) {
+      var tA = (res && res.time_a) ? res.time_a : times[0];
+      var tB = (res && res.time_b) ? res.time_b : times[1];
       html += '<div id="venc_wrap_'+key+'" style="margin-top:8px;display:flex;align-items:center;gap:6px;">';
       html += '<span style="font-size:9px;color:var(--muted);letter-spacing:1px;">QUEM AVANÇA:</span>';
       html += '<select id="mm_'+key+'_venc" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--white);font-size:11px;padding:4px 6px;outline:none;">';
       html += '<option value="">Selecione...</option>';
-      html += '<option value="'+times[0]+'"'+(venc===times[0]?' selected':'')+'>'+times[0]+'</option>';
-      html += '<option value="'+times[1]+'"'+(venc===times[1]?' selected':'')+'>'+times[1]+'</option>';
+      html += '<option value="'+tA+'"'+(venc===tA||venc===times[0]?' selected':'')+'>'+tA+'</option>';
+      html += '<option value="'+tB+'"'+(venc===tB||venc===times[1]?' selected':'')+'>'+tB+'</option>';
       html += '</select></div>';
     } else if (venc) {
       html += '<div style="margin-top:6px;font-size:10px;color:#00c44f;text-align:center;">➜ '+venc+' avança'+(empate?' (pênaltis)':'')+'</div>';
