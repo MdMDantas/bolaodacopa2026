@@ -1077,39 +1077,87 @@ function _exportarPalpitesPDFInterno() {
   // Placares Mata-Mata
   if (_palpite2 && (_palpite2._allPlacaresMM || _palpite2.placares_mm)) {
     var TIMES_PDF = {
-      'r16avos': [['Alemanha','Paraguai'],['França','Suécia'],['Canadá','África do Sul'],['Holanda','Marrocos'],['Portugal','Croácia'],['Espanha','Áustria'],['Estados Unidos','Bósnia e Herz.'],['Bélgica','Senegal'],['Brasil','Japão'],['Costa do Marfim','Noruega'],['México','Equador'],['Inglaterra','RD Congo'],['Argentina','Cabo Verde'],['Austrália','Egito'],['Suíça','Argélia'],['Colômbia','Gana']],
-      'roitavas': [['Canadá','Marrocos'],['Paraguai','França'],['Brasil','Noruega'],['México','Inglaterra'],['Portugal','Espanha'],['Estados Unidos','Bélgica'],['Argentina','Egito'],['Suíça','Colômbia']],
-      'rquartas': [['França','Marrocos'],['Espanha','Bélgica'],['Noruega','Inglaterra'],['Argentina','Suíça']],
-      'rsemi':    [['Q1','Q2'],['Q3','Q4']],
-      'rfinal':   [['3º Lugar','4º Lugar'],['Final','']]
+      'r16avos': [['Alemanha','Paraguai'],['Franca','Suecia'],['Canada','Africa do Sul'],['Holanda','Marrocos'],['Portugal','Croatia'],['Espanha','Austria'],['Estados Unidos','Bosnia'],['Belgica','Senegal'],['Brasil','Japao'],['Costa do Marfim','Noruega'],['Mexico','Equador'],['Inglaterra','RD Congo'],['Argentina','Cabo Verde'],['Australia','Egito'],['Suica','Algeria'],['Colombia','Gana']],
+      'roitavas': [['Canada','Marrocos'],['Paraguai','Franca'],['Brasil','Noruega'],['Mexico','Inglaterra'],['Portugal','Espanha'],['Estados Unidos','Belgica'],['Argentina','Egito'],['Suica','Colombia']],
+      'rquartas': [['Franca','Marrocos'],['Espanha','Belgica'],['Noruega','Inglaterra'],['Argentina','Suica']],
+      'rsemi':    [['Semi 1','Semi 2'],['Semi 3','Semi 4']],
+      'rfinal':   [['3o Lugar','4o Lugar'],['Final','']]
     };
     var FASES_PDF = [
       {id:'r16avos',label:'16 Avos de Final',n:16},{id:'roitavas',label:'Oitavas de Final',n:8},
-      {id:'rquartas',label:'Quartas de Final',n:4},{id:'rsemi',label:'Semifinal',n:2},{id:'rfinal',label:'3º Lugar e Final',n:2}
+      {id:'rquartas',label:'Quartas de Final',n:4},{id:'rsemi',label:'Semifinal',n:2},{id:'rfinal',label:'3o Lugar e Final',n:2}
     ];
     var plMM = _palpite2._allPlacaresMM || (typeof _palpite2.placares_mm === 'string' ? JSON.parse(_palpite2.placares_mm) : (_palpite2.placares_mm || {}));
+
+    // Buscar resultados reais para calcular 12 melhores
+    var resReaisMM = {};
+    try {
+      var rRes = await fetch(SUPABASE_URL+'/rest/v1/resultados_mm?select=fase,jogo_idx,gols_a,gols_b', {headers:H});
+      if (rRes.ok) { var rRows = await rRes.json(); rRows.forEach(function(r){ resReaisMM[r.fase+'_'+r.jogo_idx]={ga:r.gols_a,gb:r.gols_b}; }); }
+    } catch(e) {}
+
+    // Calcular pontos por jogo e determinar 12 melhores
+    function calcPtsMM(pa, pb, ga, gb) {
+      if (pa===undefined||pb===undefined||ga===null||gb===null) return 0;
+      pa=parseInt(pa); pb=parseInt(pb);
+      if (pa===ga&&pb===gb) return 3;
+      var pE=pa===pb, rE=ga===gb;
+      if (pE&&rE) return 2;
+      if (!pE&&rE) return 0;
+      if (pE&&!rE) return 0;
+      var pV=pa>pb?'A':'B', rV=ga>gb?'A':'B';
+      if (pV!==rV) return 0;
+      if (Math.abs(pa-pb)===Math.abs(ga-gb)) return 2;
+      return 1;
+    }
+    var todosJogosMM = [];
     FASES_PDF.forEach(function(fase) {
-      var keysA = [];
-      for (var fi=0; fi<fase.n; fi++) { if (plMM[fase.id+'_'+fi+'_A'] !== undefined) keysA.push(fi); }
-      if (!keysA.length) return;
+      for (var fi=0; fi<fase.n; fi++) {
+        var va3 = plMM[fase.id+'_'+fi+'_A'], vb3 = plMM[fase.id+'_'+fi+'_B'];
+        if (va3===undefined) continue;
+        var res = resReaisMM[fase.id+'_'+fi];
+        var pts = res ? calcPtsMM(va3, vb3, res.ga, res.gb) : null;
+        todosJogosMM.push({fase:fase.id, fi:fi, label:fase.label, va:va3, vb:vb3, res:res, pts:pts});
+      }
+    });
+
+    // Top 12 dos que têm resultado
+    var comRes = todosJogosMM.filter(function(j){return j.pts!==null;});
+    comRes.sort(function(a,b){return b.pts-a.pts;});
+    var top12Keys = {};
+    comRes.slice(0,12).forEach(function(j){ top12Keys[j.fase+'_'+j.fi]=true; });
+
+    // Renderizar por fase
+    FASES_PDF.forEach(function(fase) {
+      var jogos = todosJogosMM.filter(function(j){return j.fase===fase.id;});
+      if (!jogos.length) return;
       secao('Placares - ' + fase.label, [80,20,100]);
       var pCols = 4, pColW2 = (W-M*2)/pCols;
-      keysA.forEach(function(ji3, ki) {
+      jogos.forEach(function(j, ki) {
         if (ki % pCols === 0) checkPage(12);
         var col4 = ki % pCols, px4 = M + col4 * pColW2;
         if (ki % pCols === 0 && ki > 0) y += 12;
-        var va3 = plMM[fase.id+'_'+ji3+'_A'], vb3 = plMM[fase.id+'_'+ji3+'_B'];
-        var timesArr = TIMES_PDF[fase.id] && TIMES_PDF[fase.id][ji3] ? TIMES_PDF[fase.id][ji3] : ['Time A','Time B'];
-        var label3 = timesArr[0] + (timesArr[1]?' × '+timesArr[1]:'');
-        if (label3.length > 22) label3 = label3.substring(0,20)+'…';
-        doc.setFillColor(245,240,255); doc.roundedRect(px4, y-5, pColW2-2, 10, 1.5,1.5,'F');
-        doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(80,20,100);
-        doc.text(label3, px4+2, y-1);
-        doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(80,20,100);
-        doc.text((va3!==undefined?va3:'0')+' x '+(vb3!==undefined?vb3:'0'), px4+2, y+4.5);
+        var timesArr = TIMES_PDF[j.fase] && TIMES_PDF[j.fase][j.fi] ? TIMES_PDF[j.fase][j.fi] : ['A','B'];
+        var label3 = timesArr[0] + (timesArr[1]?' x '+timesArr[1]:'');
+        if (label3.length > 20) label3 = label3.substring(0,18)+'.';
+        var isTop12 = top12Keys[j.fase+'_'+j.fi];
+        var descartado = j.res && !isTop12;
+        doc.setFillColor(descartado?230:245, descartado?220:240, descartado?230:255);
+        doc.roundedRect(px4, y-5, pColW2-2, 10, 1.5,1.5,'F');
+        doc.setFont('helvetica','normal'); doc.setFontSize(6);
+        doc.setTextColor(descartado?150:80, descartado?100:20, descartado?130:100);
+        doc.text(label3 + (descartado?' (desc.)':''), px4+2, y-1);
+        doc.setFont('helvetica','bold'); doc.setFontSize(11);
+        doc.setTextColor(descartado?150:80, descartado?100:20, descartado?130:100);
+        var placar = (j.va!==undefined?j.va:'0')+' x '+(j.vb!==undefined?j.vb:'0');
+        var ptsStr = j.pts!==null ? ' ('+j.pts+'pt)' : '';
+        doc.text(placar+ptsStr, px4+2, y+4.5);
       });
       y += 14;
     });
+
+    var ptsTop12 = comRes.slice(0,12).reduce(function(s,j){return s+j.pts;},0);
+    secao('Total Placares MM (12 melhores): ' + ptsTop12 + 'pts', [60,0,80]);
   }
 
   rodape();

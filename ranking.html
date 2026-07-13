@@ -450,27 +450,65 @@ async function gerarResumo(apelido, bolaoId) {
     r16avos: {n:16, label:'16 Avos de Final'}, roitavas: {n:8, label:'Oitavas de Final'},
     rquartas: {n:4, label:'Quartas de Final'}, rsemi: {n:2, label:'Semifinal'}, rfinal: {n:2, label:'Final'}
   };
-  html += '<div class="secao"><div class="secao-titulo">Placares — Mata-Mata</div><table class="placares"><thead><tr><th>Confronto</th><th>Palpite</th><th>Resultado</th><th>Desc.</th><th>Pts</th></tr></thead><tbody>';
+
+  // Primeiro passo: coletar todos os jogos com pontuação
+  var todosPlacaresMMCalc = [];
   Object.keys(FASES_MM_R).forEach(function(fase) {
     var faseInfo = FASES_MM_R[fase];
-    var temJogoNessaFase = false;
     for (var ji=0; ji<faseInfo.n; ji++) {
       var pa2 = placaresMM[fase+'_'+ji+'_A'], pb2 = placaresMM[fase+'_'+ji+'_B'];
       if (pa2===undefined && pb2===undefined) continue;
-      if (!temJogoNessaFase) { html += '<tr><td colspan="5" class="rodada-titulo">'+faseInfo.label+'</td></tr>'; temJogoNessaFase = true; }
       var timesArr = TIMES_MM_RESUMO[fase] && TIMES_MM_RESUMO[fase][ji] ? TIMES_MM_RESUMO[fase][ji] : ['Time A','Time B'];
-      var nomeJogo = timesArr[0] + (timesArr[1] ? ' × ' + timesArr[1] : '');
       var realMM = placaresReaisR[fase+'_'+ji];
-      var palpiteStrMM = (pa2!==undefined) ? pa2+' × '+pb2 : '—';
-      var realStrMM = realMM ? realMM.ga+' × '+realMM.gb : 'Aguardando';
       var calcMM = {pts:0, desc:'Aguardando'};
       if (realMM && pa2!==undefined) calcMM = calcPlacarDesc(parseInt(pa2), parseInt(pb2), realMM.ga, realMM.gb);
-      pts_placares_mata += calcMM.pts;
-      var clsMM = calcMM.pts===3?'pts3':calcMM.pts===2?'pts2':calcMM.pts===1?'pts1':'pts0';
-      html += '<tr><td style="font-size:10px;">'+nomeJogo+'</td><td style="text-align:center;font-weight:700;">'+palpiteStrMM+'</td><td style="text-align:center;font-weight:700;">'+realStrMM+'</td><td style="font-size:10px;color:#666;">'+calcMM.desc+'</td><td class="pts-cell '+clsMM+'">'+calcMM.pts+'</td></tr>';
+      todosPlacaresMMCalc.push({
+        fase: fase, ji: ji,
+        nomeJogo: timesArr[0] + (timesArr[1] ? ' × ' + timesArr[1] : ''),
+        faseLabel: faseInfo.label,
+        palpiteStr: (pa2!==undefined) ? pa2+' × '+pb2 : '—',
+        realStr: realMM ? realMM.ga+' × '+realMM.gb : 'Aguardando',
+        pts: calcMM.pts,
+        desc: calcMM.desc
+      });
     }
   });
+
+  // Segundo passo: determinar os 12 melhores (só jogos com resultado real)
+  var comResultado = todosPlacaresMMCalc.filter(function(j){ return j.realStr !== 'Aguardando'; });
+  var ptsSorted = comResultado.map(function(j){ return j.pts; }).sort(function(a,b){ return b-a; });
+  var limite12 = ptsSorted.slice(0,12).reduce(function(s,v){ return s+v; }, 0);
+  var top12Threshold = ptsSorted[11] !== undefined ? ptsSorted[11] : -1;
+  // Marcar quais jogos contam (os 12 com mais pts)
+  var contados = 0;
+  todosPlacaresMMCalc.forEach(function(j) {
+    if (j.realStr === 'Aguardando') { j.conta = false; return; }
+    if (contados < 12 && j.pts >= top12Threshold) { j.conta = true; contados++; }
+    else { j.conta = false; }
+  });
+
+  // Terceiro passo: renderizar tabela com indicação visual
+  html += '<div class="secao"><div class="secao-titulo">Placares — Mata-Mata <span style="font-size:10px;font-weight:400;color:#aaa;">(12 melhores contam)</span></div><table class="placares"><thead><tr><th>Confronto</th><th>Palpite</th><th>Resultado</th><th>Desc.</th><th>Pts</th></tr></thead><tbody>';
+  var faseAtual = '';
+  todosPlacaresMMCalc.forEach(function(j) {
+    if (j.faseLabel !== faseAtual) {
+      html += '<tr><td colspan="5" class="rodada-titulo">'+j.faseLabel+'</td></tr>';
+      faseAtual = j.faseLabel;
+    }
+    var clsMM = j.pts===3?'pts3':j.pts===2?'pts2':j.pts===1?'pts1':'pts0';
+    var descartado = !j.conta && j.realStr !== 'Aguardando';
+    var rowStyle = descartado ? 'opacity:0.45;' : '';
+    var descartadoTag = descartado ? ' <span style="font-size:9px;color:#888;">(descartado)</span>' : '';
+    html += '<tr style="'+rowStyle+'">';
+    html += '<td style="font-size:10px;">'+j.nomeJogo+'</td>';
+    html += '<td style="text-align:center;font-weight:700;">'+j.palpiteStr+'</td>';
+    html += '<td style="text-align:center;font-weight:700;">'+j.realStr+'</td>';
+    html += '<td style="font-size:10px;color:#666;">'+j.desc+descartadoTag+'</td>';
+    html += '<td class="pts-cell '+clsMM+'">'+(j.conta ? j.pts : '<span style="text-decoration:line-through;opacity:0.5;">'+j.pts+'</span>')+'</td>';
+    html += '</tr>';
+  });
   html += '</tbody></table></div>';
+  pts_placares_mata = limite12;
 
   // Total Mata-Mata
   var totalMataMata = pts_chaveamento + pts_top4 + pts_azarao + pts_zebras_mm + pts_placares_mata;
