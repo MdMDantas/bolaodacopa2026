@@ -841,7 +841,9 @@ async function calcularEPublicarMM() {
       else if (top4Real.indexOf(palpite) >= 0) pts_top4 += 1;
     });
 
+    // Placares MM — coletar todos os pontos e pegar os 12 melhores
     var FASES_CALC = { r16avos:16, roitavas:8, rquartas:4, rsemi:2, rfinal:2 };
+    var todosPtsMM = [];
     Object.keys(FASES_CALC).forEach(function(fase) {
       for (var ji = 0; ji < FASES_CALC[fase]; ji++) {
         var rk = fase+'_'+ji;
@@ -851,19 +853,27 @@ async function calcularEPublicarMM() {
         if (pa === undefined || pb === undefined) continue;
         pa = parseInt(pa); pb = parseInt(pb);
         var ra = real.ga, rb = real.gb;
-        if (pa === ra && pb === rb) { pts_placares_mata += REGRAS.placares.placar_exato; continue; }
-        var palpiteEmpate = pa === pb, realEmpate = ra === rb;
-        if (palpiteEmpate && realEmpate) { pts_placares_mata += REGRAS.placares.empate_errado; continue; }
-        if (!palpiteEmpate && realEmpate) { pts_placares_mata += REGRAS.placares.apostou_vencedor_empatou; continue; }
-        if (palpiteEmpate && !realEmpate) { pts_placares_mata += REGRAS.placares.errou_tudo; continue; }
-        var palpiteVenceu = pa > pb ? 'A' : 'B';
-        var realVenceu = ra > rb ? 'A' : 'B';
-        if (palpiteVenceu !== realVenceu) { pts_placares_mata += REGRAS.placares.errou_tudo; continue; }
-        var diffPalpite = Math.abs(pa-pb), diffReal = Math.abs(ra-rb);
-        if (diffPalpite === diffReal) { pts_placares_mata += REGRAS.placares.vencedor_diff_certa; continue; }
-        pts_placares_mata += REGRAS.placares.so_vencedor;
+        var ptJogo = 0;
+        if (pa === ra && pb === rb) { ptJogo = REGRAS.placares.placar_exato; }
+        else {
+          var palpiteEmpate = pa === pb, realEmpate = ra === rb;
+          if (palpiteEmpate && realEmpate) ptJogo = REGRAS.placares.empate_errado;
+          else if (!palpiteEmpate && realEmpate) ptJogo = REGRAS.placares.apostou_vencedor_empatou;
+          else if (palpiteEmpate && !realEmpate) ptJogo = REGRAS.placares.errou_tudo;
+          else {
+            var palpiteVenceu = pa > pb ? 'A' : 'B';
+            var realVenceu = ra > rb ? 'A' : 'B';
+            if (palpiteVenceu !== realVenceu) ptJogo = REGRAS.placares.errou_tudo;
+            else if (Math.abs(pa-pb) === Math.abs(ra-rb)) ptJogo = REGRAS.placares.vencedor_diff_certa;
+            else ptJogo = REGRAS.placares.so_vencedor;
+          }
+        }
+        todosPtsMM.push(ptJogo);
       }
     });
+    // Ordenar decrescente e somar os 12 melhores
+    todosPtsMM.sort(function(a,b){ return b-a; });
+    pts_placares_mata = todosPtsMM.slice(0,12).reduce(function(s,v){ return s+v; }, 0);
 
     var azarao = d['decepcao1'];
     if (azarao) {
