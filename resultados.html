@@ -811,20 +811,20 @@ async function calcularEPublicarMM() {
       if (realR && d['r16R_'+i] === realR) pts_chaveamento += 1;
     }
     for (var i2 = 0; i2 < 4; i2++) {
-      var realQL = vencedoresReais['roitavas_'+i2];
+      var realQL = vencedoresReais['rquartas_'+i2];
       if (realQL && d['qfL_'+i2] === realQL) pts_chaveamento += 1;
-      var realQR = vencedoresReais['roitavas_'+(i2+4)];
+      var realQR = vencedoresReais['rquartas_'+(i2+2)];
       if (realQR && d['qfR_'+i2] === realQR) pts_chaveamento += 1;
     }
     for (var i3 = 0; i3 < 2; i3++) {
-      var realSL = vencedoresReais['rquartas_'+i3];
+      var realSL = vencedoresReais['rsemi_'+i3];
       if (realSL && d['sfL_'+i3] === realSL) pts_chaveamento += 1;
-      var realSR = vencedoresReais['rquartas_'+(i3+2)];
+      var realSR = vencedoresReais['rsemi_'+i3];
       if (realSR && d['sfR_'+i3] === realSR) pts_chaveamento += 1;
     }
-    var realFL = vencedoresReais['rsemi_0'];
+    var realFL = vencedoresReais['rfinal_1'];
     if (realFL && d['finalL'] === realFL) pts_chaveamento += 1;
-    var realFR = vencedoresReais['rsemi_1'];
+    var realFR = vencedoresReais['rfinal_1'];
     if (realFR && d['finalR'] === realFR) pts_chaveamento += 1;
 
     var finalRes = _resultadosMM['rfinal_1'];

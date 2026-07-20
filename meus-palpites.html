@@ -808,14 +808,14 @@ function exportarPalpitesPDF() {
     return;
   }
   try {
-    _exportarPalpitesPDFInterno();
+    await _exportarPalpitesPDFInterno();
   } catch(e) {
     console.error('Erro ao gerar PDF:', e);
     alert('Erro ao gerar PDF: ' + e.message + '\n\nVerifique o console para detalhes.');
   }
 }
 
-function _exportarPalpitesPDFInterno() {
+async function _exportarPalpitesPDFInterno() {
   var { jsPDF } = window.jspdf;
   var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 

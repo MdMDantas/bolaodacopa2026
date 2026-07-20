@@ -339,35 +339,35 @@ async function gerarResumo(apelido, bolaoId, silencioso) {
     html += '<tr><td>R32→Oit.</td><td>'+confR+'</td><td style="font-weight:700;">'+palR+'</td><td>'+(realR||'Aguardando')+'</td><td class="pts-cell '+(ptsR?'pts3':'pts0')+'">'+ptsR+'</td></tr>';
   }
   for (var i2=0;i2<4;i2++) {
-    var realQL = vencedoresReaisR['roitavas_'+i2];
+    var realQL = vencedoresReaisR['rquartas_'+i2];
     var palQL = dadosMM['qfL_'+i2]||'—';
     var ptsQL = (realQL && palQL===realQL) ? 1 : 0;
     pts_chaveamento += ptsQL;
     html += '<tr><td>Oit.→Qua.</td><td>—</td><td style="font-weight:700;">'+palQL+'</td><td>'+(realQL||'Aguardando')+'</td><td class="pts-cell '+(ptsQL?'pts3':'pts0')+'">'+ptsQL+'</td></tr>';
-    var realQR = vencedoresReaisR['roitavas_'+(i2+4)];
+    var realQR = vencedoresReaisR['rquartas_'+(i2+2)];
     var palQR = dadosMM['qfR_'+i2]||'—';
     var ptsQR = (realQR && palQR===realQR) ? 1 : 0;
     pts_chaveamento += ptsQR;
     html += '<tr><td>Oit.→Qua.</td><td>—</td><td style="font-weight:700;">'+palQR+'</td><td>'+(realQR||'Aguardando')+'</td><td class="pts-cell '+(ptsQR?'pts3':'pts0')+'">'+ptsQR+'</td></tr>';
   }
   for (var i3=0;i3<2;i3++) {
-    var realSL = vencedoresReaisR['rquartas_'+i3];
+    var realSL = vencedoresReaisR['rsemi_'+i3];
     var palSL = dadosMM['sfL_'+i3]||'—';
     var ptsSL = (realSL && palSL===realSL) ? 1 : 0;
     pts_chaveamento += ptsSL;
     html += '<tr><td>Qua.→Semi</td><td>—</td><td style="font-weight:700;">'+palSL+'</td><td>'+(realSL||'Aguardando')+'</td><td class="pts-cell '+(ptsSL?'pts3':'pts0')+'">'+ptsSL+'</td></tr>';
-    var realSR = vencedoresReaisR['rquartas_'+(i3+2)];
+    var realSR = vencedoresReaisR['rsemi_'+i3];
     var palSR = dadosMM['sfR_'+i3]||'—';
     var ptsSR = (realSR && palSR===realSR) ? 1 : 0;
     pts_chaveamento += ptsSR;
     html += '<tr><td>Qua.→Semi</td><td>—</td><td style="font-weight:700;">'+palSR+'</td><td>'+(realSR||'Aguardando')+'</td><td class="pts-cell '+(ptsSR?'pts3':'pts0')+'">'+ptsSR+'</td></tr>';
   }
-  var realFL = vencedoresReaisR['rsemi_0'];
+  var realFL = vencedoresReaisR['rfinal_1'];
   var palFL = dadosMM['finalL']||'—';
   var ptsFL = (realFL && palFL===realFL) ? 1 : 0;
   pts_chaveamento += ptsFL;
   html += '<tr><td>Semi→Final</td><td>—</td><td style="font-weight:700;">'+palFL+'</td><td>'+(realFL||'Aguardando')+'</td><td class="pts-cell '+(ptsFL?'pts3':'pts0')+'">'+ptsFL+'</td></tr>';
-  var realFR = vencedoresReaisR['rsemi_1'];
+  var realFR = vencedoresReaisR['rfinal_1'];
   var palFR = dadosMM['finalR']||'—';
   var ptsFR = (realFR && palFR===realFR) ? 1 : 0;
   pts_chaveamento += ptsFR;
