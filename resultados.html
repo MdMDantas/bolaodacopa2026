@@ -804,28 +804,26 @@ async function calcularEPublicarMM() {
     var pm = part.placares_mm;
     var pts_chaveamento = 0, pts_placares_mata = 0, pts_top4 = 0, pts_azarao = 0, pts_zebras_mm = 0;
 
-    for (var i = 0; i < 8; i++) {
-      var realL = vencedoresReais['r16avos_'+i];
-      if (realL && d['r16L_'+i] === realL) pts_chaveamento += 1;
-      var realR = vencedoresReais['r16avos_'+(i+8)];
-      if (realR && d['r16R_'+i] === realR) pts_chaveamento += 1;
-    }
-    for (var i2 = 0; i2 < 4; i2++) {
-      var realQL = vencedoresReais['rquartas_'+i2];
-      if (realQL && d['qfL_'+i2] === realQL) pts_chaveamento += 1;
-      var realQR = vencedoresReais['rquartas_'+(i2+2)];
-      if (realQR && d['qfR_'+i2] === realQR) pts_chaveamento += 1;
-    }
-    for (var i3 = 0; i3 < 2; i3++) {
-      var realSL = vencedoresReais['rsemi_'+i3];
-      if (realSL && d['sfL_'+i3] === realSL) pts_chaveamento += 1;
-      var realSR = vencedoresReais['rsemi_'+i3];
-      if (realSR && d['sfR_'+i3] === realSR) pts_chaveamento += 1;
-    }
-    var realFL = vencedoresReais['rfinal_1'];
-    if (realFL && d['finalL'] === realFL) pts_chaveamento += 1;
-    var realFR = vencedoresReais['rfinal_1'];
-    if (realFR && d['finalR'] === realFR) pts_chaveamento += 1;
+    var BRACKET_TO_DB = {
+      'r16L_0':'r16avos_0','r16L_1':'r16avos_1','r16L_2':'r16avos_2','r16L_3':'r16avos_3',
+      'r16L_4':'r16avos_4','r16L_5':'r16avos_5','r16L_6':'r16avos_6','r16L_7':'r16avos_7',
+      'r16R_0':'r16avos_8','r16R_1':'r16avos_9','r16R_2':'r16avos_10','r16R_3':'r16avos_11',
+      'r16R_4':'r16avos_12','r16R_5':'r16avos_13','r16R_6':'r16avos_14','r16R_7':'r16avos_15',
+      'qfL_0':'rquartas_0','qfL_1':'rquartas_1','qfL_2':'rquartas_2','qfL_3':'rquartas_3',
+      'qfR_0':'rquartas_0','qfR_1':'rquartas_1','qfR_2':'rquartas_2','qfR_3':'rquartas_3',
+      'sfL_0':'rsemi_0','sfL_1':'rsemi_1','sfR_0':'rsemi_0','sfR_1':'rsemi_1',
+      'finalL':'rfinal_1','finalR':'rfinal_1'
+    };
+    ['r16L_0','r16L_1','r16L_2','r16L_3','r16L_4','r16L_5','r16L_6','r16L_7',
+     'r16R_0','r16R_1','r16R_2','r16R_3','r16R_4','r16R_5','r16R_6','r16R_7',
+     'qfL_0','qfL_1','qfL_2','qfL_3','qfR_0','qfR_1','qfR_2','qfR_3',
+     'sfL_0','sfL_1','sfR_0','sfR_1','finalL','finalR'
+    ].forEach(function(slot) {
+      var dbKey = BRACKET_TO_DB[slot];
+      var realVenc = vencedoresReais[dbKey];
+      var palpite = d[slot];
+      if (realVenc && palpite && palpite === realVenc) pts_chaveamento += 1;
+    });
 
     var finalRes = _resultadosMM['rfinal_1'];
     var terceiroRes = _resultadosMM['rfinal_0'];
