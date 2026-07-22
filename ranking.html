@@ -323,47 +323,68 @@ async function gerarResumo(apelido, bolaoId, silencioso) {
 
   // Chaveamento
   var pts_chaveamento = 0;
-  var BRACKET_TO_DB_R = {
+  var R32_MAP_R = {
     'r16L_0':'r16avos_0','r16L_1':'r16avos_1','r16L_2':'r16avos_2','r16L_3':'r16avos_3',
     'r16L_4':'r16avos_4','r16L_5':'r16avos_5','r16L_6':'r16avos_6','r16L_7':'r16avos_7',
     'r16R_0':'r16avos_8','r16R_1':'r16avos_9','r16R_2':'r16avos_10','r16R_3':'r16avos_11',
-    'r16R_4':'r16avos_12','r16R_5':'r16avos_13','r16R_6':'r16avos_14','r16R_7':'r16avos_15',
-    'qfL_0':'rquartas_0','qfL_1':'rquartas_1','qfL_2':'rquartas_2','qfL_3':'rquartas_3',
-    'qfR_0':'rquartas_0','qfR_1':'rquartas_1','qfR_2':'rquartas_2','qfR_3':'rquartas_3',
-    'sfL_0':'rsemi_0','sfL_1':'rsemi_1','sfR_0':'rsemi_0','sfR_1':'rsemi_1',
-    'finalL':'rfinal_1','finalR':'rfinal_1'
+    'r16R_4':'r16avos_12','r16R_5':'r16avos_13','r16R_6':'r16avos_14','r16R_7':'r16avos_15'
   };
-  var BRACKET_LABELS_R = {
-    'r16L_0':['R32→Oit.','Alemanha × Paraguai'],'r16L_1':['R32→Oit.','França × Suécia'],
-    'r16L_2':['R32→Oit.','Canadá × África do Sul'],'r16L_3':['R32→Oit.','Holanda × Marrocos'],
-    'r16L_4':['R32→Oit.','Portugal × Croácia'],'r16L_5':['R32→Oit.','Espanha × Áustria'],
-    'r16L_6':['R32→Oit.','Estados Unidos × Bósnia'],'r16L_7':['R32→Oit.','Bélgica × Senegal'],
-    'r16R_0':['R32→Oit.','Brasil × Japão'],'r16R_1':['R32→Oit.','Costa do Marfim × Noruega'],
-    'r16R_2':['R32→Oit.','México × Equador'],'r16R_3':['R32→Oit.','Inglaterra × RD Congo'],
-    'r16R_4':['R32→Oit.','Argentina × Cabo Verde'],'r16R_5':['R32→Oit.','Austrália × Egito'],
-    'r16R_6':['R32→Oit.','Suíça × Argélia'],'r16R_7':['R32→Oit.','Colômbia × Gana'],
-    'qfL_0':['Oit.→Qua.','França × Marrocos'],'qfL_1':['Oit.→Qua.','Espanha × Bélgica'],
-    'qfL_2':['Oit.→Qua.','Noruega × Inglaterra'],'qfL_3':['Oit.→Qua.','Argentina × Suíça'],
-    'qfR_0':['Oit.→Qua.','França × Marrocos'],'qfR_1':['Oit.→Qua.','Espanha × Bélgica'],
-    'qfR_2':['Oit.→Qua.','Noruega × Inglaterra'],'qfR_3':['Oit.→Qua.','Argentina × Suíça'],
-    'sfL_0':['Qua.→Semi','França × Espanha'],'sfL_1':['Qua.→Semi','Inglaterra × Argentina'],
-    'sfR_0':['Qua.→Semi','França × Espanha'],'sfR_1':['Qua.→Semi','Inglaterra × Argentina'],
-    'finalL':['Semi→Final','Espanha × Argentina'],'finalR':['Semi→Final','Espanha × Argentina']
+  var R32_LABELS = {
+    'r16L_0':'Alemanha × Paraguai','r16L_1':'França × Suécia','r16L_2':'Canadá × África do Sul',
+    'r16L_3':'Holanda × Marrocos','r16L_4':'Portugal × Croácia','r16L_5':'Espanha × Áustria',
+    'r16L_6':'Estados Unidos × Bósnia','r16L_7':'Bélgica × Senegal',
+    'r16R_0':'Brasil × Japão','r16R_1':'Costa do Marfim × Noruega','r16R_2':'México × Equador',
+    'r16R_3':'Inglaterra × RD Congo','r16R_4':'Argentina × Cabo Verde','r16R_5':'Austrália × Egito',
+    'r16R_6':'Suíça × Argélia','r16R_7':'Colômbia × Gana'
   };
+  var vencedoresQuartasR = [0,1,2,3].map(function(i){ return vencedoresReaisR['rquartas_'+i]; }).filter(Boolean);
+  var vencedoresSemiR = [0,1].map(function(i){ return vencedoresReaisR['rsemi_'+i]; }).filter(Boolean);
+  var vencedorFinalR = vencedoresReaisR['rfinal_1'];
+  var QF_LABELS = ['França × Marrocos','Espanha × Bélgica','Noruega × Inglaterra','Argentina × Suíça'];
+  var SF_LABELS = ['França × Espanha','Inglaterra × Argentina'];
+
   html += '<div class="secao"><div class="secao-titulo">Chaveamento — Mata-Mata</div><table class="placares"><thead><tr><th>Fase</th><th>Confronto</th><th>Seu palpite</th><th>Resultado real</th><th>Pts</th></tr></thead><tbody>';
-  ['r16L_0','r16L_1','r16L_2','r16L_3','r16L_4','r16L_5','r16L_6','r16L_7',
-   'r16R_0','r16R_1','r16R_2','r16R_3','r16R_4','r16R_5','r16R_6','r16R_7',
-   'qfL_0','qfL_1','qfL_2','qfL_3','qfR_0','qfR_1','qfR_2','qfR_3',
-   'sfL_0','sfL_1','sfR_0','sfR_1','finalL','finalR'
-  ].forEach(function(slot) {
-    var dbKey = BRACKET_TO_DB_R[slot];
-    var lbl = BRACKET_LABELS_R[slot] || [slot, '—'];
-    var realVenc = vencedoresReaisR[dbKey];
+
+  // R32 -> Oitavas
+  Object.keys(R32_MAP_R).forEach(function(slot) {
+    var real = vencedoresReaisR[R32_MAP_R[slot]];
     var palpite = dadosMM[slot] || '—';
-    var pts = (realVenc && palpite && palpite === realVenc) ? 1 : 0;
+    var pts = (real && palpite && palpite === real) ? 1 : 0;
     pts_chaveamento += pts;
-    html += '<tr><td>'+lbl[0]+'</td><td>'+lbl[1]+'</td><td style="font-weight:700;">'+palpite+'</td><td>'+(realVenc||'Aguardando')+'</td><td class="pts-cell '+(pts?'pts3':'pts0')+'">'+pts+'</td></tr>';
+    html += '<tr><td>R32→Oit.</td><td>'+R32_LABELS[slot]+'</td><td style="font-weight:700;">'+palpite+'</td><td>'+(real||'Aguardando')+'</td><td class="pts-cell '+(pts?'pts3':'pts0')+'">'+pts+'</td></tr>';
   });
+
+  // Oitavas -> Quartas (qfL e qfR — verificar se pick chegou nas quartas)
+  ['qfL_0','qfL_1','qfL_2','qfL_3','qfR_0','qfR_1','qfR_2','qfR_3'].forEach(function(slot, idx) {
+    var palpite = dadosMM[slot] || '—';
+    if (palpite === '—') return;
+    var pts = (vencedoresQuartasR.length && vencedoresQuartasR.indexOf(palpite) >= 0) ? 1 : 0;
+    pts_chaveamento += pts;
+    var confronto = slot.startsWith('qfL') ? QF_LABELS[idx % 4] : QF_LABELS[idx % 4];
+    var realVenc = vencedoresQuartasR[idx % 4] || 'Aguardando';
+    html += '<tr><td>Oit.→Qua.</td><td>'+confronto+'</td><td style="font-weight:700;">'+palpite+'</td><td>'+realVenc+'</td><td class="pts-cell '+(pts?'pts3':'pts0')+'">'+pts+'</td></tr>';
+  });
+
+  // Quartas -> Semis
+  ['sfL_0','sfL_1','sfR_0','sfR_1'].forEach(function(slot, idx) {
+    var palpite = dadosMM[slot] || '—';
+    if (palpite === '—') return;
+    var pts = (vencedoresSemiR.length && vencedoresSemiR.indexOf(palpite) >= 0) ? 1 : 0;
+    pts_chaveamento += pts;
+    var confronto = SF_LABELS[idx % 2] || '—';
+    var realVenc = vencedoresSemiR[idx % 2] || 'Aguardando';
+    html += '<tr><td>Qua.→Semi</td><td>'+confronto+'</td><td style="font-weight:700;">'+palpite+'</td><td>'+realVenc+'</td><td class="pts-cell '+(pts?'pts3':'pts0')+'">'+pts+'</td></tr>';
+  });
+
+  // Semis -> Final
+  ['finalL','finalR'].forEach(function(slot) {
+    var palpite = dadosMM[slot] || '—';
+    if (palpite === '—') return;
+    var pts = (vencedorFinalR && palpite === vencedorFinalR) ? 1 : 0;
+    pts_chaveamento += pts;
+    html += '<tr><td>Semi→Final</td><td>Espanha × Argentina</td><td style="font-weight:700;">'+palpite+'</td><td>'+(vencedorFinalR||'Aguardando')+'</td><td class="pts-cell '+(pts?'pts3':'pts0')+'">'+pts+'</td></tr>';
+  });
+
   html += '</tbody></table></div>';
 
   // Top 4

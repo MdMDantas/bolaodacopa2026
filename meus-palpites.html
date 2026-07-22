@@ -802,7 +802,7 @@ var PDF_JOGOS = {
   }
 };
 
-function exportarPalpitesPDF() {
+async function exportarPalpitesPDF() {
   if (typeof window.jspdf === 'undefined') {
     alert('Biblioteca PDF ainda carregando. Tente novamente em alguns segundos.');
     return;
