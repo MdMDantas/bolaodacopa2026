@@ -363,6 +363,8 @@ async function gerarResumo(apelido, bolaoId, silencioso) {
   });
 
   // Oitavas -> Quartas: o time escolhido chegou nas quartas?
+  console.log('dadosMM keys:', Object.keys(dadosMM));
+  console.log('dadosMM sample:', dadosMM['qfL_0'], dadosMM['sfL_0'], dadosMM['finalL']);
   ['qfL_0','qfL_1','qfL_2','qfL_3','qfR_0','qfR_1','qfR_2','qfR_3'].forEach(function(slot) {
     var palpite = dadosMM[slot] || '—';
     if (palpite === '—') return;
