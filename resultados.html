@@ -805,35 +805,41 @@ async function calcularEPublicarMM() {
     var pts_chaveamento = 0, pts_placares_mata = 0, pts_top4 = 0, pts_azarao = 0, pts_zebras_mm = 0;
 
     // Mapeamento explícito R32 -> r16avos (fixo pelo bracket)
+    // Chaveamento — lógica correta
+    // R32: mapeamento fixo (quem saiu de cada jogo do R32?)
     var R32_MAP = {
       'r16L_0':'r16avos_0','r16L_1':'r16avos_1','r16L_2':'r16avos_2','r16L_3':'r16avos_3',
       'r16L_4':'r16avos_4','r16L_5':'r16avos_5','r16L_6':'r16avos_6','r16L_7':'r16avos_7',
       'r16R_0':'r16avos_8','r16R_1':'r16avos_9','r16R_2':'r16avos_10','r16R_3':'r16avos_11',
       'r16R_4':'r16avos_12','r16R_5':'r16avos_13','r16R_6':'r16avos_14','r16R_7':'r16avos_15'
     };
-    // R32 -> Oitavas (quem avança do R32?)
     Object.keys(R32_MAP).forEach(function(slot) {
       var real = vencedoresReais[R32_MAP[slot]];
       if (real && d[slot] && d[slot] === real) pts_chaveamento += 1;
     });
 
-    // Oitavas -> Quartas: qfL_0..3 e qfR_0..3
-    // Cada pick é verificado contra TODOS os vencedores das quartas (o time tem que ter chegado lá)
-    var vencedoresQuartas = [0,1,2,3].map(function(i){ return vencedoresReais['rquartas_'+i]; }).filter(Boolean);
+    // Fases seguintes: verificar se o time escolhido chegou àquela fase
+    // (independente do confronto — o jogador apostou que o time avançaria)
+    var classQuartas = Object.keys(vencedoresReais)
+      .filter(function(k){ return k.indexOf('roitavas_') === 0; })
+      .map(function(k){ return vencedoresReais[k]; }).filter(Boolean);
+    var classSemi = Object.keys(vencedoresReais)
+      .filter(function(k){ return k.indexOf('rquartas_') === 0; })
+      .map(function(k){ return vencedoresReais[k]; }).filter(Boolean);
+    var classFinal = Object.keys(vencedoresReais)
+      .filter(function(k){ return k.indexOf('rsemi_') === 0; })
+      .map(function(k){ return vencedoresReais[k]; }).filter(Boolean);
+    var campeonato = vencedoresReais['rfinal_1'];
+
     ['qfL_0','qfL_1','qfL_2','qfL_3','qfR_0','qfR_1','qfR_2','qfR_3'].forEach(function(slot) {
-      if (d[slot] && vencedoresQuartas.indexOf(d[slot]) >= 0) pts_chaveamento += 1;
+      if (d[slot] && classQuartas.indexOf(d[slot]) >= 0) pts_chaveamento += 1;
     });
-
-    // Quartas -> Semis
-    var vencedoresSemi = [0,1].map(function(i){ return vencedoresReais['rsemi_'+i]; }).filter(Boolean);
     ['sfL_0','sfL_1','sfR_0','sfR_1'].forEach(function(slot) {
-      if (d[slot] && vencedoresSemi.indexOf(d[slot]) >= 0) pts_chaveamento += 1;
+      if (d[slot] && classSemi.indexOf(d[slot]) >= 0) pts_chaveamento += 1;
     });
-
-    // Semis -> Final
-    var vencedorFinal = vencedoresReais['rfinal_1'];
-    if (vencedorFinal && d['finalL'] && d['finalL'] === vencedorFinal) pts_chaveamento += 1;
-    if (vencedorFinal && d['finalR'] && d['finalR'] === vencedorFinal) pts_chaveamento += 1;
+    ['finalL','finalR'].forEach(function(slot) {
+      if (d[slot] && classFinal.indexOf(d[slot]) >= 0) pts_chaveamento += 1;
+    });
 
     var finalRes = _resultadosMM['rfinal_1'];
     var terceiroRes = _resultadosMM['rfinal_0'];
