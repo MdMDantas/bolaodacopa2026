@@ -363,15 +363,25 @@ async function gerarResumo(apelido, bolaoId, silencioso) {
   });
 
   // Oitavas -> Quartas: o time escolhido chegou nas quartas?
-  console.log('dadosMM keys:', Object.keys(dadosMM));
-  console.log('dadosMM sample:', dadosMM['qfL_0'], dadosMM['sfL_0'], dadosMM['finalL']);
+  var QF_CONF = {
+    'qfL_0':'Paraguai × França','qfL_1':'Canadá × Marrocos',
+    'qfL_2':'Portugal × Espanha','qfL_3':'Estados Unidos × Bélgica',
+    'qfR_0':'Brasil × Noruega','qfR_1':'México × Inglaterra',
+    'qfR_2':'Argentina × Egito','qfR_3':'Suíça × Colômbia'
+  };
+  var SF_CONF = {
+    'sfL_0':'França × Marrocos','sfL_1':'Espanha × Bélgica',
+    'sfR_0':'Noruega × Inglaterra','sfR_1':'Argentina × Suíça'
+  };
+  var FINAL_CONF = {
+    'finalL':'França × Espanha','finalR':'Inglaterra × Argentina'
+  };
   ['qfL_0','qfL_1','qfL_2','qfL_3','qfR_0','qfR_1','qfR_2','qfR_3'].forEach(function(slot) {
     var palpite = dadosMM[slot] || '—';
     if (palpite === '—') return;
     var pts = (classQuartasR.length > 0 && classQuartasR.indexOf(palpite) >= 0) ? 1 : 0;
     pts_chaveamento += pts;
-    var realDesc = classQuartasR.length ? 'Classificados: '+classQuartasR.join(', ') : 'Aguardando';
-    html += '<tr><td>Oit.→Qua.</td><td>—</td><td style="font-weight:700;">'+palpite+'</td><td style="font-size:10px;">'+(classQuartasR.indexOf(palpite)>=0?palpite+' ✓':'Não classificado')+'</td><td class="pts-cell '+(pts?'pts3':'pts0')+'">'+pts+'</td></tr>';
+    html += '<tr><td>Oit.→Qua.</td><td>'+(QF_CONF[slot]||'—')+'</td><td style="font-weight:700;">'+palpite+'</td><td style="font-size:10px;">'+(classQuartasR.indexOf(palpite)>=0?palpite+' ✓':'Não classificado')+'</td><td class="pts-cell '+(pts?'pts3':'pts0')+'">'+pts+'</td></tr>';
   });
 
   // Quartas -> Semis
@@ -380,7 +390,7 @@ async function gerarResumo(apelido, bolaoId, silencioso) {
     if (palpite === '—') return;
     var pts = (classSemiR.length > 0 && classSemiR.indexOf(palpite) >= 0) ? 1 : 0;
     pts_chaveamento += pts;
-    html += '<tr><td>Qua.→Semi</td><td>—</td><td style="font-weight:700;">'+palpite+'</td><td style="font-size:10px;">'+(classSemiR.indexOf(palpite)>=0?palpite+' ✓':'Não classificado')+'</td><td class="pts-cell '+(pts?'pts3':'pts0')+'">'+pts+'</td></tr>';
+    html += '<tr><td>Qua.→Semi</td><td>'+(SF_CONF[slot]||'—')+'</td><td style="font-weight:700;">'+palpite+'</td><td style="font-size:10px;">'+(classSemiR.indexOf(palpite)>=0?palpite+' ✓':'Não classificado')+'</td><td class="pts-cell '+(pts?'pts3':'pts0')+'">'+pts+'</td></tr>';
   });
 
   // Semis -> Final
@@ -389,7 +399,7 @@ async function gerarResumo(apelido, bolaoId, silencioso) {
     if (palpite === '—') return;
     var pts = (classFinalR.length > 0 && classFinalR.indexOf(palpite) >= 0) ? 1 : 0;
     pts_chaveamento += pts;
-    html += '<tr><td>Semi→Final</td><td>—</td><td style="font-weight:700;">'+palpite+'</td><td style="font-size:10px;">'+(classFinalR.indexOf(palpite)>=0?palpite+' ✓':'Não classificado')+'</td><td class="pts-cell '+(pts?'pts3':'pts0')+'">'+pts+'</td></tr>';
+    html += '<tr><td>Semi→Final</td><td>'+(FINAL_CONF[slot]||'—')+'</td><td style="font-weight:700;">'+palpite+'</td><td style="font-size:10px;">'+(classFinalR.indexOf(palpite)>=0?palpite+' ✓':'Não classificado')+'</td><td class="pts-cell '+(pts?'pts3':'pts0')+'">'+pts+'</td></tr>';
   });
 
   html += '</tbody></table></div>';
